@@ -7,7 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { FileUploadZone } from "@/components/files/FileUploadZone";
 import { FileList } from "@/components/files/FileList";
-import { CalendarDays, MapPin, Users, User, ArrowLeft, FolderOpen, LayoutList, MessageSquare } from "lucide-react";
+import { CalendarDays, MapPin, Users, User, ArrowLeft, FolderOpen, LayoutList, MessageSquare, PackageOpen } from "lucide-react";
+import { DeliverablesTab } from "@/components/deliverables/DeliverablesTab";
 import { Button } from "@/components/ui/button";
 
 interface Project {
@@ -31,6 +32,7 @@ const TABS = [
   { id: "overview", label: "Overview", icon: LayoutList },
   { id: "files", label: "Files", icon: FolderOpen },
   { id: "messages", label: "Messages", icon: MessageSquare },
+  { id: "deliverables", label: "Deliverables", icon: PackageOpen },
 ];
 
 export default function StaffProjectDetail() {
@@ -44,7 +46,7 @@ export default function StaffProjectDetail() {
   const [notFound, setNotFound] = useState(false);
   const [fileRefreshKey, setFileRefreshKey] = useState(0);
 
-  const tab = (searchParams.get("tab") ?? "overview") as "overview" | "files" | "messages";
+  const tab = (searchParams.get("tab") ?? "overview") as "overview" | "files" | "messages" | "deliverables";
   const setTab = (t: string) => setSearchParams({ tab: t });
 
   useEffect(() => {
@@ -153,6 +155,10 @@ export default function StaffProjectDetail() {
 
       {tab === "messages" && profile && (
         <MessageThread projectId={project!.id} currentUserId={profile.id} currentUserRole="STAFF" />
+      )}
+
+      {tab === "deliverables" && (
+        <DeliverablesTab projectId={project!.id} role="STAFF" />
       )}
     </PortalLayout>
   );

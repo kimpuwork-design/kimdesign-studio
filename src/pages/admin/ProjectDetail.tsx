@@ -9,8 +9,9 @@ import { FileUploadZone } from "@/components/files/FileUploadZone";
 import { FileList } from "@/components/files/FileList";
 import {
   CalendarDays, MapPin, Users, User, ArrowLeft,
-  FolderOpen, LayoutList, MessageSquare, Pencil,
+  FolderOpen, LayoutList, MessageSquare, Pencil, PackageOpen,
 } from "lucide-react";
+import { DeliverablesTab } from "@/components/deliverables/DeliverablesTab";
 import { Button } from "@/components/ui/button";
 import { ProjectFormModal } from "@/components/admin/ProjectFormModal";
 import { StaffAssignModal } from "@/components/admin/StaffAssignModal";
@@ -38,6 +39,7 @@ const TABS = [
   { id: "overview", label: "Overview", icon: LayoutList },
   { id: "files", label: "Files", icon: FolderOpen },
   { id: "messages", label: "Messages", icon: MessageSquare },
+  { id: "deliverables", label: "Deliverables", icon: PackageOpen },
 ];
 
 export default function AdminProjectDetail() {
@@ -53,7 +55,7 @@ export default function AdminProjectDetail() {
   const [showEdit, setShowEdit] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
 
-  const tab = (searchParams.get("tab") ?? "overview") as "overview" | "files" | "messages";
+  const tab = (searchParams.get("tab") ?? "overview") as "overview" | "files" | "messages" | "deliverables";
   const setTab = (t: string) => setSearchParams({ tab: t });
 
   const load = async () => {
@@ -182,6 +184,10 @@ export default function AdminProjectDetail() {
 
       {tab === "messages" && profile && (
         <MessageThread projectId={project!.id} currentUserId={profile.id} currentUserRole="ADMIN" />
+      )}
+
+      {tab === "deliverables" && (
+        <DeliverablesTab projectId={project!.id} role="ADMIN" />
       )}
 
       {showEdit && (

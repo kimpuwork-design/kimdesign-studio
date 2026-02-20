@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, FolderOpen, User, LogOut, ChevronLeft, ChevronRight,
-  Briefcase, Users, FileArchive, Image, Settings, Activity, UserCog, Shield,
+  Briefcase, Users, FileArchive, Image, Settings, Activity, UserCog, Shield, PackageOpen,
   type LucideIcon
 } from "lucide-react";
 import { useState } from "react";
@@ -32,6 +32,7 @@ const adminNav: NavItem[] = [
   { label: "Leads", href: "/admin/leads", icon: Users },
   { label: "Clients", href: "/admin/clients", icon: UserCog },
   { label: "Projects", href: "/admin/projects", icon: Briefcase },
+  { label: "Deliverables", href: "/admin/deliverables", icon: PackageOpen },
   { label: "Files", href: "/admin/files", icon: FileArchive },
   { label: "Portfolio", href: "/admin/portfolio", icon: Image },
   { label: "Team", href: "/admin/team", icon: Users },

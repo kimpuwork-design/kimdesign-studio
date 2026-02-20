@@ -52,6 +52,125 @@ export type Database = {
           },
         ]
       }
+      deliverable_events: {
+        Row: {
+          actor_id: string
+          created_at: string
+          deliverable_id: string
+          event_type: string
+          id: string
+          note: string | null
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          deliverable_id: string
+          event_type: string
+          id?: string
+          note?: string | null
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          deliverable_id?: string
+          event_type?: string
+          id?: string
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deliverable_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deliverable_events_deliverable_id_fkey"
+            columns: ["deliverable_id"]
+            isOneToOne: false
+            referencedRelation: "deliverables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deliverables: {
+        Row: {
+          client_feedback: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          file_id: string
+          id: string
+          project_id: string
+          reviewed_at: string | null
+          reviewer_id: string | null
+          status: string
+          submitted_at: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_feedback?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          file_id: string
+          id?: string
+          project_id: string
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          status?: string
+          submitted_at?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_feedback?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          file_id?: string
+          id?: string
+          project_id?: string
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          status?: string
+          submitted_at?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deliverables_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deliverables_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "file_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deliverables_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deliverables_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       file_assets: {
         Row: {
           category: string

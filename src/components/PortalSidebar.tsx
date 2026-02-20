@@ -3,9 +3,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, FolderOpen, User, LogOut, ChevronLeft, ChevronRight,
-  Briefcase, Users, FileArchive, Image, Settings, Activity, UserCog, Shield, PackageOpen,
+  Briefcase, Users, FileArchive, Image, Settings, Activity, UserCog, Shield, PackageOpen, Receipt, FileText,
   type LucideIcon
 } from "lucide-react";
+
 import { useState } from "react";
 
 interface NavItem {
@@ -33,6 +34,8 @@ const adminNav: NavItem[] = [
   { label: "Clients", href: "/admin/clients", icon: UserCog },
   { label: "Projects", href: "/admin/projects", icon: Briefcase },
   { label: "Deliverables", href: "/admin/deliverables", icon: PackageOpen },
+  { label: "Quotes", href: "/admin/quotes", icon: Receipt },
+  { label: "Invoices", href: "/admin/invoices", icon: FileText },
   { label: "Files", href: "/admin/files", icon: FileArchive },
   { label: "Portfolio", href: "/admin/portfolio", icon: Image },
   { label: "Team", href: "/admin/team", icon: Users },

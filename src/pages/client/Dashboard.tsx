@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { PortalLayout } from "@/components/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { FolderOpen, Clock, CheckCircle, PackageOpen } from "lucide-react";
+import { FolderOpen, Clock, CheckCircle, PackageOpen, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface Project {
@@ -17,6 +17,7 @@ export default function ClientDashboard() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [pendingApprovals, setPendingApprovals] = useState(0);
+  const [unpaidInvoices, setUnpaidInvoices] = useState(0);
 
   useEffect(() => {
     if (!profile) return;
@@ -38,6 +39,16 @@ export default function ClientDashboard() {
         const mine = (data ?? []).filter((d: any) => d.projects?.client_id === profile.id);
         setPendingApprovals(mine.length);
       });
+
+    // Count unpaid (sent) invoices
+    supabase
+      .from("invoices")
+      .select("id, project_id, projects!inner(client_id)")
+      .eq("status", "sent")
+      .then(({ data }) => {
+        const mine = (data ?? []).filter((d: any) => d.projects?.client_id === profile.id);
+        setUnpaidInvoices(mine.length);
+      });
   }, [profile]);
 
   const activeCount = projects.filter((p) => p.status === "active").length;
@@ -57,7 +68,7 @@ export default function ClientDashboard() {
           { icon: FolderOpen, label: "Active Projects", value: activeCount, color: "text-blue-400" },
           { icon: PackageOpen, label: "Pending Approvals", value: pendingApprovals, color: "text-yellow-400", alert: pendingApprovals > 0 },
           { icon: CheckCircle, label: "Completed", value: completedCount, color: "text-green-400" },
-          { icon: Clock, label: "Total Projects", value: projects.length, color: "text-portal-text-muted" },
+          { icon: FileText, label: "Unpaid Invoices", value: unpaidInvoices, color: "text-portal-text-muted", alert: unpaidInvoices > 0 },
         ].map((s) => {
           const Icon = s.icon;
           return (

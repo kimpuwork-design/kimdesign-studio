@@ -9,12 +9,16 @@ import { FileUploadZone } from "@/components/files/FileUploadZone";
 import { FileList } from "@/components/files/FileList";
 import {
   CalendarDays, MapPin, Users, User, ArrowLeft,
-  FolderOpen, LayoutList, MessageSquare, Pencil, PackageOpen,
+  FolderOpen, LayoutList, MessageSquare, Pencil, PackageOpen, Receipt,
 } from "lucide-react";
 import { DeliverablesTab } from "@/components/deliverables/DeliverablesTab";
 import { Button } from "@/components/ui/button";
 import { ProjectFormModal } from "@/components/admin/ProjectFormModal";
 import { StaffAssignModal } from "@/components/admin/StaffAssignModal";
+import { BillingTab } from "@/components/billing/BillingTab";
+import { QuoteModal } from "@/components/billing/QuoteModal";
+import { InvoiceModal } from "@/components/billing/InvoiceModal";
+
 
 interface Project {
   id: string;
@@ -40,6 +44,7 @@ const TABS = [
   { id: "files", label: "Files", icon: FolderOpen },
   { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "deliverables", label: "Deliverables", icon: PackageOpen },
+  { id: "billing", label: "Billing", icon: Receipt },
 ];
 
 export default function AdminProjectDetail() {
@@ -54,8 +59,11 @@ export default function AdminProjectDetail() {
   const [fileRefreshKey, setFileRefreshKey] = useState(0);
   const [showEdit, setShowEdit] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
+  const [showQuote, setShowQuote] = useState(false);
+  const [showInvoice, setShowInvoice] = useState(false);
 
-  const tab = (searchParams.get("tab") ?? "overview") as "overview" | "files" | "messages" | "deliverables";
+
+  const tab = (searchParams.get("tab") ?? "overview") as "overview" | "files" | "messages" | "deliverables" | "billing";
   const setTab = (t: string) => setSearchParams({ tab: t });
 
   const load = async () => {
@@ -190,6 +198,17 @@ export default function AdminProjectDetail() {
         <DeliverablesTab projectId={project!.id} role="ADMIN" />
       )}
 
+      {tab === "billing" && (
+        <BillingTab
+          projectId={project!.id}
+          role="ADMIN"
+          onCreateQuote={() => setShowQuote(true)}
+          onCreateInvoice={() => setShowInvoice(true)}
+        />
+      )}
+
+
+
       {showEdit && (
         <ProjectFormModal
           editProject={project as any}
@@ -204,9 +223,16 @@ export default function AdminProjectDetail() {
           onClose={() => { setShowAssign(false); load(); }}
         />
       )}
+      {showQuote && (
+        <QuoteModal projectId={project!.id} onClose={() => setShowQuote(false)} onSaved={() => { setShowQuote(false); }} />
+      )}
+      {showInvoice && (
+        <InvoiceModal projectId={project!.id} onClose={() => setShowInvoice(false)} onSaved={() => { setShowInvoice(false); }} />
+      )}
     </PortalLayout>
   );
 }
+
 
 function InfoCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (

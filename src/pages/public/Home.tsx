@@ -45,37 +45,6 @@ export default function Home() {
     <div className="bg-background">
       <PublicNav />
 
-      {/* Hero */}
-      <section className="relative min-h-[90vh] flex items-center">
-        <div className="container py-24 md:py-36">
-          <div className="max-w-4xl">
-            <p className="mb-6 text-xs font-medium tracking-[0.25em] uppercase text-primary">
-              Architecture · Interiors · Urbanism
-            </p>
-            <h1 className="font-display text-[clamp(3rem,8vw,7rem)] font-light leading-[1.02] text-foreground">
-              Building spaces<br />
-              <em className="not-italic font-semibold text-primary">that endure.</em>
-            </h1>
-            <p className="mt-8 text-lg font-light text-muted-foreground max-w-lg leading-relaxed">
-              We are a London-based architecture studio practising at the intersection of material culture, place, and human experience.
-            </p>
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Button size="lg" asChild className="rounded-none px-8 tracking-wide">
-                <Link to="/portfolio">View Projects <ArrowRight size={15} className="ml-2" /></Link>
-              </Button>
-              <Button variant="outline" size="lg" asChild className="rounded-none px-8 tracking-wide">
-                <Link to="/contact">Work With Us</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-        {/* Decorative line */}
-        <div className="absolute bottom-12 right-12 hidden lg:flex flex-col items-center gap-3">
-          <div className="h-20 w-px bg-border" />
-          <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground rotate-90 origin-center translate-x-6">Est. 2008</p>
-        </div>
-      </section>
-
       {/* ── ABOUT ME ─────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-background">
         {/* Thin vertical rule */}
@@ -173,6 +142,37 @@ export default function Home() {
         </div>
       </section>
       {/* ── END ABOUT ME ────────────────────────────────────── */}
+
+      {/* Hero */}
+      <section className="relative min-h-[90vh] flex items-center">
+        <div className="container py-24 md:py-36">
+          <div className="max-w-4xl">
+            <p className="mb-6 text-xs font-medium tracking-[0.25em] uppercase text-primary">
+              Architecture · Interiors · Urbanism
+            </p>
+            <h1 className="font-display text-[clamp(3rem,8vw,7rem)] font-light leading-[1.02] text-foreground">
+              Building spaces<br />
+              <em className="not-italic font-semibold text-primary">that endure.</em>
+            </h1>
+            <p className="mt-8 text-lg font-light text-muted-foreground max-w-lg leading-relaxed">
+              We are a London-based architecture studio practising at the intersection of material culture, place, and human experience.
+            </p>
+            <div className="mt-10 flex flex-wrap gap-4">
+              <Button size="lg" asChild className="rounded-none px-8 tracking-wide">
+                <Link to="/portfolio">View Projects <ArrowRight size={15} className="ml-2" /></Link>
+              </Button>
+              <Button variant="outline" size="lg" asChild className="rounded-none px-8 tracking-wide">
+                <Link to="/contact">Work With Us</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+        {/* Decorative line */}
+        <div className="absolute bottom-12 right-12 hidden lg:flex flex-col items-center gap-3">
+          <div className="h-20 w-px bg-border" />
+          <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground rotate-90 origin-center translate-x-6">Est. 2008</p>
+        </div>
+      </section>
 
       {/* Stats */}
       <section className="border-y border-border bg-secondary/40 py-14">

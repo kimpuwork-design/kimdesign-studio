@@ -42,6 +42,9 @@ import AdminTeam from "./pages/admin/Team";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminAuditLogs from "./pages/admin/AuditLogs";
 import AdminDeliverables from "./pages/admin/Deliverables";
+import AdminInvoices from "./pages/admin/Invoices";
+import AdminQuotes from "./pages/admin/Quotes";
+
 
 // Shared
 import NotificationsPage from "./pages/shared/NotificationsPage";
@@ -97,7 +100,10 @@ const App = () => (
             <Route path="/admin/team" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminTeam /></ProtectedRoute>} />
              <Route path="/admin/notifications" element={<ProtectedRoute allowedRoles={["ADMIN"]}><NotificationsPage variant="admin" /></ProtectedRoute>} />
              <Route path="/admin/deliverables" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminDeliverables /></ProtectedRoute>} />
+             <Route path="/admin/invoices" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminInvoices /></ProtectedRoute>} />
+             <Route path="/admin/quotes" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminQuotes /></ProtectedRoute>} />
              <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminSettings /></ProtectedRoute>} />
+
             <Route path="/admin/audit-logs" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminAuditLogs /></ProtectedRoute>} />
 
             {/* Error pages */}

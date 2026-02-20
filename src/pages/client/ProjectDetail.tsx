@@ -7,9 +7,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { FileUploadZone } from "@/components/files/FileUploadZone";
 import { FileList } from "@/components/files/FileList";
-import { CalendarDays, MapPin, Users, ArrowLeft, FolderOpen, LayoutList, MessageSquare, PackageOpen } from "lucide-react";
+import { CalendarDays, MapPin, Users, ArrowLeft, FolderOpen, LayoutList, MessageSquare, PackageOpen, Receipt } from "lucide-react";
 import { DeliverablesTab } from "@/components/deliverables/DeliverablesTab";
 import { Button } from "@/components/ui/button";
+import { BillingTab } from "@/components/billing/BillingTab";
+
 
 interface Project {
   id: string;
@@ -33,6 +35,7 @@ const TABS = [
   { id: "files", label: "Files", icon: FolderOpen },
   { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "deliverables", label: "Deliverables", icon: PackageOpen },
+  { id: "billing", label: "Billing", icon: Receipt },
 ];
 
 export default function ClientProjectDetail() {
@@ -46,7 +49,7 @@ export default function ClientProjectDetail() {
   const [notFound, setNotFound] = useState(false);
   const [fileRefreshKey, setFileRefreshKey] = useState(0);
 
-  const tab = (searchParams.get("tab") ?? "overview") as "overview" | "files" | "messages" | "deliverables";
+  const tab = (searchParams.get("tab") ?? "overview") as "overview" | "files" | "messages" | "deliverables" | "billing";
   const setTab = (t: string) => setSearchParams({ tab: t });
 
   useEffect(() => {
@@ -157,9 +160,14 @@ export default function ClientProjectDetail() {
       {tab === "deliverables" && (
         <DeliverablesTab projectId={project!.id} role="CLIENT" />
       )}
+
+      {tab === "billing" && (
+        <BillingTab projectId={project!.id} role="CLIENT" />
+      )}
     </PortalLayout>
   );
 }
+
 
 function InfoCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (

@@ -7,9 +7,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { FileUploadZone } from "@/components/files/FileUploadZone";
 import { FileList } from "@/components/files/FileList";
-import { CalendarDays, MapPin, Users, User, ArrowLeft, FolderOpen, LayoutList, MessageSquare, PackageOpen } from "lucide-react";
+import { CalendarDays, MapPin, Users, User, ArrowLeft, FolderOpen, LayoutList, MessageSquare, PackageOpen, Receipt } from "lucide-react";
 import { DeliverablesTab } from "@/components/deliverables/DeliverablesTab";
 import { Button } from "@/components/ui/button";
+import { BillingTab } from "@/components/billing/BillingTab";
+import { QuoteModal } from "@/components/billing/QuoteModal";
+import { InvoiceModal } from "@/components/billing/InvoiceModal";
+
 
 interface Project {
   id: string;
@@ -33,6 +37,7 @@ const TABS = [
   { id: "files", label: "Files", icon: FolderOpen },
   { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "deliverables", label: "Deliverables", icon: PackageOpen },
+  { id: "billing", label: "Billing", icon: Receipt },
 ];
 
 export default function StaffProjectDetail() {
@@ -45,9 +50,12 @@ export default function StaffProjectDetail() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [fileRefreshKey, setFileRefreshKey] = useState(0);
+  const [showQuote, setShowQuote] = useState(false);
+  const [showInvoice, setShowInvoice] = useState(false);
 
-  const tab = (searchParams.get("tab") ?? "overview") as "overview" | "files" | "messages" | "deliverables";
+  const tab = (searchParams.get("tab") ?? "overview") as "overview" | "files" | "messages" | "deliverables" | "billing";
   const setTab = (t: string) => setSearchParams({ tab: t });
+
 
   useEffect(() => {
     if (!id) return;
@@ -160,9 +168,26 @@ export default function StaffProjectDetail() {
       {tab === "deliverables" && (
         <DeliverablesTab projectId={project!.id} role="STAFF" />
       )}
+
+      {tab === "billing" && (
+        <BillingTab
+          projectId={project!.id}
+          role="STAFF"
+          onCreateQuote={() => setShowQuote(true)}
+          onCreateInvoice={() => setShowInvoice(true)}
+        />
+      )}
+
+      {showQuote && (
+        <QuoteModal projectId={project!.id} onClose={() => setShowQuote(false)} onSaved={() => setShowQuote(false)} />
+      )}
+      {showInvoice && (
+        <InvoiceModal projectId={project!.id} onClose={() => setShowInvoice(false)} onSaved={() => setShowInvoice(false)} />
+      )}
     </PortalLayout>
   );
 }
+
 
 function InfoCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (

@@ -17,12 +17,14 @@ interface NavItem {
 const clientNav: NavItem[] = [
   { label: "Dashboard", href: "/app", icon: LayoutDashboard },
   { label: "My Projects", href: "/app/projects", icon: FolderOpen },
+  { label: "Notifications", href: "/app/notifications", icon: Activity },
   { label: "Profile", href: "/app/profile", icon: User },
 ];
 
 const staffNav: NavItem[] = [
   { label: "Dashboard", href: "/staff", icon: LayoutDashboard },
   { label: "Projects", href: "/staff/projects", icon: FolderOpen },
+  { label: "Notifications", href: "/staff/notifications", icon: Activity },
 ];
 
 const adminNav: NavItem[] = [
@@ -33,6 +35,7 @@ const adminNav: NavItem[] = [
   { label: "Files", href: "/admin/files", icon: FileArchive },
   { label: "Portfolio", href: "/admin/portfolio", icon: Image },
   { label: "Team", href: "/admin/team", icon: Users },
+  { label: "Notifications", href: "/admin/notifications", icon: Activity },
   { label: "Settings", href: "/admin/settings", icon: Settings },
   { label: "Audit Logs", href: "/admin/audit-logs", icon: Activity },
 ];

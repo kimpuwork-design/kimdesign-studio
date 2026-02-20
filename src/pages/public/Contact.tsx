@@ -1,4 +1,5 @@
 import { PublicNav } from "@/components/PublicNav";
+import { PublicFooter } from "@/components/PublicFooter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -182,6 +183,7 @@ export default function Contact() {
           </div>
         </div>
       </section>
+      <PublicFooter />
     </div>
   );
 }

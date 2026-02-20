@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
+import { PublicFooter } from "@/components/PublicFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { PortfolioItem, GalleryImage } from "@/lib/portfolio";
-import { useSettings } from "@/hooks/useSettings";
+
 import {
   MapPin, Calendar, Tag, ArrowLeft, ArrowRight,
   X, ExternalLink, Loader2,
@@ -36,7 +37,6 @@ function LightBox({ images, startIndex, onClose }: { images: GalleryImage[]; sta
 
 export default function PortfolioDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const { settings } = useSettings();
   const [item, setItem] = useState<PortfolioItem | null>(null);
   const [gallery, setGallery] = useState<GalleryImage[]>([]);
   const [related, setRelated] = useState<PortfolioItem[]>([]);
@@ -75,7 +75,7 @@ export default function PortfolioDetail() {
     fetchData();
   }, [slug]);
 
-  const studioName = settings?.studio_name ?? "Studio";
+  
 
   if (loading) return (
     <div className="bg-background min-h-screen">
@@ -95,7 +95,7 @@ export default function PortfolioDetail() {
     </div>
   );
 
-  const pageTitle = `${item.title} — ${studioName}`;
+  const pageTitle = `${item.title} — FORMA`;
   const pageDesc = item.summary;
 
   // JSON-LD structured data
@@ -108,7 +108,7 @@ export default function PortfolioDetail() {
     "locationCreated": item.location,
     "dateCreated": item.year?.toString(),
     "url": `${window.location.origin}/portfolio/${item.slug}`,
-    "author": { "@type": "Organization", "name": studioName },
+    "author": { "@type": "Organization", "name": "FORMA" },
   };
 
   return (
@@ -264,12 +264,7 @@ export default function PortfolioDetail() {
         </div>
       </section>
 
-      <footer className="border-t border-border py-8">
-        <div className="container flex items-center justify-between gap-4">
-          <span className="font-display font-bold text-foreground">{studioName}</span>
-          <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} {studioName}. All rights reserved.</p>
-        </div>
-      </footer>
+      <PublicFooter />
 
       {lightbox !== null && (
         <LightBox images={gallery} startIndex={lightbox} onClose={() => setLightbox(null)} />

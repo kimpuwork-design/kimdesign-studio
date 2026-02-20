@@ -1,6 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
@@ -12,16 +10,7 @@ const navLinks = [
 ];
 
 export function PublicNav() {
-  const { user, profile, signOut } = useAuth();
-  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const getPortalLink = () => {
-    if (!profile) return "/app";
-    if (profile.role === "ADMIN") return "/admin";
-    if (profile.role === "STAFF") return "/staff";
-    return "/app";
-  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
@@ -44,28 +33,6 @@ export function PublicNav() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
-          {user ? (
-            <>
-              <Button variant="ghost" size="sm" onClick={() => navigate(getPortalLink())}>
-                Dashboard
-              </Button>
-              <Button variant="ghost" size="sm" onClick={signOut}>
-                Logout
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/auth/login">Login</Link>
-              </Button>
-              <Button size="sm" asChild>
-                <Link to="/auth/register">Get Started</Link>
-              </Button>
-            </>
-          )}
-        </div>
-
         <button
           className="rounded p-2 md:hidden"
           onClick={() => setMobileOpen(!mobileOpen)}
@@ -86,21 +53,6 @@ export function PublicNav() {
               {l.label}
             </Link>
           ))}
-          <div className="mt-4 flex flex-col gap-2">
-            {user ? (
-              <>
-                <Button size="sm" onClick={() => { navigate(getPortalLink()); setMobileOpen(false); }}>
-                  Dashboard
-                </Button>
-                <Button variant="ghost" size="sm" onClick={signOut}>Logout</Button>
-              </>
-            ) : (
-              <>
-                <Button variant="ghost" size="sm" asChild><Link to="/auth/login">Login</Link></Button>
-                <Button size="sm" asChild><Link to="/auth/register">Get Started</Link></Button>
-              </>
-            )}
-          </div>
         </div>
       )}
     </header>

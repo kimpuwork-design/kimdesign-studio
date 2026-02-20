@@ -76,23 +76,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="border-y border-border bg-secondary/40 py-14">
-        <div className="container grid grid-cols-2 gap-8 md:grid-cols-4">
-          {[
-            { label: "Projects Completed", value: "120+" },
-            { label: "Awards & Nominations", value: "24" },
-            { label: "Countries", value: "11" },
-            { label: "Years of Practice", value: "16" },
-          ].map((s) => (
-            <div key={s.label} className="text-center">
-              <p className="font-display text-5xl font-light text-foreground">{s.value}</p>
-              <p className="mt-2 text-xs tracking-[0.12em] uppercase text-muted-foreground">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* ── ABOUT ME ─────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-background">
         {/* Thin vertical rule */}
@@ -190,6 +173,23 @@ export default function Home() {
         </div>
       </section>
       {/* ── END ABOUT ME ────────────────────────────────────── */}
+
+      {/* Stats */}
+      <section className="border-y border-border bg-secondary/40 py-14">
+        <div className="container grid grid-cols-2 gap-8 md:grid-cols-4">
+          {[
+            { label: "Projects Completed", value: "120+" },
+            { label: "Awards & Nominations", value: "24" },
+            { label: "Countries", value: "11" },
+            { label: "Years of Practice", value: "16" },
+          ].map((s) => (
+            <div key={s.label} className="text-center">
+              <p className="font-display text-5xl font-light text-foreground">{s.value}</p>
+              <p className="mt-2 text-xs tracking-[0.12em] uppercase text-muted-foreground">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Featured Projects */}
 

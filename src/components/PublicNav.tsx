@@ -3,9 +3,9 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
 const navLinks = [
-  { label: "Portfolio", href: "/portfolio" },
+  { label: "Projects", href: "/portfolio" },
   { label: "Services", href: "/services" },
-  { label: "About", href: "/about" },
+  { label: "Studio", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -15,18 +15,19 @@ export function PublicNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="font-display text-xl font-bold tracking-tight">Studio</span>
-          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+        <Link to="/" className="flex items-center gap-3">
+          <span className="font-display text-xl font-semibold tracking-tight text-foreground">FORMA</span>
+          <span className="h-px w-6 bg-primary" />
+          <span className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground">Architecture</span>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-8 md:flex">
           {navLinks.map((l) => (
             <Link
               key={l.href}
               to={l.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="text-xs font-medium tracking-[0.12em] uppercase text-muted-foreground transition-colors hover:text-foreground"
             >
               {l.label}
             </Link>
@@ -47,7 +48,7 @@ export function PublicNav() {
             <Link
               key={l.href}
               to={l.href}
-              className="block py-2 text-sm font-medium text-muted-foreground"
+              className="block py-3 text-xs font-medium tracking-[0.12em] uppercase text-muted-foreground"
               onClick={() => setMobileOpen(false)}
             >
               {l.label}

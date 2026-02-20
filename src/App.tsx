@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 // Public pages
 import Home from "./pages/public/Home";
 import Portfolio from "./pages/public/Portfolio";
+import PortfolioDetail from "./pages/public/PortfolioDetail";
 import Services from "./pages/public/Services";
 import About from "./pages/public/About";
 import Contact from "./pages/public/Contact";
@@ -36,6 +37,7 @@ import AdminProjects from "./pages/admin/Projects";
 import AdminProjectDetail from "./pages/admin/ProjectDetail";
 import AdminFiles from "./pages/admin/Files";
 import AdminPortfolio from "./pages/admin/Portfolio";
+import AdminPortfolioEditor from "./pages/admin/PortfolioEditor";
 import AdminTeam from "./pages/admin/Team";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminAuditLogs from "./pages/admin/AuditLogs";
@@ -61,6 +63,7 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<Home />} />
             <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/portfolio/:slug" element={<PortfolioDetail />} />
             <Route path="/services" element={<Services />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
@@ -90,6 +93,7 @@ const App = () => (
             <Route path="/admin/projects/:id" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminProjectDetail /></ProtectedRoute>} />
             <Route path="/admin/files" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminFiles /></ProtectedRoute>} />
             <Route path="/admin/portfolio" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminPortfolio /></ProtectedRoute>} />
+            <Route path="/admin/portfolio/:id" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminPortfolioEditor /></ProtectedRoute>} />
             <Route path="/admin/team" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminTeam /></ProtectedRoute>} />
              <Route path="/admin/notifications" element={<ProtectedRoute allowedRoles={["ADMIN"]}><NotificationsPage variant="admin" /></ProtectedRoute>} />
              <Route path="/admin/deliverables" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminDeliverables /></ProtectedRoute>} />

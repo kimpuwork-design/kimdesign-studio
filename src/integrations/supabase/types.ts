@@ -393,6 +393,89 @@ export type Database = {
           },
         ]
       }
+      portfolio_gallery: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          portfolio_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          portfolio_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          portfolio_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_gallery_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portfolio_items: {
+        Row: {
+          category: string | null
+          content: string | null
+          cover_image_url: string
+          created_at: string
+          id: string
+          is_featured: boolean
+          is_published: boolean
+          location: string | null
+          slug: string
+          summary: string
+          tags: string[]
+          title: string
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          category?: string | null
+          content?: string | null
+          cover_image_url?: string
+          created_at?: string
+          id?: string
+          is_featured?: boolean
+          is_published?: boolean
+          location?: string | null
+          slug: string
+          summary: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          category?: string | null
+          content?: string | null
+          cover_image_url?: string
+          created_at?: string
+          id?: string
+          is_featured?: boolean
+          is_published?: boolean
+          location?: string | null
+          slug?: string
+          summary?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          year?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -514,25 +597,43 @@ export type Database = {
       }
       settings: {
         Row: {
+          address: string | null
+          behance_url: string | null
           contact_email: string
           created_at: string
+          facebook_url: string | null
           id: string
+          instagram_url: string | null
           logo_url: string | null
+          phone: string | null
           studio_name: string
+          tagline: string | null
         }
         Insert: {
+          address?: string | null
+          behance_url?: string | null
           contact_email?: string
           created_at?: string
+          facebook_url?: string | null
           id?: string
+          instagram_url?: string | null
           logo_url?: string | null
+          phone?: string | null
           studio_name?: string
+          tagline?: string | null
         }
         Update: {
+          address?: string | null
+          behance_url?: string | null
           contact_email?: string
           created_at?: string
+          facebook_url?: string | null
           id?: string
+          instagram_url?: string | null
           logo_url?: string | null
+          phone?: string | null
           studio_name?: string
+          tagline?: string | null
         }
         Relationships: []
       }

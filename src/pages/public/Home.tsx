@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { PublicNav } from "@/components/PublicNav";
+import { PublicFooter } from "@/components/PublicFooter";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PortfolioItem } from "@/lib/portfolio";
 import { useSettings } from "@/hooks/useSettings";
-import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, Calendar, Mail, Instagram, Award, GraduationCap, Globe } from "lucide-react";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, Calendar, GraduationCap, Award, Globe } from "lucide-react";
 import profileImg from "@/assets/profile-placeholder.jpg";
 
 const SERVICES = [
@@ -21,9 +23,78 @@ const TESTIMONIALS = [
   { name: "Sophia Lund", role: "Cultural Foundation", text: "The building they designed for us has become a landmark. It belongs to its place as if it was always there." },
 ];
 
+const AWARDS = [
+  { year: "2023", title: "RIBA National Award", org: "Royal Institute of British Architects" },
+  { year: "2022", title: "Civic Trust Award", org: "Civic Trust" },
+  { year: "2021", title: "AJ Small Projects Award", org: "Architectural Journal" },
+  { year: "2020", title: "Dezeen Architecture Award", org: "Dezeen" },
+  { year: "2019", title: "Wallpaper* Design Award", org: "Wallpaper Magazine" },
+];
+
+const STATS = [
+  { label: "Projects Completed", value: 120, suffix: "+" },
+  { label: "Awards & Nominations", value: 24, suffix: "" },
+  { label: "Countries", value: 11, suffix: "" },
+  { label: "Years of Practice", value: 16, suffix: "" },
+];
+
+function useCountUp(target: number, duration = 1800) {
+  const [count, setCount] = useState(0);
+  const started = useRef(false);
+
+  const start = useCallback(() => {
+    if (started.current) return;
+    started.current = true;
+    const startTime = performance.now();
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(ease * target));
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [target, duration]);
+
+  return { count, start };
+}
+
+function AnimatedStat({ value, suffix, label }: { value: number; suffix: string; label: string }) {
+  const { count, start } = useCountUp(value);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { start(); observer.unobserve(el); } },
+      { threshold: 0.5 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [start]);
+
+  return (
+    <div ref={ref} className="text-center">
+      <p className="font-display text-5xl font-light text-foreground">{count}{suffix}</p>
+      <p className="mt-2 text-xs tracking-[0.12em] uppercase text-muted-foreground">{label}</p>
+    </div>
+  );
+}
+
 export default function Home() {
   const { settings } = useSettings();
   const [featured, setFeatured] = useState<PortfolioItem[]>([]);
+
+  // Scroll reveal refs
+  const refAbout = useScrollReveal();
+  const refHero = useScrollReveal();
+  const refStats = useScrollReveal();
+  const refFeatured = useScrollReveal();
+  const refServices = useScrollReveal();
+  const refTestimonials = useScrollReveal();
+  const refAwards = useScrollReveal();
+  const refCta = useScrollReveal();
 
   useEffect(() => {
     supabase
@@ -37,35 +108,25 @@ export default function Home() {
   }, []);
 
   const studioName = settings?.studio_name ?? "FORMA";
-  const tagline = settings?.tagline ?? "Architecture that endures";
-  const email = settings?.contact_email ?? "studio@forma.com";
-  const instagram = settings?.instagram_url;
 
   return (
     <div className="bg-background">
       <PublicNav />
 
       {/* ── ABOUT ME ─────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-background">
-        {/* Thin vertical rule */}
+      <section ref={refAbout} className="reveal relative overflow-hidden bg-background">
         <div className="absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 bg-border lg:block" />
-
         <div className="container grid lg:grid-cols-2 min-h-[85vh]">
-
           {/* Left — Image panel */}
           <div className="relative flex items-stretch">
             <div className="relative w-full overflow-hidden">
-              {/* large offset number */}
               <span className="absolute -left-4 top-10 font-display text-[9rem] font-light leading-none text-secondary select-none pointer-events-none z-0">01</span>
-
-              {/* photo */}
               <div className="relative z-10 mt-16 mb-0 lg:mt-0 h-[520px] lg:h-full">
                 <img
                   src={profileImg}
                   alt="Principal Architect"
                   className="h-full w-full object-cover object-center"
                 />
-                {/* Floating credential card */}
                 <div className="absolute bottom-8 -right-0 lg:-right-8 bg-foreground text-background px-6 py-5 max-w-[220px] shadow-2xl">
                   <p className="text-[10px] tracking-[0.25em] uppercase text-background/50 mb-2">Credentials</p>
                   <div className="space-y-2">
@@ -90,25 +151,18 @@ export default function Home() {
 
           {/* Right — Text panel */}
           <div className="flex flex-col justify-center py-20 lg:pl-16 xl:pl-24">
-            {/* Label */}
             <div className="flex items-center gap-4 mb-10">
               <div className="h-px w-10 bg-primary" />
               <p className="text-[10px] tracking-[0.3em] uppercase text-primary font-medium">Principal Architect</p>
             </div>
-
-            {/* Name */}
             <h2 className="font-display text-[clamp(2.8rem,5vw,5rem)] font-light leading-[1.05] text-foreground mb-2">
               Elena<br />
               <span className="font-semibold italic">Markov.</span>
             </h2>
-
-            {/* Divider with year */}
             <div className="flex items-center gap-4 my-8">
               <div className="h-px max-w-[60px] w-full bg-border" />
               <span className="text-xs tracking-[0.2em] text-muted-foreground">Est. 2008</span>
             </div>
-
-            {/* Bio */}
             <div className="space-y-4 max-w-md">
               <p className="text-base font-light leading-relaxed text-foreground">
                 I founded FORMA on the belief that great architecture must be deeply rooted in its place, built with material honesty, and scaled to human experience.
@@ -120,8 +174,6 @@ export default function Home() {
                 My work spans private houses, cultural institutions, and urban strategies across 11 countries, recognised by the RIBA, the Civic Trust, and the AJ Awards.
               </p>
             </div>
-
-            {/* CTA buttons */}
             <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-6">
               <Button asChild className="rounded-none px-8 tracking-wide">
                 <Link to="/about">Full Profile <ArrowRight size={14} className="ml-2" /></Link>
@@ -130,21 +182,17 @@ export default function Home() {
                 <Link to="/contact">Work Together →</Link>
               </Button>
             </div>
-
-            {/* Quote */}
             <div className="mt-14 pt-10 border-t border-border">
               <blockquote className="font-display text-xl font-light italic text-muted-foreground leading-relaxed">
                 "Architecture should feel inevitable — as if it could not have been any other way."
               </blockquote>
             </div>
           </div>
-
         </div>
       </section>
-      {/* ── END ABOUT ME ────────────────────────────────────── */}
 
       {/* Hero */}
-      <section className="relative min-h-[90vh] flex items-center">
+      <section ref={refHero} className="reveal relative min-h-[90vh] flex items-center">
         <div className="container py-24 md:py-36">
           <div className="max-w-4xl">
             <p className="mb-6 text-xs font-medium tracking-[0.25em] uppercase text-primary">
@@ -167,7 +215,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-        {/* Decorative line */}
         <div className="absolute bottom-12 right-12 hidden lg:flex flex-col items-center gap-3">
           <div className="h-20 w-px bg-border" />
           <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground rotate-90 origin-center translate-x-6">Est. 2008</p>
@@ -175,26 +222,17 @@ export default function Home() {
       </section>
 
       {/* Stats */}
-      <section className="border-y border-border bg-secondary/40 py-14">
+      <section ref={refStats} className="reveal border-y border-border bg-secondary/40 py-14">
         <div className="container grid grid-cols-2 gap-8 md:grid-cols-4">
-          {[
-            { label: "Projects Completed", value: "120+" },
-            { label: "Awards & Nominations", value: "24" },
-            { label: "Countries", value: "11" },
-            { label: "Years of Practice", value: "16" },
-          ].map((s) => (
-            <div key={s.label} className="text-center">
-              <p className="font-display text-5xl font-light text-foreground">{s.value}</p>
-              <p className="mt-2 text-xs tracking-[0.12em] uppercase text-muted-foreground">{s.label}</p>
-            </div>
+          {STATS.map((s) => (
+            <AnimatedStat key={s.label} value={s.value} suffix={s.suffix} label={s.label} />
           ))}
         </div>
       </section>
 
       {/* Featured Projects */}
-
       {featured.length > 0 && (
-        <section className="container py-24">
+        <section ref={refFeatured} className="reveal container py-24">
           <div className="flex items-end justify-between mb-12">
             <div>
               <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-3">Selected Work</p>
@@ -204,7 +242,6 @@ export default function Home() {
               All Projects <ArrowRight size={12} />
             </Link>
           </div>
-
           <div className="grid gap-1 md:grid-cols-3">
             {featured.map((item, i) => (
               <Link key={item.id} to={`/portfolio/${item.slug}`}
@@ -230,7 +267,6 @@ export default function Home() {
               </Link>
             ))}
           </div>
-
           <div className="mt-6 text-center md:hidden">
             <Button variant="outline" asChild className="rounded-none"><Link to="/portfolio">All Projects</Link></Button>
           </div>
@@ -238,7 +274,7 @@ export default function Home() {
       )}
 
       {/* Services */}
-      <section className="border-t border-border bg-secondary/30 py-24">
+      <section ref={refServices} className="reveal border-t border-border bg-secondary/30 py-24">
         <div className="container">
           <div className="mb-14">
             <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-3">Disciplines</p>
@@ -260,7 +296,7 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section className="container py-24">
+      <section ref={refTestimonials} className="reveal container py-24">
         <div className="mb-14">
           <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-3">Recognition</p>
           <h2 className="font-display text-5xl font-light text-foreground">Client Voices</h2>
@@ -279,8 +315,29 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Awards & Recognition */}
+      <section ref={refAwards} className="reveal border-t border-border bg-secondary/20 py-20">
+        <div className="container">
+          <div className="mb-12 flex items-center gap-6">
+            <div className="h-px flex-1 bg-border" />
+            <p className="text-xs font-medium tracking-[0.3em] uppercase text-primary shrink-0">Awards & Recognition</p>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            {AWARDS.map((a, i) => (
+              <div key={a.year}
+                className={`reveal reveal-delay-${Math.min(i + 1, 4)} border-l-2 border-primary/30 pl-5 py-2 hover:border-primary transition-colors`}>
+                <span className="font-display text-3xl font-light text-primary/50">{a.year}</span>
+                <h3 className="font-display text-base font-medium text-foreground mt-1 leading-tight">{a.title}</h3>
+                <p className="text-[11px] tracking-wide text-muted-foreground mt-1 uppercase">{a.org}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
-      <section className="border-t border-border">
+      <section ref={refCta} className="reveal border-t border-border">
         <div className="container py-24">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="font-display text-5xl md:text-6xl font-light text-foreground">
@@ -294,50 +351,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-secondary/30 py-12">
-        <div className="container">
-          <div className="flex flex-col md:flex-row items-start justify-between gap-10">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="font-display text-lg font-semibold">{studioName}</span>
-                <span className="h-px w-5 bg-primary" />
-                <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Architecture</span>
-              </div>
-              <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">{tagline}</p>
-              <div className="flex items-center gap-4 mt-5">
-                {email && (
-                  <a href={`mailto:${email}`} className="text-muted-foreground hover:text-foreground transition-colors">
-                    <Mail size={15} />
-                  </a>
-                )}
-                {instagram && (
-                  <a href={instagram} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
-                    <Instagram size={15} />
-                  </a>
-                )}
-              </div>
-            </div>
-            <nav className="flex gap-12">
-              <div>
-                <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-4">Navigate</p>
-                {[
-                  { label: "Projects", href: "/portfolio" },
-                  { label: "Services", href: "/services" },
-                  { label: "Studio", href: "/about" },
-                  { label: "Contact", href: "/contact" },
-                ].map((l) => (
-                  <Link key={l.href} to={l.href} className="block text-sm text-muted-foreground hover:text-foreground transition-colors mb-2">{l.label}</Link>
-                ))}
-              </div>
-            </nav>
-          </div>
-          <div className="mt-10 pt-6 border-t border-border flex flex-col md:flex-row gap-2 justify-between">
-            <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} {studioName} Architecture. All rights reserved.</p>
-            <p className="text-xs text-muted-foreground">London · New York · Copenhagen</p>
-          </div>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }

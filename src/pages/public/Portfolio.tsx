@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
+import { PublicFooter } from "@/components/PublicFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { PortfolioItem } from "@/lib/portfolio";
 import { useSettings } from "@/hooks/useSettings";
-import { Search, MapPin, Calendar, Filter, Loader2, Grid3X3, Star } from "lucide-react";
+import { Search, MapPin, Calendar, Grid3X3, Star, Loader2 } from "lucide-react";
 
 const CATEGORIES = ["All", "Residential", "Cultural", "Commercial", "Interior", "Landscape", "Civic", "Mixed-Use"];
 
@@ -57,8 +58,8 @@ function PortfolioCard({ item }: { item: PortfolioItem }) {
   );
 }
 
+
 export default function PublicPortfolio() {
-  const { settings } = useSettings();
   const [items, setItems] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -98,8 +99,6 @@ export default function PublicPortfolio() {
   const rest = filtered.filter((i) => !i.is_featured);
   const paginated = rest.slice(0, page * PAGE_SIZE);
   const hasMore = rest.length > paginated.length;
-
-  const studioName = settings?.studio_name ?? "Studio";
 
   return (
     <div className="bg-background min-h-screen">
@@ -209,12 +208,7 @@ export default function PublicPortfolio() {
         </div>
       </section>
 
-      <footer className="border-t border-border py-8">
-        <div className="container flex items-center justify-between gap-4">
-          <span className="font-display font-semibold text-foreground">{studioName}</span>
-          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} {studioName}. All rights reserved.</p>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { PublicNav } from "@/components/PublicNav";
+import { PublicFooter } from "@/components/PublicFooter";
 import { Building2, Ruler, Leaf, PenTool, FileText, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -113,6 +114,7 @@ export default function Services() {
           <Link to="/contact">Start a Conversation</Link>
         </Button>
       </section>
+      <PublicFooter />
     </div>
   );
 }

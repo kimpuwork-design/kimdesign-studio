@@ -1,4 +1,5 @@
 import { PublicNav } from "@/components/PublicNav";
+import { PublicFooter } from "@/components/PublicFooter";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -88,6 +89,7 @@ export default function About() {
           ))}
         </div>
       </section>
+      <PublicFooter />
     </div>
   );
 }

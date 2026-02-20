@@ -5,7 +5,8 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PortfolioItem } from "@/lib/portfolio";
 import { useSettings } from "@/hooks/useSettings";
-import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, Calendar, Mail, Instagram } from "lucide-react";
+import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, Calendar, Mail, Instagram, Award, GraduationCap, Globe } from "lucide-react";
+import profileImg from "@/assets/profile-placeholder.jpg";
 
 const SERVICES = [
   { icon: Building2, title: "Architectural Design", desc: "Bespoke residential and commercial architecture rooted in context, craft, and lasting material quality." },
@@ -92,7 +93,106 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── ABOUT ME ─────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-background">
+        {/* Thin vertical rule */}
+        <div className="absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 bg-border lg:block" />
+
+        <div className="container grid lg:grid-cols-2 min-h-[85vh]">
+
+          {/* Left — Image panel */}
+          <div className="relative flex items-stretch">
+            <div className="relative w-full overflow-hidden">
+              {/* large offset number */}
+              <span className="absolute -left-4 top-10 font-display text-[9rem] font-light leading-none text-secondary select-none pointer-events-none z-0">01</span>
+
+              {/* photo */}
+              <div className="relative z-10 mt-16 mb-0 lg:mt-0 h-[520px] lg:h-full">
+                <img
+                  src={profileImg}
+                  alt="Principal Architect"
+                  className="h-full w-full object-cover object-center"
+                />
+                {/* Floating credential card */}
+                <div className="absolute bottom-8 -right-0 lg:-right-8 bg-foreground text-background px-6 py-5 max-w-[220px] shadow-2xl">
+                  <p className="text-[10px] tracking-[0.25em] uppercase text-background/50 mb-2">Credentials</p>
+                  <div className="space-y-2">
+                    {[
+                      { icon: GraduationCap, text: "M.Arch, Bartlett UCL" },
+                      { icon: Award, text: "RIBA Chartered Architect" },
+                      { icon: Globe, text: "16 Years of Practice" },
+                    ].map((c) => {
+                      const Icon = c.icon;
+                      return (
+                        <div key={c.text} className="flex items-center gap-2">
+                          <Icon size={11} className="text-primary shrink-0" />
+                          <span className="text-xs text-background/80">{c.text}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right — Text panel */}
+          <div className="flex flex-col justify-center py-20 lg:pl-16 xl:pl-24">
+            {/* Label */}
+            <div className="flex items-center gap-4 mb-10">
+              <div className="h-px w-10 bg-primary" />
+              <p className="text-[10px] tracking-[0.3em] uppercase text-primary font-medium">Principal Architect</p>
+            </div>
+
+            {/* Name */}
+            <h2 className="font-display text-[clamp(2.8rem,5vw,5rem)] font-light leading-[1.05] text-foreground mb-2">
+              Elena<br />
+              <span className="font-semibold italic">Markov.</span>
+            </h2>
+
+            {/* Divider with year */}
+            <div className="flex items-center gap-4 my-8">
+              <div className="h-px max-w-[60px] w-full bg-border" />
+              <span className="text-xs tracking-[0.2em] text-muted-foreground">Est. 2008</span>
+            </div>
+
+            {/* Bio */}
+            <div className="space-y-4 max-w-md">
+              <p className="text-base font-light leading-relaxed text-foreground">
+                I founded FORMA on the belief that great architecture must be deeply rooted in its place, built with material honesty, and scaled to human experience.
+              </p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                After training at the Bartlett and working with Zaha Hadid Architects and Snøhetta, I returned to London to build a practice that could take time with each project — treating every commission as a conversation between site, brief, and craft.
+              </p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                My work spans private houses, cultural institutions, and urban strategies across 11 countries, recognised by the RIBA, the Civic Trust, and the AJ Awards.
+              </p>
+            </div>
+
+            {/* CTA buttons */}
+            <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+              <Button asChild className="rounded-none px-8 tracking-wide">
+                <Link to="/about">Full Profile <ArrowRight size={14} className="ml-2" /></Link>
+              </Button>
+              <Button variant="ghost" asChild className="rounded-none px-0 tracking-wide text-muted-foreground hover:text-foreground">
+                <Link to="/contact">Work Together →</Link>
+              </Button>
+            </div>
+
+            {/* Quote */}
+            <div className="mt-14 pt-10 border-t border-border">
+              <blockquote className="font-display text-xl font-light italic text-muted-foreground leading-relaxed">
+                "Architecture should feel inevitable — as if it could not have been any other way."
+              </blockquote>
+            </div>
+          </div>
+
+        </div>
+      </section>
+      {/* ── END ABOUT ME ────────────────────────────────────── */}
+
       {/* Featured Projects */}
+
       {featured.length > 0 && (
         <section className="container py-24">
           <div className="flex items-end justify-between mb-12">

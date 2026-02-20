@@ -52,6 +52,72 @@ export type Database = {
           },
         ]
       }
+      file_assets: {
+        Row: {
+          category: string
+          created_at: string
+          deleted_at: string | null
+          extension: string | null
+          id: string
+          is_deleted: boolean
+          mime_type: string | null
+          original_name: string
+          project_id: string
+          size_bytes: number
+          storage_bucket: string
+          storage_path: string
+          uploader_id: string
+          version: number
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          deleted_at?: string | null
+          extension?: string | null
+          id?: string
+          is_deleted?: boolean
+          mime_type?: string | null
+          original_name: string
+          project_id: string
+          size_bytes?: number
+          storage_bucket?: string
+          storage_path: string
+          uploader_id: string
+          version?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          deleted_at?: string | null
+          extension?: string | null
+          id?: string
+          is_deleted?: boolean
+          mime_type?: string | null
+          original_name?: string
+          project_id?: string
+          size_bytes?: number
+          storage_bucket?: string
+          storage_path?: string
+          uploader_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "file_assets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "file_assets_uploader_id_fkey"
+            columns: ["uploader_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           created_at: string
@@ -242,6 +308,10 @@ export type Database = {
         Returns: boolean
       }
       is_project_member: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
+      user_has_project_access: {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }

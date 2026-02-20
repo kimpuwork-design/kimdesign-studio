@@ -3,7 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { PortalLayout } from "@/components/PortalLayout";
 import { StatusBadge } from "@/components/StatusBadge";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarDays, MapPin, Users, ArrowLeft } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { FileUploadZone } from "@/components/files/FileUploadZone";
+import { FileList } from "@/components/files/FileList";
+import { CalendarDays, MapPin, Users, ArrowLeft, FolderOpen, LayoutList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Project {
@@ -23,13 +26,21 @@ interface Member {
   profiles: { full_name: string | null } | null;
 }
 
+const TABS = [
+  { id: "overview", label: "Overview", icon: LayoutList },
+  { id: "files", label: "Files", icon: FolderOpen },
+];
+
 export default function ClientProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { profile } = useAuth();
   const [project, setProject] = useState<Project | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [tab, setTab] = useState<"overview" | "files">("overview");
+  const [fileRefreshKey, setFileRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!id) return;
@@ -67,51 +78,95 @@ export default function ClientProjectDetail() {
 
   return (
     <PortalLayout variant="client">
-      <div className="mb-2">
-        <button onClick={() => navigate("/app/projects")} className="text-xs text-portal-text-muted hover:text-portal-text flex items-center gap-1 mb-4">
-          <ArrowLeft size={13} /> Back to Projects
-        </button>
-        <div className="flex items-start justify-between gap-4">
+      {/* Back */}
+      <button onClick={() => navigate("/app/projects")} className="text-xs text-portal-text-muted hover:text-portal-text flex items-center gap-1 mb-4">
+        <ArrowLeft size={13} /> Back to Projects
+      </button>
+
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4 mb-5">
+        <div>
           <h1 className="font-display text-3xl font-bold text-portal-text">{project!.title}</h1>
-          <StatusBadge status={project!.status} className="shrink-0" />
+          {project!.description && (
+            <p className="mt-2 text-portal-text-muted leading-relaxed text-sm max-w-2xl">{project!.description}</p>
+          )}
         </div>
-        {project!.description && (
-          <p className="mt-3 text-portal-text-muted leading-relaxed">{project!.description}</p>
-        )}
+        <StatusBadge status={project!.status} className="shrink-0 mt-1" />
       </div>
 
-      {/* Details grid */}
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {project!.location && (
-          <InfoCard icon={<MapPin size={15} />} label="Location" value={project!.location} />
-        )}
-        {project!.start_date && (
-          <InfoCard icon={<CalendarDays size={15} />} label="Start Date"
-            value={new Date(project!.start_date).toLocaleDateString()} />
-        )}
-        {project!.target_date && (
-          <InfoCard icon={<CalendarDays size={15} />} label="Target Date"
-            value={new Date(project!.target_date).toLocaleDateString()} />
-        )}
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-portal-border mb-6">
+        {TABS.map(({ id: tabId, label, icon: Icon }) => (
+          <button
+            key={tabId}
+            onClick={() => setTab(tabId as "overview" | "files")}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+              tab === tabId
+                ? "border-portal-accent text-portal-accent"
+                : "border-transparent text-portal-text-muted hover:text-portal-text"
+            }`}
+          >
+            <Icon size={14} />
+            {label}
+          </button>
+        ))}
       </div>
 
-      {/* Team */}
-      {staffMembers.length > 0 && (
-        <div className="mt-6 rounded-xl border border-portal-border bg-portal-surface p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <Users size={16} className="text-portal-text-muted" />
-            <h2 className="font-semibold text-portal-text">Your Team</h2>
+      {/* Tab: Overview */}
+      {tab === "overview" && (
+        <div className="space-y-5">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {project!.location && (
+              <InfoCard icon={<MapPin size={15} />} label="Location" value={project!.location} />
+            )}
+            {project!.start_date && (
+              <InfoCard icon={<CalendarDays size={15} />} label="Start Date" value={new Date(project!.start_date).toLocaleDateString()} />
+            )}
+            {project!.target_date && (
+              <InfoCard icon={<CalendarDays size={15} />} label="Target Date" value={new Date(project!.target_date).toLocaleDateString()} />
+            )}
           </div>
-          <div className="space-y-2">
-            {staffMembers.map((m) => (
-              <div key={m.id} className="flex items-center gap-3 rounded-lg border border-portal-border bg-portal-bg px-3 py-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-portal-accent/20 text-portal-accent text-xs font-semibold">
-                  {(m.profiles?.full_name ?? "?").charAt(0).toUpperCase()}
-                </div>
-                <span className="text-sm text-portal-text">{m.profiles?.full_name ?? "Unnamed"}</span>
-                <span className="ml-auto text-xs text-portal-text-muted">Staff</span>
+
+          {staffMembers.length > 0 && (
+            <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Users size={16} className="text-portal-text-muted" />
+                <h2 className="font-semibold text-portal-text">Your Team</h2>
               </div>
-            ))}
+              <div className="space-y-2">
+                {staffMembers.map((m) => (
+                  <div key={m.id} className="flex items-center gap-3 rounded-lg border border-portal-border bg-portal-bg px-3 py-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-portal-accent/20 text-portal-accent text-xs font-semibold">
+                      {(m.profiles?.full_name ?? "?").charAt(0).toUpperCase()}
+                    </div>
+                    <span className="text-sm text-portal-text">{m.profiles?.full_name ?? "Unnamed"}</span>
+                    <span className="ml-auto text-xs text-portal-text-muted">Staff</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab: Files */}
+      {tab === "files" && profile && (
+        <div className="space-y-6">
+          <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
+            <h2 className="font-semibold text-portal-text mb-4 text-sm">Upload Files</h2>
+            <FileUploadZone
+              projectId={project!.id}
+              uploaderId={profile.id}
+              onUploaded={() => setFileRefreshKey((k) => k + 1)}
+            />
+          </div>
+          <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
+            <h2 className="font-semibold text-portal-text mb-4 text-sm">Project Files</h2>
+            <FileList
+              projectId={project!.id}
+              currentUserId={profile.id}
+              refreshKey={fileRefreshKey}
+            />
           </div>
         </div>
       )}

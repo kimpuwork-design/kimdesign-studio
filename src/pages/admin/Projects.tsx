@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { PortalLayout } from "@/components/PortalLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -7,7 +8,7 @@ import { StaffAssignModal } from "@/components/admin/StaffAssignModal";
 import { supabase } from "@/integrations/supabase/client";
 import { writeAuditLog } from "@/lib/audit";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus, Search, Pencil, Trash2, Users } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Users, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -29,6 +30,7 @@ const STATUS_OPTIONS = ["all", "inquiry", "active", "review", "delivered", "arch
 
 export default function AdminProjects() {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -141,22 +143,26 @@ export default function AdminProjects() {
                     <td className="px-4 py-3 text-portal-text-muted text-xs">
                       {new Date(project.updated_at).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => { setEditProject(project); setShowForm(true); }}
-                          className="rounded p-1.5 text-portal-text-muted hover:bg-portal-bg hover:text-portal-text transition-colors" title="Edit">
-                          <Pencil size={14} />
-                        </button>
-                        <button onClick={() => setAssignProject(project)}
-                          className="rounded p-1.5 text-portal-text-muted hover:bg-portal-bg hover:text-portal-text transition-colors" title="Assign Staff">
-                          <Users size={14} />
-                        </button>
-                        <button onClick={() => handleDelete(project)} disabled={deleting === project.id}
-                          className="rounded p-1.5 text-portal-text-muted hover:bg-destructive/15 hover:text-destructive transition-colors" title="Delete">
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => navigate(`/admin/projects/${project.id}`)}
+                            className="rounded p-1.5 text-portal-text-muted hover:bg-portal-bg hover:text-portal-accent transition-colors" title="View detail">
+                            <ExternalLink size={14} />
+                          </button>
+                          <button onClick={() => { setEditProject(project); setShowForm(true); }}
+                            className="rounded p-1.5 text-portal-text-muted hover:bg-portal-bg hover:text-portal-text transition-colors" title="Edit">
+                            <Pencil size={14} />
+                          </button>
+                          <button onClick={() => setAssignProject(project)}
+                            className="rounded p-1.5 text-portal-text-muted hover:bg-portal-bg hover:text-portal-text transition-colors" title="Assign Staff">
+                            <Users size={14} />
+                          </button>
+                          <button onClick={() => handleDelete(project)} disabled={deleting === project.id}
+                            className="rounded p-1.5 text-portal-text-muted hover:bg-destructive/15 hover:text-destructive transition-colors" title="Delete">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
                   </tr>
                 ))}
               </tbody>

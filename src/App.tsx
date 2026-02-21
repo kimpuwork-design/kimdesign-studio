@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,53 +8,52 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
-// Public pages
-import Home from "./pages/public/Home";
-import Portfolio from "./pages/public/Portfolio";
-import PortfolioDetail from "./pages/public/PortfolioDetail";
-import Services from "./pages/public/Services";
-import About from "./pages/public/About";
-import Contact from "./pages/public/Contact";
+// Lazy-loaded pages for code splitting
+const Home = lazy(() => import("./pages/public/Home"));
+const Portfolio = lazy(() => import("./pages/public/Portfolio"));
+const PortfolioDetail = lazy(() => import("./pages/public/PortfolioDetail"));
+const Services = lazy(() => import("./pages/public/Services"));
+const About = lazy(() => import("./pages/public/About"));
+const Contact = lazy(() => import("./pages/public/Contact"));
 
-// Auth pages
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
+const Login = lazy(() => import("./pages/auth/Login"));
+const Register = lazy(() => import("./pages/auth/Register"));
 
-// Admin pages
-import AdminDashboard from "./pages/admin/Dashboard";
-import AdminProjects from "./pages/admin/Projects";
-import AdminProjectDetail from "./pages/admin/ProjectDetail";
-import AdminClients from "./pages/admin/Clients";
-import AdminLeads from "./pages/admin/Leads";
-import AdminDeliverables from "./pages/admin/Deliverables";
-import AdminQuotes from "./pages/admin/Quotes";
-import AdminInvoices from "./pages/admin/Invoices";
-import AdminFiles from "./pages/admin/Files";
-import AdminPortfolio from "./pages/admin/Portfolio";
-import AdminPortfolioEditor from "./pages/admin/PortfolioEditor";
-import AdminTeam from "./pages/admin/Team";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminAuditLogs from "./pages/admin/AuditLogs";
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
+const AdminProjects = lazy(() => import("./pages/admin/Projects"));
+const AdminProjectDetail = lazy(() => import("./pages/admin/ProjectDetail"));
+const AdminClients = lazy(() => import("./pages/admin/Clients"));
+const AdminLeads = lazy(() => import("./pages/admin/Leads"));
+const AdminDeliverables = lazy(() => import("./pages/admin/Deliverables"));
+const AdminQuotes = lazy(() => import("./pages/admin/Quotes"));
+const AdminInvoices = lazy(() => import("./pages/admin/Invoices"));
+const AdminFiles = lazy(() => import("./pages/admin/Files"));
+const AdminPortfolio = lazy(() => import("./pages/admin/Portfolio"));
+const AdminPortfolioEditor = lazy(() => import("./pages/admin/PortfolioEditor"));
+const AdminTeam = lazy(() => import("./pages/admin/Team"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminAuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
 
-// Staff pages
-import StaffDashboard from "./pages/staff/Dashboard";
-import StaffProjects from "./pages/staff/Projects";
-import StaffProjectDetail from "./pages/staff/ProjectDetail";
+const StaffDashboard = lazy(() => import("./pages/staff/Dashboard"));
+const StaffProjects = lazy(() => import("./pages/staff/Projects"));
+const StaffProjectDetail = lazy(() => import("./pages/staff/ProjectDetail"));
 
-// Client pages
-import ClientDashboard from "./pages/client/Dashboard";
-import ClientProjects from "./pages/client/Projects";
-import ClientProjectDetail from "./pages/client/ProjectDetail";
-import ClientProfile from "./pages/client/Profile";
+const ClientDashboard = lazy(() => import("./pages/client/Dashboard"));
+const ClientProjects = lazy(() => import("./pages/client/Projects"));
+const ClientProjectDetail = lazy(() => import("./pages/client/ProjectDetail"));
+const ClientProfile = lazy(() => import("./pages/client/Profile"));
 
-// Shared pages
-import NotificationsPage from "./pages/shared/NotificationsPage";
-
-// Misc
-import NotFound from "./pages/NotFound";
-import NotAuthorized from "./pages/NotAuthorized";
+const NotificationsPage = lazy(() => import("./pages/shared/NotificationsPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const NotAuthorized = lazy(() => import("./pages/NotAuthorized"));
 
 const queryClient = new QueryClient();
+
+const PageLoader = () => (
+  <div className="flex min-h-screen items-center justify-center">
+    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+  </div>
+);
 
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
@@ -63,6 +63,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Home />} />
@@ -111,6 +112,7 @@ const App = () => (
           <Route path="/not-authorized" element={<NotAuthorized />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

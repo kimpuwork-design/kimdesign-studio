@@ -148,7 +148,7 @@ export default function ClientProjectDetail() {
           </div>
           <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
             <h2 className="font-semibold text-portal-text mb-4 text-sm">Project Files</h2>
-            <FileList projectId={project!.id} currentUserId={profile.id} refreshKey={fileRefreshKey} />
+            <FileList projectId={project!.id} currentUserId={profile.id} refreshKey={fileRefreshKey} role="CLIENT" />
           </div>
         </div>
       )}

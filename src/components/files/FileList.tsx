@@ -18,11 +18,12 @@ interface Props {
   currentUserId: string;
   canUpload?: boolean;
   refreshKey?: number;
+  role?: "CLIENT" | "STAFF" | "ADMIN";
 }
 
 type GroupedFiles = Record<FileCategory, FileAsset[]>;
 
-export function FileList({ projectId, currentUserId, refreshKey = 0 }: Props) {
+export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADMIN" }: Props) {
   const { toast } = useToast();
   const [files, setFiles] = useState<FileAsset[]>([]);
   const [loading, setLoading] = useState(true);
@@ -142,6 +143,7 @@ export function FileList({ projectId, currentUserId, refreshKey = 0 }: Props) {
                     onPreview={() => setPreview(file)}
                     onDownload={() => handleDownload(file)}
                     onDelete={() => handleDelete(file)}
+                    showDownload={role !== "CLIENT"}
                   />
                 ))}
               </div>
@@ -150,7 +152,7 @@ export function FileList({ projectId, currentUserId, refreshKey = 0 }: Props) {
         })}
       </div>
 
-      {preview && <FilePreviewModal file={preview} onClose={() => setPreview(null)} />}
+      {preview && <FilePreviewModal file={preview} onClose={() => setPreview(null)} role={role} />}
     </>
   );
 }
@@ -163,6 +165,7 @@ function FileRow({
   onPreview,
   onDownload,
   onDelete,
+  showDownload = true,
 }: {
   file: FileAsset;
   currentUserId: string;
@@ -171,6 +174,7 @@ function FileRow({
   onPreview: () => void;
   onDownload: () => void;
   onDelete: () => void;
+  showDownload?: boolean;
 }) {
   const ext = file.extension ?? "";
   const canDelete = file.uploader_id === currentUserId;
@@ -191,14 +195,16 @@ function FileRow({
         <button onClick={onPreview} title="Preview" className="rounded p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors">
           <Eye size={14} />
         </button>
-        <button
-          onClick={onDownload}
-          disabled={downloading}
-          title="Download"
-          className="rounded p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors disabled:opacity-50"
-        >
-          {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-        </button>
+        {showDownload && (
+          <button
+            onClick={onDownload}
+            disabled={downloading}
+            title="Download"
+            className="rounded p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors disabled:opacity-50"
+          >
+            {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+          </button>
+        )}
         {canDelete && (
           <button
             onClick={onDelete}

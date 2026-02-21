@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 interface Props {
   file: FileAsset;
   onClose: () => void;
+  role?: "CLIENT" | "STAFF" | "ADMIN";
 }
 
-export function FilePreviewModal({ file, onClose }: Props) {
+export function FilePreviewModal({ file, onClose, role = "ADMIN" }: Props) {
+  const canDownload = role !== "CLIENT";
   const ext = file.extension ?? "";
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,17 +52,19 @@ export function FilePreviewModal({ file, onClose }: Props) {
             <div className="flex flex-col items-center gap-4 text-center">
               <FileIcon ext={ext} size={56} className="text-portal-text-muted opacity-50" />
               <p className="text-portal-text-muted text-sm">Preview not available for .{ext} files.</p>
-              <Button asChild variant="outline" size="sm">
-                <a href={url} download={file.original_name} target="_blank" rel="noreferrer">
-                  <ExternalLink size={14} className="mr-2" />Download file
-                </a>
-              </Button>
+              {canDownload && (
+                <Button asChild variant="outline" size="sm">
+                  <a href={url} download={file.original_name} target="_blank" rel="noreferrer">
+                    <ExternalLink size={14} className="mr-2" />Download file
+                  </a>
+                </Button>
+              )}
             </div>
           )}
         </div>
 
         {/* Footer */}
-        {url && (
+        {url && canDownload && (
           <div className="flex justify-end gap-2 border-t border-portal-border px-5 py-3">
             <Button asChild size="sm" className="bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90">
               <a href={url} download={file.original_name} target="_blank" rel="noreferrer">

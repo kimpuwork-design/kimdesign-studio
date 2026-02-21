@@ -99,3 +99,10 @@ export async function getSignedUrl(
   }
   return data.signedUrl;
 }
+
+export function getPublicUrl(storagePath: string): string {
+  const { data } = supabase.storage
+    .from("project-files")
+    .getPublicUrl(storagePath);
+  return data.publicUrl;
+}

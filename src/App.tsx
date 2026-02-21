@@ -34,6 +34,7 @@ const AdminPortfolio = lazy(() => import("./pages/admin/Portfolio"));
 const AdminPortfolioEditor = lazy(() => import("./pages/admin/PortfolioEditor"));
 const AdminTeam = lazy(() => import("./pages/admin/Team"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminSiteContent = lazy(() => import("./pages/admin/SiteContent"));
 const AdminAuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
 
 const StaffDashboard = lazy(() => import("./pages/staff/Dashboard"));
@@ -95,6 +96,7 @@ const App = () => (
           <Route path="/admin/portfolio/:id" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminPortfolioEditor /></ProtectedRoute>} />
           <Route path="/admin/team" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminTeam /></ProtectedRoute>} />
           <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminSettings /></ProtectedRoute>} />
+          <Route path="/admin/site-content" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminSiteContent /></ProtectedRoute>} />
           <Route path="/admin/audit-logs" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminAuditLogs /></ProtectedRoute>} />
           <Route path="/admin/notifications" element={<ProtectedRoute allowedRoles={["ADMIN"]}><NotificationsPage variant="admin" /></ProtectedRoute>} />
 

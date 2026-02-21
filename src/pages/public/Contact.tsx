@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 const contactSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
@@ -16,9 +17,13 @@ const contactSchema = z.object({
   message: z.string().trim().min(20, "Message must be at least 20 characters").max(2000),
 });
 
-const PROJECT_TYPES = ["New Build", "Renovation", "Interior Architecture", "Landscape", "Planning Advice", "Other"];
-
 export default function Contact() {
+  const { content } = useSiteContent("contact_info");
+  const info = content.contact_info ?? {};
+
+  const locations: any[] = info.locations ?? [];
+  const projectTypes: string[] = info.project_types ?? [];
+
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "", projectType: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -33,7 +38,6 @@ export default function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError(null);
-
     const result = contactSchema.safeParse(form);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
@@ -44,26 +48,27 @@ export default function Contact() {
       setErrors(fieldErrors);
       return;
     }
-
     setSubmitting(true);
     const messageWithType = form.projectType
       ? `[Project Type: ${form.projectType}]\n\n${result.data.message}`
       : result.data.message;
-
     const { error } = await supabase.from("leads").insert([{
       name: result.data.name,
       email: result.data.email,
       phone: result.data.phone || null,
       message: messageWithType,
     }]);
-
     setSubmitting(false);
-    if (error) {
-      setServerError("Something went wrong. Please try again.");
-      return;
-    }
+    if (error) { setServerError("Something went wrong. Please try again."); return; }
     setSubmitted(true);
   };
+
+  // Build contact details list
+  const contactDetails: { icon: any; label: string; value: string }[] = [
+    ...locations.map((l: any) => ({ icon: MapPin, label: l.label, value: l.value })),
+    ...(info.email ? [{ icon: Mail, label: "Email", value: info.email }] : []),
+    ...(info.phone ? [{ icon: Phone, label: "Phone", value: info.phone }] : []),
+  ];
 
   return (
     <div className="bg-background">
@@ -77,25 +82,19 @@ export default function Contact() {
             Let's start a<br /><em className="not-italic font-semibold">conversation.</em>
           </h1>
           <p className="mt-6 text-muted-foreground font-light leading-relaxed">
-            We welcome enquiries from private clients, developers, institutions, and fellow collaborators. All projects, large or small, begin with a conversation.
+            {info.hero_description ?? "We welcome enquiries from private clients, developers, institutions, and fellow collaborators."}
           </p>
         </div>
       </section>
 
       <section className="border-t border-border">
         <div className="container py-16 grid gap-16 md:grid-cols-[1fr_2fr]">
-
           {/* Info */}
           <div className="space-y-8">
             <div>
               <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-4">Studio</p>
               <div className="space-y-5">
-                {[
-                  { icon: MapPin, label: "London (HQ)", value: "12 Clifton Gardens, London W9 1DT" },
-                  { icon: MapPin, label: "Copenhagen", value: "Nørre Voldgade 80, 1358 Copenhagen" },
-                  { icon: Mail, label: "Email", value: "studio@forma.com" },
-                  { icon: Phone, label: "Phone", value: "+44 20 7946 0123" },
-                ].map((c) => {
+                {contactDetails.map((c) => {
                   const Icon = c.icon;
                   return (
                     <div key={c.label} className="flex items-start gap-3">
@@ -109,11 +108,13 @@ export default function Contact() {
                 })}
               </div>
             </div>
-            <div className="border-t border-border pt-8">
-              <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-3">Hours</p>
-              <p className="text-sm text-muted-foreground">Monday – Friday, 9:00 – 18:00</p>
-              <p className="text-sm text-muted-foreground">We respond to all enquiries within two working days.</p>
-            </div>
+            {(info.hours || info.hours_note) && (
+              <div className="border-t border-border pt-8">
+                <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-3">Hours</p>
+                {info.hours && <p className="text-sm text-muted-foreground">{info.hours}</p>}
+                {info.hours_note && <p className="text-sm text-muted-foreground">{info.hours_note}</p>}
+              </div>
+            )}
           </div>
 
           {/* Form */}
@@ -124,8 +125,7 @@ export default function Contact() {
                 <h3 className="font-display text-2xl font-light text-foreground">Thank you for reaching out.</h3>
                 <p className="mt-3 text-muted-foreground text-sm">We'll be in touch within two working days.</p>
                 <Button
-                  variant="outline"
-                  className="mt-8 rounded-none tracking-wide"
+                  variant="outline" className="mt-8 rounded-none tracking-wide"
                   onClick={() => { setSubmitted(false); setForm({ name: "", email: "", phone: "", message: "", projectType: "" }); }}
                 >
                   Send Another Enquiry
@@ -153,25 +153,18 @@ export default function Contact() {
                   <div className="space-y-1.5">
                     <Label className="text-xs tracking-wide uppercase text-muted-foreground">Project Type</Label>
                     <select
-                      value={form.projectType}
-                      onChange={(e) => set("projectType", e.target.value)}
+                      value={form.projectType} onChange={(e) => set("projectType", e.target.value)}
                       className="w-full rounded-none border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                     >
                       <option value="">Select a type…</option>
-                      {PROJECT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                      {projectTypes.map((t) => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="message" className="text-xs tracking-wide uppercase text-muted-foreground">Tell us about your project *</Label>
-                  <Textarea
-                    id="message"
-                    placeholder="Describe your project, site, timeline, and any other relevant context…"
-                    rows={7}
-                    value={form.message}
-                    onChange={(e) => set("message", e.target.value)}
-                    className="rounded-none resize-none"
-                  />
+                  <Textarea id="message" placeholder="Describe your project…" rows={7} value={form.message}
+                    onChange={(e) => set("message", e.target.value)} className="rounded-none resize-none" />
                   {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
                 </div>
                 {serverError && <p className="rounded-none bg-destructive/10 px-3 py-2 text-sm text-destructive">{serverError}</p>}

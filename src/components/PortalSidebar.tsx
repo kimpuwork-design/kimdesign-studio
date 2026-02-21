@@ -40,6 +40,7 @@ const adminNav: NavItem[] = [
   { label: "Portfolio", href: "/admin/portfolio", icon: Image },
   { label: "Team", href: "/admin/team", icon: Users },
   { label: "Notifications", href: "/admin/notifications", icon: Activity },
+  { label: "Site Content", href: "/admin/site-content", icon: FileText },
   { label: "Settings", href: "/admin/settings", icon: Settings },
   { label: "Audit Logs", href: "/admin/audit-logs", icon: Activity },
 ];

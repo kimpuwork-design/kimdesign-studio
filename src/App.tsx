@@ -12,6 +12,8 @@ import { PageTransition } from "@/components/PageTransition";
 
 // Lazy-loaded pages for code splitting
 const Home = lazy(() => import("./pages/public/Home"));
+const PublicProjects = lazy(() => import("./pages/public/Projects"));
+const PublicProjectDetail = lazy(() => import("./pages/public/ProjectDetail"));
 const Portfolio = lazy(() => import("./pages/public/Portfolio"));
 const PortfolioDetail = lazy(() => import("./pages/public/PortfolioDetail"));
 const Services = lazy(() => import("./pages/public/Services"));
@@ -71,6 +73,8 @@ const App = () => (
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+          <Route path="/projects" element={<PageTransition><PublicProjects /></PageTransition>} />
+          <Route path="/projects/:id" element={<PageTransition><PublicProjectDetail /></PageTransition>} />
           <Route path="/portfolio" element={<PageTransition><Portfolio /></PageTransition>} />
           <Route path="/portfolio/:slug" element={<PageTransition><PortfolioDetail /></PageTransition>} />
           <Route path="/services" element={<PageTransition><Services /></PageTransition>} />

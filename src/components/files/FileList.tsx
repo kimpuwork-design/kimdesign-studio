@@ -7,6 +7,8 @@ import {
   FileCategory,
   formatBytes,
   getSignedUrl,
+  getPublicUrl,
+  isImageExt,
 } from "@/lib/files";
 import { FileIcon } from "./FileIcon";
 import { FilePreviewModal } from "./FilePreviewModal";
@@ -293,6 +295,8 @@ const FileRowItem = forwardRef<HTMLDivElement, ItemProps>(
   ({ file, currentUserId, downloading, deleting, onPreview, onDownload, onDelete, showDownload = true, isDragging, draggableProps, dragHandleProps }, ref) => {
     const ext = file.extension ?? "";
     const canDelete = file.uploader_id === currentUserId;
+    const isImg = isImageExt(ext);
+    const thumbUrl = isImg ? getPublicUrl(file.storage_path) : null;
 
     return (
       <div
@@ -303,7 +307,13 @@ const FileRowItem = forwardRef<HTMLDivElement, ItemProps>(
         <div {...dragHandleProps} className="cursor-grab text-portal-text-muted/50 hover:text-portal-text-muted shrink-0">
           <GripVertical size={14} />
         </div>
-        <FileIcon ext={ext} size={18} className="text-portal-text-muted shrink-0" />
+        {thumbUrl ? (
+          <button onClick={onPreview} className="shrink-0 rounded-md overflow-hidden border border-portal-border w-10 h-10">
+            <img src={thumbUrl} alt={file.original_name} className="w-full h-full object-cover" loading="lazy" />
+          </button>
+        ) : (
+          <FileIcon ext={ext} size={18} className="text-portal-text-muted shrink-0" />
+        )}
         <div className="flex-1 min-w-0">
           <p className="truncate text-sm font-medium text-portal-text">{file.original_name}</p>
           <p className="text-xs text-portal-text-muted">
@@ -339,7 +349,8 @@ const FileGridItem = forwardRef<HTMLDivElement, ItemProps>(
   ({ file, currentUserId, downloading, deleting, onPreview, onDownload, onDelete, showDownload = true, isDragging, draggableProps, dragHandleProps }, ref) => {
     const ext = file.extension ?? "";
     const canDelete = file.uploader_id === currentUserId;
-    const isImage = ["png", "jpg", "jpeg", "webp"].includes(ext);
+    const isImg = isImageExt(ext);
+    const thumbUrl = isImg ? getPublicUrl(file.storage_path) : null;
 
     return (
       <div
@@ -353,9 +364,9 @@ const FileGridItem = forwardRef<HTMLDivElement, ItemProps>(
         </div>
 
         {/* Thumbnail / icon area */}
-        <button onClick={onPreview} className="flex items-center justify-center h-28 bg-portal-surface/50">
-          {isImage ? (
-            <FileIcon ext={ext} size={32} className="text-portal-accent/60" />
+        <button onClick={onPreview} className="flex items-center justify-center h-32 bg-portal-surface/50 overflow-hidden">
+          {thumbUrl ? (
+            <img src={thumbUrl} alt={file.original_name} className="w-full h-full object-cover" loading="lazy" />
           ) : (
             <FileIcon ext={ext} size={32} className="text-portal-text-muted/60" />
           )}

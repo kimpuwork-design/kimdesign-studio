@@ -67,7 +67,7 @@ export default function AdminFiles() {
 
   const handleDownload = async (file: AdminFileAsset) => {
     setDownloading(file.id);
-    const url = await getSignedUrl(file.storage_path);
+    const url = await getSignedUrl(file.id);
     setDownloading(null);
     if (!url) { toast({ title: "Download failed", variant: "destructive" }); return; }
     if (profile) await writeAuditLog({

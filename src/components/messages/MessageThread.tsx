@@ -344,7 +344,7 @@ function AttachmentChip({ file }: { file: FileAsset }) {
 
   const handleDownload = async () => {
     if (url) { window.open(url, "_blank"); return; }
-    const signed = await getSignedUrl(file.storage_path);
+    const signed = await getSignedUrl(file.id);
     if (signed) { setUrl(signed); window.open(signed, "_blank"); }
   };
 

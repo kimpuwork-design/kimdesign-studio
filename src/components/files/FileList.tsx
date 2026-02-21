@@ -7,7 +7,6 @@ import {
   FileCategory,
   formatBytes,
   getSignedUrl,
-  getPublicUrl,
   isImageExt,
 } from "@/lib/files";
 import { FileIcon } from "./FileIcon";
@@ -71,7 +70,7 @@ export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADM
 
   const handleDownload = async (file: FileAsset) => {
     setDownloading(file.id);
-    const url = await getSignedUrl(file.storage_path);
+    const url = await getSignedUrl(file.id);
     setDownloading(null);
     if (!url) {
       toast({ title: "Download failed", variant: "destructive" });
@@ -289,14 +288,24 @@ interface ItemProps {
 }
 
 /* ── List View Row ─────────────────────────────────────── */
-import { forwardRef } from "react";
+import { forwardRef, useState as useStateImport, useEffect as useEffectImport } from "react";
+
+function useThumbnailUrl(file: FileAsset) {
+  const [thumbUrl, setThumbUrl] = useStateImport<string | null>(null);
+  const ext = file.extension ?? "";
+  const isImg = isImageExt(ext);
+  useEffectImport(() => {
+    if (!isImg) return;
+    getSignedUrl(file.id).then((url) => setThumbUrl(url));
+  }, [file.id, isImg]);
+  return { isImg, thumbUrl };
+}
 
 const FileRowItem = forwardRef<HTMLDivElement, ItemProps>(
   ({ file, currentUserId, downloading, deleting, onPreview, onDownload, onDelete, showDownload = true, isDragging, draggableProps, dragHandleProps }, ref) => {
     const ext = file.extension ?? "";
     const canDelete = file.uploader_id === currentUserId;
-    const isImg = isImageExt(ext);
-    const thumbUrl = isImg ? getPublicUrl(file.storage_path) : null;
+    const { isImg, thumbUrl } = useThumbnailUrl(file);
 
     return (
       <div
@@ -349,8 +358,7 @@ const FileGridItem = forwardRef<HTMLDivElement, ItemProps>(
   ({ file, currentUserId, downloading, deleting, onPreview, onDownload, onDelete, showDownload = true, isDragging, draggableProps, dragHandleProps }, ref) => {
     const ext = file.extension ?? "";
     const canDelete = file.uploader_id === currentUserId;
-    const isImg = isImageExt(ext);
-    const thumbUrl = isImg ? getPublicUrl(file.storage_path) : null;
+    const { isImg, thumbUrl } = useThumbnailUrl(file);
 
     return (
       <div

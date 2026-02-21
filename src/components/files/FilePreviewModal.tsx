@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { X, Loader2, ExternalLink } from "lucide-react";
 import { FileIcon } from "./FileIcon";
-import { FileAsset, getSignedUrl, getPublicUrl, isImageExt, isPdfExt } from "@/lib/files";
+import { FileAsset, getSignedUrl, isImageExt, isPdfExt } from "@/lib/files";
 import { Button } from "@/components/ui/button";
 
 interface Props {
@@ -11,23 +11,18 @@ interface Props {
 }
 
 export function FilePreviewModal({ file, onClose, role = "ADMIN" }: Props) {
-  const canDownload = role !== "CLIENT" && role !== "PUBLIC";
+  const canDownload = role !== "PUBLIC";
   const ext = file.extension ?? "";
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (role === "PUBLIC" || role === "CLIENT") {
-      // Use public URL for unauthenticated/client access
-      setUrl(getPublicUrl(file.storage_path));
+    // All roles now use signed URLs via edge function
+    getSignedUrl(file.id, 600).then((u) => {
+      setUrl(u);
       setLoading(false);
-    } else {
-      getSignedUrl(file.storage_path, 600).then((u) => {
-        setUrl(u);
-        setLoading(false);
-      });
-    }
-  }, [file.storage_path, role]);
+    });
+  }, [file.id]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">

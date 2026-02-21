@@ -4,9 +4,8 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, FolderOpen, User, LogOut, ChevronLeft, ChevronRight,
   Briefcase, Users, FileArchive, Image, Settings, Activity, UserCog, Shield, PackageOpen, Receipt, FileText,
-  type LucideIcon
+  type LucideIcon, Sparkles
 } from "lucide-react";
-import { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface NavItem {
@@ -79,47 +78,70 @@ export function PortalSidebar({ variant, collapsed = false, onToggleCollapse }: 
   return (
     <aside
       className={cn(
-        "flex flex-col border-r transition-all duration-200",
-        "bg-portal-bg border-portal-border min-h-screen",
-        collapsed ? "w-16" : "w-60"
+        "flex flex-col border-r transition-all duration-300 relative",
+        "bg-sidebar/95 backdrop-blur-xl border-sidebar-border min-h-screen",
+        collapsed ? "w-[72px]" : "w-[260px]"
       )}
     >
+      {/* Sidebar glow accent */}
+      <div className="absolute top-0 right-0 w-px h-full bg-gradient-to-b from-portal-accent/20 via-transparent to-portal-accent/10" />
+      
       {/* Header */}
       <div className={cn(
-        "flex items-center border-b border-portal-border px-4 py-4",
+        "flex items-center border-b border-sidebar-border/50 px-4 h-16",
         collapsed ? "justify-center" : "justify-between"
       )}>
         {!collapsed && (
-          <div className="flex items-center gap-2">
-            <span className="font-display text-lg font-bold text-portal-text">Studio</span>
-            <span className="h-1.5 w-1.5 rounded-full bg-portal-accent" />
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-portal-accent to-portal-accent/70 flex items-center justify-center shadow-lg glow-accent">
+              <Sparkles size={14} className="text-portal-accent-foreground" />
+            </div>
+            <div>
+              <span className="font-display text-sm font-bold text-portal-text tracking-tight">FORMA</span>
+              <span className="block text-[9px] tracking-[0.15em] uppercase text-portal-text-muted font-medium">Studio</span>
+            </div>
           </div>
         )}
-        {onToggleCollapse && (
+        {collapsed && (
+          <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-portal-accent to-portal-accent/70 flex items-center justify-center shadow-lg">
+            <Sparkles size={14} className="text-portal-accent-foreground" />
+          </div>
+        )}
+        {onToggleCollapse && !collapsed && (
           <button
             onClick={onToggleCollapse}
-            className="rounded p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors"
+            className="rounded-lg p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-all"
           >
-            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            <ChevronLeft size={14} />
           </button>
         )}
       </div>
 
+      {/* Collapse button for collapsed state */}
+      {onToggleCollapse && collapsed && (
+        <button
+          onClick={onToggleCollapse}
+          className="mx-auto mt-3 rounded-lg p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-all"
+        >
+          <ChevronRight size={14} />
+        </button>
+      )}
+
       {/* Role badge */}
       <div className={cn(
-        "mx-3 mt-3 flex items-center gap-2 rounded-md px-2 py-2",
-        "bg-portal-accent/10 border border-portal-accent/20"
+        "mx-3 mt-4 flex items-center gap-2.5 rounded-xl px-3 py-2.5",
+        "bg-portal-accent/8 border border-portal-accent/15"
       )}>
         <RoleIcon size={14} className="text-portal-accent shrink-0" />
         {!collapsed && (
-          <span className="text-xs font-semibold uppercase tracking-wider text-portal-accent">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-portal-accent">
             {roleLabel} Portal
           </span>
         )}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+      <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-0.5">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.href ||
@@ -129,7 +151,7 @@ export function PortalSidebar({ variant, collapsed = false, onToggleCollapse }: 
             <Link
               key={item.href}
               to={item.href}
-              className={cn("portal-nav-item", isActive && "active", collapsed && "justify-center")}
+              className={cn("portal-nav-item", isActive && "active", collapsed && "justify-center px-0")}
               title={collapsed ? item.label : undefined}
             >
               <Icon size={16} className="shrink-0" />
@@ -140,26 +162,26 @@ export function PortalSidebar({ variant, collapsed = false, onToggleCollapse }: 
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-portal-border px-3 py-4 space-y-1">
+      <div className="border-t border-sidebar-border/50 px-3 py-4 space-y-1">
         {!collapsed && profile && (
-          <div className="px-3 py-2 mb-2 flex items-center gap-3">
-            <Avatar className="h-8 w-8">
+          <div className="px-3 py-3 mb-2 flex items-center gap-3 rounded-xl bg-portal-surface/50">
+            <Avatar className="h-9 w-9 ring-2 ring-portal-accent/20">
               {profile.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile.full_name ?? ""} />}
-              <AvatarFallback className="bg-portal-accent/20 text-portal-accent text-xs font-semibold">{initials}</AvatarFallback>
+              <AvatarFallback className="bg-gradient-to-br from-portal-accent/30 to-portal-accent/10 text-portal-accent text-xs font-bold">{initials}</AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="text-xs font-medium text-portal-text truncate">{profile.full_name}</p>
-              <p className="text-xs text-portal-text-muted truncate">{profile.role}</p>
+              <p className="text-xs font-semibold text-portal-text truncate">{profile.full_name}</p>
+              <p className="text-[10px] text-portal-text-muted truncate capitalize">{profile.role?.toLowerCase()}</p>
             </div>
           </div>
         )}
-        <Link to="/" className={cn("portal-nav-item", collapsed && "justify-center")} title={collapsed ? "Public Site" : undefined}>
+        <Link to="/" className={cn("portal-nav-item", collapsed && "justify-center px-0")} title={collapsed ? "Public Site" : undefined}>
           <LayoutDashboard size={16} className="shrink-0" />
           {!collapsed && <span>Public Site</span>}
         </Link>
         <button
           onClick={handleSignOut}
-          className={cn("portal-nav-item w-full", collapsed && "justify-center")}
+          className={cn("portal-nav-item w-full", collapsed && "justify-center px-0")}
           title={collapsed ? "Sign Out" : undefined}
         >
           <LogOut size={16} className="shrink-0" />

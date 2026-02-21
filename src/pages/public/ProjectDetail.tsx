@@ -6,7 +6,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { FileIcon } from "@/components/files/FileIcon";
 import { FilePreviewModal } from "@/components/files/FilePreviewModal";
 import { supabase } from "@/integrations/supabase/client";
-import { FileAsset, formatBytes, FILE_CATEGORIES, FileCategory, isImageExt, getPublicUrl } from "@/lib/files";
+import { FileAsset, formatBytes, FILE_CATEGORIES, FileCategory, isImageExt, getPublicFileSignedUrl } from "@/lib/files";
 import { ArrowLeft, MapPin, CalendarDays, Eye, Loader2, FolderOpen, ChevronLeft, ChevronRight, X, Maximize2 } from "lucide-react";
 
 interface Project {
@@ -54,6 +54,7 @@ export default function PublicProjectDetail() {
   const [notFound, setNotFound] = useState(false);
   const [preview, setPreview] = useState<FileAsset | null>(null);
   const [lbIndex, setLbIndex] = useState<number | null>(null);
+  const [galleryImages, setGalleryImages] = useState<{ url: string; name: string }[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -70,6 +71,18 @@ export default function PublicProjectDetail() {
       setLoading(false);
     });
   }, [id]);
+
+  // Load gallery image signed URLs asynchronously
+  useEffect(() => {
+    const imageFiles = files.filter((f) => isImageExt(f.extension ?? ""));
+    if (imageFiles.length === 0) { setGalleryImages([]); return; }
+    Promise.all(
+      imageFiles.map(async (f) => {
+        const url = await getPublicFileSignedUrl(f.id);
+        return { url: url ?? "", name: f.original_name };
+      })
+    ).then((imgs) => setGalleryImages(imgs.filter((i) => i.url)));
+  }, [files]);
 
   if (loading) {
     return (
@@ -97,10 +110,8 @@ export default function PublicProjectDetail() {
     );
   }
 
-  // Separate images from other files
   const imageFiles = files.filter((f) => isImageExt(f.extension ?? ""));
   const nonImageFiles = files.filter((f) => !isImageExt(f.extension ?? ""));
-  const galleryImages = imageFiles.map((f) => ({ url: getPublicUrl(f.storage_path), name: f.original_name }));
 
   // Group non-image files by category
   const grouped: Record<string, FileAsset[]> = {};

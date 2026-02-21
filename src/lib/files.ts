@@ -86,23 +86,79 @@ export async function getNextVersion(
   return data && data.length > 0 ? (data[0].version as number) + 1 : 1;
 }
 
+/**
+ * Get a signed URL via the secure edge function.
+ * Requires the user to be authenticated and have project access.
+ */
 export async function getSignedUrl(
-  storagePath: string,
-  expiresIn = 300
+  fileAssetId: string,
+  _expiresIn = 300
 ): Promise<string | null> {
-  const { data, error } = await supabase.storage
-    .from("project-files")
-    .createSignedUrl(storagePath, expiresIn);
-  if (error) {
-    console.error("Signed URL error:", error.message);
+  try {
+    const { data, error } = await supabase.functions.invoke("get-project-file-url", {
+      body: { file_asset_id: fileAssetId },
+    });
+    if (error || !data?.signedUrl) {
+      console.error("Signed URL error:", error?.message || "No URL returned");
+      return null;
+    }
+    return data.signedUrl;
+  } catch (err) {
+    console.error("Signed URL fetch error:", err);
     return null;
   }
-  return data.signedUrl;
 }
 
-export function getPublicUrl(storagePath: string): string {
+/**
+ * Get a signed URL by storage path (fallback for components without file asset ID).
+ */
+export async function getSignedUrlByPath(
+  storagePath: string
+): Promise<string | null> {
+  try {
+    const { data, error } = await supabase.functions.invoke("get-project-file-url", {
+      body: { storage_path: storagePath },
+    });
+    if (error || !data?.signedUrl) {
+      console.error("Signed URL error:", error?.message || "No URL returned");
+      return null;
+    }
+    return data.signedUrl;
+  } catch (err) {
+    console.error("Signed URL fetch error:", err);
+    return null;
+  }
+}
+
+/**
+ * @deprecated - Bucket is now private. Use getSignedUrl() instead.
+ * Kept for portfolio bucket or other public buckets only.
+ */
+export function getPublicUrl(storagePath: string, bucket = "portfolio"): string {
   const { data } = supabase.storage
-    .from("project-files")
+    .from(bucket)
     .getPublicUrl(storagePath);
   return data.publicUrl;
+}
+
+/**
+ * Get a signed URL for a file visible on public pages (no auth required).
+ * Uses the public edge function with shorter expiry.
+ */
+export async function getPublicFileSignedUrl(
+  fileAssetId: string
+): Promise<string | null> {
+  try {
+    const { data, error } = await supabase.functions.invoke("get-public-file-url", {
+      body: { file_asset_id: fileAssetId },
+    });
+    if (error || !data?.signedUrl) {
+      console.error("Public signed URL error:", error?.message || "No URL");
+      return null;
+    }
+    return data.signedUrl;
+  } catch (err) {
+    console.error("Public signed URL fetch error:", err);
+    return null;
+  }
 }

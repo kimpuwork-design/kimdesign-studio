@@ -1,1 +1,10 @@
 project_id = "twrluuhkfhjkxmelrhct"
+
+[functions.get-project-file-url]
+verify_jwt = false
+
+[functions.get-public-file-url]
+verify_jwt = false
+
+[functions.generate-invoice-pdf]
+verify_jwt = false

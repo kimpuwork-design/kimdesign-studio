@@ -82,7 +82,7 @@ export function DeliverableDrawer({ deliverable: initialDeliverable, role, onClo
   const handleDownload = async () => {
     if (!deliverable.file) return;
     setDownloading(true);
-    const url = await getSignedUrl(deliverable.file.storage_path);
+    const url = await getSignedUrl(deliverable.file_id);
     setDownloading(false);
     if (!url) { toast({ title: "Download failed", variant: "destructive" }); return; }
     const a = document.createElement("a");

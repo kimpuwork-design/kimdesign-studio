@@ -10,8 +10,23 @@ import {
 } from "@/lib/files";
 import { FileIcon } from "./FileIcon";
 import { FilePreviewModal } from "./FilePreviewModal";
-import { Download, Trash2, Eye, Loader2 } from "lucide-react";
+import {
+  Download, Trash2, Eye, Loader2, GripVertical,
+  LayoutGrid, LayoutList, Filter,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  type DropResult,
+} from "@hello-pangea/dnd";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Props {
   projectId: string;
@@ -21,7 +36,7 @@ interface Props {
   role?: "CLIENT" | "STAFF" | "ADMIN";
 }
 
-type GroupedFiles = Record<FileCategory, FileAsset[]>;
+type ViewMode = "list" | "grid";
 
 export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADMIN" }: Props) {
   const { toast } = useToast();
@@ -30,6 +45,8 @@ export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADM
   const [preview, setPreview] = useState<FileAsset | null>(null);
   const [downloading, setDownloading] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [activeFilters, setActiveFilters] = useState<FileCategory[]>([]);
 
   const fetchFiles = useCallback(async () => {
     setLoading(true);
@@ -58,7 +75,6 @@ export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADM
       toast({ title: "Download failed", variant: "destructive" });
       return;
     }
-    // Audit
     await writeAuditLog({
       actor_id: currentUserId,
       action: "file_downloaded",
@@ -97,6 +113,30 @@ export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADM
     setDeleting(null);
   };
 
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    const reordered = Array.from(filteredFiles);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+
+    // Update the main files array preserving non-filtered items
+    const filteredIds = new Set(reordered.map((f) => f.id));
+    const otherFiles = files.filter((f) => !filteredIds.has(f.id));
+    setFiles([...reordered, ...otherFiles]);
+  };
+
+  const toggleFilter = (cat: FileCategory) => {
+    setActiveFilters((prev) =>
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+    );
+  };
+
+  // Apply filters
+  const filteredFiles =
+    activeFilters.length === 0
+      ? files
+      : files.filter((f) => activeFilters.includes(f.category as FileCategory));
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -114,59 +154,125 @@ export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADM
     );
   }
 
-  // Group by category
-  const grouped: GroupedFiles = {} as GroupedFiles;
-  for (const f of files) {
-    const cat = f.category as FileCategory;
-    if (!grouped[cat]) grouped[cat] = [];
-    grouped[cat].push(f);
-  }
-
-  const orderedCategories = FILE_CATEGORIES.map((c) => c.value).filter((c) => grouped[c]);
-
   return (
     <>
-      <div className="space-y-6">
-        {orderedCategories.map((cat) => {
-          const catLabel = FILE_CATEGORIES.find((c) => c.value === cat)?.label ?? cat;
-          return (
-            <div key={cat}>
-              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-portal-text-muted">{catLabel}</h3>
-              <div className="space-y-1.5">
-                {grouped[cat].map((file) => (
-                  <FileRow
-                    key={file.id}
-                    file={file}
-                    currentUserId={currentUserId}
-                    downloading={downloading === file.id}
-                    deleting={deleting === file.id}
-                    onPreview={() => setPreview(file)}
-                    onDownload={() => handleDownload(file)}
-                    onDelete={() => handleDelete(file)}
-                    showDownload={role !== "CLIENT"}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })}
+      {/* Toolbar */}
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          {/* Filter dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-1.5 rounded-lg border border-portal-border bg-portal-bg px-3 py-1.5 text-xs font-medium text-portal-text-muted hover:text-portal-text transition-colors">
+                <Filter size={13} />
+                Filter
+                {activeFilters.length > 0 && (
+                  <span className="ml-1 rounded-full bg-portal-accent/20 px-1.5 text-[10px] font-semibold text-portal-accent">
+                    {activeFilters.length}
+                  </span>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="z-50 bg-portal-surface border-portal-border">
+              {FILE_CATEGORIES.map((cat) => (
+                <DropdownMenuCheckboxItem
+                  key={cat.value}
+                  checked={activeFilters.includes(cat.value)}
+                  onCheckedChange={() => toggleFilter(cat.value)}
+                  className="text-portal-text text-xs"
+                >
+                  {cat.label}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <span className="text-xs text-portal-text-muted">
+            {filteredFiles.length} file{filteredFiles.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+
+        {/* View toggle */}
+        <div className="flex items-center rounded-lg border border-portal-border bg-portal-bg p-0.5">
+          <button
+            onClick={() => setViewMode("list")}
+            className={`rounded-md p-1.5 transition-colors ${viewMode === "list" ? "bg-portal-accent/15 text-portal-accent" : "text-portal-text-muted hover:text-portal-text"}`}
+            title="List view"
+          >
+            <LayoutList size={14} />
+          </button>
+          <button
+            onClick={() => setViewMode("grid")}
+            className={`rounded-md p-1.5 transition-colors ${viewMode === "grid" ? "bg-portal-accent/15 text-portal-accent" : "text-portal-text-muted hover:text-portal-text"}`}
+            title="Grid view"
+          >
+            <LayoutGrid size={14} />
+          </button>
+        </div>
       </div>
+
+      {/* File list / grid */}
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="file-list" direction={viewMode === "grid" ? "horizontal" : "vertical"}>
+          {(provided) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              className={
+                viewMode === "grid"
+                  ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
+                  : "space-y-1.5"
+              }
+            >
+              {filteredFiles.map((file, index) => (
+                <Draggable key={file.id} draggableId={file.id} index={index}>
+                  {(dragProvided, snapshot) =>
+                    viewMode === "list" ? (
+                      <FileRowItem
+                        ref={dragProvided.innerRef}
+                        draggableProps={dragProvided.draggableProps}
+                        dragHandleProps={dragProvided.dragHandleProps}
+                        isDragging={snapshot.isDragging}
+                        file={file}
+                        currentUserId={currentUserId}
+                        downloading={downloading === file.id}
+                        deleting={deleting === file.id}
+                        onPreview={() => setPreview(file)}
+                        onDownload={() => handleDownload(file)}
+                        onDelete={() => handleDelete(file)}
+                        showDownload={role !== "CLIENT"}
+                      />
+                    ) : (
+                      <FileGridItem
+                        ref={dragProvided.innerRef}
+                        draggableProps={dragProvided.draggableProps}
+                        dragHandleProps={dragProvided.dragHandleProps}
+                        isDragging={snapshot.isDragging}
+                        file={file}
+                        currentUserId={currentUserId}
+                        downloading={downloading === file.id}
+                        deleting={deleting === file.id}
+                        onPreview={() => setPreview(file)}
+                        onDownload={() => handleDownload(file)}
+                        onDelete={() => handleDelete(file)}
+                        showDownload={role !== "CLIENT"}
+                      />
+                    )
+                  }
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
       {preview && <FilePreviewModal file={preview} onClose={() => setPreview(null)} role={role} />}
     </>
   );
 }
 
-function FileRow({
-  file,
-  currentUserId,
-  downloading,
-  deleting,
-  onPreview,
-  onDownload,
-  onDelete,
-  showDownload = true,
-}: {
+/* ── Shared prop types ─────────────────────────────────── */
+interface ItemProps {
   file: FileAsset;
   currentUserId: string;
   downloading: boolean;
@@ -175,47 +281,112 @@ function FileRow({
   onDownload: () => void;
   onDelete: () => void;
   showDownload?: boolean;
-}) {
-  const ext = file.extension ?? "";
-  const canDelete = file.uploader_id === currentUserId;
-
-  return (
-    <div className="flex items-center gap-3 rounded-lg border border-portal-border bg-portal-bg px-3 py-2.5 hover:bg-portal-surface transition-colors">
-      <FileIcon ext={ext} size={18} className="text-portal-text-muted shrink-0" />
-      <div className="flex-1 min-w-0">
-        <p className="truncate text-sm font-medium text-portal-text">{file.original_name}</p>
-        <p className="text-xs text-portal-text-muted">
-          {formatBytes(file.size_bytes)}
-          {file.version > 1 && <span className="ml-2 rounded bg-portal-accent/15 px-1.5 py-0.5 text-portal-accent text-[10px] font-semibold">v{file.version}</span>}
-          {" · "}{new Date(file.created_at).toLocaleDateString()}
-          {file.uploader?.full_name && <> · <span>{file.uploader.full_name}</span></>}
-        </p>
-      </div>
-      <div className="flex items-center gap-1 shrink-0">
-        <button onClick={onPreview} title="Preview" className="rounded p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors">
-          <Eye size={14} />
-        </button>
-        {showDownload && (
-          <button
-            onClick={onDownload}
-            disabled={downloading}
-            title="Download"
-            className="rounded p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors disabled:opacity-50"
-          >
-            {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-          </button>
-        )}
-        {canDelete && (
-          <button
-            onClick={onDelete}
-            disabled={deleting}
-            title="Delete"
-            className="rounded p-1.5 text-portal-text-muted hover:bg-destructive/10 hover:text-destructive transition-colors disabled:opacity-50"
-          >
-            {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-          </button>
-        )}
-      </div>
-    </div>
-  );
+  isDragging: boolean;
+  draggableProps: Record<string, any>;
+  dragHandleProps: Record<string, any> | null | undefined;
 }
+
+/* ── List View Row ─────────────────────────────────────── */
+import { forwardRef } from "react";
+
+const FileRowItem = forwardRef<HTMLDivElement, ItemProps>(
+  ({ file, currentUserId, downloading, deleting, onPreview, onDownload, onDelete, showDownload = true, isDragging, draggableProps, dragHandleProps }, ref) => {
+    const ext = file.extension ?? "";
+    const canDelete = file.uploader_id === currentUserId;
+
+    return (
+      <div
+        ref={ref}
+        {...draggableProps}
+        className={`flex items-center gap-3 rounded-lg border border-portal-border bg-portal-bg px-3 py-2.5 transition-colors ${isDragging ? "shadow-lg ring-2 ring-portal-accent/30" : "hover:bg-portal-surface"}`}
+      >
+        <div {...dragHandleProps} className="cursor-grab text-portal-text-muted/50 hover:text-portal-text-muted shrink-0">
+          <GripVertical size={14} />
+        </div>
+        <FileIcon ext={ext} size={18} className="text-portal-text-muted shrink-0" />
+        <div className="flex-1 min-w-0">
+          <p className="truncate text-sm font-medium text-portal-text">{file.original_name}</p>
+          <p className="text-xs text-portal-text-muted">
+            {formatBytes(file.size_bytes)}
+            {file.version > 1 && <span className="ml-2 rounded bg-portal-accent/15 px-1.5 py-0.5 text-portal-accent text-[10px] font-semibold">v{file.version}</span>}
+            {" · "}{new Date(file.created_at).toLocaleDateString()}
+            {file.uploader?.full_name && <> · <span>{file.uploader.full_name}</span></>}
+          </p>
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <button onClick={onPreview} title="Preview" className="rounded p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors">
+            <Eye size={14} />
+          </button>
+          {showDownload && (
+            <button onClick={onDownload} disabled={downloading} title="Download" className="rounded p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors disabled:opacity-50">
+              {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+            </button>
+          )}
+          {canDelete && (
+            <button onClick={onDelete} disabled={deleting} title="Delete" className="rounded p-1.5 text-portal-text-muted hover:bg-destructive/10 hover:text-destructive transition-colors disabled:opacity-50">
+              {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+);
+FileRowItem.displayName = "FileRowItem";
+
+/* ── Grid View Card ────────────────────────────────────── */
+const FileGridItem = forwardRef<HTMLDivElement, ItemProps>(
+  ({ file, currentUserId, downloading, deleting, onPreview, onDownload, onDelete, showDownload = true, isDragging, draggableProps, dragHandleProps }, ref) => {
+    const ext = file.extension ?? "";
+    const canDelete = file.uploader_id === currentUserId;
+    const isImage = ["png", "jpg", "jpeg", "webp"].includes(ext);
+
+    return (
+      <div
+        ref={ref}
+        {...draggableProps}
+        className={`group relative flex flex-col rounded-xl border border-portal-border bg-portal-bg overflow-hidden transition-colors ${isDragging ? "shadow-lg ring-2 ring-portal-accent/30" : "hover:bg-portal-surface"}`}
+      >
+        {/* Drag handle */}
+        <div {...dragHandleProps} className="absolute top-1.5 left-1.5 z-10 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity rounded bg-portal-bg/80 p-0.5">
+          <GripVertical size={12} className="text-portal-text-muted" />
+        </div>
+
+        {/* Thumbnail / icon area */}
+        <button onClick={onPreview} className="flex items-center justify-center h-28 bg-portal-surface/50">
+          {isImage ? (
+            <FileIcon ext={ext} size={32} className="text-portal-accent/60" />
+          ) : (
+            <FileIcon ext={ext} size={32} className="text-portal-text-muted/60" />
+          )}
+        </button>
+
+        {/* Info */}
+        <div className="p-2.5 flex-1 min-w-0">
+          <p className="truncate text-xs font-medium text-portal-text" title={file.original_name}>{file.original_name}</p>
+          <p className="text-[10px] text-portal-text-muted mt-0.5">
+            {formatBytes(file.size_bytes)} · {new Date(file.created_at).toLocaleDateString()}
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-0.5 px-2 pb-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button onClick={onPreview} title="Preview" className="rounded p-1 text-portal-text-muted hover:text-portal-text transition-colors">
+            <Eye size={12} />
+          </button>
+          {showDownload && (
+            <button onClick={onDownload} disabled={downloading} title="Download" className="rounded p-1 text-portal-text-muted hover:text-portal-text transition-colors disabled:opacity-50">
+              {downloading ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
+            </button>
+          )}
+          {canDelete && (
+            <button onClick={onDelete} disabled={deleting} title="Delete" className="rounded p-1 text-portal-text-muted hover:text-destructive transition-colors disabled:opacity-50">
+              {deleting ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+);
+FileGridItem.displayName = "FileGridItem";

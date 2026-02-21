@@ -1,5 +1,6 @@
 import { PortalLayout } from "@/components/PortalLayout";
 import { UpcomingDeadlines } from "@/components/admin/UpcomingDeadlines";
+import { useAuth } from "@/contexts/AuthContext";
 import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +40,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const { profile } = useAuth();
   const [stats, setStats] = useState<Stats>({ totalClients: 0, activeProjects: 0, newLeads: 0, revenue: 0 });
   const [activity, setActivity] = useState<RecentActivity[]>([]);
   const [projectStatuses, setProjectStatuses] = useState<ProjectStatus[]>([]);
@@ -47,7 +49,6 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
-    const thirtyDaysAgo = subDays(new Date(), 30).toISOString();
 
     const [clientsRes, projectsRes, leadsRes, revenueRes, activityRes, statusRes, invoiceRes] = await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "CLIENT"),
@@ -68,7 +69,6 @@ export default function AdminDashboard() {
       revenue,
     });
 
-    // Process activity with actor names
     if (activityRes.data) {
       const actorIds = [...new Set(activityRes.data.map(a => a.actor_id).filter(Boolean))];
       let nameMap: Record<string, string> = {};
@@ -85,14 +85,12 @@ export default function AdminDashboard() {
       })));
     }
 
-    // Process project statuses for pie chart
     if (statusRes.data) {
       const counts: Record<string, number> = {};
       statusRes.data.forEach(p => { counts[p.status] = (counts[p.status] || 0) + 1; });
       setProjectStatuses(Object.entries(counts).map(([status, count]) => ({ status, count })));
     }
 
-    // Process monthly revenue for bar chart
     if (invoiceRes.data) {
       const monthly: Record<string, number> = {};
       for (let i = 5; i >= 0; i--) {
@@ -115,10 +113,10 @@ export default function AdminDashboard() {
   useEffect(() => { fetchDashboardData(); }, [fetchDashboardData]);
 
   const statCards = [
-    { icon: Users, label: "Total Clients", value: stats.totalClients.toString(), color: "text-blue-400", bg: "bg-blue-400/10" },
-    { icon: Briefcase, label: "Active Projects", value: stats.activeProjects.toString(), color: "text-purple-400", bg: "bg-purple-400/10" },
-    { icon: TrendingUp, label: "New Leads", value: stats.newLeads.toString(), color: "text-green-400", bg: "bg-green-400/10" },
-    { icon: DollarSign, label: "Revenue (mo)", value: `$${stats.revenue.toLocaleString()}`, color: "text-yellow-400", bg: "bg-yellow-400/10" },
+    { icon: Users, label: "Total Clients", value: stats.totalClients.toString(), color: "text-blue-400", bg: "bg-blue-400/10", href: "/admin/clients" },
+    { icon: Briefcase, label: "Active Projects", value: stats.activeProjects.toString(), color: "text-purple-400", bg: "bg-purple-400/10", href: "/admin/projects" },
+    { icon: TrendingUp, label: "New Leads", value: stats.newLeads.toString(), color: "text-green-400", bg: "bg-green-400/10", href: "/admin/leads" },
+    { icon: DollarSign, label: "Revenue (mo)", value: `$${stats.revenue.toLocaleString()}`, color: "text-yellow-400", bg: "bg-yellow-400/10", href: "/admin/invoices" },
   ];
 
   const quickActions = [
@@ -127,7 +125,7 @@ export default function AdminDashboard() {
     { label: "Upload Files", icon: Upload, href: "/admin/files" },
     { label: "View Reports", icon: BarChart3, href: "/admin/invoices" },
     { label: "Manage Leads", icon: TrendingUp, href: "/admin/leads" },
-    { label: "View Quotes", icon: FileText, href: "/admin/quotes" },
+    { label: "Site Content", icon: FileText, href: "/admin/site-content" },
   ];
 
   const getActionIcon = (action: string) => {
@@ -137,19 +135,32 @@ export default function AdminDashboard() {
     return <Clock size={14} className="text-portal-text-muted" />;
   };
 
+  const greeting = () => {
+    const h = new Date().getHours();
+    if (h < 12) return "Good morning";
+    if (h < 17) return "Good afternoon";
+    return "Good evening";
+  };
+
   return (
     <PortalLayout variant="admin">
       <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold text-portal-text">Admin Dashboard</h1>
-        <p className="mt-1 text-portal-text-muted">Studio overview and management.</p>
+        <h1 className="font-display text-3xl font-bold text-portal-text">
+          {greeting()}, {profile?.full_name?.split(" ")[0] ?? "Admin"} 👋
+        </h1>
+        <p className="mt-1 text-portal-text-muted">Here's your studio overview for today.</p>
       </div>
 
-      {/* Stat Cards */}
+      {/* Stat Cards — clickable */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         {statCards.map((s) => {
           const Icon = s.icon;
           return (
-            <div key={s.label} className="group rounded-xl border border-portal-border bg-portal-surface p-5 hover:border-portal-accent/30 transition-all duration-200">
+            <button
+              key={s.label}
+              onClick={() => navigate(s.href)}
+              className="group rounded-xl border border-portal-border bg-portal-surface p-5 hover:border-portal-accent/30 transition-all duration-200 text-left"
+            >
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-medium uppercase tracking-wider text-portal-text-muted">{s.label}</span>
                 <div className={`rounded-lg p-2 ${s.bg}`}>
@@ -159,14 +170,16 @@ export default function AdminDashboard() {
               <p className="font-display text-3xl font-bold text-portal-text">
                 {loading ? <span className="inline-block h-8 w-16 animate-pulse rounded bg-portal-surface-hover" /> : s.value}
               </p>
-            </div>
+              <div className="mt-2 flex items-center gap-1 text-xs text-portal-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
+                View details <ArrowUpRight size={11} />
+              </div>
+            </button>
           );
         })}
       </div>
 
       {/* Charts Row */}
       <div className="grid gap-4 md:grid-cols-2 mb-8">
-        {/* Revenue Chart */}
         <div className="rounded-xl border border-portal-border bg-portal-surface p-6">
           <h2 className="font-display text-lg font-semibold text-portal-text mb-4">Revenue (6 months)</h2>
           {recentInvoices.length > 0 ? (
@@ -186,7 +199,6 @@ export default function AdminDashboard() {
           )}
         </div>
 
-        {/* Project Status Pie */}
         <div className="rounded-xl border border-portal-border bg-portal-surface p-6">
           <h2 className="font-display text-lg font-semibold text-portal-text mb-4">Projects by Status</h2>
           {projectStatuses.length > 0 ? (

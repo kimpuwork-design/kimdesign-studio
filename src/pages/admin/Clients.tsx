@@ -3,15 +3,25 @@ import { PortalLayout } from "@/components/PortalLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, ChevronRight, Building2, FolderOpen } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { writeAuditLog } from "@/lib/audit";
+import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import {
+  Search, ChevronRight, Building2, FolderOpen, Phone, Calendar,
+  Pencil, X, Check, Loader2, User,
+} from "lucide-react";
 
 interface ClientProfile {
   id: string;
   full_name: string | null;
   company: string | null;
   phone: string | null;
+  avatar_url: string | null;
+  role: string;
   created_at: string;
 }
 
@@ -23,12 +33,17 @@ interface Project {
 }
 
 export default function AdminClients() {
+  const { profile: adminProfile } = useAuth();
+  const { toast } = useToast();
   const [clients, setClients] = useState<ClientProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<ClientProfile | null>(null);
   const [clientProjects, setClientProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editForm, setEditForm] = useState<Partial<ClientProfile>>({});
+  const [saving, setSaving] = useState(false);
 
   const fetchClients = useCallback(async () => {
     setLoading(true);
@@ -43,6 +58,7 @@ export default function AdminClients() {
 
   const openClient = async (client: ClientProfile) => {
     setSelected(client);
+    setEditing(false);
     setLoadingProjects(true);
     const { data } = await supabase
       .from("projects")
@@ -53,31 +69,135 @@ export default function AdminClients() {
     setLoadingProjects(false);
   };
 
+  const startEdit = () => {
+    if (!selected) return;
+    setEditing(true);
+    setEditForm({
+      full_name: selected.full_name,
+      phone: selected.phone,
+      company: selected.company,
+    });
+  };
+
+  const cancelEdit = () => { setEditing(false); setEditForm({}); };
+
+  const saveEdit = async () => {
+    if (!selected || !adminProfile) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        full_name: editForm.full_name,
+        phone: editForm.phone,
+        company: editForm.company,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", selected.id);
+    setSaving(false);
+    if (error) {
+      toast({ title: "Update failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    await writeAuditLog({ actor_id: adminProfile.id, action: "update_client_profile", entity_type: "profile", entity_id: selected.id });
+    toast({ title: "Client updated ✓" });
+    const updated = { ...selected, ...editForm } as ClientProfile;
+    setSelected(updated);
+    setEditing(false);
+    fetchClients();
+  };
+
+  const initials = (name: string | null) =>
+    (name ?? "?").split(" ").map((s) => s[0]).join("").toUpperCase().slice(0, 2);
+
   return (
     <PortalLayout variant="admin">
       {selected ? (
         <>
           <div className="mb-6 flex items-center gap-3">
-            <button onClick={() => setSelected(null)} className="text-portal-text-muted hover:text-portal-text text-sm flex items-center gap-1">
+            <button onClick={() => { setSelected(null); setEditing(false); }} className="text-portal-text-muted hover:text-portal-text text-sm flex items-center gap-1">
               ← Back to Clients
             </button>
           </div>
-          <div className="mb-8">
-            <h1 className="font-display text-3xl font-bold text-portal-text">{selected.full_name ?? "Unnamed Client"}</h1>
-            {selected.company && <p className="mt-1 text-portal-text-muted flex items-center gap-1.5"><Building2 size={14} /> {selected.company}</p>}
+
+          <div className="mb-8 flex items-start justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Avatar className="h-14 w-14">
+                {selected.avatar_url && <AvatarImage src={selected.avatar_url} />}
+                <AvatarFallback className="bg-portal-accent/20 text-portal-accent text-lg font-semibold">
+                  {initials(selected.full_name)}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="font-display text-3xl font-bold text-portal-text">{selected.full_name ?? "Unnamed Client"}</h1>
+                {selected.company && <p className="mt-1 text-portal-text-muted flex items-center gap-1.5"><Building2 size={14} /> {selected.company}</p>}
+              </div>
+            </div>
+            {!editing && (
+              <Button size="sm" variant="outline" onClick={startEdit} className="border-portal-border text-portal-text-muted hover:text-portal-text">
+                <Pencil size={14} className="mr-1.5" /> Edit Profile
+              </Button>
+            )}
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 mb-8">
-            {[
-              { label: "Phone", value: selected.phone ?? "—" },
-              { label: "Member Since", value: new Date(selected.created_at).toLocaleDateString() },
-            ].map((f) => (
-              <div key={f.label} className="rounded-xl border border-portal-border bg-portal-surface p-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-portal-text-muted">{f.label}</p>
-                <p className="mt-1 text-portal-text">{f.value}</p>
+          {editing ? (
+            <div className="rounded-xl border border-portal-border bg-portal-surface p-5 mb-8 space-y-4 max-w-lg">
+              <h2 className="font-display text-lg font-semibold text-portal-text">Edit Client Profile</h2>
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-xs text-portal-text-muted">Full Name</Label>
+                  <Input
+                    value={editForm.full_name ?? ""}
+                    onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+                    className="bg-portal-bg border-portal-border text-portal-text"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-portal-text-muted">Company</Label>
+                  <Input
+                    value={editForm.company ?? ""}
+                    onChange={(e) => setEditForm({ ...editForm, company: e.target.value })}
+                    className="bg-portal-bg border-portal-border text-portal-text"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-portal-text-muted">Phone</Label>
+                  <Input
+                    value={editForm.phone ?? ""}
+                    onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                    className="bg-portal-bg border-portal-border text-portal-text"
+                  />
+                </div>
               </div>
-            ))}
-          </div>
+              <div className="flex gap-2 pt-1">
+                <Button size="sm" onClick={saveEdit} disabled={saving} className="bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90">
+                  {saving ? <Loader2 size={14} className="animate-spin mr-1" /> : <Check size={14} className="mr-1" />}
+                  Save
+                </Button>
+                <Button size="sm" variant="ghost" onClick={cancelEdit} className="text-portal-text-muted">
+                  <X size={14} className="mr-1" /> Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-3 mb-8">
+              {[
+                { label: "Phone", value: selected.phone ?? "—", icon: Phone },
+                { label: "Member Since", value: new Date(selected.created_at).toLocaleDateString(), icon: Calendar },
+                { label: "Role", value: selected.role, icon: User },
+              ].map((f) => {
+                const Icon = f.icon;
+                return (
+                  <div key={f.label} className="rounded-xl border border-portal-border bg-portal-surface p-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Icon size={13} className="text-portal-text-muted" />
+                      <p className="text-xs font-semibold uppercase tracking-wider text-portal-text-muted">{f.label}</p>
+                    </div>
+                    <p className="mt-1 text-portal-text font-medium">{f.value}</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           <div className="rounded-xl border border-portal-border bg-portal-surface overflow-hidden">
             <div className="px-4 py-3 border-b border-portal-border flex items-center gap-2">
@@ -138,8 +258,14 @@ export default function AdminClients() {
               <div className="divide-y divide-portal-border">
                 {clients.map((client) => (
                   <button key={client.id} onClick={() => openClient(client)}
-                    className="w-full flex items-center justify-between px-4 py-4 hover:bg-portal-surface-hover transition-colors text-left">
-                    <div>
+                    className="w-full flex items-center gap-3 px-4 py-4 hover:bg-portal-surface-hover transition-colors text-left">
+                    <Avatar className="h-9 w-9">
+                      {client.avatar_url && <AvatarImage src={client.avatar_url} />}
+                      <AvatarFallback className="bg-portal-accent/10 text-portal-accent text-xs font-semibold">
+                        {initials(client.full_name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
                       <p className="font-medium text-portal-text">{client.full_name ?? "Unnamed"}</p>
                       {client.company && (
                         <p className="text-xs text-portal-text-muted flex items-center gap-1 mt-0.5">

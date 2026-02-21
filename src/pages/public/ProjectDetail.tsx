@@ -6,8 +6,8 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { FileIcon } from "@/components/files/FileIcon";
 import { FilePreviewModal } from "@/components/files/FilePreviewModal";
 import { supabase } from "@/integrations/supabase/client";
-import { FileAsset, formatBytes, FILE_CATEGORIES, FileCategory } from "@/lib/files";
-import { ArrowLeft, MapPin, CalendarDays, Eye, Loader2, FolderOpen } from "lucide-react";
+import { FileAsset, formatBytes, FILE_CATEGORIES, FileCategory, isImageExt, getPublicUrl } from "@/lib/files";
+import { ArrowLeft, MapPin, CalendarDays, Eye, Loader2, FolderOpen, ChevronLeft, ChevronRight, X, Maximize2 } from "lucide-react";
 
 interface Project {
   id: string;
@@ -19,6 +19,33 @@ interface Project {
   target_date: string | null;
 }
 
+function LightBox({ images, index, onClose, onNav }: { images: { url: string; name: string }[]; index: number; onClose: () => void; onNav: (i: number) => void }) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") onNav(index > 0 ? index - 1 : images.length - 1);
+      if (e.key === "ArrowRight") onNav(index < images.length - 1 ? index + 1 : 0);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [index, images.length, onClose, onNav]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90" onClick={onClose}>
+      <button onClick={onClose} className="absolute top-4 right-4 text-white/70 hover:text-white p-2"><X size={24} /></button>
+      <button onClick={(e) => { e.stopPropagation(); onNav(index > 0 ? index - 1 : images.length - 1); }} className="absolute left-4 text-white/70 hover:text-white p-2"><ChevronLeft size={32} /></button>
+      <button onClick={(e) => { e.stopPropagation(); onNav(index < images.length - 1 ? index + 1 : 0); }} className="absolute right-4 text-white/70 hover:text-white p-2"><ChevronRight size={32} /></button>
+      <img
+        src={images[index].url}
+        alt={images[index].name}
+        className="max-h-[85vh] max-w-[90vw] object-contain"
+        onClick={(e) => e.stopPropagation()}
+      />
+      <span className="absolute bottom-6 text-white/60 text-sm">{index + 1} / {images.length}</span>
+    </div>
+  );
+}
+
 export default function PublicProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const [project, setProject] = useState<Project | null>(null);
@@ -26,6 +53,7 @@ export default function PublicProjectDetail() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [preview, setPreview] = useState<FileAsset | null>(null);
+  const [lbIndex, setLbIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -69,9 +97,14 @@ export default function PublicProjectDetail() {
     );
   }
 
-  // Group files by category
+  // Separate images from other files
+  const imageFiles = files.filter((f) => isImageExt(f.extension ?? ""));
+  const nonImageFiles = files.filter((f) => !isImageExt(f.extension ?? ""));
+  const galleryImages = imageFiles.map((f) => ({ url: getPublicUrl(f.storage_path), name: f.original_name }));
+
+  // Group non-image files by category
   const grouped: Record<string, FileAsset[]> = {};
-  for (const f of files) {
+  for (const f of nonImageFiles) {
     const cat = f.category;
     if (!grouped[cat]) grouped[cat] = [];
     grouped[cat].push(f);
@@ -118,16 +151,31 @@ export default function PublicProjectDetail() {
           )}
         </div>
 
-        {/* Files */}
-        <div>
-          <h2 className="font-display text-2xl font-light text-foreground mb-6">Project Files</h2>
-
-          {files.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center border border-border bg-secondary/30">
-              <FolderOpen size={40} className="text-muted-foreground/20 mb-3" />
-              <p className="text-muted-foreground text-sm">No files uploaded yet.</p>
+        {/* Photo Gallery */}
+        {galleryImages.length > 0 && (
+          <div className="mb-12">
+            <h2 className="font-display text-2xl font-light text-foreground mb-6">Gallery</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+              {galleryImages.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setLbIndex(i)}
+                  className="group relative aspect-square overflow-hidden bg-secondary/30 border border-border"
+                >
+                  <img src={img.url} alt={img.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                    <Maximize2 size={20} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
+              ))}
             </div>
-          ) : (
+          </div>
+        )}
+
+        {/* Non-image Files */}
+        {nonImageFiles.length > 0 && (
+          <div>
+            <h2 className="font-display text-2xl font-light text-foreground mb-6">Project Files</h2>
             <div className="space-y-8">
               {orderedCategories.map((cat) => {
                 const catLabel = FILE_CATEGORIES.find((c) => c.value === cat)?.label ?? cat;
@@ -167,10 +215,18 @@ export default function PublicProjectDetail() {
                 );
               })}
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {files.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 text-center border border-border bg-secondary/30">
+            <FolderOpen size={40} className="text-muted-foreground/20 mb-3" />
+            <p className="text-muted-foreground text-sm">No files uploaded yet.</p>
+          </div>
+        )}
       </div>
 
+      {lbIndex !== null && <LightBox images={galleryImages} index={lbIndex} onClose={() => setLbIndex(null)} onNav={setLbIndex} />}
       {preview && <FilePreviewModal file={preview} onClose={() => setPreview(null)} role="PUBLIC" />}
 
       <PublicFooter />

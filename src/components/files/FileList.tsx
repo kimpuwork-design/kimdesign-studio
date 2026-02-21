@@ -239,7 +239,7 @@ export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADM
                         onPreview={() => setPreview(file)}
                         onDownload={() => handleDownload(file)}
                         onDelete={() => handleDelete(file)}
-                        showDownload={role !== "CLIENT"}
+                    showDownload={true}
                       />
                     ) : (
                       <FileGridItem
@@ -254,7 +254,7 @@ export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADM
                         onPreview={() => setPreview(file)}
                         onDownload={() => handleDownload(file)}
                         onDelete={() => handleDelete(file)}
-                        showDownload={role !== "CLIENT"}
+                        showDownload={true}
                       />
                     )
                   }

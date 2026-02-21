@@ -8,14 +8,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Loader2, X } from "lucide-react";
+import { Upload, Loader2, X, User, Lock } from "lucide-react";
 
 export default function AdminSettings() {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const { toast } = useToast();
   const [settings, setSettings] = useState<StudioSettings | null>(null);
   const [saving, setSaving] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
+
+  // Account fields
+  const [fullName, setFullName] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [savingAccount, setSavingAccount] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
+
+  useEffect(() => {
+    if (profile) setFullName(profile.full_name ?? "");
+    if (user) setNewEmail(user.email ?? "");
+  }, [profile, user]);
 
   useEffect(() => {
     supabase.from("settings").select("*").single().then(({ data }) => {
@@ -60,11 +74,84 @@ export default function AdminSettings() {
     toast({ title: "Settings saved ✓" });
   };
 
+  const handleSaveAccount = async () => {
+    if (!profile) return;
+    setSavingAccount(true);
+    // Update display name
+    const { error: profileErr } = await supabase.from("profiles").update({ full_name: fullName }).eq("id", profile.id);
+    if (profileErr) { toast({ title: "Failed to update name", variant: "destructive" }); setSavingAccount(false); return; }
+    // Update email if changed
+    if (newEmail && newEmail !== user?.email) {
+      const { error: emailErr } = await supabase.auth.updateUser({ email: newEmail });
+      if (emailErr) { toast({ title: "Failed to update email", description: emailErr.message, variant: "destructive" }); setSavingAccount(false); return; }
+    }
+    setSavingAccount(false);
+    toast({ title: "Account updated ✓" });
+  };
+
+  const handleChangePassword = async () => {
+    if (newPassword.length < 8) { toast({ title: "Password must be at least 8 characters", variant: "destructive" }); return; }
+    if (newPassword !== confirmPassword) { toast({ title: "Passwords don't match", variant: "destructive" }); return; }
+    setSavingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setSavingPassword(false);
+    if (error) { toast({ title: "Failed to change password", description: error.message, variant: "destructive" }); return; }
+    setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
+    toast({ title: "Password changed ✓" });
+  };
+
   return (
     <PortalLayout variant="admin">
       <div className="mb-8">
         <h1 className="font-display text-3xl font-bold text-portal-text">Settings</h1>
-        <p className="mt-1 text-portal-text-muted">Studio branding, contact info, and social links.</p>
+        <p className="mt-1 text-portal-text-muted">Studio branding, contact info, account, and social links.</p>
+      </div>
+
+      {/* Account Settings */}
+      <div className="space-y-6 max-w-2xl mb-8">
+        <div className="rounded-xl border border-portal-border bg-portal-surface p-6 space-y-4">
+          <h2 className="font-semibold text-portal-text text-sm uppercase tracking-wider flex items-center gap-2">
+            <User size={14} /> Account
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label className="text-portal-text-muted text-xs">Display Name</Label>
+              <Input value={fullName} onChange={(e) => setFullName(e.target.value)}
+                className="bg-portal-bg border-portal-border text-portal-text" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-portal-text-muted text-xs">Email</Label>
+              <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)}
+                className="bg-portal-bg border-portal-border text-portal-text" />
+            </div>
+          </div>
+          <Button onClick={handleSaveAccount} disabled={savingAccount} size="sm"
+            className="bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90">
+            {savingAccount ? <><Loader2 size={14} className="animate-spin mr-2" />Saving…</> : "Save Account"}
+          </Button>
+        </div>
+
+        <div className="rounded-xl border border-portal-border bg-portal-surface p-6 space-y-4">
+          <h2 className="font-semibold text-portal-text text-sm uppercase tracking-wider flex items-center gap-2">
+            <Lock size={14} /> Change Password
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label className="text-portal-text-muted text-xs">New Password</Label>
+              <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Min. 8 characters" className="bg-portal-bg border-portal-border text-portal-text" />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label className="text-portal-text-muted text-xs">Confirm Password</Label>
+              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter new password" className="bg-portal-bg border-portal-border text-portal-text" />
+            </div>
+          </div>
+          <Button onClick={handleChangePassword} disabled={savingPassword} size="sm"
+            className="bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90">
+            {savingPassword ? <><Loader2 size={14} className="animate-spin mr-2" />Changing…</> : "Change Password"}
+          </Button>
+        </div>
       </div>
 
       {!settings ? (

@@ -171,7 +171,7 @@ export default function PublicProjectDetail() {
         </div>
       </div>
 
-      {preview && <FilePreviewModal file={preview} onClose={() => setPreview(null)} role="CLIENT" />}
+      {preview && <FilePreviewModal file={preview} onClose={() => setPreview(null)} role="PUBLIC" />}
 
       <PublicFooter />
     </div>

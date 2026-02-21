@@ -170,14 +170,16 @@ export function DeliverableDrawer({ deliverable: initialDeliverable, role, onClo
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-portal-text truncate">{deliverable.file.original_name}</p>
                 </div>
-                <button
-                  onClick={handleDownload}
-                  disabled={downloading}
-                  className="flex items-center gap-1.5 rounded-lg bg-portal-accent/10 px-3 py-1.5 text-xs font-semibold text-portal-accent hover:bg-portal-accent/20 transition-colors disabled:opacity-50"
-                >
-                  {downloading ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
-                  Download
-                </button>
+                {!isClient && (
+                  <button
+                    onClick={handleDownload}
+                    disabled={downloading}
+                    className="flex items-center gap-1.5 rounded-lg bg-portal-accent/10 px-3 py-1.5 text-xs font-semibold text-portal-accent hover:bg-portal-accent/20 transition-colors disabled:opacity-50"
+                  >
+                    {downloading ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
+                    Download
+                  </button>
+                )}
               </div>
             </div>
           )}

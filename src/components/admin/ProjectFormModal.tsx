@@ -69,13 +69,15 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.client_id) { setError("Please select a client."); return; }
     if (!form.title.trim()) { setError("Title is required."); return; }
     setError(null);
     setSaving(true);
 
+    const effectiveClientId = form.client_id || profile?.id;
+    if (!effectiveClientId) { setError("No user found."); setSaving(false); return; }
+
     const payload = {
-      client_id: form.client_id,
+      client_id: effectiveClientId,
       title: form.title.trim(),
       description: form.description.trim() || null,
       status: form.status,
@@ -125,22 +127,25 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="space-y-1.5">
-            <Label className="text-portal-text-muted">Client *</Label>
-            <select
-              value={form.client_id}
-              onChange={(e) => set("client_id", e.target.value)}
-              disabled={!!editProject}
-              className="w-full rounded-md border border-portal-border bg-portal-bg px-3 py-2 text-sm text-portal-text focus:outline-none focus:ring-1 focus:ring-portal-accent"
-            >
-              <option value="">Select a client…</option>
-              {clients.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.full_name ?? "Unnamed"}{c.company ? ` — ${c.company}` : ""}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Client selector - hidden for new projects, shown only when editing */}
+          {editProject && (
+            <div className="space-y-1.5">
+              <Label className="text-portal-text-muted">Client</Label>
+              <select
+                value={form.client_id}
+                onChange={(e) => set("client_id", e.target.value)}
+                disabled
+                className="w-full rounded-md border border-portal-border bg-portal-bg px-3 py-2 text-sm text-portal-text focus:outline-none focus:ring-1 focus:ring-portal-accent"
+              >
+                <option value="">Select a client…</option>
+                {clients.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.full_name ?? "Unnamed"}{c.company ? ` — ${c.company}` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <Label className="text-portal-text-muted">Title *</Label>
@@ -172,18 +177,6 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-portal-text-muted">Start Date</Label>
-              <Input type="date" value={form.start_date} onChange={(e) => set("start_date", e.target.value)}
-                className="bg-portal-bg border-portal-border text-portal-text" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-portal-text-muted">Target Date</Label>
-              <Input type="date" value={form.target_date} onChange={(e) => set("target_date", e.target.value)}
-                className="bg-portal-bg border-portal-border text-portal-text" />
-            </div>
-          </div>
 
           {error && <p className="rounded-md bg-destructive/15 px-3 py-2 text-sm text-destructive">{error}</p>}
 

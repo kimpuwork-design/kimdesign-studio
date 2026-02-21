@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Sparkles } from "lucide-react";
 
 export default function Register() {
   const [fullName, setFullName] = useState("");
@@ -34,35 +35,42 @@ export default function Register() {
 
   if (success) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <div className="w-full max-w-md text-center">
-          <div className="mb-4 text-5xl">✉️</div>
-          <h1 className="font-display text-2xl font-bold">Check your email</h1>
-          <p className="mt-2 text-muted-foreground">
-            We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account.
+      <div className="relative flex min-h-screen items-center justify-center bg-portal-bg px-4 overflow-hidden">
+        <div className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-portal-accent/10 blur-[120px] animate-float pointer-events-none" />
+        <div className="absolute bottom-1/4 -right-32 w-80 h-80 rounded-full bg-purple-500/10 blur-[100px] animate-float-delayed pointer-events-none" />
+        <div className="relative z-10 w-full max-w-md text-center glass-card p-12 animate-scale-in">
+          <div className="text-5xl mb-4">✉️</div>
+          <h1 className="font-display text-2xl font-bold text-portal-text">Check your email</h1>
+          <p className="mt-2 text-portal-text-muted">
+            We sent a confirmation link to <strong className="text-portal-text">{email}</strong>. Click it to activate your account.
           </p>
-          <Button className="mt-6" onClick={() => navigate("/auth/login")}>Go to Login</Button>
+          <Button className="mt-6 bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90" onClick={() => navigate("/auth/login")}>Go to Login</Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md">
+    <div className="relative flex min-h-screen items-center justify-center bg-portal-bg px-4 overflow-hidden">
+      {/* Ambient glow orbs */}
+      <div className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-portal-accent/10 blur-[120px] animate-float pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-32 w-80 h-80 rounded-full bg-purple-500/10 blur-[100px] animate-float-delayed pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-portal-accent/5 blur-[150px] pointer-events-none" />
+
+      <div className="relative z-10 w-full max-w-md animate-scale-in">
         <div className="mb-8 text-center">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <span className="font-display text-2xl font-bold">Studio</span>
-            <span className="h-2 w-2 rounded-full bg-primary" />
+          <Link to="/" className="inline-flex items-center gap-2 mb-6 group">
+            <Sparkles size={20} className="text-portal-accent group-hover:animate-glow-pulse" />
+            <span className="font-display text-2xl font-bold text-portal-text">FORMA</span>
           </Link>
-          <h1 className="font-display text-3xl font-bold">Create account</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Start your journey with Studio</p>
+          <h1 className="font-display text-3xl font-bold text-portal-text">Create account</h1>
+          <p className="mt-2 text-sm text-portal-text-muted">Start your journey with FORMA</p>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-8 shadow-sm">
+        <div className="glass-card p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="fullName" className="text-portal-text-muted">Full Name</Label>
               <Input
                 id="fullName"
                 type="text"
@@ -70,10 +78,11 @@ export default function Register() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
+                className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus:ring-portal-accent focus:border-portal-accent"
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-portal-text-muted">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -82,10 +91,11 @@ export default function Register() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
+                className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus:ring-portal-accent focus:border-portal-accent"
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-portal-text-muted">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -94,21 +104,22 @@ export default function Register() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="new-password"
+                className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus:ring-portal-accent focus:border-portal-accent"
               />
             </div>
 
             {error && (
-              <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>
+              <p className="rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2 text-sm text-destructive">{error}</p>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90" disabled={loading}>
               {loading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
+          <p className="mt-6 text-center text-sm text-portal-text-muted">
             Already have an account?{" "}
-            <Link to="/auth/login" className="font-medium text-primary hover:underline">
+            <Link to="/auth/login" className="font-medium text-portal-accent hover:underline">
               Sign in
             </Link>
           </p>

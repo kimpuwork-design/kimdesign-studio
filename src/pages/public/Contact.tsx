@@ -63,7 +63,6 @@ export default function Contact() {
     setSubmitted(true);
   };
 
-  // Build contact details list
   const contactDetails: { icon: any; label: string; value: string }[] = [
     ...locations.map((l: any) => ({ icon: MapPin, label: l.label, value: l.value })),
     ...(info.email ? [{ icon: Mail, label: "Email", value: info.email }] : []),
@@ -71,11 +70,15 @@ export default function Contact() {
   ];
 
   return (
-    <div className="bg-background">
+    <div className="bg-background relative">
       <PublicNav />
 
+      {/* Ambient orbs */}
+      <div className="fixed top-1/3 -left-40 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[150px] pointer-events-none" />
+      <div className="fixed bottom-1/4 -right-40 w-[400px] h-[400px] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
+
       {/* Hero */}
-      <section className="container py-20 md:py-28">
+      <section className="container py-20 md:py-28 relative z-10">
         <div className="max-w-2xl">
           <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-4">Contact</p>
           <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] font-light leading-tight text-foreground">
@@ -87,7 +90,7 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="border-t border-border">
+      <section className="border-t border-border/50 relative z-10">
         <div className="container py-16 grid gap-16 md:grid-cols-[1fr_2fr]">
           {/* Info */}
           <div className="space-y-8">
@@ -98,7 +101,9 @@ export default function Contact() {
                   const Icon = c.icon;
                   return (
                     <div key={c.label} className="flex items-start gap-3">
-                      <Icon size={15} className="text-primary mt-0.5 shrink-0" />
+                      <div className="rounded-lg bg-primary/10 p-1.5 mt-0.5">
+                        <Icon size={15} className="text-primary shrink-0" />
+                      </div>
                       <div>
                         <p className="text-xs text-muted-foreground tracking-wide">{c.label}</p>
                         <p className="text-sm text-foreground mt-0.5">{c.value}</p>
@@ -109,7 +114,7 @@ export default function Contact() {
               </div>
             </div>
             {(info.hours || info.hours_note) && (
-              <div className="border-t border-border pt-8">
+              <div className="border-t border-border/50 pt-8">
                 <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-3">Hours</p>
                 {info.hours && <p className="text-sm text-muted-foreground">{info.hours}</p>}
                 {info.hours_note && <p className="text-sm text-muted-foreground">{info.hours_note}</p>}
@@ -120,41 +125,41 @@ export default function Contact() {
           {/* Form */}
           <div>
             {submitted ? (
-              <div className="border border-border p-12 text-center">
+              <div className="rounded-2xl border border-border/50 bg-background/60 backdrop-blur-sm p-12 text-center">
                 <div className="text-3xl mb-5">✦</div>
                 <h3 className="font-display text-2xl font-light text-foreground">Thank you for reaching out.</h3>
                 <p className="mt-3 text-muted-foreground text-sm">We'll be in touch within two working days.</p>
                 <Button
-                  variant="outline" className="mt-8 rounded-none tracking-wide"
+                  variant="outline" className="mt-8 rounded-2xl tracking-wide"
                   onClick={() => { setSubmitted(false); setForm({ name: "", email: "", phone: "", message: "", projectType: "" }); }}
                 >
                   Send Another Enquiry
                 </Button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+              <form onSubmit={handleSubmit} className="rounded-2xl border border-border/50 bg-background/60 backdrop-blur-sm p-8 space-y-6" noValidate>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="space-y-1.5">
                     <Label htmlFor="name" className="text-xs tracking-wide uppercase text-muted-foreground">Full Name *</Label>
-                    <Input id="name" placeholder="Your name" value={form.name} onChange={(e) => set("name", e.target.value)} className="rounded-none" />
+                    <Input id="name" placeholder="Your name" value={form.name} onChange={(e) => set("name", e.target.value)} className="rounded-xl" />
                     {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="email" className="text-xs tracking-wide uppercase text-muted-foreground">Email *</Label>
-                    <Input id="email" type="email" placeholder="you@example.com" value={form.email} onChange={(e) => set("email", e.target.value)} className="rounded-none" />
+                    <Input id="email" type="email" placeholder="you@example.com" value={form.email} onChange={(e) => set("email", e.target.value)} className="rounded-xl" />
                     {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
                   </div>
                 </div>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="space-y-1.5">
                     <Label htmlFor="phone" className="text-xs tracking-wide uppercase text-muted-foreground">Phone <span className="normal-case text-muted-foreground">(optional)</span></Label>
-                    <Input id="phone" placeholder="+44 000 0000 000" value={form.phone} onChange={(e) => set("phone", e.target.value)} className="rounded-none" />
+                    <Input id="phone" placeholder="+44 000 0000 000" value={form.phone} onChange={(e) => set("phone", e.target.value)} className="rounded-xl" />
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs tracking-wide uppercase text-muted-foreground">Project Type</Label>
                     <select
                       value={form.projectType} onChange={(e) => set("projectType", e.target.value)}
-                      className="w-full rounded-none border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                      className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                     >
                       <option value="">Select a type…</option>
                       {projectTypes.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -164,11 +169,11 @@ export default function Contact() {
                 <div className="space-y-1.5">
                   <Label htmlFor="message" className="text-xs tracking-wide uppercase text-muted-foreground">Tell us about your project *</Label>
                   <Textarea id="message" placeholder="Describe your project…" rows={7} value={form.message}
-                    onChange={(e) => set("message", e.target.value)} className="rounded-none resize-none" />
+                    onChange={(e) => set("message", e.target.value)} className="rounded-xl resize-none" />
                   {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
                 </div>
-                {serverError && <p className="rounded-none bg-destructive/10 px-3 py-2 text-sm text-destructive">{serverError}</p>}
-                <Button type="submit" className="rounded-none px-10 tracking-wide w-full sm:w-auto" disabled={submitting}>
+                {serverError && <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{serverError}</p>}
+                <Button type="submit" className="rounded-2xl px-10 tracking-wide w-full sm:w-auto" disabled={submitting}>
                   {submitting ? "Sending…" : "Submit Enquiry"}
                 </Button>
               </form>

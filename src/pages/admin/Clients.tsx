@@ -140,7 +140,7 @@ export default function AdminClients() {
           </div>
 
           {editing ? (
-            <div className="rounded-xl border border-portal-border bg-portal-surface p-5 mb-8 space-y-4 max-w-lg">
+            <div className="glass-card p-5 mb-8 space-y-4 max-w-lg">
               <h2 className="font-display text-lg font-semibold text-portal-text">Edit Client Profile</h2>
               <div className="space-y-3">
                 <div className="space-y-1">
@@ -187,7 +187,7 @@ export default function AdminClients() {
               ].map((f) => {
                 const Icon = f.icon;
                 return (
-                  <div key={f.label} className="rounded-xl border border-portal-border bg-portal-surface p-4">
+                  <div key={f.label} className="glass-card p-4">
                     <div className="flex items-center gap-2 mb-1">
                       <Icon size={13} className="text-portal-text-muted" />
                       <p className="text-xs font-semibold uppercase tracking-wider text-portal-text-muted">{f.label}</p>
@@ -199,8 +199,8 @@ export default function AdminClients() {
             </div>
           )}
 
-          <div className="rounded-xl border border-portal-border bg-portal-surface overflow-hidden">
-            <div className="px-4 py-3 border-b border-portal-border flex items-center gap-2">
+          <div className="glass-card overflow-hidden">
+            <div className="px-4 py-3 border-b border-portal-border/50 flex items-center gap-2">
               <FolderOpen size={16} className="text-portal-text-muted" />
               <span className="font-semibold text-portal-text text-sm">Projects ({clientProjects.length})</span>
             </div>
@@ -241,10 +241,10 @@ export default function AdminClients() {
           <div className="mb-4 relative w-full max-w-xs">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-portal-text-muted" />
             <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search clients…"
-              className="pl-9 bg-portal-surface border-portal-border text-portal-text placeholder:text-portal-text-muted" />
+              className="pl-9 bg-portal-bg/50 backdrop-blur-sm border-portal-border text-portal-text placeholder:text-portal-text-muted" />
           </div>
 
-          <div className="rounded-xl border border-portal-border bg-portal-surface overflow-hidden">
+          <div className="glass-card overflow-hidden">
             {loading ? (
               <div className="flex items-center justify-center py-16">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-portal-accent border-t-transparent" />
@@ -255,10 +255,10 @@ export default function AdminClients() {
                 <p className="mt-1 text-sm text-portal-text-muted">Clients who register will appear here.</p>
               </div>
             ) : (
-              <div className="divide-y divide-portal-border">
+              <div className="divide-y divide-portal-border/50">
                 {clients.map((client) => (
                   <button key={client.id} onClick={() => openClient(client)}
-                    className="w-full flex items-center gap-3 px-4 py-4 hover:bg-portal-surface-hover transition-colors text-left">
+                    className="w-full flex items-center gap-3 px-4 py-4 hover:bg-portal-accent/5 transition-colors text-left">
                     <Avatar className="h-9 w-9">
                       {client.avatar_url && <AvatarImage src={client.avatar_url} />}
                       <AvatarFallback className="bg-portal-accent/10 text-portal-accent text-xs font-semibold">

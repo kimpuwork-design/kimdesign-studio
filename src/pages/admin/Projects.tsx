@@ -87,7 +87,7 @@ export default function AdminProjects() {
         <div className="relative w-full max-w-xs">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-portal-text-muted" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search title…"
-            className="pl-9 bg-portal-surface border-portal-border text-portal-text placeholder:text-portal-text-muted" />
+            className="pl-9 bg-portal-bg/50 backdrop-blur-sm border-portal-border text-portal-text placeholder:text-portal-text-muted" />
         </div>
         <div className="flex flex-wrap gap-1.5">
           {STATUS_OPTIONS.map((s) => (
@@ -104,7 +104,7 @@ export default function AdminProjects() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-portal-border bg-portal-surface overflow-hidden">
+      <div className="glass-card overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-portal-accent border-t-transparent" />
@@ -122,15 +122,15 @@ export default function AdminProjects() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-portal-border">
+                <tr className="border-b border-portal-border bg-gradient-to-r from-portal-surface to-portal-bg">
                   {["Title", "Client", "Status", "Target Date", "Updated", "Actions"].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-portal-text-muted">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-portal-border">
+              <tbody className="divide-y divide-portal-border/50">
                 {projects.map((project) => (
-                  <tr key={project.id} className="hover:bg-portal-surface-hover transition-colors">
+                  <tr key={project.id} className="hover:bg-portal-accent/5 transition-colors">
                     <td className="px-4 py-3 font-medium text-portal-text max-w-[180px] truncate">{project.title}</td>
                     <td className="px-4 py-3 text-portal-text-muted text-xs">
                       {project.profiles?.full_name ?? "—"}

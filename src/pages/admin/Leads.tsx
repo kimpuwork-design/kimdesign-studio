@@ -87,7 +87,7 @@ export default function AdminLeads() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search name or email…"
-            className="pl-9 bg-portal-surface border-portal-border text-portal-text placeholder:text-portal-text-muted"
+            className="pl-9 bg-portal-bg/50 backdrop-blur-sm border-portal-border text-portal-text placeholder:text-portal-text-muted"
           />
         </div>
         <div className="flex gap-1.5">
@@ -108,7 +108,7 @@ export default function AdminLeads() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-portal-border bg-portal-surface overflow-hidden">
+      <div className="glass-card overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-portal-accent border-t-transparent" />
@@ -122,7 +122,7 @@ export default function AdminLeads() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-portal-border">
+                <tr className="border-b border-portal-border bg-gradient-to-r from-portal-surface to-portal-bg">
                   {["Name", "Email", "Status", "Date", "Actions"].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-portal-text-muted">
                       {h}
@@ -130,9 +130,9 @@ export default function AdminLeads() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-portal-border">
+              <tbody className="divide-y divide-portal-border/50">
                 {leads.map((lead) => (
-                  <tr key={lead.id} className="hover:bg-portal-surface-hover transition-colors">
+                  <tr key={lead.id} className="hover:bg-portal-accent/5 transition-colors">
                     <td className="px-4 py-3 font-medium text-portal-text">{lead.name}</td>
                     <td className="px-4 py-3 text-portal-text-muted">{lead.email}</td>
                     <td className="px-4 py-3"><StatusBadge status={lead.status} /></td>

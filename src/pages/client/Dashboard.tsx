@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { PortalLayout } from "@/components/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { FolderOpen, Clock, CheckCircle, PackageOpen, FileText } from "lucide-react";
+import { FolderOpen, Clock, CheckCircle, PackageOpen, FileText, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface Project {
@@ -11,6 +11,13 @@ interface Project {
   status: string;
   updated_at: string;
 }
+
+const GRADIENT_COLORS = [
+  "from-blue-500/20 to-blue-600/5",
+  "from-yellow-500/20 to-amber-600/5",
+  "from-green-500/20 to-emerald-600/5",
+  "from-purple-500/20 to-violet-600/5",
+];
 
 export default function ClientDashboard() {
   const { profile } = useAuth();
@@ -21,8 +28,6 @@ export default function ClientDashboard() {
 
   useEffect(() => {
     if (!profile) return;
-
-    // Load projects
     supabase
       .from("projects")
       .select("id, title, status, updated_at")
@@ -30,7 +35,6 @@ export default function ClientDashboard() {
       .order("updated_at", { ascending: false })
       .then(({ data }) => setProjects((data as Project[]) ?? []));
 
-    // Count pending deliverables for client's projects
     supabase
       .from("deliverables")
       .select("id, project_id, projects!inner(client_id)")
@@ -40,7 +44,6 @@ export default function ClientDashboard() {
         setPendingApprovals(mine.length);
       });
 
-    // Count unpaid (sent) invoices
     supabase
       .from("invoices")
       .select("id, project_id, projects!inner(client_id)")
@@ -57,33 +60,39 @@ export default function ClientDashboard() {
   return (
     <PortalLayout variant="client">
       <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold text-portal-text">
-          Welcome back, {profile?.full_name?.split(" ")[0] ?? "there"} 👋
+        <h1 className="font-display text-3xl font-bold text-portal-text flex items-center gap-2">
+          <Sparkles size={24} className="text-portal-accent" />
+          <span className="gradient-text">Welcome back, {profile?.full_name?.split(" ")[0] ?? "there"}</span> 👋
         </h1>
         <p className="mt-1 text-portal-text-muted">Here's what's happening with your projects.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         {[
-          { icon: FolderOpen, label: "Active Projects", value: activeCount, color: "text-blue-400" },
-          { icon: PackageOpen, label: "Pending Approvals", value: pendingApprovals, color: "text-yellow-400", alert: pendingApprovals > 0 },
-          { icon: CheckCircle, label: "Completed", value: completedCount, color: "text-green-400" },
-          { icon: FileText, label: "Unpaid Invoices", value: unpaidInvoices, color: "text-portal-text-muted", alert: unpaidInvoices > 0 },
+          { icon: FolderOpen, label: "Active Projects", value: activeCount, color: "text-blue-400", gradient: GRADIENT_COLORS[0] },
+          { icon: PackageOpen, label: "Pending Approvals", value: pendingApprovals, color: "text-yellow-400", gradient: GRADIENT_COLORS[1], alert: pendingApprovals > 0 },
+          { icon: CheckCircle, label: "Completed", value: completedCount, color: "text-green-400", gradient: GRADIENT_COLORS[2] },
+          { icon: FileText, label: "Unpaid Invoices", value: unpaidInvoices, color: "text-purple-400", gradient: GRADIENT_COLORS[3], alert: unpaidInvoices > 0 },
         ].map((s) => {
           const Icon = s.icon;
           return (
-            <div key={s.label} className={`rounded-xl border bg-portal-surface p-5 ${s.alert ? "border-yellow-400/40" : "border-portal-border"}`}>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium uppercase tracking-wider text-portal-text-muted">{s.label}</span>
-                <Icon size={16} className={s.color} />
+            <div key={s.label} className="glass-card glass-card-hover group relative overflow-hidden p-5">
+              <div className={`absolute inset-0 bg-gradient-to-br ${s.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-medium uppercase tracking-wider text-portal-text-muted">{s.label}</span>
+                  <div className={`rounded-lg p-1.5 bg-gradient-to-br ${s.gradient}`}>
+                    <Icon size={16} className={s.color} />
+                  </div>
+                </div>
+                <p className={`font-display text-3xl font-bold ${s.alert ? "text-yellow-400" : "text-portal-text"}`}>{s.value}</p>
               </div>
-              <p className={`font-display text-3xl font-bold ${s.alert ? "text-yellow-400" : "text-portal-text"}`}>{s.value}</p>
             </div>
           );
         })}
       </div>
 
-      <div className="rounded-xl border border-portal-border bg-portal-surface p-6">
+      <div className="glass-card p-6">
         <h2 className="font-display text-lg font-semibold text-portal-text mb-4">Recent Projects</h2>
         {projects.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-portal-text-muted">
@@ -94,11 +103,11 @@ export default function ClientDashboard() {
           <div className="space-y-2">
             {projects.slice(0, 5).map((p) => (
               <button key={p.id} onClick={() => navigate(`/app/projects/${p.id}`)}
-                className="w-full flex items-center justify-between rounded-lg border border-portal-border bg-portal-bg px-4 py-3 text-left hover:bg-portal-surface transition-colors">
+                className="w-full flex items-center justify-between glass-card-hover rounded-lg px-4 py-3 text-left transition-all duration-200">
                 <span className="text-sm font-medium text-portal-text">{p.title}</span>
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                  p.status === "active" ? "bg-blue-400/15 text-blue-400" :
-                  p.status === "delivered" ? "bg-green-500/15 text-green-500" :
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm ${
+                  p.status === "active" ? "bg-blue-400/15 text-blue-400 border border-blue-400/20" :
+                  p.status === "delivered" ? "bg-green-500/15 text-green-500 border border-green-500/20" :
                   "bg-portal-border text-portal-text-muted"
                 }`}>{p.status}</span>
               </button>

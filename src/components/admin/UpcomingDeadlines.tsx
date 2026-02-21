@@ -35,7 +35,7 @@ export function UpcomingDeadlines() {
   if (projects.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-portal-border bg-portal-surface p-6">
+    <div className="glass-card p-6">
       <h2 className="font-display text-lg font-semibold text-portal-text mb-4 flex items-center gap-2">
         <Clock size={18} className="text-portal-accent" />
         Upcoming Deadlines
@@ -44,15 +44,18 @@ export function UpcomingDeadlines() {
         {projects.map((p) => {
           const daysLeft = differenceInDays(new Date(p.target_date), new Date());
           const urgencyColor = daysLeft <= 3 ? "text-red-400" : daysLeft <= 7 ? "text-yellow-400" : "text-green-400";
+          const urgencyGlow = daysLeft <= 3 ? "shadow-[0_0_8px_rgba(248,113,113,0.3)]" : daysLeft <= 7 ? "shadow-[0_0_8px_rgba(250,204,21,0.2)]" : "";
           const UrgencyIcon = daysLeft <= 3 ? AlertTriangle : daysLeft <= 7 ? Clock : CheckCircle2;
 
           return (
             <button
               key={p.id}
               onClick={() => navigate(`/admin/projects/${p.id}`)}
-              className="flex items-center gap-3 w-full rounded-lg px-3 py-2.5 hover:bg-portal-surface-hover transition-colors text-left"
+              className="flex items-center gap-3 w-full glass-card-hover rounded-lg px-3 py-2.5 transition-all duration-200 text-left"
             >
-              <UrgencyIcon size={14} className={urgencyColor + " shrink-0"} />
+              <div className={`rounded-full p-1 ${urgencyGlow}`}>
+                <UrgencyIcon size={14} className={urgencyColor + " shrink-0"} />
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-portal-text truncate">{p.title}</p>
                 <p className="text-xs text-portal-text-muted">{format(new Date(p.target_date), "MMM d, yyyy")}</p>

@@ -6,8 +6,8 @@ import {
   Briefcase, Users, FileArchive, Image, Settings, Activity, UserCog, Shield, PackageOpen, Receipt, FileText,
   type LucideIcon
 } from "lucide-react";
-
 import { useState } from "react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface NavItem {
   label: string;
@@ -46,13 +46,14 @@ const adminNav: NavItem[] = [
 
 interface PortalSidebarProps {
   variant: "client" | "staff" | "admin";
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-export function PortalSidebar({ variant }: PortalSidebarProps) {
+export function PortalSidebar({ variant, collapsed = false, onToggleCollapse }: PortalSidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
 
   const navItems =
     variant === "admin" ? adminNav :
@@ -71,6 +72,8 @@ export function PortalSidebar({ variant }: PortalSidebarProps) {
     await signOut();
     navigate("/");
   };
+
+  const initials = (profile?.full_name ?? "?").split(" ").map(s => s[0]).join("").toUpperCase().slice(0, 2);
 
   return (
     <aside
@@ -91,12 +94,14 @@ export function PortalSidebar({ variant }: PortalSidebarProps) {
             <span className="h-1.5 w-1.5 rounded-full bg-portal-accent" />
           </div>
         )}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="rounded p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors"
-        >
-          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-        </button>
+        {onToggleCollapse && (
+          <button
+            onClick={onToggleCollapse}
+            className="rounded p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors"
+          >
+            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          </button>
+        )}
       </div>
 
       {/* Role badge */}
@@ -136,9 +141,15 @@ export function PortalSidebar({ variant }: PortalSidebarProps) {
       {/* Footer */}
       <div className="border-t border-portal-border px-3 py-4 space-y-1">
         {!collapsed && profile && (
-          <div className="px-3 py-2 mb-2">
-            <p className="text-xs font-medium text-portal-text truncate">{profile.full_name}</p>
-            <p className="text-xs text-portal-text-muted truncate">{profile.role}</p>
+          <div className="px-3 py-2 mb-2 flex items-center gap-3">
+            <Avatar className="h-8 w-8">
+              {profile.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile.full_name ?? ""} />}
+              <AvatarFallback className="bg-portal-accent/20 text-portal-accent text-xs font-semibold">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-portal-text truncate">{profile.full_name}</p>
+              <p className="text-xs text-portal-text-muted truncate">{profile.role}</p>
+            </div>
           </div>
         )}
         <Link to="/" className={cn("portal-nav-item", collapsed && "justify-center")} title={collapsed ? "Public Site" : undefined}>

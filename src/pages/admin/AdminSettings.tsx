@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, Loader2, X, User, Lock } from "lucide-react";
+import { AvatarUpload } from "@/components/admin/AvatarUpload";
 
 export default function AdminSettings() {
   const { profile, user } = useAuth();
@@ -113,6 +114,7 @@ export default function AdminSettings() {
           <h2 className="font-semibold text-portal-text text-sm uppercase tracking-wider flex items-center gap-2">
             <User size={14} /> Account
           </h2>
+          <AvatarUpload />
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label className="text-portal-text-muted text-xs">Display Name</Label>

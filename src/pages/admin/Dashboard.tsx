@@ -1,4 +1,5 @@
 import { PortalLayout } from "@/components/PortalLayout";
+import { UpcomingDeadlines } from "@/components/admin/UpcomingDeadlines";
 import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -214,6 +215,11 @@ export default function AdminDashboard() {
             <div className="flex h-[200px] items-center justify-center text-sm text-portal-text-muted">No projects yet.</div>
           )}
         </div>
+      </div>
+
+      {/* Deadlines */}
+      <div className="mb-8">
+        <UpcomingDeadlines />
       </div>
 
       {/* Activity & Quick Actions */}

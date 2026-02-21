@@ -889,6 +889,24 @@ export type Database = {
         }
         Relationships: []
       }
+      site_content: {
+        Row: {
+          content: Json
+          section: string
+          updated_at: string
+        }
+        Insert: {
+          content?: Json
+          section: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          section?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

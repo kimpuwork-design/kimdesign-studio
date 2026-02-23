@@ -30,6 +30,7 @@ interface Project {
   start_date: string | null;
   target_date: string | null;
   updated_at: string;
+  is_public: boolean;
   profiles: { full_name: string | null; company: string | null } | null;
 }
 

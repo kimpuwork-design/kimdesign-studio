@@ -21,6 +21,7 @@ export interface ProjectFormData {
   location: string;
   start_date: string;
   target_date: string;
+  is_public: boolean;
 }
 
 interface ProjectFormModalProps {
@@ -33,6 +34,7 @@ interface ProjectFormModalProps {
     location: string | null;
     start_date: string | null;
     target_date: string | null;
+    is_public?: boolean;
   } | null;
   onClose: () => void;
   onSaved: () => void;
@@ -51,6 +53,7 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
     location: editProject?.location ?? "",
     start_date: editProject?.start_date ?? "",
     target_date: editProject?.target_date ?? "",
+    is_public: editProject?.is_public ?? false,
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,6 +87,7 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
       location: form.location.trim() || null,
       start_date: form.start_date || null,
       target_date: form.target_date || null,
+      is_public: form.is_public,
     };
 
     if (editProject) {
@@ -178,7 +182,22 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
           </div>
 
 
-          {error && <p className="rounded-md bg-destructive/15 px-3 py-2 text-sm text-destructive">{error}</p>}
+          {/* Public visibility toggle */}
+          <div className="flex items-center gap-3 rounded-lg border border-portal-border bg-portal-bg/50 px-4 py-3">
+            <input
+              type="checkbox"
+              id="is_public"
+              checked={form.is_public}
+              onChange={(e) => setForm((f) => ({ ...f, is_public: e.target.checked }))}
+              className="h-4 w-4 rounded border-portal-border accent-portal-accent"
+            />
+            <label htmlFor="is_public" className="flex-1">
+              <span className="text-sm font-medium text-portal-text">Show on public website</span>
+              <span className="block text-xs text-portal-text-muted">When enabled, this project and its files will be visible to anyone on the public Projects page.</span>
+            </label>
+          </div>
+
+
 
           <div className="flex gap-3 pt-2">
             <Button type="button" variant="outline" onClick={onClose}

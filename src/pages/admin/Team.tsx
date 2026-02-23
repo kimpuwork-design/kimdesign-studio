@@ -101,7 +101,7 @@ export default function AdminTeam() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search team…"
-          className="pl-9 bg-portal-surface border-portal-border text-portal-text placeholder:text-portal-text-muted"
+          className="pl-9 bg-portal-bg/50 backdrop-blur-sm border-portal-border text-portal-text placeholder:text-portal-text-muted"
         />
       </div>
 
@@ -111,7 +111,7 @@ export default function AdminTeam() {
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-portal-accent border-t-transparent" />
           </div>
         ) : members.length === 0 ? (
-          <div className="rounded-xl border border-portal-border bg-portal-surface py-16 text-center">
+          <div className="glass-card py-16 text-center">
             <UserPlus size={48} className="mx-auto mb-4 text-portal-text-muted/30" />
             <p className="font-medium text-portal-text">No team members found</p>
             <p className="mt-1 text-sm text-portal-text-muted">Register users with STAFF or ADMIN roles.</p>
@@ -124,7 +124,7 @@ export default function AdminTeam() {
             return (
               <div
                 key={m.id}
-                className="rounded-xl border border-portal-border bg-portal-surface p-4 hover:border-portal-accent/20 transition-colors"
+                className="glass-card glass-card-hover p-4"
               >
                 {isEditing ? (
                   <div className="space-y-4">

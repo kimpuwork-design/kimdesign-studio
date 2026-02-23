@@ -29,6 +29,7 @@ export default function PublicProjects() {
     supabase
       .from("projects")
       .select("id, title, description, status, location, start_date, target_date, created_at")
+      .eq("is_public", true)
       .order("created_at", { ascending: false })
       .then(({ data }) => {
         setProjects((data as Project[]) ?? []);

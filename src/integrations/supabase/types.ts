@@ -708,6 +708,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          is_public: boolean
           location: string | null
           start_date: string | null
           status: string
@@ -720,6 +721,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_public?: boolean
           location?: string | null
           start_date?: string | null
           status?: string
@@ -732,6 +734,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_public?: boolean
           location?: string | null
           start_date?: string | null
           status?: string

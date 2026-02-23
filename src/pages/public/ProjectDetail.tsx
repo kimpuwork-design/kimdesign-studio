@@ -59,7 +59,12 @@ export default function PublicProjectDetail() {
   useEffect(() => {
     if (!id) return;
     Promise.all([
-      supabase.from("projects").select("id, title, description, status, location, start_date, target_date").eq("id", id).single(),
+      supabase
+        .from("projects")
+        .select("id, title, description, status, location, start_date, target_date")
+        .eq("id", id)
+        .eq("is_public", true)
+        .single(),
       supabase.from("file_assets").select("*").eq("project_id", id).eq("is_deleted", false).order("created_at", { ascending: false }),
     ]).then(([{ data: proj, error }, { data: fileData }]) => {
       if (error || !proj) {
@@ -113,7 +118,6 @@ export default function PublicProjectDetail() {
   const imageFiles = files.filter((f) => isImageExt(f.extension ?? ""));
   const nonImageFiles = files.filter((f) => !isImageExt(f.extension ?? ""));
 
-  // Group non-image files by category
   const grouped: Record<string, FileAsset[]> = {};
   for (const f of nonImageFiles) {
     const cat = f.category;
@@ -143,7 +147,6 @@ export default function PublicProjectDetail() {
           <StatusBadge status={project.status} className="shrink-0 mt-2" />
         </div>
 
-        {/* Info cards */}
         <div className="flex flex-wrap gap-3 mb-10">
           {project.location && (
             <div className="flex items-center gap-2 bg-secondary/60 px-4 py-2 text-sm text-foreground">
@@ -162,7 +165,6 @@ export default function PublicProjectDetail() {
           )}
         </div>
 
-        {/* Photo Gallery */}
         {galleryImages.length > 0 && (
           <div className="mb-12">
             <h2 className="font-display text-2xl font-light text-foreground mb-6">Gallery</h2>
@@ -183,7 +185,6 @@ export default function PublicProjectDetail() {
           </div>
         )}
 
-        {/* Non-image Files */}
         {nonImageFiles.length > 0 && (
           <div>
             <h2 className="font-display text-2xl font-light text-foreground mb-6">Project Files</h2>

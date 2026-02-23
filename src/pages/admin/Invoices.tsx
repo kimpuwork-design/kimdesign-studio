@@ -61,7 +61,7 @@ export default function AdminInvoices() {
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-portal-text-muted" />
           <Input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search invoice number or project…"
-            className="pl-8 bg-portal-bg border-portal-border" />
+            className="pl-8 bg-portal-bg/50 backdrop-blur-sm border-portal-border" />
         </div>
         <div className="flex gap-1 flex-wrap">
           {STATUSES.map(s => (
@@ -77,7 +77,7 @@ export default function AdminInvoices() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-portal-border bg-portal-surface overflow-hidden">
+      <div className="glass-card overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-portal-accent border-t-transparent" />
@@ -87,7 +87,7 @@ export default function AdminInvoices() {
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-portal-border bg-portal-bg">
+              <tr className="border-b border-portal-border/50 bg-gradient-to-r from-portal-surface/80 to-portal-bg/40">
                 <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-portal-text-muted">Invoice #</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-portal-text-muted">Project</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-portal-text-muted">Client</th>
@@ -96,9 +96,9 @@ export default function AdminInvoices() {
                 <th className="text-right px-4 py-3 text-xs font-semibold uppercase tracking-wider text-portal-text-muted">Total</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-portal-border">
+            <tbody className="divide-y divide-portal-border/30">
               {filtered.map(inv => (
-                <tr key={inv.id} className={`hover:bg-portal-border/10 transition-colors ${isOverdue(inv) ? "bg-destructive/5" : ""}`}>
+                <tr key={inv.id} className={`hover:bg-portal-accent/5 transition-colors ${isOverdue(inv) ? "bg-destructive/5" : ""}`}>
                   <td className="px-4 py-3 font-mono text-xs text-portal-text">{inv.invoice_number}</td>
                   <td className="px-4 py-3 text-portal-text">{inv.projects?.title ?? "—"}</td>
                   <td className="px-4 py-3 text-portal-text-muted">{inv.projects?.profiles?.full_name ?? "—"}</td>

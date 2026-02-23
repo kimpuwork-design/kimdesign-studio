@@ -134,7 +134,7 @@ export default function AdminFiles() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-portal-border bg-portal-surface overflow-hidden">
+      <div className="glass-card overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 size={22} className="animate-spin text-portal-text-muted" />
@@ -148,18 +148,18 @@ export default function AdminFiles() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-portal-border">
+                <tr className="border-b border-portal-border/50 bg-gradient-to-r from-portal-surface/80 to-portal-bg/40">
                   {["File", "Project / Client", "Category", "Size", "Uploader", "Date", "Ver.", "Actions"].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-portal-text-muted whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-portal-border">
+              <tbody className="divide-y divide-portal-border/30">
                 {files.map((file) => {
                   const ext = file.extension ?? "";
                   const catLabel = FILE_CATEGORIES.find((c) => c.value === file.category)?.label ?? file.category;
                   return (
-                    <tr key={file.id} className="hover:bg-portal-surface-hover transition-colors">
+                    <tr key={file.id} className="hover:bg-portal-accent/5 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2 max-w-[200px]">
                           <FileIcon ext={ext} size={15} className="text-portal-text-muted shrink-0" />
@@ -225,8 +225,8 @@ export default function AdminFiles() {
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-portal-border bg-portal-surface px-4 py-3">
-      <span className="text-portal-text-muted">{icon}</span>
+    <div className="glass-card glass-card-hover flex items-center gap-3 px-4 py-3">
+      <span className="text-portal-accent">{icon}</span>
       <div>
         <p className="text-xs text-portal-text-muted">{label}</p>
         <p className="font-semibold text-portal-text">{value}</p>

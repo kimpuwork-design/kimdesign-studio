@@ -46,7 +46,7 @@ function AnimatedStat({ value, suffix, label }: { value: number; suffix: string;
     return () => observer.disconnect();
   }, [start]);
   return (
-    <div ref={ref} className="text-center p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50">
+    <div ref={ref} className="glass-card-public glass-glow-ring text-center p-6">
       <p className="font-display text-5xl font-bold text-foreground tracking-tight">{count}{suffix}</p>
       <p className="mt-2 text-xs tracking-[0.15em] uppercase text-muted-foreground font-medium">{label}</p>
     </div>
@@ -112,7 +112,7 @@ export default function Home() {
                 <img src={aboutProfileImg} alt={aboutMe.title_prefix ?? "Principal Architect"} className="h-full w-full object-cover object-center rounded-3xl" />
                 {/* Gradient overlay on image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent rounded-3xl" />
-                <div className="absolute bottom-6 left-6 right-6 backdrop-blur-xl bg-card/40 rounded-2xl px-6 py-5 border border-border/30">
+                <div className="absolute bottom-6 left-6 right-6 glass-card-public px-6 py-5">
                   <p className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground mb-3 font-medium">Credentials</p>
                   <div className="space-y-2">
                     {credentials.map((c: any) => {
@@ -274,7 +274,7 @@ export default function Home() {
               {servicesHome.map((s: any) => {
                 const Icon = ICON_MAP[s.icon] ?? Building2;
                 return (
-                  <div key={s.title} className="group rounded-2xl border border-border/30 bg-card/50 backdrop-blur-sm p-8 hover:bg-card hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+                  <div key={s.title} className="group glass-card-public glass-glow-ring p-8">
                     <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/15 transition-colors">
                       <Icon size={22} className="text-primary" />
                     </div>
@@ -300,7 +300,7 @@ export default function Home() {
           </div>
           <div className="grid gap-6 md:grid-cols-3">
             {testimonials.map((t: any) => (
-              <div key={t.name} className="rounded-2xl border border-border/30 bg-card/50 backdrop-blur-sm p-8 hover:border-primary/20 transition-all">
+              <div key={t.name} className="glass-card-public glass-glow-ring p-8">
                 <p className="font-display text-5xl font-bold text-primary/20 mb-4">"</p>
                 <p className="text-muted-foreground leading-relaxed text-sm">{t.text}</p>
                 <div className="mt-6 pt-6 border-t border-border/30">
@@ -325,7 +325,7 @@ export default function Home() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               {awards.map((a: any, i: number) => (
                 <div key={a.year + a.title}
-                  className={`reveal reveal-delay-${Math.min(i + 1, 4)} rounded-2xl border border-border/30 bg-card/30 backdrop-blur-sm p-6 hover:border-primary/30 hover:bg-card/50 transition-all`}>
+                  className={`reveal reveal-delay-${Math.min(i + 1, 4)} glass-card-public glass-glow-ring p-6`}>
                   <span className="font-display text-3xl font-bold text-primary/40">{a.year}</span>
                   <h3 className="font-display text-sm font-semibold text-foreground mt-2 leading-tight">{a.title}</h3>
                   <p className="text-[11px] tracking-wide text-muted-foreground mt-1.5 uppercase">{a.org}</p>
@@ -339,7 +339,7 @@ export default function Home() {
       {/* CTA */}
       <section ref={refCta} className="reveal">
         <div className="container py-24">
-          <div className="max-w-3xl mx-auto text-center rounded-3xl bg-gradient-to-br from-primary/10 via-background to-primary/5 border border-primary/20 p-16 relative overflow-hidden">
+          <div className="max-w-3xl mx-auto text-center glass-card-public p-16 relative overflow-hidden glass-glow-ring">
             {/* Background glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px]" />
             <div className="relative z-10">

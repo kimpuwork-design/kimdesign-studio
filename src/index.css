@@ -151,6 +151,88 @@
   transform: translateY(-1px);
 }
 
+/* ── Public glass card — light/dark aware ── */
+.glass-card-public {
+  background: hsl(var(--card) / 0.45);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid hsl(var(--border) / 0.35);
+  border-radius: 1.25rem;
+  box-shadow: 
+    0 4px 24px -4px hsl(var(--foreground) / 0.04),
+    inset 0 1px 0 hsl(0 0% 100% / 0.06);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass-card-public:hover {
+  border-color: hsl(var(--primary) / 0.3);
+  box-shadow:
+    0 0 0 1px hsl(var(--primary) / 0.08),
+    0 12px 40px -8px hsl(var(--primary) / 0.12),
+    inset 0 1px 0 hsl(0 0% 100% / 0.08);
+  transform: translateY(-2px);
+}
+
+/* ── Glass form container ── */
+.glass-form {
+  background: hsl(var(--card) / 0.4);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid hsl(var(--border) / 0.3);
+  border-radius: 1.5rem;
+  box-shadow:
+    0 8px 40px -12px hsl(var(--foreground) / 0.06),
+    inset 0 1px 0 hsl(0 0% 100% / 0.06);
+}
+
+/* ── Frosted nav ── */
+.glass-nav {
+  background: hsl(var(--background) / 0.5);
+  backdrop-filter: blur(28px) saturate(1.5);
+  -webkit-backdrop-filter: blur(28px) saturate(1.5);
+  border-bottom: 1px solid hsl(var(--border) / 0.25);
+  box-shadow: 0 1px 20px -6px hsl(var(--foreground) / 0.05);
+}
+
+/* ── Glowing border ring ── */
+.glass-glow-ring {
+  position: relative;
+}
+.glass-glow-ring::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.35),
+    transparent 40%,
+    transparent 60%,
+    hsl(var(--primary) / 0.2)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.glass-glow-ring:hover::after {
+  opacity: 1;
+}
+
+/* ── Floating glass orb (decorative) ── */
+.glass-orb {
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    hsl(var(--primary) / 0.12),
+    hsl(var(--primary) / 0.03) 60%,
+    transparent 80%
+  );
+  filter: blur(1px);
+}
+
 /* ── Glass navigation ── */
 .portal-nav-item {
   display: flex;

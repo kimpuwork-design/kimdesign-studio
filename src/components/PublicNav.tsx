@@ -15,7 +15,7 @@ export function PublicNav() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/40 bg-background/60 backdrop-blur-2xl">
+    <header className="sticky top-0 z-50 glass-nav">
       <div className="container flex h-18 items-center justify-between py-4">
         <Link to="/" className="flex items-center gap-3 group">
           <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-shadow">

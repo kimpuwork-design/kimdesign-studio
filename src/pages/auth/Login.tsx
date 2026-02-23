@@ -50,7 +50,7 @@ export default function Login() {
           <p className="mt-2 text-sm text-portal-text-muted">Sign in to your account to continue</p>
         </div>
 
-        <div className="glass-card p-8">
+        <div className="glass-card p-8 glass-glow-ring">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-portal-text-muted">Email</Label>

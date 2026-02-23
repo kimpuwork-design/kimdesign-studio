@@ -73,7 +73,7 @@ export default function ClientProjects() {
             <Link
               key={project.id}
               to={`/app/projects/${project.id}`}
-              className="group rounded-xl border border-portal-border bg-portal-surface p-5 hover:border-portal-accent/40 transition-colors"
+              className="group glass-card glass-card-hover glass-glow-ring p-5"
             >
               <div className="flex items-start justify-between gap-4 mb-3">
                 <h3 className="font-display text-lg font-semibold text-portal-text group-hover:text-portal-accent transition-colors">

@@ -60,7 +60,7 @@ export default function About() {
             <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-10">Principles</p>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {values.map((v: any) => (
-                <div key={v.title} className="rounded-2xl border border-border/50 bg-background/60 backdrop-blur-sm p-8 hover:border-primary/30 hover:shadow-[0_0_20px_rgba(var(--primary),0.05)] transition-all duration-300">
+                <div key={v.title} className="glass-card-public glass-glow-ring p-8">
                   <h3 className="font-display text-xl font-medium text-foreground mb-3">{v.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{v.desc}</p>
                 </div>
@@ -76,7 +76,7 @@ export default function About() {
           <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-10">People</p>
           <div className="grid gap-6 md:grid-cols-3">
             {team.map((p: any) => (
-              <div key={p.name} className="group rounded-2xl border border-border/50 bg-background/60 backdrop-blur-sm overflow-hidden hover:border-primary/30 hover:shadow-[0_0_20px_rgba(var(--primary),0.05)] transition-all duration-300">
+              <div key={p.name} className="group glass-card-public overflow-hidden glass-glow-ring">
                 {p.image_url ? (
                   <img src={p.image_url} alt={p.name} className="h-48 w-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (

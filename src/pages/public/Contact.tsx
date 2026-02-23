@@ -125,7 +125,7 @@ export default function Contact() {
           {/* Form */}
           <div>
             {submitted ? (
-              <div className="rounded-2xl border border-border/50 bg-background/60 backdrop-blur-sm p-12 text-center">
+              <div className="glass-form p-12 text-center">
                 <div className="text-3xl mb-5">✦</div>
                 <h3 className="font-display text-2xl font-light text-foreground">Thank you for reaching out.</h3>
                 <p className="mt-3 text-muted-foreground text-sm">We'll be in touch within two working days.</p>
@@ -137,7 +137,7 @@ export default function Contact() {
                 </Button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="rounded-2xl border border-border/50 bg-background/60 backdrop-blur-sm p-8 space-y-6" noValidate>
+              <form onSubmit={handleSubmit} className="glass-form p-8 space-y-6" noValidate>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="space-y-1.5">
                     <Label htmlFor="name" className="text-xs tracking-wide uppercase text-muted-foreground">Full Name *</Label>

@@ -3,6 +3,7 @@ import { Menu, X, Sun, Moon } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "next-themes";
 import { useSettings } from "@/hooks/useSettings";
+import { KMonogramLogo } from "@/components/KMonogramLogo";
 
 const navLinks = [
   { label: "Projects", href: "/portfolio" },
@@ -22,9 +23,13 @@ export function PublicNav() {
     <header className="sticky top-0 z-50 glass-nav">
       <div className="container flex h-18 items-center justify-between py-4">
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="h-9 w-9 rounded-xl overflow-hidden flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-shadow">
-            <img src={logoUrl} alt={studioName} className="h-full w-full object-contain" />
-          </div>
+          {logoUrl && logoUrl !== "/logo-placeholder.png" ? (
+            <div className="h-9 w-9 rounded-xl overflow-hidden flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-shadow">
+              <img src={logoUrl} alt={studioName} className="h-full w-full object-contain" />
+            </div>
+          ) : (
+            <KMonogramLogo size={36} className="shadow-lg rounded-xl group-hover:shadow-primary/20 transition-shadow" />
+          )}
           <div>
             <span className="font-display text-base font-bold tracking-tight text-foreground">{studioName}</span>
             <span className="block text-[9px] font-medium tracking-[0.2em] uppercase text-muted-foreground">Design Studio</span>

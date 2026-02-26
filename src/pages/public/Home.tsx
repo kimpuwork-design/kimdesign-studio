@@ -265,7 +265,7 @@ export default function Home() {
       .then(({ data }) => setFeatured((data as unknown as PortfolioItem[]) ?? []));
   }, []);
 
-  const studioName = settings?.studio_name ?? "FORMA";
+  const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
 
   const aboutMe = content.about_me ?? {};
   const hero = content.hero ?? {};

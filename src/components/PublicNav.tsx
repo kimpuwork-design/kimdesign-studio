@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "next-themes";
+import { useSettings } from "@/hooks/useSettings";
 
 const navLinks = [
   { label: "Projects", href: "/portfolio" },
@@ -13,16 +14,19 @@ const navLinks = [
 export function PublicNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { settings } = useSettings();
+  const studioName = settings?.studio_name ?? "FORMA";
+  const logoUrl = settings?.logo_url || "/logo-placeholder.png";
 
   return (
     <header className="sticky top-0 z-50 glass-nav">
       <div className="container flex h-18 items-center justify-between py-4">
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-shadow">
-            <span className="font-display text-sm font-bold text-primary-foreground">F</span>
+          <div className="h-9 w-9 rounded-xl overflow-hidden flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-shadow">
+            <img src={logoUrl} alt={studioName} className="h-full w-full object-contain" />
           </div>
           <div>
-            <span className="font-display text-base font-bold tracking-tight text-foreground">FORMA</span>
+            <span className="font-display text-base font-bold tracking-tight text-foreground">{studioName}</span>
             <span className="block text-[9px] font-medium tracking-[0.2em] uppercase text-muted-foreground">Architecture</span>
           </div>
         </Link>

@@ -183,6 +183,7 @@ export type Database = {
           original_name: string
           project_id: string
           size_bytes: number
+          sort_order: number
           storage_bucket: string
           storage_path: string
           uploader_id: string
@@ -199,6 +200,7 @@ export type Database = {
           original_name: string
           project_id: string
           size_bytes?: number
+          sort_order?: number
           storage_bucket?: string
           storage_path: string
           uploader_id: string
@@ -215,6 +217,7 @@ export type Database = {
           original_name?: string
           project_id?: string
           size_bytes?: number
+          sort_order?: number
           storage_bucket?: string
           storage_path?: string
           uploader_id?: string

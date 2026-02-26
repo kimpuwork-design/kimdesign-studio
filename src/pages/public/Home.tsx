@@ -32,23 +32,96 @@ function useCountUp(target: number, duration = 1800) {
   return { count, start };
 }
 
-function AnimatedStat({ value, suffix, label }: { value: number; suffix: string; label: string }) {
+function AnimatedStat({ value, suffix, label, index = 0 }: { value: number; suffix: string; label: string; index?: number }) {
   const { count, start } = useCountUp(value);
+  const [progress, setProgress] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
+
+  // Map stat value to a visual percentage for the ring (capped at 100)
+  const maxValues: Record<string, number> = { "Projects Completed": 150, "Years Experience": 30, "Awards Won": 20, "Team Members": 25 };
+  const targetPercent = Math.min((value / (maxValues[label] || value)) * 100, 100);
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { start(); observer.unobserve(el); } },
-      { threshold: 0.5 }
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          start();
+          // Animate progress ring with slight delay
+          const timer = setTimeout(() => setProgress(targetPercent), 100);
+          observer.unobserve(el);
+          return () => clearTimeout(timer);
+        }
+      },
+      { threshold: 0.4 }
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [start]);
+  }, [start, targetPercent]);
+
+  const size = 120;
+  const strokeWidth = 6;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  // Accent colors for each stat ring
+  const ringColors = [
+    "hsl(var(--primary))",
+    "hsl(var(--primary) / 0.8)",
+    "hsl(var(--primary) / 0.65)",
+    "hsl(var(--primary) / 0.5)",
+  ];
+  const glowColors = [
+    "hsl(var(--primary) / 0.3)",
+    "hsl(var(--primary) / 0.25)",
+    "hsl(var(--primary) / 0.2)",
+    "hsl(var(--primary) / 0.15)",
+  ];
+
   return (
-    <div ref={ref} className="glass-card-public glass-glow-ring text-center p-6">
-      <p className="font-display text-5xl font-bold text-foreground tracking-tight">{count}{suffix}</p>
-      <p className="mt-2 text-xs tracking-[0.15em] uppercase text-muted-foreground font-medium">{label}</p>
+    <div ref={ref} className="glass-card-public glass-glow-ring flex flex-col items-center justify-center p-6 md:p-8 group">
+      {/* Circular Progress Ring */}
+      <div className="relative mb-4">
+        <svg width={size} height={size} className="transform -rotate-90 drop-shadow-sm">
+          {/* Background track */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="hsl(var(--border) / 0.3)"
+            strokeWidth={strokeWidth}
+          />
+          {/* Animated progress arc */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={ringColors[index % ringColors.length]}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            className="transition-all duration-[2000ms] ease-out"
+            style={{
+              filter: `drop-shadow(0 0 6px ${glowColors[index % glowColors.length]})`,
+            }}
+          />
+        </svg>
+        {/* Center number */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <p className="font-display text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-none">
+            {count}<span className="text-primary text-xl md:text-2xl">{suffix}</span>
+          </p>
+        </div>
+      </div>
+      {/* Label */}
+      <p className="text-xs tracking-[0.15em] uppercase text-muted-foreground font-medium text-center group-hover:text-foreground transition-colors duration-300">
+        {label}
+      </p>
     </div>
   );
 }
@@ -205,8 +278,8 @@ export default function Home() {
       {stats.length > 0 && (
         <section ref={refStats} className="reveal py-16">
           <div className="container grid grid-cols-2 gap-4 md:grid-cols-4">
-            {stats.map((s: any) => (
-              <AnimatedStat key={s.label} value={s.value} suffix={s.suffix} label={s.label} />
+            {stats.map((s: any, i: number) => (
+              <AnimatedStat key={s.label} value={s.value} suffix={s.suffix} label={s.label} index={i} />
             ))}
           </div>
         </section>

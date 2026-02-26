@@ -6,8 +6,9 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { FileIcon } from "@/components/files/FileIcon";
 import { FilePreviewModal } from "@/components/files/FilePreviewModal";
 import { supabase } from "@/integrations/supabase/client";
-import { FileAsset, formatBytes, FILE_CATEGORIES, FileCategory, isImageExt, getPublicFileSignedUrl } from "@/lib/files";
-import { ArrowLeft, MapPin, CalendarDays, Eye, Loader2, FolderOpen, ChevronLeft, ChevronRight, X, Maximize2 } from "lucide-react";
+import { FileAsset, formatBytes, FILE_CATEGORIES, isImageExt, getPublicFileSignedUrl } from "@/lib/files";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { ArrowLeft, MapPin, CalendarDays, Eye, Loader2, FolderOpen, ChevronLeft, ChevronRight, X, Maximize2, Sparkles } from "lucide-react";
 
 interface Project {
   id: string;
@@ -31,17 +32,17 @@ function LightBox({ images, index, onClose, onNav }: { images: { url: string; na
   }, [index, images.length, onClose, onNav]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90" onClick={onClose}>
-      <button onClick={onClose} className="absolute top-4 right-4 text-white/70 hover:text-white p-2"><X size={24} /></button>
-      <button onClick={(e) => { e.stopPropagation(); onNav(index > 0 ? index - 1 : images.length - 1); }} className="absolute left-4 text-white/70 hover:text-white p-2"><ChevronLeft size={32} /></button>
-      <button onClick={(e) => { e.stopPropagation(); onNav(index < images.length - 1 ? index + 1 : 0); }} className="absolute right-4 text-white/70 hover:text-white p-2"><ChevronRight size={32} /></button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm" onClick={onClose}>
+      <button onClick={onClose} className="absolute top-4 right-4 rounded-full bg-white/10 p-2.5 text-white/70 hover:text-white hover:bg-white/20 transition-colors"><X size={20} /></button>
+      <button onClick={(e) => { e.stopPropagation(); onNav(index > 0 ? index - 1 : images.length - 1); }} className="absolute left-4 rounded-full bg-white/10 p-2.5 text-white/70 hover:text-white hover:bg-white/20 transition-colors"><ChevronLeft size={28} /></button>
+      <button onClick={(e) => { e.stopPropagation(); onNav(index < images.length - 1 ? index + 1 : 0); }} className="absolute right-4 rounded-full bg-white/10 p-2.5 text-white/70 hover:text-white hover:bg-white/20 transition-colors"><ChevronRight size={28} /></button>
       <img
         src={images[index].url}
         alt={images[index].name}
-        className="max-h-[85vh] max-w-[90vw] object-contain"
+        className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg"
         onClick={(e) => e.stopPropagation()}
       />
-      <span className="absolute bottom-6 text-white/60 text-sm">{index + 1} / {images.length}</span>
+      <span className="absolute bottom-6 text-white/60 text-sm bg-black/40 rounded-full px-4 py-1.5">{index + 1} / {images.length}</span>
     </div>
   );
 }
@@ -55,6 +56,10 @@ export default function PublicProjectDetail() {
   const [preview, setPreview] = useState<FileAsset | null>(null);
   const [lbIndex, setLbIndex] = useState<number | null>(null);
   const [galleryImages, setGalleryImages] = useState<{ url: string; name: string }[]>([]);
+
+  const refHero = useScrollReveal();
+  const refGallery = useScrollReveal();
+  const refFiles = useScrollReveal();
 
   useEffect(() => {
     if (!id) return;
@@ -77,7 +82,7 @@ export default function PublicProjectDetail() {
     });
   }, [id]);
 
-  // Load gallery image signed URLs asynchronously
+  // Load gallery image signed URLs
   useEffect(() => {
     const imageFiles = files.filter((f) => isImageExt(f.extension ?? ""));
     if (imageFiles.length === 0) { setGalleryImages([]); return; }
@@ -105,7 +110,8 @@ export default function PublicProjectDetail() {
       <div className="bg-background min-h-screen">
         <PublicNav />
         <div className="container py-32 text-center">
-          <h2 className="font-display text-3xl font-light text-foreground">Project not found</h2>
+          <h2 className="font-display text-3xl font-bold text-foreground">Project not found</h2>
+          <p className="mt-3 text-muted-foreground">This project doesn't exist or isn't public.</p>
           <Link to="/projects" className="mt-6 inline-flex items-center gap-2 text-primary text-sm hover:underline">
             <ArrowLeft size={14} /> Back to Projects
           </Link>
@@ -126,79 +132,140 @@ export default function PublicProjectDetail() {
   }
   const orderedCategories = FILE_CATEGORIES.map((c) => c.value).filter((c) => grouped[c]);
 
+  // Use first gallery image as hero background
+  const heroImage = galleryImages[0]?.url;
+
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-background min-h-screen relative">
       <PublicNav />
 
-      <div className="container pt-20 pb-16">
-        <Link to="/projects" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-6">
-          <ArrowLeft size={13} /> Back to Projects
-        </Link>
+      {/* Ambient orbs */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute top-1/4 -right-40 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[150px] animate-float" />
+      </div>
 
-        <div className="flex items-start justify-between gap-4 mb-6">
-          <div>
-            <h1 className="font-display text-[clamp(2rem,5vw,3.5rem)] font-light text-foreground leading-tight">
-              {project.title}
-            </h1>
-            {project.description && (
-              <p className="mt-3 text-muted-foreground font-light max-w-2xl leading-relaxed">{project.description}</p>
+      {/* Hero with cover image */}
+      {heroImage ? (
+        <section ref={refHero} className="reveal relative overflow-hidden">
+          <div className="absolute inset-0">
+            <img src={heroImage} alt={project.title} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-background" />
+          </div>
+          <div className="relative container py-28 md:py-40 z-10">
+            <Link to="/projects" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-6 transition-colors">
+              <ArrowLeft size={14} /> Back to Projects
+            </Link>
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-3 mb-4">
+                <StatusBadge status={project.status} />
+              </div>
+              <h1 className="font-display text-4xl md:text-6xl font-bold text-white leading-tight tracking-tight">
+                {project.title}
+              </h1>
+              {project.description && (
+                <p className="mt-4 text-white/80 text-lg max-w-lg font-light leading-relaxed">{project.description}</p>
+              )}
+              <div className="flex flex-wrap gap-3 mt-6">
+                {project.location && (
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
+                    <MapPin size={14} /> {project.location}
+                  </div>
+                )}
+                {project.start_date && (
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
+                    <CalendarDays size={14} /> Start: {new Date(project.start_date).toLocaleDateString()}
+                  </div>
+                )}
+                {project.target_date && (
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
+                    <CalendarDays size={14} /> Target: {new Date(project.target_date).toLocaleDateString()}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <section ref={refHero} className="reveal container pt-20 pb-10 relative z-10">
+          <Link to="/projects" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-6">
+            <ArrowLeft size={13} /> Back to Projects
+          </Link>
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <div>
+              <h1 className="font-display text-[clamp(2rem,5vw,3.5rem)] font-bold text-foreground leading-tight tracking-tight">
+                {project.title}
+              </h1>
+              {project.description && (
+                <p className="mt-3 text-muted-foreground font-light max-w-2xl leading-relaxed">{project.description}</p>
+              )}
+            </div>
+            <StatusBadge status={project.status} className="shrink-0 mt-2" />
+          </div>
+          <div className="flex flex-wrap gap-3 mb-10">
+            {project.location && (
+              <div className="flex items-center gap-2 bg-secondary/60 rounded-full px-4 py-2 text-sm text-foreground">
+                <MapPin size={14} className="text-muted-foreground" /> {project.location}
+              </div>
+            )}
+            {project.start_date && (
+              <div className="flex items-center gap-2 bg-secondary/60 rounded-full px-4 py-2 text-sm text-foreground">
+                <CalendarDays size={14} className="text-muted-foreground" /> Start: {new Date(project.start_date).toLocaleDateString()}
+              </div>
+            )}
+            {project.target_date && (
+              <div className="flex items-center gap-2 bg-secondary/60 rounded-full px-4 py-2 text-sm text-foreground">
+                <CalendarDays size={14} className="text-muted-foreground" /> Target: {new Date(project.target_date).toLocaleDateString()}
+              </div>
             )}
           </div>
-          <StatusBadge status={project.status} className="shrink-0 mt-2" />
-        </div>
+        </section>
+      )}
 
-        <div className="flex flex-wrap gap-3 mb-10">
-          {project.location && (
-            <div className="flex items-center gap-2 bg-secondary/60 px-4 py-2 text-sm text-foreground">
-              <MapPin size={14} className="text-muted-foreground" /> {project.location}
-            </div>
-          )}
-          {project.start_date && (
-            <div className="flex items-center gap-2 bg-secondary/60 px-4 py-2 text-sm text-foreground">
-              <CalendarDays size={14} className="text-muted-foreground" /> Start: {new Date(project.start_date).toLocaleDateString()}
-            </div>
-          )}
-          {project.target_date && (
-            <div className="flex items-center gap-2 bg-secondary/60 px-4 py-2 text-sm text-foreground">
-              <CalendarDays size={14} className="text-muted-foreground" /> Target: {new Date(project.target_date).toLocaleDateString()}
-            </div>
-          )}
-        </div>
-
+      <div className="container py-12 relative z-10">
+        {/* Gallery */}
         {galleryImages.length > 0 && (
-          <div className="mb-12">
-            <h2 className="font-display text-2xl font-light text-foreground mb-6">Gallery</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+          <section ref={refGallery} className="reveal mb-16">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="h-1 w-8 rounded-full bg-primary" />
+              <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">Gallery</h2>
+              <div className="h-px flex-1 bg-border/50" />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {galleryImages.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setLbIndex(i)}
-                  className="group relative aspect-square overflow-hidden bg-secondary/30 border border-border"
+                  className="group relative aspect-square overflow-hidden rounded-2xl border border-border/30 bg-secondary/30"
                 >
-                  <img src={img.url} alt={img.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+                  <img src={img.url} alt={img.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                    <Maximize2 size={20} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Maximize2 size={20} className="text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
                   </div>
                 </button>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
+        {/* Files */}
         {nonImageFiles.length > 0 && (
-          <div>
-            <h2 className="font-display text-2xl font-light text-foreground mb-6">Project Files</h2>
+          <section ref={refFiles} className="reveal">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="h-1 w-8 rounded-full bg-primary" />
+              <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">Project Files</h2>
+              <div className="h-px flex-1 bg-border/50" />
+            </div>
             <div className="space-y-8">
               {orderedCategories.map((cat) => {
                 const catLabel = FILE_CATEGORIES.find((c) => c.value === cat)?.label ?? cat;
                 return (
                   <div key={cat}>
                     <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{catLabel}</h3>
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       {grouped[cat].map((file) => (
                         <div
                           key={file.id}
-                          className="flex items-center gap-3 border border-border bg-secondary/30 px-4 py-3 hover:bg-secondary/60 transition-colors"
+                          className="flex items-center gap-3 rounded-2xl border border-border/30 bg-background/60 backdrop-blur-sm px-5 py-3.5 hover:border-primary/30 hover:shadow-[0_0_20px_rgba(var(--primary),0.05)] transition-all"
                         >
                           <FileIcon ext={file.extension ?? ""} size={18} className="text-muted-foreground shrink-0" />
                           <div className="flex-1 min-w-0">
@@ -206,7 +273,7 @@ export default function PublicProjectDetail() {
                             <p className="text-xs text-muted-foreground">
                               {formatBytes(file.size_bytes)}
                               {file.version > 1 && (
-                                <span className="ml-2 rounded bg-primary/15 px-1.5 py-0.5 text-primary text-[10px] font-semibold">
+                                <span className="ml-2 rounded-full bg-primary/15 px-1.5 py-0.5 text-primary text-[10px] font-semibold">
                                   v{file.version}
                                 </span>
                               )}
@@ -216,7 +283,7 @@ export default function PublicProjectDetail() {
                           <button
                             onClick={() => setPreview(file)}
                             title="Preview"
-                            className="rounded p-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                            className="rounded-xl p-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
                           >
                             <Eye size={15} />
                           </button>
@@ -227,16 +294,28 @@ export default function PublicProjectDetail() {
                 );
               })}
             </div>
-          </div>
+          </section>
         )}
 
         {files.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-center border border-border bg-secondary/30">
+          <div className="flex flex-col items-center justify-center py-16 text-center rounded-2xl border border-border/30 bg-secondary/20">
             <FolderOpen size={40} className="text-muted-foreground/20 mb-3" />
             <p className="text-muted-foreground text-sm">No files uploaded yet.</p>
           </div>
         )}
       </div>
+
+      {/* CTA */}
+      <section className="border-t border-border/50 py-20 relative z-10">
+        <div className="container text-center">
+          <h2 className="font-display text-4xl font-bold text-foreground tracking-tight">Interested in this project?</h2>
+          <p className="mt-3 text-muted-foreground text-sm">Get in touch to learn more or start your own.</p>
+          <Link to="/contact"
+            className="inline-flex items-center gap-2 mt-8 rounded-2xl bg-primary px-10 py-3 text-sm tracking-wide font-medium text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
+            Begin a Conversation
+          </Link>
+        </div>
+      </section>
 
       {lbIndex !== null && <LightBox images={galleryImages} index={lbIndex} onClose={() => setLbIndex(null)} onNav={setLbIndex} />}
       {preview && <FilePreviewModal file={preview} onClose={() => setPreview(null)} role="PUBLIC" />}

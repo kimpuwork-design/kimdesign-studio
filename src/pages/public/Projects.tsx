@@ -6,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/StatusBadge";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Search, MapPin, CalendarDays, FolderOpen, Loader2, ArrowRight, Sparkles, ImageIcon } from "lucide-react";
-import { isImageExt, getPublicFileSignedUrl } from "@/lib/files";
 
 interface Project {
   id: string;
@@ -17,11 +16,13 @@ interface Project {
   start_date: string | null;
   target_date: string | null;
   created_at: string;
+  thumbnail_url: string | null;
 }
 
 const STATUS_OPTIONS = ["all", "inquiry", "active", "review", "delivered", "archived"];
 
-function ProjectCard({ project, coverUrl }: { project: Project; coverUrl?: string }) {
+function ProjectCard({ project }: { project: Project }) {
+  const coverUrl = project.thumbnail_url;
   return (
     <Link
       key={project.id}
@@ -81,7 +82,6 @@ export default function PublicProjects() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [coverUrls, setCoverUrls] = useState<Record<string, string>>({});
 
   const refHero = useScrollReveal();
   const refGrid = useScrollReveal();
@@ -90,30 +90,12 @@ export default function PublicProjects() {
   useEffect(() => {
     supabase
       .from("projects")
-      .select("id, title, description, status, location, start_date, target_date, created_at")
+      .select("id, title, description, status, location, start_date, target_date, created_at, thumbnail_url")
       .eq("is_public", true)
       .order("created_at", { ascending: false })
       .then(({ data }) => {
-        const projs = (data as Project[]) ?? [];
-        setProjects(projs);
+        setProjects((data as Project[]) ?? []);
         setLoading(false);
-
-        // Fetch first image for each project as cover
-        projs.forEach(async (p) => {
-          const { data: files } = await supabase
-            .from("file_assets")
-            .select("id, extension")
-            .eq("project_id", p.id)
-            .eq("is_deleted", false)
-            .order("created_at", { ascending: true })
-            .limit(10);
-          
-          const imageFile = files?.find((f: any) => isImageExt(f.extension ?? ""));
-          if (imageFile) {
-            const url = await getPublicFileSignedUrl(imageFile.id);
-            if (url) setCoverUrls((prev) => ({ ...prev, [p.id]: url }));
-          }
-        });
       });
   }, []);
 
@@ -198,7 +180,7 @@ export default function PublicProjects() {
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((project) => (
-              <ProjectCard key={project.id} project={project} coverUrl={coverUrls[project.id]} />
+              <ProjectCard key={project.id} project={project} />
             ))}
           </div>
         )}

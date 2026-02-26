@@ -105,10 +105,10 @@ export default function Home() {
 
       {/* ── ABOUT ME ── */}
       <section ref={refAbout} className="reveal relative overflow-hidden bg-background">
-        <div className="container grid lg:grid-cols-2 min-h-[85vh] gap-8">
+        <div className="container grid lg:grid-cols-2 lg:min-h-[85vh] gap-8">
           <div className="relative flex items-stretch">
             <div className="relative w-full overflow-hidden rounded-3xl mt-8 mb-8 lg:mt-0 lg:mb-0">
-              <div className="relative z-10 h-[520px] lg:h-full">
+              <div className="relative z-10 h-[400px] md:h-[520px] lg:h-full">
                 <img src={aboutProfileImg} alt={aboutMe.title_prefix ?? "Principal Architect"} className="h-full w-full object-cover object-center rounded-3xl" />
                 {/* Gradient overlay on image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent rounded-3xl" />
@@ -129,7 +129,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="flex flex-col justify-center py-20 lg:pl-12 xl:pl-20">
+          <div className="flex flex-col justify-center py-10 lg:py-20 lg:pl-12 xl:pl-20">
             <div className="flex items-center gap-3 mb-10">
               <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
                 <Sparkles size={14} className="text-primary" />
@@ -169,8 +169,8 @@ export default function Home() {
       </section>
 
       {/* Hero */}
-      <section ref={refHero} className="reveal relative min-h-[90vh] flex items-center">
-        <div className="container py-24 md:py-36">
+      <section ref={refHero} className="reveal relative lg:min-h-[90vh] flex items-center">
+        <div className="container py-12 md:py-36">
           <div className="max-w-4xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-8">
               <Sparkles size={12} className="text-primary" />

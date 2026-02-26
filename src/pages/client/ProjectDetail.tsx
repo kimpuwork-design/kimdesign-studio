@@ -22,6 +22,7 @@ interface Project {
   start_date: string | null;
   target_date: string | null;
   created_at: string;
+  thumbnail_url: string | null;
 }
 
 interface Member {
@@ -92,15 +93,33 @@ export default function ClientProjectDetail() {
         <ArrowLeft size={13} /> Back to Projects
       </button>
 
-      <div className="flex items-start justify-between gap-4 mb-5">
-        <div>
-          <h1 className="font-display text-3xl font-bold text-portal-text">{project!.title}</h1>
-          {project!.description && (
-            <p className="mt-2 text-portal-text-muted leading-relaxed text-sm max-w-2xl">{project!.description}</p>
-          )}
+      {/* Hero thumbnail */}
+      {project!.thumbnail_url && (
+        <div className="relative w-full aspect-[3/1] rounded-xl overflow-hidden mb-5 border border-portal-border">
+          <img src={project!.thumbnail_url} alt={project!.title} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-portal-bg/90 via-portal-bg/30 to-transparent" />
+          <div className="absolute bottom-4 left-5 right-5 flex items-end justify-between">
+            <h1 className="font-display text-3xl font-bold text-white drop-shadow-lg">{project!.title}</h1>
+            <StatusBadge status={project!.status} />
+          </div>
         </div>
-        <StatusBadge status={project!.status} className="shrink-0 mt-1" />
-      </div>
+      )}
+
+      {!project!.thumbnail_url && (
+        <div className="flex items-start justify-between gap-4 mb-5">
+          <div>
+            <h1 className="font-display text-3xl font-bold text-portal-text">{project!.title}</h1>
+            {project!.description && (
+              <p className="mt-2 text-portal-text-muted leading-relaxed text-sm max-w-2xl">{project!.description}</p>
+            )}
+          </div>
+          <StatusBadge status={project!.status} className="shrink-0 mt-1" />
+        </div>
+      )}
+
+      {project!.thumbnail_url && project!.description && (
+        <p className="mb-4 text-portal-text-muted leading-relaxed text-sm max-w-2xl">{project!.description}</p>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-portal-border mb-6">

@@ -31,6 +31,7 @@ interface Project {
   target_date: string | null;
   updated_at: string;
   is_public: boolean;
+  thumbnail_url: string | null;
   profiles: { full_name: string | null; company: string | null } | null;
 }
 
@@ -105,34 +106,58 @@ export default function AdminProjectDetail() {
         <ArrowLeft size={13} /> Back to Projects
       </button>
 
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-2">
-        <div>
-          <h1 className="font-display text-3xl font-bold text-portal-text">{project!.title}</h1>
-          {project!.profiles && (
-            <div className="flex items-center gap-2 mt-2 text-portal-text-muted">
-              <User size={14} />
-              <span className="text-sm">
-                {project!.profiles.full_name}
-                {project!.profiles.company && ` · ${project!.profiles.company}`}
-              </span>
-            </div>
-          )}
-          {project!.description && (
-            <p className="mt-2 text-portal-text-muted leading-relaxed text-sm max-w-2xl">{project!.description}</p>
-          )}
+      {/* Hero thumbnail */}
+      {project!.thumbnail_url && (
+        <div className="relative w-full aspect-[3/1] rounded-xl overflow-hidden mb-5 border border-portal-border">
+          <img src={project!.thumbnail_url} alt={project!.title} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-portal-bg/90 via-portal-bg/30 to-transparent" />
+          <div className="absolute bottom-4 left-5 right-5">
+            <h1 className="font-display text-3xl font-bold text-white drop-shadow-lg">{project!.title}</h1>
+            {project!.profiles && (
+              <div className="flex items-center gap-2 mt-1.5 text-white/70">
+                <User size={14} />
+                <span className="text-sm">
+                  {project!.profiles.full_name}
+                  {project!.profiles.company && ` · ${project!.profiles.company}`}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <StatusBadge status={project!.status} />
-          <Button size="sm" variant="outline" className="border-portal-border text-portal-text-muted"
-            onClick={() => setShowEdit(true)}>
-            <Pencil size={13} className="mr-1.5" />Edit
-          </Button>
-          <Button size="sm" variant="outline" className="border-portal-border text-portal-text-muted"
-            onClick={() => setShowAssign(true)}>
-            <Users size={13} className="mr-1.5" />Team
-          </Button>
+      )}
+
+      {/* Header (no thumbnail fallback) */}
+      {!project!.thumbnail_url && (
+        <div className="flex items-start justify-between gap-4 mb-2">
+          <div>
+            <h1 className="font-display text-3xl font-bold text-portal-text">{project!.title}</h1>
+            {project!.profiles && (
+              <div className="flex items-center gap-2 mt-2 text-portal-text-muted">
+                <User size={14} />
+                <span className="text-sm">
+                  {project!.profiles.full_name}
+                  {project!.profiles.company && ` · ${project!.profiles.company}`}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
+      )}
+
+      {project!.description && (
+        <p className="mt-1 mb-2 text-portal-text-muted leading-relaxed text-sm max-w-2xl">{project!.description}</p>
+      )}
+
+      <div className="flex items-center gap-2 mb-2">
+        <StatusBadge status={project!.status} />
+        <Button size="sm" variant="outline" className="border-portal-border text-portal-text-muted"
+          onClick={() => setShowEdit(true)}>
+          <Pencil size={13} className="mr-1.5" />Edit
+        </Button>
+        <Button size="sm" variant="outline" className="border-portal-border text-portal-text-muted"
+          onClick={() => setShowAssign(true)}>
+          <Users size={13} className="mr-1.5" />Team
+        </Button>
       </div>
 
       {/* Tabs */}

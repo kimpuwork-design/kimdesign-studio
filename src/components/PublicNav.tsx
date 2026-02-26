@@ -15,7 +15,7 @@ export function PublicNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const { settings } = useSettings();
-  const studioName = settings?.studio_name ?? "FORMA";
+  const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
   const logoUrl = settings?.logo_url || "/logo-placeholder.png";
 
   return (
@@ -27,7 +27,7 @@ export function PublicNav() {
           </div>
           <div>
             <span className="font-display text-base font-bold tracking-tight text-foreground">{studioName}</span>
-            <span className="block text-[9px] font-medium tracking-[0.2em] uppercase text-muted-foreground">Architecture</span>
+            <span className="block text-[9px] font-medium tracking-[0.2em] uppercase text-muted-foreground">Design Studio</span>
           </div>
         </Link>
 

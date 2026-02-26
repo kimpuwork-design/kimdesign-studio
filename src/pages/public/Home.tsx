@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { PortfolioItem } from "@/lib/portfolio";
 import { useSettings } from "@/hooks/useSettings";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, Calendar, GraduationCap, Award, Globe, Sparkles } from "lucide-react";
+import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, Calendar, GraduationCap, Award, Globe, Sparkles, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import profileImg from "@/assets/profile-placeholder.jpg";
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, GraduationCap, Award, Globe };
@@ -123,6 +124,117 @@ function AnimatedStat({ value, suffix, label, index = 0 }: { value: number; suff
         {label}
       </p>
     </div>
+  );
+}
+
+function TestimonialsCarousel({ testimonials, sectionRef }: { testimonials: any[]; sectionRef: React.RefObject<HTMLElement> }) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+    setCanScrollPrev(emblaApi.canScrollPrev());
+    setCanScrollNext(emblaApi.canScrollNext());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+    return () => { emblaApi.off("select", onSelect); emblaApi.off("reInit", onSelect); };
+  }, [emblaApi, onSelect]);
+
+  // Auto-play
+  useEffect(() => {
+    if (!emblaApi) return;
+    const interval = setInterval(() => emblaApi.scrollNext(), 5000);
+    return () => clearInterval(interval);
+  }, [emblaApi]);
+
+  return (
+    <section ref={sectionRef} className="reveal py-24 relative overflow-hidden">
+      {/* Ambient background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-primary/3 rounded-full blur-[100px]" />
+      </div>
+
+      <div className="container relative z-10">
+        <div className="mb-14 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-1 w-8 rounded-full bg-primary" />
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">Recognition</p>
+            </div>
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">Client Voices</h2>
+          </div>
+          {/* Navigation arrows */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => emblaApi?.scrollPrev()}
+              disabled={!canScrollPrev}
+              className="h-10 w-10 rounded-full border border-border/50 bg-background/50 backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all disabled:opacity-30"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <button
+              onClick={() => emblaApi?.scrollNext()}
+              disabled={!canScrollNext}
+              className="h-10 w-10 rounded-full border border-border/50 bg-background/50 backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all disabled:opacity-30"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        </div>
+
+        {/* Carousel */}
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex gap-6">
+            {testimonials.map((t: any, i: number) => (
+              <div
+                key={t.name}
+                className="flex-[0_0_100%] min-w-0 md:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
+              >
+                <div className={`glass-card-public glass-glow-ring p-8 h-full flex flex-col transition-all duration-500 ${
+                  selectedIndex === i ? "scale-[1.02] shadow-lg shadow-primary/5" : "opacity-70"
+                }`}>
+                  <Quote size={32} className="text-primary/20 mb-4 shrink-0" />
+                  <p className="text-muted-foreground leading-relaxed text-sm flex-1">{t.text}</p>
+                  <div className="mt-6 pt-6 border-t border-border/30 flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="font-display text-sm font-bold text-primary">{t.name?.charAt(0)}</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                      <p className="text-xs text-muted-foreground tracking-wide">{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Dot indicators */}
+        <div className="flex items-center justify-center gap-2 mt-8">
+          {testimonials.map((_: any, i: number) => (
+            <button
+              key={i}
+              onClick={() => emblaApi?.scrollTo(i)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                selectedIndex === i
+                  ? "w-8 bg-primary"
+                  : "w-2 bg-border/60 hover:bg-muted-foreground/40"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -363,27 +475,7 @@ export default function Home() {
 
       {/* Testimonials */}
       {testimonials.length > 0 && (
-        <section ref={refTestimonials} className="reveal container py-24">
-          <div className="mb-14">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="h-1 w-8 rounded-full bg-primary" />
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">Recognition</p>
-            </div>
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">Client Voices</h2>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {testimonials.map((t: any) => (
-              <div key={t.name} className="glass-card-public glass-glow-ring p-8">
-                <p className="font-display text-5xl font-bold text-primary/20 mb-4">"</p>
-                <p className="text-muted-foreground leading-relaxed text-sm">{t.text}</p>
-                <div className="mt-6 pt-6 border-t border-border/30">
-                  <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                  <p className="text-xs text-muted-foreground tracking-wide mt-0.5">{t.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        <TestimonialsCarousel testimonials={testimonials} sectionRef={refTestimonials} />
       )}
 
       {/* Awards */}

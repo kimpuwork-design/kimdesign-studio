@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Mail, Instagram } from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
+import { KMonogramLogo } from "@/components/KMonogramLogo";
 
 const NAV_LINKS = [
   { label: "Projects", href: "/portfolio" },
@@ -26,9 +27,13 @@ export function PublicFooter() {
         <div className="flex flex-col md:flex-row items-start justify-between gap-10">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="h-8 w-8 rounded-lg overflow-hidden flex-shrink-0">
-                <img src={logoUrl} alt={studioName} className="h-full w-full object-contain" />
-              </div>
+              {logoUrl && logoUrl !== "/logo-placeholder.png" ? (
+                <div className="h-8 w-8 rounded-lg overflow-hidden flex-shrink-0">
+                  <img src={logoUrl} alt={studioName} className="h-full w-full object-contain" />
+                </div>
+              ) : (
+                <KMonogramLogo size={32} className="rounded-lg flex-shrink-0" />
+              )}
               <span className="font-display text-lg font-semibold text-foreground">{studioName}</span>
               <span className="h-px w-5 bg-primary" />
               <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Architecture</span>

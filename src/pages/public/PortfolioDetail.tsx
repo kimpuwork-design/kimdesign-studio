@@ -227,23 +227,51 @@ export default function PortfolioDetail() {
 
         {/* Related */}
         {related.length > 0 && (
-          <section className="mt-16 pt-12 border-t border-border">
-            <h2 className="font-display text-2xl font-semibold text-foreground mb-8">Related Projects</h2>
+          <section className="mt-16 pt-12 border-t border-border/40 relative">
+            {/* Ambient orb */}
+            <div className="absolute -top-20 right-0 w-72 h-72 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
+
+            <div className="flex items-center gap-3 mb-10">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+              <h2 className="font-display text-2xl font-bold text-foreground tracking-tight">Related Projects</h2>
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+            </div>
+
             <div className="grid gap-6 sm:grid-cols-3">
               {related.map((r) => (
                 <Link key={r.id} to={`/portfolio/${r.slug}`}
-                  className="group block rounded-xl overflow-hidden border border-border bg-card hover:border-primary/40 transition-all hover:-translate-y-1">
-                  <div className="aspect-[4/3] overflow-hidden bg-secondary/50">
+                  className="group relative block rounded-2xl overflow-hidden glass-card-hover transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg hover:shadow-primary/10">
+                  {/* Image */}
+                  <div className="aspect-[4/3] overflow-hidden bg-secondary/30 relative">
                     {r.cover_image_url ? (
                       <img src={r.cover_image_url} alt={r.title} loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     ) : (
-                      <div className="w-full h-full" />
+                      <div className="w-full h-full bg-gradient-to-br from-muted to-secondary" />
+                    )}
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    {/* Category pill on hover */}
+                    {r.category && (
+                      <span className="absolute top-3 left-3 rounded-full bg-primary/90 backdrop-blur-sm px-3 py-1 text-[11px] font-semibold text-primary-foreground uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                        {r.category}
+                      </span>
                     )}
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-display font-semibold text-foreground group-hover:text-primary transition-colors">{r.title}</h3>
-                    {r.category && <p className="text-xs text-muted-foreground mt-1">{r.category}</p>}
+                  {/* Info */}
+                  <div className="p-5 relative">
+                    <div className="absolute top-0 left-5 right-5 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <h3 className="font-display font-bold text-foreground group-hover:text-primary transition-colors text-base">
+                      {r.title}
+                    </h3>
+                    {r.location && (
+                      <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
+                        <MapPin size={11} />{r.location}
+                      </p>
+                    )}
+                    <div className="mt-3 flex items-center gap-1.5 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-0 group-hover:translate-x-1">
+                      View Project <ArrowRight size={12} />
+                    </div>
                   </div>
                 </Link>
               ))}

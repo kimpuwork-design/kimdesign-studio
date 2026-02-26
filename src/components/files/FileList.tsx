@@ -35,11 +35,13 @@ interface Props {
   canUpload?: boolean;
   refreshKey?: number;
   role?: "CLIENT" | "STAFF" | "ADMIN";
+  canReorder?: boolean;
 }
 
 type ViewMode = "list" | "grid";
 
-export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADMIN" }: Props) {
+export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADMIN", canReorder }: Props) {
+  const allowReorder = canReorder ?? (role === "ADMIN" || role === "STAFF");
   const { toast } = useToast();
   const [files, setFiles] = useState<FileAsset[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,6 +58,7 @@ export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADM
       .select("*, uploader:uploader_id(full_name)")
       .eq("project_id", projectId)
       .eq("is_deleted", false)
+      .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -114,8 +117,8 @@ export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADM
     setDeleting(null);
   };
 
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
+  const handleDragEnd = async (result: DropResult) => {
+    if (!result.destination || result.source.index === result.destination.index) return;
     const reordered = Array.from(filteredFiles);
     const [moved] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, moved);
@@ -124,6 +127,12 @@ export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADM
     const filteredIds = new Set(reordered.map((f) => f.id));
     const otherFiles = files.filter((f) => !filteredIds.has(f.id));
     setFiles([...reordered, ...otherFiles]);
+
+    // Persist sort_order to database
+    const updates = reordered.map((f, i) => ({ id: f.id, sort_order: i }));
+    for (const u of updates) {
+      await supabase.from("file_assets").update({ sort_order: u.sort_order } as any).eq("id", u.id);
+    }
   };
 
   const toggleFilter = (cat: FileCategory) => {
@@ -225,28 +234,13 @@ export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADM
               }
             >
               {filteredFiles.map((file, index) => (
-                <Draggable key={file.id} draggableId={file.id} index={index}>
+                <Draggable key={file.id} draggableId={file.id} index={index} isDragDisabled={!allowReorder}>
                   {(dragProvided, snapshot) =>
                     viewMode === "list" ? (
                       <FileRowItem
                         ref={dragProvided.innerRef}
                         draggableProps={dragProvided.draggableProps}
-                        dragHandleProps={dragProvided.dragHandleProps}
-                        isDragging={snapshot.isDragging}
-                        file={file}
-                        currentUserId={currentUserId}
-                        downloading={downloading === file.id}
-                        deleting={deleting === file.id}
-                        onPreview={() => setPreview(file)}
-                        onDownload={() => handleDownload(file)}
-                        onDelete={() => handleDelete(file)}
-                    showDownload={true}
-                      />
-                    ) : (
-                      <FileGridItem
-                        ref={dragProvided.innerRef}
-                        draggableProps={dragProvided.draggableProps}
-                        dragHandleProps={dragProvided.dragHandleProps}
+                        dragHandleProps={allowReorder ? dragProvided.dragHandleProps : undefined}
                         isDragging={snapshot.isDragging}
                         file={file}
                         currentUserId={currentUserId}
@@ -256,6 +250,23 @@ export function FileList({ projectId, currentUserId, refreshKey = 0, role = "ADM
                         onDownload={() => handleDownload(file)}
                         onDelete={() => handleDelete(file)}
                         showDownload={true}
+                        showDragHandle={allowReorder}
+                      />
+                    ) : (
+                      <FileGridItem
+                        ref={dragProvided.innerRef}
+                        draggableProps={dragProvided.draggableProps}
+                        dragHandleProps={allowReorder ? dragProvided.dragHandleProps : undefined}
+                        isDragging={snapshot.isDragging}
+                        file={file}
+                        currentUserId={currentUserId}
+                        downloading={downloading === file.id}
+                        deleting={deleting === file.id}
+                        onPreview={() => setPreview(file)}
+                        onDownload={() => handleDownload(file)}
+                        onDelete={() => handleDelete(file)}
+                        showDownload={true}
+                        showDragHandle={allowReorder}
                       />
                     )
                   }
@@ -282,6 +293,7 @@ interface ItemProps {
   onDownload: () => void;
   onDelete: () => void;
   showDownload?: boolean;
+  showDragHandle?: boolean;
   isDragging: boolean;
   draggableProps: Record<string, any>;
   dragHandleProps: Record<string, any> | null | undefined;
@@ -302,7 +314,7 @@ function useThumbnailUrl(file: FileAsset) {
 }
 
 const FileRowItem = forwardRef<HTMLDivElement, ItemProps>(
-  ({ file, currentUserId, downloading, deleting, onPreview, onDownload, onDelete, showDownload = true, isDragging, draggableProps, dragHandleProps }, ref) => {
+  ({ file, currentUserId, downloading, deleting, onPreview, onDownload, onDelete, showDownload = true, showDragHandle = true, isDragging, draggableProps, dragHandleProps }, ref) => {
     const ext = file.extension ?? "";
     const canDelete = file.uploader_id === currentUserId;
     const { isImg, thumbUrl } = useThumbnailUrl(file);
@@ -313,9 +325,11 @@ const FileRowItem = forwardRef<HTMLDivElement, ItemProps>(
         {...draggableProps}
         className={`flex items-center gap-3 rounded-lg border border-portal-border bg-portal-bg px-3 py-2.5 transition-colors ${isDragging ? "shadow-lg ring-2 ring-portal-accent/30" : "hover:bg-portal-surface"}`}
       >
-        <div {...dragHandleProps} className="cursor-grab text-portal-text-muted/50 hover:text-portal-text-muted shrink-0">
-          <GripVertical size={14} />
-        </div>
+        {showDragHandle && (
+          <div {...dragHandleProps} className="cursor-grab text-portal-text-muted/50 hover:text-portal-text-muted shrink-0">
+            <GripVertical size={14} />
+          </div>
+        )}
         {thumbUrl ? (
           <button onClick={onPreview} className="shrink-0 rounded-md overflow-hidden border border-portal-border w-10 h-10">
             <img src={thumbUrl} alt={file.original_name} className="w-full h-full object-cover" loading="lazy" />
@@ -355,7 +369,7 @@ FileRowItem.displayName = "FileRowItem";
 
 /* ── Grid View Card ────────────────────────────────────── */
 const FileGridItem = forwardRef<HTMLDivElement, ItemProps>(
-  ({ file, currentUserId, downloading, deleting, onPreview, onDownload, onDelete, showDownload = true, isDragging, draggableProps, dragHandleProps }, ref) => {
+  ({ file, currentUserId, downloading, deleting, onPreview, onDownload, onDelete, showDownload = true, showDragHandle = true, isDragging, draggableProps, dragHandleProps }, ref) => {
     const ext = file.extension ?? "";
     const canDelete = file.uploader_id === currentUserId;
     const { isImg, thumbUrl } = useThumbnailUrl(file);
@@ -367,9 +381,11 @@ const FileGridItem = forwardRef<HTMLDivElement, ItemProps>(
         className={`group relative flex flex-col rounded-xl border border-portal-border bg-portal-bg overflow-hidden transition-colors ${isDragging ? "shadow-lg ring-2 ring-portal-accent/30" : "hover:bg-portal-surface"}`}
       >
         {/* Drag handle */}
-        <div {...dragHandleProps} className="absolute top-1.5 left-1.5 z-10 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity rounded bg-portal-bg/80 p-0.5">
-          <GripVertical size={12} className="text-portal-text-muted" />
-        </div>
+        {showDragHandle && (
+          <div {...dragHandleProps} className="absolute top-1.5 left-1.5 z-10 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity rounded bg-portal-bg/80 p-0.5">
+            <GripVertical size={12} className="text-portal-text-muted" />
+          </div>
+        )}
 
         {/* Thumbnail / icon area */}
         <button onClick={onPreview} className="flex items-center justify-center h-32 bg-portal-surface/50 overflow-hidden">

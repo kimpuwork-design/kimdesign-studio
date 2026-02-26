@@ -69,7 +69,7 @@ export function PublicFooter() {
         </div>
         <div className="mt-10 pt-6 border-t border-border/50 flex flex-col md:flex-row gap-2 justify-between">
           <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} {studioName} Architecture. All rights reserved.</p>
-          <p className="text-xs text-muted-foreground">London · New York · Copenhagen</p>
+          <p className="text-xs text-muted-foreground">Yangon · Mandalay · Myanmar</p>
         </div>
       </div>
     </footer>

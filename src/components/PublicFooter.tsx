@@ -12,6 +12,7 @@ const NAV_LINKS = [
 export function PublicFooter() {
   const { settings } = useSettings();
   const studioName = settings?.studio_name ?? "FORMA";
+  const logoUrl = settings?.logo_url || "/logo-placeholder.png";
   const tagline = settings?.tagline ?? "Architecture that endures";
   const email = settings?.contact_email ?? "studio@forma.com";
   const instagram = settings?.instagram_url;
@@ -25,6 +26,9 @@ export function PublicFooter() {
         <div className="flex flex-col md:flex-row items-start justify-between gap-10">
           <div>
             <div className="flex items-center gap-3 mb-4">
+              <div className="h-8 w-8 rounded-lg overflow-hidden flex-shrink-0">
+                <img src={logoUrl} alt={studioName} className="h-full w-full object-contain" />
+              </div>
               <span className="font-display text-lg font-semibold text-foreground">{studioName}</span>
               <span className="h-px w-5 bg-primary" />
               <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Architecture</span>

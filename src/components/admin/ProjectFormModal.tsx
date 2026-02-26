@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { X, User, Save } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { X, User, Save, ImagePlus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,7 @@ export interface ProjectFormData {
   start_date: string;
   target_date: string;
   is_public: boolean;
+  thumbnail_url: string;
 }
 
 interface ProjectFormModalProps {
@@ -35,6 +36,7 @@ interface ProjectFormModalProps {
     start_date: string | null;
     target_date: string | null;
     is_public?: boolean;
+    thumbnail_url?: string | null;
   } | null;
   onClose: () => void;
   onSaved: () => void;
@@ -54,9 +56,27 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
     start_date: editProject?.start_date ?? "",
     target_date: editProject?.target_date ?? "",
     is_public: editProject?.is_public ?? false,
+    thumbnail_url: editProject?.thumbnail_url ?? "",
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+    const path = `thumbnails/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("portfolio").upload(path, file, { upsert: true });
+    if (upErr) { setError(upErr.message); setUploading(false); return; }
+    const { data: urlData } = supabase.storage.from("portfolio").getPublicUrl(path);
+    setForm((f) => ({ ...f, thumbnail_url: urlData.publicUrl }));
+    setUploading(false);
+  };
+
+  const removeThumbnail = () => setForm((f) => ({ ...f, thumbnail_url: "" }));
 
   useEffect(() => {
     supabase
@@ -88,6 +108,7 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
       start_date: form.start_date || null,
       target_date: form.target_date || null,
       is_public: form.is_public,
+      thumbnail_url: form.thumbnail_url.trim() || null,
     };
 
     if (editProject) {
@@ -182,6 +203,27 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
           </div>
 
 
+          {/* Thumbnail upload */}
+          <div className="space-y-1.5">
+            <Label className="text-portal-text-muted">Thumbnail</Label>
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleThumbnailUpload} />
+            {form.thumbnail_url ? (
+              <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-portal-border bg-portal-bg">
+                <img src={form.thumbnail_url} alt="Thumbnail" className="w-full h-full object-cover" />
+                <button type="button" onClick={removeThumbnail}
+                  className="absolute top-2 right-2 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/80 transition-colors">
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
+                className="w-full flex flex-col items-center gap-2 rounded-lg border border-dashed border-portal-border bg-portal-bg/50 py-6 text-portal-text-muted hover:border-portal-accent/50 hover:text-portal-accent transition-colors">
+                <ImagePlus size={24} />
+                <span className="text-xs">{uploading ? "Uploading…" : "Click to upload thumbnail"}</span>
+              </button>
+            )}
+          </div>
+
           {/* Public visibility toggle */}
           <div className="flex items-center gap-3 rounded-lg border border-portal-border bg-portal-bg/50 px-4 py-3">
             <input
@@ -196,8 +238,6 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
               <span className="block text-xs text-portal-text-muted">When enabled, this project and its files will be visible to anyone on the public Projects page.</span>
             </label>
           </div>
-
-
 
           <div className="flex gap-3 pt-2">
             <Button type="button" variant="outline" onClick={onClose}

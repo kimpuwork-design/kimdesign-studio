@@ -713,6 +713,7 @@ export type Database = {
           start_date: string | null
           status: string
           target_date: string | null
+          thumbnail_url: string | null
           title: string
           updated_at: string
         }
@@ -726,6 +727,7 @@ export type Database = {
           start_date?: string | null
           status?: string
           target_date?: string | null
+          thumbnail_url?: string | null
           title: string
           updated_at?: string
         }
@@ -739,6 +741,7 @@ export type Database = {
           start_date?: string | null
           status?: string
           target_date?: string | null
+          thumbnail_url?: string | null
           title?: string
           updated_at?: string
         }

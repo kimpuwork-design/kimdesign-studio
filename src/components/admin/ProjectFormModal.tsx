@@ -202,6 +202,19 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-portal-text-muted">Start Date</Label>
+              <Input type="date" value={form.start_date} onChange={(e) => set("start_date", e.target.value)}
+                className="bg-portal-bg border-portal-border text-portal-text" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-portal-text-muted">Target Date</Label>
+              <Input type="date" value={form.target_date} onChange={(e) => set("target_date", e.target.value)}
+                className="bg-portal-bg border-portal-border text-portal-text" />
+            </div>
+          </div>
+
 
           {/* Thumbnail upload */}
           <div className="space-y-1.5">

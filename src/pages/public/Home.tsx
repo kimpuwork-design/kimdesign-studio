@@ -480,20 +480,53 @@ export default function Home() {
 
       {/* Awards */}
       {awards.length > 0 && (
-        <section ref={refAwards} className="reveal py-20">
-          <div className="container">
-            <div className="mb-12 flex items-center gap-6">
-              <div className="h-px flex-1 bg-border/50" />
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary shrink-0">Awards & Recognition</p>
-              <div className="h-px flex-1 bg-border/50" />
+        <section ref={refAwards} className="reveal py-24 relative overflow-hidden">
+          {/* Ambient glow */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/3 right-0 w-80 h-80 bg-primary/5 rounded-full blur-[120px]" />
+            <div className="absolute bottom-0 left-1/4 w-64 h-64 bg-primary/3 rounded-full blur-[100px]" />
+          </div>
+
+          <div className="container relative z-10">
+            {/* Header */}
+            <div className="mb-16 text-center">
+              <div className="inline-flex items-center gap-2 mb-4">
+                <Award size={14} className="text-primary" />
+                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">Awards & Recognition</p>
+              </div>
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">Honored Work</h2>
+              <div className="mt-6 mx-auto w-24 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+
+            {/* Awards timeline-style grid */}
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {awards.map((a: any, i: number) => (
-                <div key={a.year + a.title}
-                  className={`reveal reveal-delay-${Math.min(i + 1, 4)} glass-card-public glass-glow-ring p-6`}>
-                  <span className="font-display text-3xl font-bold text-primary/40">{a.year}</span>
-                  <h3 className="font-display text-sm font-semibold text-foreground mt-2 leading-tight">{a.title}</h3>
-                  <p className="text-[11px] tracking-wide text-muted-foreground mt-1.5 uppercase">{a.org}</p>
+                <div
+                  key={a.year + a.title}
+                  className={`reveal reveal-delay-${Math.min(i + 1, 4)} group glass-card-public glass-glow-ring p-8 relative overflow-hidden`}
+                >
+                  {/* Decorative corner accent */}
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-bl-[60px] transition-all duration-500 group-hover:bg-primary/10 group-hover:w-24 group-hover:h-24" />
+
+                  <div className="relative z-10 flex flex-col h-full">
+                    {/* Year badge */}
+                    <div className="inline-flex items-center gap-2 mb-4">
+                      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+                        <Calendar size={14} className="text-primary" />
+                      </div>
+                      <span className="font-display text-sm font-bold text-primary tracking-wide">{a.year}</span>
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="font-display text-lg font-semibold text-foreground leading-snug mb-2 group-hover:text-primary transition-colors duration-300">
+                      {a.title}
+                    </h3>
+
+                    {/* Organization */}
+                    <div className="mt-auto pt-4 border-t border-border/20">
+                      <p className="text-xs tracking-[0.12em] text-muted-foreground uppercase font-medium">{a.org}</p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>

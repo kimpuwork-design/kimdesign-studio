@@ -5,6 +5,8 @@ import { PublicFooter } from "@/components/PublicFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { PortfolioItem } from "@/lib/portfolio";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useSEO } from "@/hooks/useSEO";
+import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { Search, MapPin, Calendar, Grid3X3, Star, Loader2, ArrowRight, Sparkles } from "lucide-react";
 
 const CATEGORIES = ["All", "Residential", "Cultural", "Commercial", "Interior", "Landscape", "Civic", "Mixed-Use"];
@@ -70,6 +72,7 @@ function PortfolioCard({ item, large = false }: { item: PortfolioItem; large?: b
 
 
 export default function PublicPortfolio() {
+  useSEO({ title: "Portfolio", description: "Explore our architecture portfolio — residential, cultural, commercial projects" });
   const [items, setItems] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -243,6 +246,7 @@ export default function PublicPortfolio() {
       </section>
 
       <PublicFooter />
+      <FloatingChatButton />
     </div>
   );
 }

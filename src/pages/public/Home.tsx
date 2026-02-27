@@ -9,6 +9,9 @@ import { PortfolioItem } from "@/lib/portfolio";
 import { useSettings } from "@/hooks/useSettings";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useSEO } from "@/hooks/useSEO";
+import { FloatingChatButton } from "@/components/FloatingChatButton";
+import { ArchitectureBusinessJsonLd } from "@/components/JsonLd";
 import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, Calendar, GraduationCap, Award, Globe, Sparkles, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import profileImg from "@/assets/profile-placeholder.jpg";
 
@@ -266,6 +269,7 @@ export default function Home() {
   }, []);
 
   const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
+  useSEO({ title: "Home", description: `${studioName} — Professional Architecture & Design Studio in Myanmar` });
 
   const aboutMe = content.about_me ?? {};
   const hero = content.hero ?? {};
@@ -280,6 +284,7 @@ export default function Home() {
 
   return (
     <div className="bg-background relative overflow-hidden">
+      <ArchitectureBusinessJsonLd />
       {/* Ambient orbs */}
       <div className="pointer-events-none fixed inset-0 z-0">
         <div className="absolute top-0 left-1/4 h-[500px] w-[500px] rounded-full bg-primary/[0.04] blur-[120px] animate-float" />
@@ -555,6 +560,7 @@ export default function Home() {
       </section>
 
       <PublicFooter />
+      <FloatingChatButton />
     </div>
   );
 }

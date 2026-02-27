@@ -4,8 +4,11 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { useSEO } from "@/hooks/useSEO";
+import { FloatingChatButton } from "@/components/FloatingChatButton";
 
 export default function About() {
+  useSEO({ title: "About", description: "Learn about our architecture studio, values, and team" });
   const { content } = useSiteContent("about_page", "values", "team");
 
   const page = content.about_page ?? {};
@@ -94,6 +97,7 @@ export default function About() {
       )}
 
       <PublicFooter />
+      <FloatingChatButton />
     </div>
   );
 }

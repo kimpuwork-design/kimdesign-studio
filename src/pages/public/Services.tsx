@@ -4,10 +4,13 @@ import { Building2, Ruler, Leaf, PenTool, FileText, Lightbulb } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { useSEO } from "@/hooks/useSEO";
+import { FloatingChatButton } from "@/components/FloatingChatButton";
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, FileText, Lightbulb };
 
 export default function Services() {
+  useSEO({ title: "Services", description: "Architecture, interior design, and planning services by KIM DESIGN STUDIO" });
   const { content } = useSiteContent("services_full", "services_page", "process");
 
   const services: any[] = content.services_full ?? [];
@@ -89,6 +92,7 @@ export default function Services() {
         </Button>
       </section>
       <PublicFooter />
+      <FloatingChatButton />
     </div>
   );
 }

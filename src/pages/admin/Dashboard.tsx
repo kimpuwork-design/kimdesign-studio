@@ -13,6 +13,8 @@ interface Stats {
   activeProjects: number;
   newLeads: number;
   revenue: number;
+  outstanding: number;
+  leadConversion: { status: string; count: number }[];
 }
 
 interface RecentActivity {
@@ -41,7 +43,7 @@ const STATUS_COLORS: Record<string, string> = {
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const [stats, setStats] = useState<Stats>({ totalClients: 0, activeProjects: 0, newLeads: 0, revenue: 0 });
+  const [stats, setStats] = useState<Stats>({ totalClients: 0, activeProjects: 0, newLeads: 0, revenue: 0, outstanding: 0, leadConversion: [] });
   const [activity, setActivity] = useState<RecentActivity[]>([]);
   const [projectStatuses, setProjectStatuses] = useState<ProjectStatus[]>([]);
   const [recentInvoices, setRecentInvoices] = useState<{ month: string; total: number }[]>([]);
@@ -50,7 +52,7 @@ export default function AdminDashboard() {
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
 
-    const [clientsRes, projectsRes, leadsRes, revenueRes, activityRes, statusRes, invoiceRes] = await Promise.all([
+    const [clientsRes, projectsRes, leadsRes, revenueRes, activityRes, statusRes, invoiceRes, outstandingRes, allLeadsRes] = await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "CLIENT"),
       supabase.from("projects").select("id", { count: "exact", head: true }).neq("status", "archived").neq("status", "completed"),
       supabase.from("leads").select("id", { count: "exact", head: true }).eq("status", "new"),
@@ -58,15 +60,25 @@ export default function AdminDashboard() {
       supabase.from("audit_logs").select("id, action, entity_type, created_at, actor_id").order("created_at", { ascending: false }).limit(8),
       supabase.from("projects").select("status"),
       supabase.from("invoices").select("total, paid_at").eq("status", "paid").gte("paid_at", subDays(new Date(), 180).toISOString()),
+      supabase.from("invoices").select("total").in("status", ["sent", "draft"]),
+      supabase.from("leads").select("status"),
     ]);
 
     const revenue = (revenueRes.data || []).reduce((sum, inv) => sum + Number(inv.total || 0), 0);
+    const outstanding = (outstandingRes.data || []).reduce((sum, inv) => sum + Number(inv.total || 0), 0);
+
+    // Lead conversion
+    const leadCounts: Record<string, number> = {};
+    (allLeadsRes.data || []).forEach((l: any) => { leadCounts[l.status] = (leadCounts[l.status] || 0) + 1; });
+    const leadConversion = Object.entries(leadCounts).map(([status, count]) => ({ status, count }));
 
     setStats({
       totalClients: clientsRes.count || 0,
       activeProjects: projectsRes.count || 0,
       newLeads: leadsRes.count || 0,
       revenue,
+      outstanding,
+      leadConversion,
     });
 
     if (activityRes.data) {
@@ -117,6 +129,7 @@ export default function AdminDashboard() {
     { icon: Briefcase, label: "Active Projects", value: stats.activeProjects.toString(), gradient: "from-violet-500/20 to-violet-600/5", iconBg: "bg-violet-500/15", iconColor: "text-violet-400", href: "/admin/projects" },
     { icon: TrendingUp, label: "New Leads", value: stats.newLeads.toString(), gradient: "from-emerald-500/20 to-emerald-600/5", iconBg: "bg-emerald-500/15", iconColor: "text-emerald-400", href: "/admin/leads" },
     { icon: DollarSign, label: "Revenue (mo)", value: `$${stats.revenue.toLocaleString()}`, gradient: "from-amber-500/20 to-amber-600/5", iconBg: "bg-amber-500/15", iconColor: "text-amber-400", href: "/admin/invoices" },
+    { icon: AlertCircle, label: "Outstanding", value: `$${stats.outstanding.toLocaleString()}`, gradient: "from-red-500/20 to-red-600/5", iconBg: "bg-red-500/15", iconColor: "text-red-400", href: "/admin/invoices" },
   ];
 
   const quickActions = [
@@ -160,7 +173,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stat Cards — glass morphism */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 mb-8">
         {statCards.map((s) => {
           const Icon = s.icon;
           return (
@@ -241,6 +254,31 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {/* Lead Conversion */}
+      {stats.leadConversion.length > 0 && (
+        <div className="glass-card p-6 mb-8">
+          <h2 className="font-display text-base font-semibold text-portal-text mb-5">Lead Pipeline</h2>
+          <div className="flex items-center gap-6">
+            <ResponsiveContainer width="50%" height={180}>
+              <BarChart data={stats.leadConversion} layout="vertical">
+                <XAxis type="number" tick={{ fill: "hsl(220 12% 50%)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="status" tick={{ fill: "hsl(220 12% 50%)", fontSize: 11 }} axisLine={false} tickLine={false} width={80} />
+                <Tooltip contentStyle={{ background: "hsl(230 20% 14% / 0.9)", backdropFilter: "blur(12px)", border: "1px solid hsl(230 15% 25% / 0.5)", borderRadius: 12, color: "hsl(220 20% 93%)" }} />
+                <Bar dataKey="count" fill="hsl(160 60% 50%)" radius={[0, 6, 6, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="flex-1 space-y-3">
+              {stats.leadConversion.map((l) => (
+                <div key={l.status} className="flex items-center justify-between">
+                  <span className="capitalize text-sm text-portal-text-muted">{l.status}</span>
+                  <span className="font-display font-bold text-portal-text text-lg">{l.count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Deadlines */}
       <div className="mb-8">

@@ -9,6 +9,8 @@ import { Mail, Phone, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { useSEO } from "@/hooks/useSEO";
+import { FloatingChatButton } from "@/components/FloatingChatButton";
 
 const contactSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
@@ -18,6 +20,7 @@ const contactSchema = z.object({
 });
 
 export default function Contact() {
+  useSEO({ title: "Contact", description: "Get in touch with KIM DESIGN STUDIO for architecture and design projects" });
   const { content } = useSiteContent("contact_info");
   const info = content.contact_info ?? {};
 
@@ -182,6 +185,7 @@ export default function Contact() {
         </div>
       </section>
       <PublicFooter />
+      <FloatingChatButton />
     </div>
   );
 }

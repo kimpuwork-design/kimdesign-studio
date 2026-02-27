@@ -7,6 +7,8 @@ import {
   type LucideIcon, Sparkles
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useSettings } from "@/hooks/useSettings";
+import { KMonogramLogo } from "@/components/KMonogramLogo";
 
 interface NavItem {
   label: string;
@@ -54,6 +56,9 @@ export function PortalSidebar({ variant, collapsed = false, onToggleCollapse }: 
   const location = useLocation();
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
+  const { settings } = useSettings();
+  const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
+  const logoUrl = settings?.logo_url;
 
   const navItems =
     variant === "admin" ? adminNav :
@@ -93,19 +98,27 @@ export function PortalSidebar({ variant, collapsed = false, onToggleCollapse }: 
       )}>
         {!collapsed && (
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-portal-accent to-portal-accent/70 flex items-center justify-center shadow-lg glow-accent">
-              <Sparkles size={14} className="text-portal-accent-foreground" />
-            </div>
+            {logoUrl ? (
+              <div className="h-8 w-8 rounded-xl overflow-hidden shadow-lg">
+                <img src={logoUrl} alt={studioName} className="h-full w-full object-contain" />
+              </div>
+            ) : (
+              <KMonogramLogo size={32} className="rounded-xl shadow-lg" />
+            )}
             <div>
-              <span className="font-display text-sm font-bold text-portal-text tracking-tight">FORMA</span>
-              <span className="block text-[9px] tracking-[0.15em] uppercase text-portal-text-muted font-medium">Studio</span>
+              <span className="font-display text-sm font-bold text-portal-text tracking-tight">{studioName.split(" ")[0]}</span>
+              <span className="block text-[9px] tracking-[0.15em] uppercase text-portal-text-muted font-medium">{studioName.split(" ").slice(1).join(" ") || "Studio"}</span>
             </div>
           </div>
         )}
         {collapsed && (
-          <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-portal-accent to-portal-accent/70 flex items-center justify-center shadow-lg">
-            <Sparkles size={14} className="text-portal-accent-foreground" />
-          </div>
+          logoUrl ? (
+            <div className="h-8 w-8 rounded-xl overflow-hidden shadow-lg">
+              <img src={logoUrl} alt={studioName} className="h-full w-full object-contain" />
+            </div>
+          ) : (
+            <KMonogramLogo size={32} className="rounded-xl shadow-lg" />
+          )
         )}
         {onToggleCollapse && !collapsed && (
           <button

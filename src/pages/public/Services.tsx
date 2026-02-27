@@ -7,6 +7,7 @@ import { useSiteContent } from "@/hooks/useSiteContent";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
+import { FadeUp, StaggerContainer, StaggerItem, HoverCard } from "@/components/motion/MotionWrappers";
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, FileText, Lightbulb };
 
@@ -30,14 +31,20 @@ export default function Services() {
       {/* Hero */}
       <section className="container py-20 md:py-28 relative z-10">
         <div className="max-w-2xl">
-          <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-4">{page.hero_subtitle ?? "Services"}</p>
-          <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] font-light leading-tight text-foreground">
-            {page.hero_title_line1 ?? "Every project,"}<br />
-            <em className="not-italic font-semibold">{page.hero_title_line2 ?? "built from scratch."}</em>
-          </h1>
-          <p className="mt-6 text-muted-foreground font-light leading-relaxed">
-            {page.hero_description ?? ""}
-          </p>
+          <FadeUp>
+            <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-4">{page.hero_subtitle ?? "Services"}</p>
+          </FadeUp>
+          <FadeUp delay={0.1}>
+            <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] font-light leading-tight text-foreground">
+              {page.hero_title_line1 ?? "Every project,"}<br />
+              <em className="not-italic font-semibold">{page.hero_title_line2 ?? "built from scratch."}</em>
+            </h1>
+          </FadeUp>
+          <FadeUp delay={0.2}>
+            <p className="mt-6 text-muted-foreground font-light leading-relaxed">
+              {page.hero_description ?? ""}
+            </p>
+          </FadeUp>
         </div>
       </section>
 
@@ -45,24 +52,28 @@ export default function Services() {
       {services.length > 0 && (
         <section className="border-t border-border/50 relative z-10">
           <div className="container py-16">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <StaggerContainer className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" staggerDelay={0.08}>
               {services.map((s: any) => {
                 const Icon = ICON_MAP[s.icon] ?? Building2;
                 return (
-                  <div key={s.title} className="group rounded-2xl border border-border/50 bg-background/60 backdrop-blur-sm p-8 hover:border-primary/30 hover:shadow-[0_0_20px_rgba(var(--primary),0.05)] transition-all duration-300">
-                    <div className="rounded-xl bg-primary/10 p-2.5 w-fit mb-5">
-                      <Icon size={22} className="text-primary" />
-                    </div>
-                    <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-2">{s.stage}</p>
-                    <h3 className="font-display text-2xl font-medium text-foreground mb-3">{s.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-6">{s.desc}</p>
-                    <Button variant="outline" className="rounded-2xl text-xs tracking-wide" size="sm" asChild>
-                      <Link to="/contact">{t("services_enquire")}</Link>
-                    </Button>
-                  </div>
+                  <StaggerItem key={s.title}>
+                    <HoverCard>
+                      <div className="group rounded-2xl border border-border/50 bg-background/60 backdrop-blur-sm p-8 hover:border-primary/30 hover:shadow-[0_0_20px_rgba(var(--primary),0.05)] transition-all duration-300 h-full">
+                        <div className="rounded-xl bg-primary/10 p-2.5 w-fit mb-5">
+                          <Icon size={22} className="text-primary" />
+                        </div>
+                        <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-2">{s.stage}</p>
+                        <h3 className="font-display text-2xl font-medium text-foreground mb-3">{s.title}</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed mb-6">{s.desc}</p>
+                        <Button variant="outline" className="rounded-2xl text-xs tracking-wide" size="sm" asChild>
+                          <Link to="/contact">{t("services_enquire")}</Link>
+                        </Button>
+                      </div>
+                    </HoverCard>
+                  </StaggerItem>
                 );
               })}
-            </div>
+            </StaggerContainer>
           </div>
         </section>
       )}
@@ -71,27 +82,35 @@ export default function Services() {
       {process.length > 0 && (
         <section className="border-t border-border/50 py-20 relative z-10">
           <div className="container">
-            <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-12">{t("services_our_process")}</p>
-            <div className="grid gap-6 md:grid-cols-4">
+            <FadeUp>
+              <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-12">{t("services_our_process")}</p>
+            </FadeUp>
+            <StaggerContainer className="grid gap-6 md:grid-cols-4" staggerDelay={0.12}>
               {process.map((step: any) => (
-                <div key={step.n} className="rounded-2xl border border-border/50 bg-background/60 backdrop-blur-sm p-6 hover:border-primary/30 transition-all duration-300">
-                  <span className="font-display text-4xl font-light text-primary/40">{step.n}</span>
-                  <h3 className="font-display text-xl font-medium text-foreground mt-3 mb-2">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
-                </div>
+                <StaggerItem key={step.n}>
+                  <HoverCard>
+                    <div className="rounded-2xl border border-border/50 bg-background/60 backdrop-blur-sm p-6 hover:border-primary/30 transition-all duration-300 h-full">
+                      <span className="font-display text-4xl font-light text-primary/40">{step.n}</span>
+                      <h3 className="font-display text-xl font-medium text-foreground mt-3 mb-2">{step.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+                    </div>
+                  </HoverCard>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerContainer>
           </div>
         </section>
       )}
 
       {/* CTA */}
       <section className="container py-20 text-center relative z-10">
-        <h2 className="font-display text-4xl font-light text-foreground mb-4">{page.cta_title ?? t("services_ready_discuss")}</h2>
-        <p className="text-muted-foreground mb-8">{page.cta_description ?? ""}</p>
-        <Button className="rounded-2xl px-10 tracking-wide" size="lg" asChild>
-          <Link to="/contact">{t("services_start_conversation")}</Link>
-        </Button>
+        <FadeUp>
+          <h2 className="font-display text-4xl font-light text-foreground mb-4">{page.cta_title ?? t("services_ready_discuss")}</h2>
+          <p className="text-muted-foreground mb-8">{page.cta_description ?? ""}</p>
+          <Button className="rounded-2xl px-10 tracking-wide" size="lg" asChild>
+            <Link to="/contact">{t("services_start_conversation")}</Link>
+          </Button>
+        </FadeUp>
       </section>
       <PublicFooter />
       <FloatingChatButton />

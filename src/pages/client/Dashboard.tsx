@@ -31,7 +31,6 @@ export default function ClientDashboard() {
     supabase
       .from("projects")
       .select("id, title, status, updated_at")
-      .eq("client_id", profile.id)
       .order("updated_at", { ascending: false })
       .then(({ data }) => setProjects((data as Project[]) ?? []));
 

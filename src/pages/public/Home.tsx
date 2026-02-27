@@ -11,6 +11,7 @@ import { useSiteContent } from "@/hooks/useSiteContent";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
+import { useTranslation } from "@/i18n/LanguageContext";
 import { ArchitectureBusinessJsonLd } from "@/components/JsonLd";
 import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, Calendar, GraduationCap, Award, Globe, Sparkles, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import profileImg from "@/assets/profile-placeholder.jpg";
@@ -243,6 +244,7 @@ function TestimonialsCarousel({ testimonials, sectionRef }: { testimonials: any[
 
 export default function Home() {
   const { settings } = useSettings();
+  const { t } = useTranslation();
   const { content, loading: contentLoading } = useSiteContent(
     "about_me", "hero", "stats", "services_home", "testimonials", "awards", "cta"
   );
@@ -303,7 +305,7 @@ export default function Home() {
                 {/* Gradient overlay on image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent rounded-3xl" />
                 <div className="absolute bottom-6 left-6 right-6 glass-card-public px-6 py-5">
-                  <p className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground mb-3 font-medium">Credentials</p>
+                  <p className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground mb-3 font-medium">{t("home_credentials")}</p>
                   <div className="space-y-2">
                     {credentials.map((c: any) => {
                       const Icon = ICON_MAP[c.icon] ?? Award;
@@ -341,10 +343,10 @@ export default function Home() {
             </div>
             <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <Button asChild className="rounded-2xl px-8 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow">
-                <Link to="/about">Full Profile <ArrowRight size={14} className="ml-2" /></Link>
+                <Link to="/about">{t("home_full_profile")} <ArrowRight size={14} className="ml-2" /></Link>
               </Button>
               <Button variant="ghost" asChild className="rounded-2xl px-8 tracking-wide text-muted-foreground hover:text-foreground">
-                <Link to="/contact">Work Together →</Link>
+                <Link to="/contact">{t("home_work_together")}</Link>
               </Button>
             </div>
             {aboutMe.quote && (
@@ -377,10 +379,10 @@ export default function Home() {
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Button size="lg" asChild className="rounded-2xl px-8 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow text-base h-13">
-                <Link to="/portfolio">View Projects <ArrowRight size={16} className="ml-2" /></Link>
+                <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={16} className="ml-2" /></Link>
               </Button>
               <Button variant="outline" size="lg" asChild className="rounded-2xl px-8 tracking-wide text-base h-13 border-border/50 hover:bg-secondary/60">
-                <Link to="/contact">Work With Us</Link>
+                <Link to="/contact">{t("home_work_with_us")}</Link>
               </Button>
             </div>
           </div>
@@ -411,10 +413,10 @@ export default function Home() {
                 <div className="h-1 w-8 rounded-full bg-primary" />
                 <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">Selected Work</p>
               </div>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">Recent Projects</h2>
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_featured_work")}</h2>
             </div>
             <Link to="/portfolio" className="hidden md:flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xl px-4 py-2 hover:bg-secondary/60">
-              All Projects <ArrowRight size={14} />
+              {t("home_view_all")} <ArrowRight size={14} />
             </Link>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
@@ -458,7 +460,7 @@ export default function Home() {
                 <div className="h-1 w-8 rounded-full bg-primary" />
                 <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">Disciplines</p>
               </div>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">What We Do</h2>
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_what_we_do")}</h2>
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {servicesHome.map((s: any) => {

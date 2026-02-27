@@ -6,12 +6,14 @@ import { Link } from "react-router-dom";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
+import { useTranslation } from "@/i18n/LanguageContext";
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, FileText, Lightbulb };
 
 export default function Services() {
   useSEO({ title: "Services", description: "Architecture, interior design, and planning services by KIM DESIGN STUDIO" });
   const { content } = useSiteContent("services_full", "services_page", "process");
+  const { t } = useTranslation();
 
   const services: any[] = content.services_full ?? [];
   const page = content.services_page ?? {};
@@ -55,7 +57,7 @@ export default function Services() {
                     <h3 className="font-display text-2xl font-medium text-foreground mb-3">{s.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed mb-6">{s.desc}</p>
                     <Button variant="outline" className="rounded-2xl text-xs tracking-wide" size="sm" asChild>
-                      <Link to="/contact">Enquire</Link>
+                      <Link to="/contact">{t("services_enquire")}</Link>
                     </Button>
                   </div>
                 );
@@ -69,7 +71,7 @@ export default function Services() {
       {process.length > 0 && (
         <section className="border-t border-border/50 py-20 relative z-10">
           <div className="container">
-            <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-12">Our Process</p>
+            <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-12">{t("services_our_process")}</p>
             <div className="grid gap-6 md:grid-cols-4">
               {process.map((step: any) => (
                 <div key={step.n} className="rounded-2xl border border-border/50 bg-background/60 backdrop-blur-sm p-6 hover:border-primary/30 transition-all duration-300">
@@ -85,10 +87,10 @@ export default function Services() {
 
       {/* CTA */}
       <section className="container py-20 text-center relative z-10">
-        <h2 className="font-display text-4xl font-light text-foreground mb-4">{page.cta_title ?? "Ready to discuss your project?"}</h2>
+        <h2 className="font-display text-4xl font-light text-foreground mb-4">{page.cta_title ?? t("services_ready_discuss")}</h2>
         <p className="text-muted-foreground mb-8">{page.cta_description ?? ""}</p>
         <Button className="rounded-2xl px-10 tracking-wide" size="lg" asChild>
-          <Link to="/contact">Start a Conversation</Link>
+          <Link to="/contact">{t("services_start_conversation")}</Link>
         </Button>
       </section>
       <PublicFooter />

@@ -1,21 +1,23 @@
 import { useState } from "react";
 import { MessageCircle, X, Phone } from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
+import { useTranslation } from "@/i18n/LanguageContext";
 
 export function FloatingChatButton() {
   const [open, setOpen] = useState(false);
   const { settings } = useSettings();
+  const { t } = useTranslation();
   const phone = settings?.phone?.replace(/[^0-9+]/g, "") ?? "";
 
   const channels = [
     {
-      label: "Viber",
+      label: t("chat_viber"),
       icon: () => <Phone size={18} />,
       href: phone ? `viber://chat?number=${encodeURIComponent(phone)}` : "#",
       color: "bg-[#7360f2]",
     },
     {
-      label: "WhatsApp",
+      label: t("chat_whatsapp"),
       icon: () => <MessageCircle size={18} />,
       href: phone ? `https://wa.me/${phone.replace("+", "")}` : "#",
       color: "bg-[#25D366]",

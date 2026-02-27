@@ -12,6 +12,7 @@ import { useSiteContent } from "@/hooks/useSiteContent";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
+import { FadeUp, SlideIn, FadeIn } from "@/components/motion/MotionWrappers";
 
 const contactSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
@@ -85,105 +86,117 @@ export default function Contact() {
       {/* Hero */}
       <section className="container py-20 md:py-28 relative z-10">
         <div className="max-w-2xl">
-          <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-4">{t("contact_title")}</p>
-          <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] font-light leading-tight text-foreground">
-            {t("contact_lets_start")}<br /><em className="not-italic font-semibold">{t("contact_conversation")}</em>
-          </h1>
-          <p className="mt-6 text-muted-foreground font-light leading-relaxed">
-            {info.hero_description ?? "We welcome enquiries from private clients, developers, institutions, and fellow collaborators."}
-          </p>
+          <FadeUp>
+            <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-4">{t("contact_title")}</p>
+          </FadeUp>
+          <FadeUp delay={0.1}>
+            <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] font-light leading-tight text-foreground">
+              {t("contact_lets_start")}<br /><em className="not-italic font-semibold">{t("contact_conversation")}</em>
+            </h1>
+          </FadeUp>
+          <FadeUp delay={0.2}>
+            <p className="mt-6 text-muted-foreground font-light leading-relaxed">
+              {info.hero_description ?? "We welcome enquiries from private clients, developers, institutions, and fellow collaborators."}
+            </p>
+          </FadeUp>
         </div>
       </section>
 
       <section className="border-t border-border/50 relative z-10">
         <div className="container py-16 grid gap-16 md:grid-cols-[1fr_2fr]">
           {/* Info */}
-          <div className="space-y-8">
-            <div>
-              <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-4">{t("contact_studio_label")}</p>
-              <div className="space-y-5">
-                {contactDetails.map((c) => {
-                  const Icon = c.icon;
-                  return (
-                    <div key={c.label} className="flex items-start gap-3">
-                      <div className="rounded-lg bg-primary/10 p-1.5 mt-0.5">
-                        <Icon size={15} className="text-primary shrink-0" />
+          <SlideIn direction="left">
+            <div className="space-y-8">
+              <div>
+                <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-4">{t("contact_studio_label")}</p>
+                <div className="space-y-5">
+                  {contactDetails.map((c) => {
+                    const Icon = c.icon;
+                    return (
+                      <div key={c.label} className="flex items-start gap-3">
+                        <div className="rounded-lg bg-primary/10 p-1.5 mt-0.5">
+                          <Icon size={15} className="text-primary shrink-0" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground tracking-wide">{c.label}</p>
+                          <p className="text-sm text-foreground mt-0.5">{c.value}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground tracking-wide">{c.label}</p>
-                        <p className="text-sm text-foreground mt-0.5">{c.value}</p>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
+              {(info.hours || info.hours_note) && (
+                <div className="border-t border-border/50 pt-8">
+                  <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-3">{t("contact_hours")}</p>
+                  {info.hours && <p className="text-sm text-muted-foreground">{info.hours}</p>}
+                  {info.hours_note && <p className="text-sm text-muted-foreground">{info.hours_note}</p>}
+                </div>
+              )}
             </div>
-            {(info.hours || info.hours_note) && (
-              <div className="border-t border-border/50 pt-8">
-                <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-3">{t("contact_hours")}</p>
-                {info.hours && <p className="text-sm text-muted-foreground">{info.hours}</p>}
-                {info.hours_note && <p className="text-sm text-muted-foreground">{info.hours_note}</p>}
-              </div>
-            )}
-          </div>
+          </SlideIn>
 
           {/* Form */}
-          <div>
-            {submitted ? (
-              <div className="glass-form p-12 text-center">
-                <div className="text-3xl mb-5">✦</div>
-                <h3 className="font-display text-2xl font-light text-foreground">{t("contact_thank_you")}</h3>
-                <p className="mt-3 text-muted-foreground text-sm">{t("contact_in_touch")}</p>
-                <Button
-                  variant="outline" className="mt-8 rounded-2xl tracking-wide"
-                  onClick={() => { setSubmitted(false); setForm({ name: "", email: "", phone: "", message: "", projectType: "" }); }}
-                >
-                  {t("contact_send_another")}
-                </Button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="glass-form p-8 space-y-6" noValidate>
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="name" className="text-xs tracking-wide uppercase text-muted-foreground">{t("contact_full_name")}</Label>
-                    <Input id="name" placeholder="Your name" value={form.name} onChange={(e) => set("name", e.target.value)} className="rounded-xl" />
-                    {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="email" className="text-xs tracking-wide uppercase text-muted-foreground">{t("contact_email")}</Label>
-                    <Input id="email" type="email" placeholder="you@example.com" value={form.email} onChange={(e) => set("email", e.target.value)} className="rounded-xl" />
-                    {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-                  </div>
-                </div>
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="phone" className="text-xs tracking-wide uppercase text-muted-foreground">{t("contact_phone")} <span className="normal-case text-muted-foreground">{t("contact_phone_optional")}</span></Label>
-                    <Input id="phone" placeholder="+44 000 0000 000" value={form.phone} onChange={(e) => set("phone", e.target.value)} className="rounded-xl" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs tracking-wide uppercase text-muted-foreground">{t("contact_project_type")}</Label>
-                    <select
-                      value={form.projectType} onChange={(e) => set("projectType", e.target.value)}
-                      className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          <SlideIn direction="right" delay={0.1}>
+            <div>
+              {submitted ? (
+                <FadeIn>
+                  <div className="glass-form p-12 text-center">
+                    <div className="text-3xl mb-5">✦</div>
+                    <h3 className="font-display text-2xl font-light text-foreground">{t("contact_thank_you")}</h3>
+                    <p className="mt-3 text-muted-foreground text-sm">{t("contact_in_touch")}</p>
+                    <Button
+                      variant="outline" className="mt-8 rounded-2xl tracking-wide"
+                      onClick={() => { setSubmitted(false); setForm({ name: "", email: "", phone: "", message: "", projectType: "" }); }}
                     >
-                      <option value="">{t("contact_select_type")}</option>
-                      {projectTypes.map((t) => <option key={t} value={t}>{t}</option>)}
-                    </select>
+                      {t("contact_send_another")}
+                    </Button>
                   </div>
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="message" className="text-xs tracking-wide uppercase text-muted-foreground">{t("contact_tell_us")}</Label>
-                  <Textarea id="message" placeholder="Describe your project…" rows={7} value={form.message}
-                    onChange={(e) => set("message", e.target.value)} className="rounded-xl resize-none" />
-                  {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
-                </div>
-                {serverError && <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{serverError}</p>}
-                <Button type="submit" className="rounded-2xl px-10 tracking-wide w-full sm:w-auto" disabled={submitting}>
-                  {submitting ? t("contact_sending") : t("contact_submit")}
-                </Button>
-              </form>
-            )}
-          </div>
+                </FadeIn>
+              ) : (
+                <form onSubmit={handleSubmit} className="glass-form p-8 space-y-6" noValidate>
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="name" className="text-xs tracking-wide uppercase text-muted-foreground">{t("contact_full_name")}</Label>
+                      <Input id="name" placeholder="Your name" value={form.name} onChange={(e) => set("name", e.target.value)} className="rounded-xl" />
+                      {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="email" className="text-xs tracking-wide uppercase text-muted-foreground">{t("contact_email")}</Label>
+                      <Input id="email" type="email" placeholder="you@example.com" value={form.email} onChange={(e) => set("email", e.target.value)} className="rounded-xl" />
+                      {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                    </div>
+                  </div>
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="phone" className="text-xs tracking-wide uppercase text-muted-foreground">{t("contact_phone")} <span className="normal-case text-muted-foreground">{t("contact_phone_optional")}</span></Label>
+                      <Input id="phone" placeholder="+44 000 0000 000" value={form.phone} onChange={(e) => set("phone", e.target.value)} className="rounded-xl" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs tracking-wide uppercase text-muted-foreground">{t("contact_project_type")}</Label>
+                      <select
+                        value={form.projectType} onChange={(e) => set("projectType", e.target.value)}
+                        className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                      >
+                        <option value="">{t("contact_select_type")}</option>
+                        {projectTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="message" className="text-xs tracking-wide uppercase text-muted-foreground">{t("contact_tell_us")}</Label>
+                    <Textarea id="message" placeholder="Describe your project…" rows={7} value={form.message}
+                      onChange={(e) => set("message", e.target.value)} className="rounded-xl resize-none" />
+                    {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
+                  </div>
+                  {serverError && <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{serverError}</p>}
+                  <Button type="submit" className="rounded-2xl px-10 tracking-wide w-full sm:w-auto" disabled={submitting}>
+                    {submitting ? t("contact_sending") : t("contact_submit")}
+                  </Button>
+                </form>
+              )}
+            </div>
+          </SlideIn>
         </div>
       </section>
       <PublicFooter />

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, FolderOpen, User, LogOut, ChevronLeft, ChevronRight,
   Briefcase, Users, FileArchive, Image, Settings, Activity, UserCog, Shield, PackageOpen, Receipt, FileText,
-  type LucideIcon, Sparkles
+  type LucideIcon, Sparkles, Newspaper
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useSettings } from "@/hooks/useSettings";
@@ -39,6 +39,7 @@ const adminNav: NavItem[] = [
   { label: "Invoices", href: "/admin/invoices", icon: FileText },
   { label: "Files", href: "/admin/files", icon: FileArchive },
   { label: "Portfolio", href: "/admin/portfolio", icon: Image },
+  { label: "Blog", href: "/admin/blog", icon: Newspaper },
   { label: "Team", href: "/admin/team", icon: Users },
   { label: "Notifications", href: "/admin/notifications", icon: Activity },
   { label: "Site Content", href: "/admin/site-content", icon: FileText },

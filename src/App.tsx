@@ -20,6 +20,8 @@ const PortfolioDetail = lazy(() => import("./pages/public/PortfolioDetail"));
 const Services = lazy(() => import("./pages/public/Services"));
 const About = lazy(() => import("./pages/public/About"));
 const Contact = lazy(() => import("./pages/public/Contact"));
+const PublicBlog = lazy(() => import("./pages/public/Blog"));
+const PublicBlogDetail = lazy(() => import("./pages/public/BlogDetail"));
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
@@ -39,6 +41,8 @@ const AdminTeam = lazy(() => import("./pages/admin/Team"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminSiteContent = lazy(() => import("./pages/admin/SiteContent"));
 const AdminAuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
+const AdminBlog = lazy(() => import("./pages/admin/Blog"));
+const AdminBlogEditor = lazy(() => import("./pages/admin/BlogEditor"));
 
 const StaffDashboard = lazy(() => import("./pages/staff/Dashboard"));
 const StaffProjects = lazy(() => import("./pages/staff/Projects"));
@@ -82,6 +86,8 @@ const App = () => (
           <Route path="/services" element={<PageTransition><Services /></PageTransition>} />
           <Route path="/about" element={<PageTransition><About /></PageTransition>} />
           <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
+          <Route path="/blog" element={<PageTransition><PublicBlog /></PageTransition>} />
+          <Route path="/blog/:slug" element={<PageTransition><PublicBlogDetail /></PageTransition>} />
 
           {/* Auth routes */}
           <Route path="/auth/login" element={<Login />} />
@@ -104,6 +110,8 @@ const App = () => (
           <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminSettings /></ProtectedRoute>} />
           <Route path="/admin/site-content" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminSiteContent /></ProtectedRoute>} />
           <Route path="/admin/audit-logs" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminAuditLogs /></ProtectedRoute>} />
+          <Route path="/admin/blog" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminBlog /></ProtectedRoute>} />
+          <Route path="/admin/blog/:id" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminBlogEditor /></ProtectedRoute>} />
           <Route path="/admin/notifications" element={<ProtectedRoute allowedRoles={["ADMIN"]}><NotificationsPage variant="admin" /></ProtectedRoute>} />
 
           {/* Staff routes */}

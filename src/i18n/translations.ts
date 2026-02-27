@@ -18,6 +18,7 @@ type TranslationSet = {
   nav_services: string;
   nav_studio: string;
   nav_contact: string;
+  nav_blog: string;
 
   // Footer
   footer_navigate: string;
@@ -89,6 +90,7 @@ const en: TranslationSet = {
   nav_services: "Services",
   nav_studio: "Studio",
   nav_contact: "Contact",
+  nav_blog: "Blog",
 
   footer_navigate: "Navigate",
   footer_architecture: "Architecture",
@@ -152,6 +154,7 @@ const my: TranslationSet = {
   nav_services: "ဝန်ဆောင်မှုများ",
   nav_studio: "စတူဒီယို",
   nav_contact: "ဆက်သွယ်ရန်",
+  nav_blog: "ဘလော့ဂ်",
 
   footer_navigate: "လမ်းညွှန်",
   footer_architecture: "ဗိသုကာ",
@@ -215,6 +218,7 @@ const zo: TranslationSet = {
   nav_services: "Nasep bawlte",
   nav_studio: "Studio",
   nav_contact: "Kizel ding",
+  nav_blog: "Blog",
 
   footer_navigate: "Kaltong",
   footer_architecture: "Inn sak",

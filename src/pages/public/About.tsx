@@ -6,10 +6,12 @@ import { Link } from "react-router-dom";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
+import { useTranslation } from "@/i18n/LanguageContext";
 
 export default function About() {
   useSEO({ title: "About", description: "Learn about our architecture studio, values, and team" });
   const { content } = useSiteContent("about_page", "values", "team");
+  const { t } = useTranslation();
 
   const page = content.about_page ?? {};
   const values: any[] = content.values ?? [];
@@ -27,7 +29,7 @@ export default function About() {
       {/* Hero */}
       <section className="container py-20 md:py-28 relative z-10">
         <div className="max-w-3xl">
-          <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-4">{page.hero_subtitle ?? "The Studio"}</p>
+          <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-4">{page.hero_subtitle ?? t("about_the_studio")}</p>
           <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] font-light leading-tight text-foreground">
             {page.hero_title_line1 ?? "Architecture as a"}<br />
             <em className="not-italic font-semibold">{page.hero_title_line2 ?? "long conversation."}</em>
@@ -49,7 +51,7 @@ export default function About() {
                 <p key={i}>{p}</p>
               ))}
               <Button variant="outline" className="rounded-2xl mt-4" asChild>
-                <Link to="/contact">Get in Touch <ArrowRight size={14} className="ml-2" /></Link>
+                <Link to="/contact">{t("about_get_in_touch")} <ArrowRight size={14} className="ml-2" /></Link>
               </Button>
             </div>
           </div>
@@ -60,7 +62,7 @@ export default function About() {
       {values.length > 0 && (
         <section className="border-t border-border/50 py-20 relative z-10">
           <div className="container">
-            <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-10">Principles</p>
+            <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-10">{t("about_principles")}</p>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {values.map((v: any) => (
                 <div key={v.title} className="glass-card-public glass-glow-ring p-8">
@@ -76,7 +78,7 @@ export default function About() {
       {/* Team */}
       {team.length > 0 && (
         <section className="container py-20 relative z-10">
-          <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-10">People</p>
+          <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-10">{t("about_people")}</p>
           <div className="grid gap-6 md:grid-cols-3">
             {team.map((p: any) => (
               <div key={p.name} className="group glass-card-public overflow-hidden glass-glow-ring">

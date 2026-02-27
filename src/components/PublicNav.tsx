@@ -4,18 +4,21 @@ import { useState } from "react";
 import { useTheme } from "next-themes";
 import { useSettings } from "@/hooks/useSettings";
 import { KMonogramLogo } from "@/components/KMonogramLogo";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { useTranslation } from "@/i18n/LanguageContext";
 
-const navLinks = [
-  { label: "Projects", href: "/portfolio" },
-  { label: "Services", href: "/services" },
-  { label: "Studio", href: "/about" },
-  { label: "Contact", href: "/contact" },
+const NAV_KEYS = [
+  { key: "nav_projects", href: "/portfolio" },
+  { key: "nav_services", href: "/services" },
+  { key: "nav_studio", href: "/about" },
+  { key: "nav_contact", href: "/contact" },
 ];
 
 export function PublicNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const { settings } = useSettings();
+  const { t } = useTranslation();
   const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
   const logoUrl = settings?.logo_url || "/logo-placeholder.png";
 
@@ -38,18 +41,19 @@ export function PublicNav() {
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-1 md:flex">
-          {navLinks.map((l) => (
+          {NAV_KEYS.map((l) => (
             <Link
               key={l.href}
               to={l.href}
               className="px-4 py-2 rounded-xl text-sm font-medium text-muted-foreground transition-all hover:text-foreground hover:bg-secondary/60"
             >
-              {l.label}
+              {t(l.key)}
             </Link>
           ))}
         </nav>
 
         <div className="flex items-center gap-1">
+          <LanguageToggle />
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="rounded-xl p-2.5 text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all"
@@ -70,14 +74,14 @@ export function PublicNav() {
 
       {mobileOpen && (
         <div className="border-t border-border/40 bg-background/80 backdrop-blur-xl px-4 py-4 md:hidden animate-fade-in">
-          {navLinks.map((l) => (
+          {NAV_KEYS.map((l) => (
             <Link
               key={l.href}
               to={l.href}
               className="block py-3 px-4 rounded-xl text-sm font-medium text-muted-foreground hover:bg-secondary/60 hover:text-foreground transition-all"
               onClick={() => setMobileOpen(false)}
             >
-              {l.label}
+              {t(l.key)}
             </Link>
           ))}
         </div>

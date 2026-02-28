@@ -38,7 +38,7 @@ const adminNav: NavItem[] = [
   { label: "Quotes", href: "/admin/quotes", icon: Receipt },
   { label: "Invoices", href: "/admin/invoices", icon: FileText },
   { label: "Files", href: "/admin/files", icon: FileArchive },
-  { label: "Portfolio", href: "/admin/portfolio", icon: Image },
+  
   { label: "Blog", href: "/admin/blog", icon: Newspaper },
   { label: "Team", href: "/admin/team", icon: Users },
   { label: "Notifications", href: "/admin/notifications", icon: Activity },

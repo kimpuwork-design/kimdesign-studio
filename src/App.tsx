@@ -35,7 +35,7 @@ const AdminDeliverables = lazy(() => import("./pages/admin/Deliverables"));
 const AdminQuotes = lazy(() => import("./pages/admin/Quotes"));
 const AdminInvoices = lazy(() => import("./pages/admin/Invoices"));
 const AdminFiles = lazy(() => import("./pages/admin/Files"));
-const AdminPortfolio = lazy(() => import("./pages/admin/Portfolio"));
+const AdminPortfolio = lazy(() => import("./pages/admin/Projects")); // Portfolio merged into Projects
 const AdminPortfolioEditor = lazy(() => import("./pages/admin/PortfolioEditor"));
 const AdminTeam = lazy(() => import("./pages/admin/Team"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));

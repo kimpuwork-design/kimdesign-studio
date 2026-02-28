@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
 import { supabase } from "@/integrations/supabase/client";
-import { PortfolioItem } from "@/lib/portfolio";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { Search, MapPin, Calendar, Grid3X3, Star, Loader2, ArrowRight, Sparkles } from "lucide-react";
@@ -11,13 +10,33 @@ import { FadeUp, StaggerContainer, StaggerItem, HoverCard } from "@/components/m
 
 const CATEGORIES = ["All", "Residential", "Cultural", "Commercial", "Interior", "Landscape", "Civic", "Mixed-Use"];
 
-function PortfolioCard({ item, large = false }: { item: PortfolioItem; large?: boolean }) {
+interface ProjectPortfolioItem {
+  id: string;
+  title: string;
+  slug: string | null;
+  summary: string | null;
+  description: string | null;
+  thumbnail_url: string | null;
+  category: string | null;
+  location: string | null;
+  year: number | null;
+  tags: string[];
+  is_featured: boolean;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+function PortfolioCard({ item, large = false }: { item: ProjectPortfolioItem; large?: boolean }) {
+  const linkTo = item.slug ? `/portfolio/${item.slug}` : `/projects/${item.id}`;
+  const coverUrl = item.thumbnail_url;
+  
   return (
-    <Link to={`/portfolio/${item.slug}`}
+    <Link to={linkTo}
       className="group block overflow-hidden rounded-2xl border border-border/30 bg-background/60 backdrop-blur-sm hover:border-primary/30 hover:shadow-[0_0_30px_rgba(var(--primary),0.08)] transition-all duration-300">
       <div className={`overflow-hidden relative ${large ? "aspect-[4/5]" : "aspect-[4/3]"}`}>
-        {item.cover_image_url ? (
-          <img src={item.cover_image_url} alt={item.title} loading="lazy"
+        {coverUrl ? (
+          <img src={coverUrl} alt={item.title} loading="lazy"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-muted">
@@ -42,11 +61,11 @@ function PortfolioCard({ item, large = false }: { item: PortfolioItem; large?: b
             )}
           </div>
           <p className="mt-2 text-white/70 text-sm line-clamp-2 max-h-0 group-hover:max-h-20 overflow-hidden transition-all duration-300">
-            {item.summary}
+            {item.summary || item.description}
           </p>
         </div>
       </div>
-      {item.tags.length > 0 && (
+      {item.tags && item.tags.length > 0 && (
         <div className="px-5 py-3 border-t border-border/20 flex items-center justify-between">
           <div className="flex flex-wrap gap-1.5">
             {item.tags.slice(0, 3).map((tag) => (
@@ -64,7 +83,7 @@ function PortfolioCard({ item, large = false }: { item: PortfolioItem; large?: b
 
 export default function PublicPortfolio() {
   useSEO({ title: "Portfolio", description: "Explore our architecture portfolio — residential, cultural, commercial projects" });
-  const [items, setItems] = useState<PortfolioItem[]>([]);
+  const [items, setItems] = useState<ProjectPortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
@@ -74,13 +93,13 @@ export default function PublicPortfolio() {
   useEffect(() => {
     setLoading(true);
     supabase
-      .from("portfolio_items")
-      .select("*")
-      .eq("is_published", true)
+      .from("projects")
+      .select("id, title, slug, summary, description, thumbnail_url, category, location, year, tags, is_featured, is_public, created_at, updated_at")
+      .eq("is_public", true)
       .order("is_featured", { ascending: false })
       .order("created_at", { ascending: false })
       .then(({ data }) => {
-        setItems((data as PortfolioItem[]) ?? []);
+        setItems((data as ProjectPortfolioItem[]) ?? []);
         setLoading(false);
       });
   }, []);
@@ -91,9 +110,9 @@ export default function PublicPortfolio() {
       const q = search.toLowerCase();
       return (
         item.title.toLowerCase().includes(q) ||
-        item.summary.toLowerCase().includes(q) ||
+        (item.summary ?? "").toLowerCase().includes(q) ||
         item.location?.toLowerCase().includes(q) ||
-        item.tags.some((t) => t.toLowerCase().includes(q))
+        item.tags?.some((t) => t.toLowerCase().includes(q))
       );
     }
     return true;
@@ -175,7 +194,6 @@ export default function PublicPortfolio() {
           </FadeUp>
         ) : (
           <>
-            {/* Featured */}
             {featured.length > 0 && (
               <section>
                 <FadeUp>
@@ -204,7 +222,6 @@ export default function PublicPortfolio() {
               </section>
             )}
 
-            {/* All Projects */}
             {rest.length > 0 && (
               <section>
                 {featured.length > 0 && (

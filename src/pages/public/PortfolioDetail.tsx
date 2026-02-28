@@ -3,12 +3,30 @@ import { useParams, Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
 import { supabase } from "@/integrations/supabase/client";
-import { PortfolioItem, GalleryImage } from "@/lib/portfolio";
+import { GalleryImage } from "@/lib/portfolio";
 
 import {
   MapPin, Calendar, Tag, ArrowLeft, ArrowRight,
   X, ExternalLink, Loader2,
 } from "lucide-react";
+
+interface ProjectItem {
+  id: string;
+  title: string;
+  slug: string | null;
+  summary: string | null;
+  description: string | null;
+  content: string | null;
+  thumbnail_url: string | null;
+  category: string | null;
+  location: string | null;
+  year: number | null;
+  tags: string[];
+  is_featured: boolean;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 function LightBox({ images, startIndex, onClose }: { images: GalleryImage[]; startIndex: number; onClose: () => void }) {
   const [idx, setIdx] = useState(startIndex);
@@ -37,9 +55,9 @@ function LightBox({ images, startIndex, onClose }: { images: GalleryImage[]; sta
 
 export default function PortfolioDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const [item, setItem] = useState<PortfolioItem | null>(null);
+  const [item, setItem] = useState<ProjectItem | null>(null);
   const [gallery, setGallery] = useState<GalleryImage[]>([]);
-  const [related, setRelated] = useState<PortfolioItem[]>([]);
+  const [related, setRelated] = useState<ProjectItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [lightbox, setLightbox] = useState<number | null>(null);
@@ -47,35 +65,35 @@ export default function PortfolioDetail() {
   useEffect(() => {
     if (!slug) return;
     const fetchData = async () => {
+      // Fetch from projects table by slug
       const { data, error } = await supabase
-        .from("portfolio_items")
+        .from("projects")
         .select("*")
         .eq("slug", slug)
-        .eq("is_published", true)
+        .eq("is_public", true)
         .single();
 
       if (error || !data) { setNotFound(true); setLoading(false); return; }
-      const p = data as PortfolioItem;
+      const p = data as unknown as ProjectItem;
       setItem(p);
 
+      // Fetch gallery from portfolio_gallery (linked by project_id)
       const [{ data: gal }, { data: rel }] = await Promise.all([
-        supabase.from("portfolio_gallery").select("*").eq("portfolio_id", p.id).order("sort_order"),
-        supabase.from("portfolio_items")
-          .select("id, slug, title, cover_image_url, category, location, year, summary, tags, is_featured, is_published, created_at, updated_at, content, client_feedback")
-          .eq("is_published", true)
+        supabase.from("portfolio_gallery").select("*").eq("project_id", p.id).order("sort_order"),
+        supabase.from("projects")
+          .select("id, slug, title, thumbnail_url, category, location, year, summary, description, tags, is_featured, is_public, created_at, updated_at, content")
+          .eq("is_public", true)
           .neq("id", p.id)
           .or(p.category ? `category.eq.${p.category}` : "is_featured.eq.true")
           .limit(3),
       ]);
 
       setGallery((gal as GalleryImage[]) ?? []);
-      setRelated((rel as unknown as PortfolioItem[]) ?? []);
+      setRelated((rel as unknown as ProjectItem[]) ?? []);
       setLoading(false);
     };
     fetchData();
   }, [slug]);
-
-  
 
   if (loading) return (
     <div className="bg-background min-h-screen">
@@ -95,16 +113,16 @@ export default function PortfolioDetail() {
     </div>
   );
 
+  const coverUrl = item.thumbnail_url;
+  const displaySummary = item.summary || item.description || "";
   const pageTitle = `${item.title} — FORMA`;
-  const pageDesc = item.summary;
 
-  // JSON-LD structured data
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CreativeWork",
     "name": item.title,
-    "description": item.summary,
-    "image": item.cover_image_url,
+    "description": displaySummary,
+    "image": coverUrl,
     "locationCreated": item.location,
     "dateCreated": item.year?.toString(),
     "url": `${window.location.origin}/portfolio/${item.slug}`,
@@ -113,17 +131,15 @@ export default function PortfolioDetail() {
 
   return (
     <div className="bg-background min-h-screen">
-      {/* SEO — injected via dangerouslySetInnerHTML workaround using useEffect */}
-      <MetaTags title={pageTitle} description={pageDesc} image={item.cover_image_url} jsonLd={jsonLd} />
-
+      <MetaTags title={pageTitle} description={displaySummary} image={coverUrl || ""} jsonLd={jsonLd} />
       <PublicNav />
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        {item.cover_image_url ? (
+        {coverUrl ? (
           <>
             <div className="absolute inset-0">
-              <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover" />
+              <img src={coverUrl} alt={item.title} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-background" />
             </div>
             <div className="relative container py-28 md:py-40">
@@ -135,7 +151,7 @@ export default function PortfolioDetail() {
                   <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">{item.category}</p>
                 )}
                 <h1 className="font-display text-4xl md:text-6xl font-bold text-white leading-tight">{item.title}</h1>
-                <p className="mt-4 text-white/80 text-lg max-w-lg">{item.summary}</p>
+                <p className="mt-4 text-white/80 text-lg max-w-lg">{displaySummary}</p>
                 <div className="flex flex-wrap gap-4 mt-6 text-white/70 text-sm">
                   {item.location && <span className="flex items-center gap-1.5"><MapPin size={14} />{item.location}</span>}
                   {item.year && <span className="flex items-center gap-1.5"><Calendar size={14} />{item.year}</span>}
@@ -150,7 +166,7 @@ export default function PortfolioDetail() {
             </Link>
             {item.category && <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">{item.category}</p>}
             <h1 className="font-display text-5xl font-bold text-foreground">{item.title}</h1>
-            <p className="mt-4 text-muted-foreground text-lg">{item.summary}</p>
+            <p className="mt-4 text-muted-foreground text-lg">{displaySummary}</p>
           </div>
         )}
       </section>
@@ -159,7 +175,6 @@ export default function PortfolioDetail() {
       <div className="container py-16">
         <div className="grid gap-12 lg:grid-cols-[1fr_280px]">
           <div className="space-y-10">
-            {/* Description */}
             {item.content && (
               <div className="prose prose-lg max-w-none text-foreground">
                 <div className="text-foreground leading-relaxed whitespace-pre-wrap text-base">
@@ -168,7 +183,6 @@ export default function PortfolioDetail() {
               </div>
             )}
 
-            {/* Gallery */}
             {gallery.length > 0 && (
               <div>
                 <h2 className="font-display text-2xl font-semibold text-foreground mb-6">Gallery</h2>
@@ -176,12 +190,8 @@ export default function PortfolioDetail() {
                   {gallery.map((img, idx) => (
                     <button key={img.id} onClick={() => setLightbox(idx)}
                       className="aspect-square overflow-hidden rounded-xl bg-secondary/50 group">
-                      <img
-                        src={img.image_url}
-                        alt={`Gallery ${idx + 1}`}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                      <img src={img.image_url} alt={`Gallery ${idx + 1}`} loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     </button>
                   ))}
                 </div>
@@ -202,7 +212,7 @@ export default function PortfolioDetail() {
               {item.year && (
                 <div><p className="text-xs text-muted-foreground mb-0.5">Year</p><p className="font-medium text-foreground flex items-center gap-1"><Calendar size={13} />{item.year}</p></div>
               )}
-              {item.tags.length > 0 && (
+              {item.tags && item.tags.length > 0 && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1"><Tag size={11} />Tags</p>
                   <div className="flex flex-wrap gap-1.5">
@@ -228,9 +238,7 @@ export default function PortfolioDetail() {
         {/* Related */}
         {related.length > 0 && (
           <section className="mt-16 pt-12 border-t border-border/40 relative">
-            {/* Ambient orb */}
             <div className="absolute -top-20 right-0 w-72 h-72 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
-
             <div className="flex items-center gap-3 mb-10">
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
               <h2 className="font-display text-2xl font-bold text-foreground tracking-tight">Related Projects</h2>
@@ -238,43 +246,38 @@ export default function PortfolioDetail() {
             </div>
 
             <div className="grid gap-6 sm:grid-cols-3">
-              {related.map((r) => (
-                <Link key={r.id} to={`/portfolio/${r.slug}`}
-                  className="group relative block rounded-2xl overflow-hidden glass-card-hover transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg hover:shadow-primary/10">
-                  {/* Image */}
-                  <div className="aspect-[4/3] overflow-hidden bg-secondary/30 relative">
-                    {r.cover_image_url ? (
-                      <img src={r.cover_image_url} alt={r.title} loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-muted to-secondary" />
-                    )}
-                    {/* Gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    {/* Category pill on hover */}
-                    {r.category && (
-                      <span className="absolute top-3 left-3 rounded-full bg-primary/90 backdrop-blur-sm px-3 py-1 text-[11px] font-semibold text-primary-foreground uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                        {r.category}
-                      </span>
-                    )}
-                  </div>
-                  {/* Info */}
-                  <div className="p-5 relative">
-                    <div className="absolute top-0 left-5 right-5 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <h3 className="font-display font-bold text-foreground group-hover:text-primary transition-colors text-base">
-                      {r.title}
-                    </h3>
-                    {r.location && (
-                      <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
-                        <MapPin size={11} />{r.location}
-                      </p>
-                    )}
-                    <div className="mt-3 flex items-center gap-1.5 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-0 group-hover:translate-x-1">
-                      View Project <ArrowRight size={12} />
+              {related.map((r) => {
+                const rLink = r.slug ? `/portfolio/${r.slug}` : `/projects/${r.id}`;
+                return (
+                  <Link key={r.id} to={rLink}
+                    className="group relative block rounded-2xl overflow-hidden glass-card-hover transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg hover:shadow-primary/10">
+                    <div className="aspect-[4/3] overflow-hidden bg-secondary/30 relative">
+                      {r.thumbnail_url ? (
+                        <img src={r.thumbnail_url} alt={r.title} loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-muted to-secondary" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      {r.category && (
+                        <span className="absolute top-3 left-3 rounded-full bg-primary/90 backdrop-blur-sm px-3 py-1 text-[11px] font-semibold text-primary-foreground uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                          {r.category}
+                        </span>
+                      )}
                     </div>
-                  </div>
-                </Link>
-              ))}
+                    <div className="p-5 relative">
+                      <div className="absolute top-0 left-5 right-5 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <h3 className="font-display font-bold text-foreground group-hover:text-primary transition-colors text-base">{r.title}</h3>
+                      {r.location && (
+                        <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1"><MapPin size={11} />{r.location}</p>
+                      )}
+                      <div className="mt-3 flex items-center gap-1.5 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-0 group-hover:translate-x-1">
+                        View Project <ArrowRight size={12} />
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </section>
         )}
@@ -301,31 +304,24 @@ export default function PortfolioDetail() {
   );
 }
 
-// Inject meta tags into document <head>
 function MetaTags({ title, description, image, jsonLd }: { title: string; description: string; image: string; jsonLd: object }) {
   useEffect(() => {
     document.title = title;
-
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-
     setMeta("description", description);
     setMeta("og:title", title, true);
     setMeta("og:description", description, true);
     setMeta("og:image", image, true);
     setMeta("og:type", "article", true);
-
-    // JSON-LD
     let script = document.querySelector("#portfolio-jsonld") as HTMLScriptElement | null;
     if (!script) { script = document.createElement("script"); script.id = "portfolio-jsonld"; script.type = "application/ld+json"; document.head.appendChild(script); }
     script.textContent = JSON.stringify(jsonLd);
-
     return () => { document.title = title.split(" — ")[1] || "Studio"; };
   }, [title, description, image, jsonLd]);
-
   return null;
 }

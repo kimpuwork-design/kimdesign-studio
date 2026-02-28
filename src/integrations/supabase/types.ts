@@ -612,6 +612,7 @@ export type Database = {
           id: string
           image_url: string
           portfolio_id: string
+          project_id: string | null
           sort_order: number
         }
         Insert: {
@@ -619,6 +620,7 @@ export type Database = {
           id?: string
           image_url: string
           portfolio_id: string
+          project_id?: string | null
           sort_order?: number
         }
         Update: {
@@ -626,6 +628,7 @@ export type Database = {
           id?: string
           image_url?: string
           portfolio_id?: string
+          project_id?: string | null
           sort_order?: number
         }
         Relationships: [
@@ -634,6 +637,13 @@ export type Database = {
             columns: ["portfolio_id"]
             isOneToOne: false
             referencedRelation: "portfolio_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portfolio_gallery_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -763,46 +773,67 @@ export type Database = {
       }
       projects: {
         Row: {
+          category: string | null
           client_id: string
+          content: string | null
           created_at: string
           description: string | null
           id: string
+          is_featured: boolean
           is_public: boolean
           location: string | null
+          slug: string | null
           start_date: string | null
           status: string
+          summary: string | null
+          tags: string[]
           target_date: string | null
           thumbnail_url: string | null
           title: string
           updated_at: string
+          year: number | null
         }
         Insert: {
+          category?: string | null
           client_id: string
+          content?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          is_featured?: boolean
           is_public?: boolean
           location?: string | null
+          slug?: string | null
           start_date?: string | null
           status?: string
+          summary?: string | null
+          tags?: string[]
           target_date?: string | null
           thumbnail_url?: string | null
           title: string
           updated_at?: string
+          year?: number | null
         }
         Update: {
+          category?: string | null
           client_id?: string
+          content?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          is_featured?: boolean
           is_public?: boolean
           location?: string | null
+          slug?: string | null
           start_date?: string | null
           status?: string
+          summary?: string | null
+          tags?: string[]
           target_date?: string | null
           thumbnail_url?: string | null
           title?: string
           updated_at?: string
+          year?: number | null
         }
         Relationships: [
           {

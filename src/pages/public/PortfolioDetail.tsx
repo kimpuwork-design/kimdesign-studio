@@ -4,10 +4,13 @@ import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { GalleryImage } from "@/lib/portfolio";
+import { FileAsset, formatBytes, FILE_CATEGORIES, isImageExt, getPublicFileSignedUrl } from "@/lib/files";
+import { FileIcon } from "@/components/files/FileIcon";
+import { FilePreviewModal } from "@/components/files/FilePreviewModal";
 
 import {
   MapPin, Calendar, Tag, ArrowLeft, ArrowRight,
-  X, ExternalLink, Loader2,
+  X, ExternalLink, Loader2, Eye, FolderOpen, Maximize2,
 } from "lucide-react";
 
 interface ProjectItem {
@@ -57,10 +60,13 @@ export default function PortfolioDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [item, setItem] = useState<ProjectItem | null>(null);
   const [gallery, setGallery] = useState<GalleryImage[]>([]);
+  const [files, setFiles] = useState<FileAsset[]>([]);
+  const [galleryImages, setGalleryImages] = useState<{ url: string; name: string }[]>([]);
   const [related, setRelated] = useState<ProjectItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [preview, setPreview] = useState<FileAsset | null>(null);
 
   useEffect(() => {
     if (!slug) return;
@@ -77,8 +83,8 @@ export default function PortfolioDetail() {
       const p = data as unknown as ProjectItem;
       setItem(p);
 
-      // Fetch gallery from portfolio_gallery (linked by project_id)
-      const [{ data: gal }, { data: rel }] = await Promise.all([
+      // Fetch gallery, related projects, and file assets in parallel
+      const [{ data: gal }, { data: rel }, { data: fileData }] = await Promise.all([
         supabase.from("portfolio_gallery").select("*").eq("project_id", p.id).order("sort_order"),
         supabase.from("projects")
           .select("id, slug, title, thumbnail_url, category, location, year, summary, description, tags, is_featured, is_public, created_at, updated_at, content")
@@ -86,10 +92,26 @@ export default function PortfolioDetail() {
           .neq("id", p.id)
           .or(p.category ? `category.eq.${p.category}` : "is_featured.eq.true")
           .limit(3),
+        supabase.from("file_assets").select("*").eq("project_id", p.id).eq("is_deleted", false).order("sort_order", { ascending: true }).order("created_at", { ascending: false }),
       ]);
 
       setGallery((gal as GalleryImage[]) ?? []);
       setRelated((rel as unknown as ProjectItem[]) ?? []);
+      const allFiles = (fileData as unknown as FileAsset[]) ?? [];
+      setFiles(allFiles);
+
+      // Generate signed URLs for image files
+      const imageFiles = allFiles.filter((f) => isImageExt(f.extension ?? ""));
+      if (imageFiles.length > 0) {
+        const imgs = await Promise.all(
+          imageFiles.map(async (f) => {
+            const url = await getPublicFileSignedUrl(f.id);
+            return { url: url ?? "", name: f.original_name };
+          })
+        );
+        setGalleryImages(imgs.filter((i) => i.url));
+      }
+
       setLoading(false);
     };
     fetchData();
@@ -197,6 +219,78 @@ export default function PortfolioDetail() {
                 </div>
               </div>
             )}
+
+            {/* Project file images as gallery */}
+            {galleryImages.length > 0 && gallery.length === 0 && (
+              <div>
+                <h2 className="font-display text-2xl font-semibold text-foreground mb-6">Project Photos</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {galleryImages.map((img, idx) => (
+                    <button key={idx} onClick={() => setLightbox(idx)}
+                      className="aspect-square overflow-hidden rounded-xl bg-secondary/50 group relative">
+                      <img src={img.url} alt={img.name} loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                        <Maximize2 size={20} className="text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Non-image project files */}
+            {(() => {
+              const nonImageFiles = files.filter((f) => !isImageExt(f.extension ?? ""));
+              if (nonImageFiles.length === 0) return null;
+              const grouped: Record<string, FileAsset[]> = {};
+              for (const f of nonImageFiles) {
+                const cat = f.category;
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(f);
+              }
+              const orderedCategories = FILE_CATEGORIES.map((c) => c.value).filter((c) => grouped[c]);
+              return (
+                <div>
+                  <div className="flex items-center gap-3 mb-6">
+                    <FolderOpen size={18} className="text-primary" />
+                    <h2 className="font-display text-2xl font-semibold text-foreground">Project Files</h2>
+                  </div>
+                  <div className="space-y-6">
+                    {orderedCategories.map((cat) => {
+                      const catLabel = FILE_CATEGORIES.find((c) => c.value === cat)?.label ?? cat;
+                      return (
+                        <div key={cat}>
+                          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{catLabel}</h3>
+                          <div className="space-y-2">
+                            {grouped[cat].map((file) => (
+                              <div key={file.id}
+                                className="flex items-center gap-3 rounded-2xl border border-border/30 bg-background/60 backdrop-blur-sm px-5 py-3.5 hover:border-primary/30 hover:shadow-[0_0_20px_rgba(var(--primary),0.05)] transition-all">
+                                <FileIcon ext={file.extension ?? ""} size={18} className="text-muted-foreground shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <p className="truncate text-sm font-medium text-foreground">{file.original_name}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {formatBytes(file.size_bytes)}
+                                    {file.version > 1 && (
+                                      <span className="ml-2 rounded-full bg-primary/15 px-1.5 py-0.5 text-primary text-[10px] font-semibold">v{file.version}</span>
+                                    )}
+                                    {" · "}{new Date(file.created_at).toLocaleDateString()}
+                                  </p>
+                                </div>
+                                <button onClick={() => setPreview(file)} title="Preview"
+                                  className="rounded-xl p-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+                                  <Eye size={15} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Sidebar */}
@@ -297,9 +391,17 @@ export default function PortfolioDetail() {
 
       <PublicFooter />
 
-      {lightbox !== null && (
+      {lightbox !== null && gallery.length > 0 && (
         <LightBox images={gallery} startIndex={lightbox} onClose={() => setLightbox(null)} />
       )}
+      {lightbox !== null && gallery.length === 0 && galleryImages.length > 0 && (
+        <LightBox
+          images={galleryImages.map((g) => ({ id: g.name, image_url: g.url, sort_order: 0, portfolio_id: "", created_at: "" } as GalleryImage))}
+          startIndex={lightbox}
+          onClose={() => setLightbox(null)}
+        />
+      )}
+      {preview && <FilePreviewModal file={preview} onClose={() => setPreview(null)} role="PUBLIC" />}
     </div>
   );
 }

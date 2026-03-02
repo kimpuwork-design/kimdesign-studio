@@ -9,9 +9,10 @@ import { FileUploadZone } from "@/components/files/FileUploadZone";
 import { FileList } from "@/components/files/FileList";
 import {
   CalendarDays, MapPin, Users, User, ArrowLeft,
-  FolderOpen, LayoutList, MessageSquare, Pencil, PackageOpen, Receipt,
+  FolderOpen, LayoutList, MessageSquare, Pencil, PackageOpen, Receipt, ImageIcon,
 } from "lucide-react";
 import { DeliverablesTab } from "@/components/deliverables/DeliverablesTab";
+import { GalleryManager } from "@/components/admin/GalleryManager";
 import { Button } from "@/components/ui/button";
 import { ProjectFormModal } from "@/components/admin/ProjectFormModal";
 import { StaffAssignModal } from "@/components/admin/StaffAssignModal";
@@ -44,6 +45,7 @@ interface Member {
 const TABS = [
   { id: "overview", label: "Overview", icon: LayoutList },
   { id: "files", label: "Files", icon: FolderOpen },
+  { id: "gallery", label: "Gallery", icon: ImageIcon },
   { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "deliverables", label: "Deliverables", icon: PackageOpen },
   { id: "billing", label: "Billing", icon: Receipt },
@@ -65,7 +67,7 @@ export default function AdminProjectDetail() {
   const [showInvoice, setShowInvoice] = useState(false);
 
 
-  const tab = (searchParams.get("tab") ?? "overview") as "overview" | "files" | "messages" | "deliverables" | "billing";
+  const tab = (searchParams.get("tab") ?? "overview") as "overview" | "files" | "gallery" | "messages" | "deliverables" | "billing";
   const setTab = (t: string) => setSearchParams({ tab: t });
 
   const load = async () => {
@@ -213,6 +215,14 @@ export default function AdminProjectDetail() {
             <h2 className="font-semibold text-portal-text mb-4 text-sm">Project Files</h2>
             <FileList projectId={project!.id} currentUserId={profile.id} refreshKey={fileRefreshKey} />
           </div>
+        </div>
+      )}
+
+      {tab === "gallery" && (
+        <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
+          <h2 className="font-semibold text-portal-text mb-4 text-sm">Portfolio Gallery</h2>
+          <p className="text-xs text-portal-text-muted mb-4">Manage gallery images shown on the public portfolio page for this project.</p>
+          <GalleryManager projectId={project!.id} />
         </div>
       )}
 

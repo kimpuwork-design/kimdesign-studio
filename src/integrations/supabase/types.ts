@@ -611,7 +611,7 @@ export type Database = {
           created_at: string
           id: string
           image_url: string
-          portfolio_id: string
+          portfolio_id: string | null
           project_id: string | null
           sort_order: number
         }
@@ -619,7 +619,7 @@ export type Database = {
           created_at?: string
           id?: string
           image_url: string
-          portfolio_id: string
+          portfolio_id?: string | null
           project_id?: string | null
           sort_order?: number
         }
@@ -627,18 +627,11 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string
-          portfolio_id?: string
+          portfolio_id?: string | null
           project_id?: string | null
           sort_order?: number
         }
         Relationships: [
-          {
-            foreignKeyName: "portfolio_gallery_portfolio_id_fkey"
-            columns: ["portfolio_id"]
-            isOneToOne: false
-            referencedRelation: "portfolio_items"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "portfolio_gallery_project_id_fkey"
             columns: ["project_id"]

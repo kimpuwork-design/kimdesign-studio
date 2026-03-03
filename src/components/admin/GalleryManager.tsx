@@ -71,14 +71,12 @@ export function GalleryManager({ projectId }: Props) {
         continue;
       }
 
-      // We need a portfolio_id — use projectId as a placeholder since portfolio_items may not exist
-      // The portfolio_gallery table requires portfolio_id, so we'll use the projectId
       const { error } = await supabase.from("portfolio_gallery").insert({
         project_id: projectId,
-        portfolio_id: projectId, // Using projectId as portfolio_id since they're merged
+        portfolio_id: null as any,
         image_url: url,
         sort_order: maxOrder + i,
-      });
+      } as any);
 
       if (error) {
         toast({ title: `Failed to save ${file.name}`, description: error.message, variant: "destructive" });

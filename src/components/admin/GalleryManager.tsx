@@ -16,7 +16,7 @@ import {
 interface GalleryImage {
   id: string;
   project_id: string | null;
-  portfolio_id: string;
+  portfolio_id: string | null;
   image_url: string;
   sort_order: number;
   created_at: string;
@@ -44,7 +44,7 @@ export function GalleryManager({ projectId }: Props) {
     if (error) {
       toast({ title: "Error loading gallery", description: error.message, variant: "destructive" });
     } else {
-      setImages((data as unknown as GalleryImage[]) ?? []);
+      setImages(data ?? []);
     }
     setLoading(false);
   }, [projectId, toast]);
@@ -73,10 +73,9 @@ export function GalleryManager({ projectId }: Props) {
 
       const { error } = await supabase.from("portfolio_gallery").insert({
         project_id: projectId,
-        portfolio_id: null as any,
         image_url: url,
         sort_order: maxOrder + i,
-      } as any);
+      });
 
       if (error) {
         toast({ title: `Failed to save ${file.name}`, description: error.message, variant: "destructive" });

@@ -213,19 +213,6 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {tab === "project" ? (
             <>
-              {editProject && (
-                <div className="space-y-1.5">
-                  <Label className="text-portal-text-muted">Client</Label>
-                  <select value={form.client_id} onChange={(e) => set("client_id", e.target.value)} disabled
-                    className="w-full rounded-md border border-portal-border bg-portal-bg px-3 py-2 text-sm text-portal-text focus:outline-none focus:ring-1 focus:ring-portal-accent">
-                    <option value="">Select a client…</option>
-                    {clients.map((c) => (
-                      <option key={c.id} value={c.id}>{c.full_name ?? "Unnamed"}{c.company ? ` — ${c.company}` : ""}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
               <div className="space-y-1.5">
                 <Label className="text-portal-text-muted">Title *</Label>
                 <Input value={form.title} onChange={(e) => handleTitleChange(e.target.value)}
@@ -253,19 +240,6 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
                   <Label className="text-portal-text-muted">Location</Label>
                   <Input value={form.location} onChange={(e) => set("location", e.target.value)}
                     className="bg-portal-bg border-portal-border text-portal-text" placeholder="City, venue…" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-portal-text-muted">Start Date</Label>
-                  <Input type="date" value={form.start_date} onChange={(e) => set("start_date", e.target.value)}
-                    className="bg-portal-bg border-portal-border text-portal-text" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-portal-text-muted">Target Date</Label>
-                  <Input type="date" value={form.target_date} onChange={(e) => set("target_date", e.target.value)}
-                    className="bg-portal-bg border-portal-border text-portal-text" />
                 </div>
               </div>
 

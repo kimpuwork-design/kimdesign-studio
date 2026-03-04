@@ -36,7 +36,7 @@ export function PublicNav() {
           )}
           <div>
             <span className="font-display text-base font-bold tracking-tight text-foreground">{studioName}</span>
-            <span className="block text-[9px] font-medium tracking-[0.2em] uppercase text-muted-foreground">Design Studio</span>
+            <span className="block text-[9px] font-medium tracking-[0.2em] uppercase text-muted-foreground">{t("nav_design_studio")}</span>
           </div>
         </Link>
 

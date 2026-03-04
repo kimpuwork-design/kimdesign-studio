@@ -131,7 +131,7 @@ function AnimatedStat({ value, suffix, label, index = 0 }: { value: number; suff
   );
 }
 
-function TestimonialsCarousel({ testimonials, sectionRef }: { testimonials: any[]; sectionRef: React.RefObject<HTMLElement> }) {
+function TestimonialsCarousel({ testimonials, sectionRef, t }: { testimonials: any[]; sectionRef: React.RefObject<HTMLElement>; t: (k: string) => string }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -172,9 +172,9 @@ function TestimonialsCarousel({ testimonials, sectionRef }: { testimonials: any[
           <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="h-1 w-8 rounded-full bg-primary" />
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">Recognition</p>
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_recognition")}</p>
             </div>
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">Client Voices</h2>
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_client_voices")}</h2>
           </div>
           {/* Navigation arrows */}
           <div className="flex items-center gap-2">
@@ -411,7 +411,7 @@ export default function Home() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-1 w-8 rounded-full bg-primary" />
-                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">Selected Work</p>
+                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_selected_work")}</p>
               </div>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_featured_work")}</h2>
             </div>
@@ -446,7 +446,7 @@ export default function Home() {
             ))}
           </div>
           <div className="mt-8 text-center md:hidden">
-            <Button variant="outline" asChild className="rounded-2xl"><Link to="/portfolio">All Projects</Link></Button>
+            <Button variant="outline" asChild className="rounded-2xl"><Link to="/portfolio">{t("home_all_projects")}</Link></Button>
           </div>
         </section>
       )}
@@ -458,7 +458,7 @@ export default function Home() {
             <div className="mb-14">
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-1 w-8 rounded-full bg-primary" />
-                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">Disciplines</p>
+                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_disciplines")}</p>
               </div>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_what_we_do")}</h2>
             </div>
@@ -482,7 +482,7 @@ export default function Home() {
 
       {/* Testimonials */}
       {testimonials.length > 0 && (
-        <TestimonialsCarousel testimonials={testimonials} sectionRef={refTestimonials} />
+        <TestimonialsCarousel testimonials={testimonials} sectionRef={refTestimonials} t={t} />
       )}
 
       {/* Awards */}
@@ -499,9 +499,9 @@ export default function Home() {
             <div className="mb-16 text-center">
               <div className="inline-flex items-center gap-2 mb-4">
                 <Award size={14} className="text-primary" />
-                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">Awards & Recognition</p>
+                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_awards_recognition")}</p>
               </div>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">Honored Work</h2>
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_honored_work")}</h2>
               <div className="mt-6 mx-auto w-24 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
             </div>
 
@@ -554,7 +554,7 @@ export default function Home() {
               </h2>
               <p className="mt-6 text-muted-foreground text-lg">{cta.subtitle ?? "Every great building begins with a conversation."}</p>
               <Button className="mt-8 rounded-2xl px-10 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow h-13 text-base" size="lg" asChild>
-                <Link to="/contact">Begin Your Project <ArrowRight size={16} className="ml-2" /></Link>
+                <Link to="/contact">{t("home_begin_project")} <ArrowRight size={16} className="ml-2" /></Link>
               </Button>
             </div>
           </div>

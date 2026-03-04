@@ -32,8 +32,8 @@ export default function PublicBlogDetail() {
   const [related, setRelated] = useState<BlogPost[]>([]);
 
   useSEO({
-    title: post?.title ?? "Blog",
-    description: post?.excerpt ?? "Architecture blog article",
+    title: post?.title ?? t("blog_title"),
+    description: post?.excerpt ?? t("blog_description"),
     ogImage: post?.cover_image_url ?? undefined,
     ogType: "article",
   });
@@ -41,33 +41,17 @@ export default function PublicBlogDetail() {
   useEffect(() => {
     if (!slug) return;
     supabase
-      .from("blog_posts")
-      .select("*")
-      .eq("slug", slug)
-      .eq("is_published", true)
-      .single()
+      .from("blog_posts").select("*").eq("slug", slug).eq("is_published", true).single()
       .then(async ({ data, error }) => {
         if (error || !data) { setLoading(false); return; }
         setPost(data as BlogPost);
-
-        // Fetch author name
         if (data.author_id) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("full_name")
-            .eq("id", data.author_id)
-            .single();
+          const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", data.author_id).single();
           setAuthorName(profile?.full_name ?? null);
         }
-
-        // Fetch related posts
         const { data: relatedData } = await supabase
-          .from("blog_posts")
-          .select("id, title, slug, excerpt, cover_image_url, category, tags, published_at, created_at, content")
-          .eq("is_published", true)
-          .neq("id", data.id)
-          .order("published_at", { ascending: false })
-          .limit(3);
+          .from("blog_posts").select("id, title, slug, excerpt, cover_image_url, category, tags, published_at, created_at, content")
+          .eq("is_published", true).neq("id", data.id).order("published_at", { ascending: false }).limit(3);
         setRelated((relatedData as BlogPost[]) ?? []);
         setLoading(false);
       });
@@ -87,8 +71,8 @@ export default function PublicBlogDetail() {
       <div className="bg-background min-h-screen">
         <PublicNav />
         <div className="container py-40 text-center">
-          <h1 className="font-display text-4xl font-bold text-foreground mb-4">Post not found</h1>
-          <Link to="/blog" className="text-primary hover:underline">← Back to Blog</Link>
+          <h1 className="font-display text-4xl font-bold text-foreground mb-4">{t("blog_post_not_found")}</h1>
+          <Link to="/blog" className="text-primary hover:underline">← {t("blog_back")}</Link>
         </div>
         <PublicFooter />
       </div>
@@ -97,7 +81,6 @@ export default function PublicBlogDetail() {
 
   const dateStr = format(new Date(post.published_at || post.created_at), "MMMM d, yyyy");
 
-  // Simple markdown-like rendering for content
   const renderContent = (content: string) => {
     return content.split("\n\n").map((block, i) => {
       if (block.startsWith("### ")) return <h3 key={i} className="font-display text-xl font-semibold text-foreground mt-8 mb-3">{block.slice(4)}</h3>;
@@ -116,12 +99,10 @@ export default function PublicBlogDetail() {
     <div className="bg-background min-h-screen relative">
       <PublicNav />
 
-      {/* Ambient */}
       <div className="pointer-events-none fixed inset-0 z-0">
         <div className="absolute top-1/4 -right-40 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[150px]" />
       </div>
 
-      {/* Hero */}
       <section className="relative z-10">
         {post.cover_image_url && (
           <div className="w-full h-[40vh] md:h-[50vh] overflow-hidden relative">
@@ -131,7 +112,7 @@ export default function PublicBlogDetail() {
         )}
         <div className="container relative z-10 -mt-20 pb-8">
           <Link to="/blog" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-6 transition-colors">
-            <ArrowLeft size={12} /> Back to Blog
+            <ArrowLeft size={12} /> {t("blog_back")}
           </Link>
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             {post.category && (
@@ -140,22 +121,13 @@ export default function PublicBlogDetail() {
             <span className="flex items-center gap-1 text-xs text-muted-foreground"><Calendar size={12} />{dateStr}</span>
             {authorName && <span className="flex items-center gap-1 text-xs text-muted-foreground"><User size={12} />{authorName}</span>}
           </div>
-          <h1 className="font-display text-[clamp(2rem,5vw,4rem)] font-bold text-foreground leading-tight tracking-tight max-w-3xl">
-            {post.title}
-          </h1>
-          {post.excerpt && (
-            <p className="mt-4 text-lg text-muted-foreground font-light max-w-2xl leading-relaxed">{post.excerpt}</p>
-          )}
+          <h1 className="font-display text-[clamp(2rem,5vw,4rem)] font-bold text-foreground leading-tight tracking-tight max-w-3xl">{post.title}</h1>
+          {post.excerpt && <p className="mt-4 text-lg text-muted-foreground font-light max-w-2xl leading-relaxed">{post.excerpt}</p>}
         </div>
       </section>
 
-      {/* Content */}
       <article className="container relative z-10 pb-20">
-        <div className="max-w-3xl space-y-4">
-          {renderContent(post.content)}
-        </div>
-
-        {/* Tags */}
+        <div className="max-w-3xl space-y-4">{renderContent(post.content)}</div>
         {post.tags.length > 0 && (
           <div className="max-w-3xl mt-12 pt-8 border-t border-border/50 flex items-center gap-2 flex-wrap">
             <Tag size={14} className="text-muted-foreground" />
@@ -166,11 +138,10 @@ export default function PublicBlogDetail() {
         )}
       </article>
 
-      {/* Related */}
       {related.length > 0 && (
         <section className="border-t border-border/50 py-16 relative z-10">
           <div className="container">
-            <h2 className="font-display text-2xl font-bold text-foreground mb-8">More Articles</h2>
+            <h2 className="font-display text-2xl font-bold text-foreground mb-8">{t("blog_more_articles")}</h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((r) => (
                 <Link key={r.id} to={`/blog/${r.slug}`} className="group block rounded-2xl border border-border/30 bg-background/60 hover:border-primary/30 transition-all overflow-hidden">

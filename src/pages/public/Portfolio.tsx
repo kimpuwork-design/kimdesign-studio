@@ -5,6 +5,7 @@ import { PublicFooter } from "@/components/PublicFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
+import { useTranslation } from "@/i18n/LanguageContext";
 import { Search, MapPin, Calendar, Grid3X3, Star, Loader2, ArrowRight, ArrowUpRight, Sparkles, LayoutGrid, Rows3 } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { FadeUp } from "@/components/motion/MotionWrappers";
@@ -29,7 +30,7 @@ interface ProjectPortfolioItem {
 }
 
 /* ─── Bento Card ─── */
-function BentoCard({ item, size = "normal", index }: { item: ProjectPortfolioItem; size?: "hero" | "tall" | "wide" | "normal"; index: number }) {
+function BentoCard({ item, size = "normal", index, t }: { item: ProjectPortfolioItem; size?: "hero" | "tall" | "wide" | "normal"; index: number; t: (k: string) => string }) {
   const linkTo = item.slug ? `/portfolio/${item.slug}` : `/projects/${item.id}`;
   const coverUrl = item.thumbnail_url;
 
@@ -51,36 +52,22 @@ function BentoCard({ item, size = "normal", index }: { item: ProjectPortfolioIte
       <Link to={linkTo} className="group block relative overflow-hidden rounded-2xl">
         <div className={`${aspectMap[size]} overflow-hidden relative`}>
           {coverUrl ? (
-            <img
-              src={coverUrl}
-              alt={item.title}
-              loading="lazy"
-              className="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-[800ms] ease-out"
-            />
+            <img src={coverUrl} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-[800ms] ease-out" />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-muted/50">
               <Grid3X3 size={40} className="text-muted-foreground/20" />
             </div>
           )}
-
-          {/* Gradient overlay — stronger on hover */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-500" />
-
-          {/* Featured badge */}
           {item.is_featured && (
             <div className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full bg-primary/90 backdrop-blur-md px-3 py-1.5 text-[10px] font-semibold text-primary-foreground tracking-[0.1em] uppercase">
-              <Star size={10} className="fill-current" /> Featured
+              <Star size={10} className="fill-current" /> {t("portfolio_featured_badge")}
             </div>
           )}
-
-          {/* Arrow icon — top right */}
           <div className="absolute top-4 right-4 h-9 w-9 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
             <ArrowUpRight size={14} className="text-white" />
           </div>
-
-          {/* Content overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-            {/* Category pill */}
             {item.category && (
               <span className="inline-block rounded-full bg-white/10 backdrop-blur-md border border-white/10 px-3 py-1 text-[10px] tracking-[0.15em] uppercase font-medium text-white/80 mb-3">
                 {item.category}
@@ -93,19 +80,13 @@ function BentoCard({ item, size = "normal", index }: { item: ProjectPortfolioIte
               {item.location && <span className="flex items-center gap-1"><MapPin size={10} />{item.location}</span>}
               {item.year && <span className="flex items-center gap-1"><Calendar size={10} />{item.year}</span>}
             </div>
-
-            {/* Summary — reveal on hover */}
             <p className="mt-3 text-white/60 text-sm leading-relaxed line-clamp-2 max-h-0 group-hover:max-h-16 overflow-hidden transition-all duration-500">
               {item.summary || item.description}
             </p>
-
-            {/* Tags */}
             {item.tags && item.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
                 {item.tags.slice(0, 3).map((tag) => (
-                  <span key={tag} className="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-[10px] tracking-wide text-white/50">
-                    {tag}
-                  </span>
+                  <span key={tag} className="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-[10px] tracking-wide text-white/50">{tag}</span>
                 ))}
               </div>
             )}
@@ -121,13 +102,7 @@ function ListCard({ item, index }: { item: ProjectPortfolioItem; index: number }
   const linkTo = item.slug ? `/portfolio/${item.slug}` : `/projects/${item.id}`;
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
-      transition={{ duration: 0.4, delay: index * 0.04 }}
-    >
+    <motion.div layout initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.4, delay: index * 0.04 }}>
       <Link to={linkTo} className="group flex items-center gap-6 py-5 px-2 border-b border-border/30 hover:bg-muted/30 rounded-xl transition-all duration-200 -mx-2">
         {item.thumbnail_url && (
           <div className="shrink-0 w-28 h-20 rounded-xl overflow-hidden">
@@ -137,9 +112,7 @@ function ListCard({ item, index }: { item: ProjectPortfolioItem; index: number }
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             {item.is_featured && <Star size={10} className="text-primary fill-primary shrink-0" />}
-            {item.category && (
-              <span className="text-[10px] tracking-[0.15em] uppercase font-medium text-primary">{item.category}</span>
-            )}
+            {item.category && <span className="text-[10px] tracking-[0.15em] uppercase font-medium text-primary">{item.category}</span>}
           </div>
           <h3 className="font-display text-lg font-bold text-foreground group-hover:text-primary transition-colors truncate">{item.title}</h3>
           <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
@@ -154,7 +127,8 @@ function ListCard({ item, index }: { item: ProjectPortfolioItem; index: number }
 }
 
 export default function PublicPortfolio() {
-  useSEO({ title: "Portfolio", description: "Explore our architecture portfolio — residential, cultural, commercial projects" });
+  const { t } = useTranslation();
+  useSEO({ title: t("portfolio_title"), description: t("portfolio_description") });
   const [items, setItems] = useState<ProjectPortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -190,7 +164,7 @@ export default function PublicPortfolio() {
         item.title.toLowerCase().includes(q) ||
         (item.summary ?? "").toLowerCase().includes(q) ||
         item.location?.toLowerCase().includes(q) ||
-        item.tags?.some((t) => t.toLowerCase().includes(q))
+        item.tags?.some((tg) => tg.toLowerCase().includes(q))
       );
     }
     return true;
@@ -202,7 +176,6 @@ export default function PublicPortfolio() {
   const paginated = allForDisplay.slice(0, page * PAGE_SIZE);
   const hasMore = allForDisplay.length > paginated.length;
 
-  // Assign bento sizes based on position
   const getBentoSize = (index: number): "hero" | "tall" | "wide" | "normal" => {
     if (index === 0) return "hero";
     if (index === 1 || index === 2) return "tall";
@@ -210,7 +183,6 @@ export default function PublicPortfolio() {
     return "normal";
   };
 
-  // Bento grid spans
   const getBentoSpan = (index: number): string => {
     if (index === 0) return "md:col-span-2 md:row-span-1";
     if (index === 5 || index === 9) return "md:col-span-2";
@@ -221,7 +193,6 @@ export default function PublicPortfolio() {
     <div className="bg-background min-h-screen relative">
       <PublicNav />
 
-      {/* Ambient orbs */}
       <div className="pointer-events-none fixed inset-0 z-0">
         <div className="absolute top-1/4 -right-40 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[150px] animate-float" />
         <div className="absolute bottom-1/3 -left-32 w-[400px] h-[400px] rounded-full bg-primary/[0.03] blur-[120px] animate-float-delayed" />
@@ -232,46 +203,29 @@ export default function PublicPortfolio() {
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10">
           <section className="container pt-28 pb-16 md:pt-36 md:pb-20">
             <div className="max-w-3xl">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-8"
-              >
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
+                className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-8">
                 <Sparkles size={12} className="text-primary" />
-                <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">Selected Work</p>
+                <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">{t("portfolio_selected_work")}</p>
               </motion.div>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="font-display text-[clamp(3rem,8vw,6.5rem)] font-bold text-foreground leading-[0.95] tracking-tight"
-              >
-                Our<br />
-                <span className="text-primary">Portfolio</span>
+              <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                className="font-display text-[clamp(3rem,8vw,6.5rem)] font-bold text-foreground leading-[0.95] tracking-tight">
+                {t("portfolio_our")}<br />
+                <span className="text-primary">{t("portfolio_title")}</span>
               </motion.h1>
 
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="mt-6 text-muted-foreground font-light max-w-lg leading-relaxed text-lg"
-              >
-                Sixteen years of architectural practice across residential, cultural, civic, and commercial typologies.
+              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}
+                className="mt-6 text-muted-foreground font-light max-w-lg leading-relaxed text-lg">
+                {t("portfolio_description")}
               </motion.p>
 
-              {/* Stats strip */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.55 }}
-                className="mt-10 flex items-center gap-8"
-              >
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.55 }}
+                className="mt-10 flex items-center gap-8">
                 {[
-                  { n: items.length, label: "Projects" },
-                  { n: items.filter(i => i.is_featured).length, label: "Featured" },
-                  { n: new Set(items.map(i => i.category).filter(Boolean)).size, label: "Categories" },
+                  { n: items.length, label: t("portfolio_projects_stat") },
+                  { n: items.filter(i => i.is_featured).length, label: t("portfolio_featured_stat") },
+                  { n: new Set(items.map(i => i.category).filter(Boolean)).size, label: t("portfolio_categories_stat") },
                 ].map((stat) => (
                   <div key={stat.label}>
                     <p className="font-display text-3xl font-bold text-foreground">{stat.n}</p>
@@ -282,14 +236,8 @@ export default function PublicPortfolio() {
             </div>
           </section>
         </motion.div>
-
-        {/* Decorative line */}
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent origin-left"
-        />
+        <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent origin-left" />
       </div>
 
       {/* ── Sticky Filters ── */}
@@ -297,32 +245,25 @@ export default function PublicPortfolio() {
         <div className="container py-3 flex flex-col sm:flex-row gap-3 items-center">
           <div className="relative flex-1 max-w-xs">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              placeholder="Search projects…"
-              className="w-full pl-9 pr-3 py-2 rounded-xl border border-border/50 bg-background/60 backdrop-blur-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
-            />
+            <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              placeholder={t("portfolio_search")}
+              className="w-full pl-9 pr-3 py-2 rounded-xl border border-border/50 bg-background/60 backdrop-blur-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all" />
           </div>
           <div className="flex gap-1.5 flex-wrap items-center flex-1">
             {CATEGORIES.map((c) => (
               <button key={c} onClick={() => { setCategory(c); setPage(1); }}
                 className={`px-3.5 py-1.5 rounded-full text-[10px] tracking-[0.1em] uppercase font-medium transition-all duration-200 ${
-                  category === c
-                    ? "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(var(--primary),0.3)]"
-                    : "bg-secondary/30 text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                  category === c ? "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(var(--primary),0.3)]" : "bg-secondary/30 text-muted-foreground hover:text-foreground hover:bg-secondary/60"
                 }`}>
-                {c}
+                {c === "All" ? t("portfolio_all") : c}
               </button>
             ))}
           </div>
-          {/* View toggle */}
           <div className="flex items-center gap-1 rounded-xl border border-border/40 bg-background/40 p-1">
-            <button onClick={() => setViewMode("grid")}
-              className={`p-1.5 rounded-lg transition-all ${viewMode === "grid" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+            <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-lg transition-all ${viewMode === "grid" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
               <LayoutGrid size={15} />
             </button>
-            <button onClick={() => setViewMode("list")}
-              className={`p-1.5 rounded-lg transition-all ${viewMode === "list" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+            <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-lg transition-all ${viewMode === "list" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
               <Rows3 size={15} />
             </button>
           </div>
@@ -334,7 +275,7 @@ export default function PublicPortfolio() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <Loader2 size={28} className="animate-spin text-muted-foreground" />
-            <p className="text-xs text-muted-foreground tracking-wide">Loading projects…</p>
+            <p className="text-xs text-muted-foreground tracking-wide">{t("portfolio_loading")}</p>
           </div>
         ) : filtered.length === 0 ? (
           <FadeUp>
@@ -342,49 +283,35 @@ export default function PublicPortfolio() {
               <div className="h-20 w-20 rounded-2xl bg-muted/50 flex items-center justify-center mb-6">
                 <Grid3X3 size={32} className="text-muted-foreground/30" />
               </div>
-              <h3 className="font-display text-2xl font-bold text-foreground">No projects found</h3>
-              <p className="mt-2 text-muted-foreground text-sm max-w-xs">Try adjusting your search or category filter to discover more work.</p>
+              <h3 className="font-display text-2xl font-bold text-foreground">{t("portfolio_no_projects")}</h3>
+              <p className="mt-2 text-muted-foreground text-sm max-w-xs">{t("portfolio_no_found_hint")}</p>
               <button onClick={() => { setSearch(""); setCategory("All"); }}
                 className="mt-6 text-xs text-primary hover:underline tracking-wide uppercase font-medium">
-                Clear filters
+                {t("portfolio_clear_filters")}
               </button>
             </div>
           </FadeUp>
         ) : (
           <>
-            {/* Result count */}
             <div className="flex items-center justify-between mb-8">
               <p className="text-xs text-muted-foreground tracking-wide">
-                Showing <span className="text-foreground font-medium">{paginated.length}</span> of{" "}
-                <span className="text-foreground font-medium">{allForDisplay.length}</span> projects
+                {t("portfolio_showing")} <span className="text-foreground font-medium">{paginated.length}</span> {t("portfolio_of")}{" "}
+                <span className="text-foreground font-medium">{allForDisplay.length}</span> {t("portfolio_projects_label")}
               </p>
             </div>
 
             <AnimatePresence mode="wait">
               {viewMode === "grid" ? (
-                <motion.div
-                  key="grid"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="grid gap-4 md:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                >
+                <motion.div key="grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
+                  className="grid gap-4 md:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                   {paginated.map((item, i) => (
                     <div key={item.id} className={getBentoSpan(i)}>
-                      <BentoCard item={item} size={getBentoSize(i)} index={i} />
+                      <BentoCard item={item} size={getBentoSize(i)} index={i} t={t} />
                     </div>
                   ))}
                 </motion.div>
               ) : (
-                <motion.div
-                  key="list"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="max-w-3xl"
-                >
+                <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="max-w-3xl">
                   {paginated.map((item, i) => (
                     <ListCard key={item.id} item={item} index={i} />
                   ))}
@@ -396,7 +323,7 @@ export default function PublicPortfolio() {
               <div className="flex justify-center mt-14">
                 <button onClick={() => setPage((p) => p + 1)}
                   className="group rounded-2xl border border-border/40 bg-background/60 backdrop-blur-sm px-10 py-3.5 text-xs tracking-[0.15em] uppercase font-medium text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-[0_0_30px_rgba(var(--primary),0.2)] transition-all duration-300">
-                  Load more projects
+                  {t("portfolio_load_more")}
                   <ArrowRight size={12} className="inline ml-2 group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
@@ -413,17 +340,17 @@ export default function PublicPortfolio() {
             <div className="container text-center">
               <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-8">
                 <Sparkles size={12} className="text-primary" />
-                <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">Start a Project</p>
+                <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">{t("portfolio_start_project")}</p>
               </div>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight leading-tight">
-                Inspired by what<br className="hidden md:block" /> you see?
+                {t("portfolio_inspired")}
               </h2>
               <p className="mt-4 text-muted-foreground font-light max-w-md mx-auto leading-relaxed">
-                Let's create something remarkable together. Every great project begins with a conversation.
+                {t("portfolio_lets_create")}
               </p>
               <Link to="/contact"
                 className="inline-flex items-center gap-2 mt-10 rounded-2xl bg-primary px-10 py-4 text-sm tracking-wide font-medium text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:shadow-xl transition-all duration-300">
-                Begin a Conversation <ArrowRight size={14} />
+                {t("portfolio_begin_conversation")} <ArrowRight size={14} />
               </Link>
             </div>
           </FadeUp>

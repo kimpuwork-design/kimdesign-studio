@@ -26,8 +26,8 @@ interface BlogPost {
 const CATEGORIES = ["All", "News", "Insights", "Projects", "Tutorials", "Announcements"];
 
 export default function PublicBlog() {
-  useSEO({ title: "Blog", description: "Architecture insights, project updates, and industry news from our studio" });
   const { t } = useTranslation();
+  useSEO({ title: t("blog_title"), description: t("blog_description") });
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -49,7 +49,7 @@ export default function PublicBlog() {
     if (category !== "All" && p.category?.toLowerCase() !== category.toLowerCase()) return false;
     if (search.trim()) {
       const q = search.toLowerCase();
-      return p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q) || p.tags.some((t) => t.toLowerCase().includes(q));
+      return p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q) || p.tags.some((tg) => tg.toLowerCase().includes(q));
     }
     return true;
   });
@@ -58,7 +58,6 @@ export default function PublicBlog() {
     <div className="bg-background min-h-screen relative">
       <PublicNav />
 
-      {/* Ambient */}
       <div className="pointer-events-none fixed inset-0 z-0">
         <div className="absolute top-1/4 -right-40 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[150px] animate-float" />
         <div className="absolute bottom-1/3 -left-32 w-[400px] h-[400px] rounded-full bg-primary/[0.03] blur-[120px] animate-float-delayed" />
@@ -69,17 +68,17 @@ export default function PublicBlog() {
         <FadeUp>
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-6">
             <Sparkles size={12} className="text-primary" />
-            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">Blog & Insights</p>
+            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">{t("blog_insights_badge")}</p>
           </div>
         </FadeUp>
         <FadeUp delay={0.1}>
           <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] font-bold text-foreground leading-tight tracking-tight">
-            Blog
+            {t("blog_title")}
           </h1>
         </FadeUp>
         <FadeUp delay={0.2}>
           <p className="mt-4 text-muted-foreground font-light max-w-lg leading-relaxed">
-            Architecture insights, project updates, and industry news from our studio.
+            {t("blog_description")}
           </p>
         </FadeUp>
       </section>
@@ -89,21 +88,17 @@ export default function PublicBlog() {
         <div className="container py-3 flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1 max-w-xs">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={search} onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search articles…"
-              className="w-full pl-9 pr-3 py-2 rounded-xl border border-border/50 bg-background/60 backdrop-blur-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
+            <input value={search} onChange={(e) => setSearch(e.target.value)}
+              placeholder={t("blog_search")}
+              className="w-full pl-9 pr-3 py-2 rounded-xl border border-border/50 bg-background/60 backdrop-blur-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
           </div>
           <div className="flex gap-2 flex-wrap items-center">
             {CATEGORIES.map((c) => (
               <button key={c} onClick={() => setCategory(c)}
                 className={`px-4 py-1.5 rounded-full text-xs tracking-[0.1em] uppercase font-medium transition-all duration-200 ${
-                  category === c
-                    ? "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(var(--primary),0.3)]"
-                    : "bg-secondary/50 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  category === c ? "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(var(--primary),0.3)]" : "bg-secondary/50 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`}>
-                {c}
+                {c === "All" ? t("portfolio_all") : c}
               </button>
             ))}
           </div>
@@ -120,8 +115,8 @@ export default function PublicBlog() {
           <FadeUp>
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <Tag size={48} className="text-muted-foreground/20 mb-4" />
-              <h3 className="font-display text-2xl font-bold text-foreground">No articles found</h3>
-              <p className="mt-2 text-muted-foreground text-sm">Try adjusting your search or filters.</p>
+              <h3 className="font-display text-2xl font-bold text-foreground">{t("blog_no_articles")}</h3>
+              <p className="mt-2 text-muted-foreground text-sm">{t("blog_no_articles_hint")}</p>
             </div>
           </FadeUp>
         ) : (
@@ -143,18 +138,14 @@ export default function PublicBlog() {
                     <div className="p-5">
                       <div className="flex items-center gap-2 mb-3">
                         {post.category && (
-                          <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] tracking-wide uppercase font-semibold text-primary">
-                            {post.category}
-                          </span>
+                          <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] tracking-wide uppercase font-semibold text-primary">{post.category}</span>
                         )}
                         <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                           <Calendar size={10} />
                           {format(new Date(post.published_at || post.created_at), "MMM d, yyyy")}
                         </span>
                       </div>
-                      <h3 className="font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-2">
-                        {post.title}
-                      </h3>
+                      <h3 className="font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-2">{post.title}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">{post.excerpt}</p>
                       <div className="mt-4 flex items-center gap-1 text-xs font-medium text-primary">
                         {t("common_read_more")} <ArrowRight size={12} />

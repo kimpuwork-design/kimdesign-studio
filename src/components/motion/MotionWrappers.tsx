@@ -1,14 +1,17 @@
 import { motion, type Variants } from "framer-motion";
 import { ReactNode } from "react";
 
+// Shared ultra-smooth easing
+const smoothEase = [0.16, 1, 0.3, 1] as const;
+
 // Page transition wrapper
 export function MotionPage({ children }: { children: ReactNode }) {
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.4, ease: "easeInOut" }}
+      initial={{ opacity: 0, filter: "blur(4px)" }}
+      animate={{ opacity: 1, filter: "blur(0px)" }}
+      exit={{ opacity: 0, filter: "blur(2px)" }}
+      transition={{ duration: 0.5, ease: smoothEase }}
     >
       {children}
     </motion.div>
@@ -17,14 +20,14 @@ export function MotionPage({ children }: { children: ReactNode }) {
 
 // Fade up on scroll (viewport-triggered)
 const fadeUpVariants: Variants = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: 32, scale: 0.985 },
+  visible: { opacity: 1, y: 0, scale: 1 },
 };
 
 export function FadeUp({
   children,
   delay = 0,
-  duration = 0.6,
+  duration = 0.7,
   className = "",
 }: {
   children: ReactNode;
@@ -37,8 +40,8 @@ export function FadeUp({
       variants={fadeUpVariants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration, delay, ease: smoothEase }}
       className={className}
     >
       {children}
@@ -50,7 +53,7 @@ export function FadeUp({
 export function FadeIn({
   children,
   delay = 0,
-  duration = 0.5,
+  duration = 0.6,
   className = "",
 }: {
   children: ReactNode;
@@ -60,10 +63,10 @@ export function FadeIn({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
+      initial={{ opacity: 0, scale: 0.98 }}
+      whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration, delay, ease: "easeOut" }}
+      transition={{ duration, delay, ease: smoothEase }}
       className={className}
     >
       {children}
@@ -72,25 +75,10 @@ export function FadeIn({
 }
 
 // Stagger children container
-const staggerContainerVariants: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const staggerItemVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
-};
-
 export function StaggerContainer({
   children,
   className = "",
-  staggerDelay = 0.1,
+  staggerDelay = 0.08,
 }: {
   children: ReactNode;
   className?: string;
@@ -100,17 +88,22 @@ export function StaggerContainer({
     <motion.div
       variants={{
         hidden: {},
-        visible: { transition: { staggerChildren: staggerDelay, delayChildren: 0.1 } },
+        visible: { transition: { staggerChildren: staggerDelay, delayChildren: 0.05 } },
       }}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-60px" }}
+      viewport={{ once: true, margin: "-80px" }}
       className={className}
     >
       {children}
     </motion.div>
   );
 }
+
+const staggerItemVariants: Variants = {
+  hidden: { opacity: 0, y: 24, scale: 0.985 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: smoothEase } },
+};
 
 export function StaggerItem({
   children,
@@ -136,7 +129,7 @@ export function HoverCard({
 }) {
   return (
     <motion.div
-      whileHover={{ y: -4, transition: { duration: 0.25 } }}
+      whileHover={{ y: -4, transition: { duration: 0.35, ease: smoothEase } }}
       className={className}
     >
       {children}
@@ -156,13 +149,13 @@ export function SlideIn({
   delay?: number;
   className?: string;
 }) {
-  const x = direction === "left" ? -60 : 60;
+  const x = direction === "left" ? -50 : 50;
   return (
     <motion.div
-      initial={{ opacity: 0, x }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, x, filter: "blur(2px)" }}
+      whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.7, delay, ease: smoothEase }}
       className={className}
     >
       {children}

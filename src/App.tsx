@@ -10,6 +10,7 @@ import { LanguageProvider } from "@/i18n/LanguageContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { CommandPalette } from "@/components/CommandPalette";
 import { PageTransition } from "@/components/PageTransition";
+import { usePageTracking } from "@/hooks/usePageTracking";
 
 // Lazy-loaded pages for code splitting
 const Home = lazy(() => import("./pages/public/Home"));
@@ -43,6 +44,7 @@ const AdminSiteContent = lazy(() => import("./pages/admin/SiteContent"));
 const AdminAuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
 const AdminBlog = lazy(() => import("./pages/admin/Blog"));
 const AdminBlogEditor = lazy(() => import("./pages/admin/BlogEditor"));
+const AdminAnalytics = lazy(() => import("./pages/admin/Analytics"));
 
 const StaffDashboard = lazy(() => import("./pages/staff/Dashboard"));
 const StaffProjects = lazy(() => import("./pages/staff/Projects"));
@@ -65,6 +67,11 @@ const PageLoader = () => (
   </div>
 );
 
+function AppRoutes() {
+  usePageTracking();
+  return null;
+}
+
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
   <LanguageProvider>
@@ -75,6 +82,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
         <CommandPalette />
+        <AppRoutes />
         <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public routes */}
@@ -113,6 +121,7 @@ const App = () => (
           <Route path="/admin/blog" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminBlog /></ProtectedRoute>} />
           <Route path="/admin/blog/:id" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminBlogEditor /></ProtectedRoute>} />
           <Route path="/admin/notifications" element={<ProtectedRoute allowedRoles={["ADMIN"]}><NotificationsPage variant="admin" /></ProtectedRoute>} />
+          <Route path="/admin/analytics" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminAnalytics /></ProtectedRoute>} />
 
           {/* Staff routes */}
           <Route path="/staff" element={<ProtectedRoute allowedRoles={["STAFF"]}><StaffDashboard /></ProtectedRoute>} />

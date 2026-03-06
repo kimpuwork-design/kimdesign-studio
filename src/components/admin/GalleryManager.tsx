@@ -163,7 +163,36 @@ export function GalleryManager({ projectId }: Props) {
         </div>
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="gallery">
+          <Droppable
+            droppableId="gallery"
+            renderClone={(provided, snapshot, rubric) => {
+              const img = images[rubric.source.index];
+              return (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  className="relative aspect-square rounded-xl overflow-hidden border-2 border-portal-accent bg-portal-bg shadow-2xl cursor-grabbing"
+                  style={{
+                    ...provided.draggableProps.style,
+                    width: 180,
+                    height: 180,
+                    opacity: 0.92,
+                  }}
+                >
+                  <img
+                    src={img.image_url}
+                    alt=""
+                    className="w-full h-full object-cover pointer-events-none select-none"
+                    draggable={false}
+                  />
+                  <span className="absolute bottom-2 left-2 rounded-md bg-portal-bg/80 backdrop-blur-sm px-1.5 py-0.5 text-[10px] font-semibold text-portal-text-muted">
+                    {rubric.source.index + 1}
+                  </span>
+                </div>
+              );
+            }}
+          >
             {(provided) => (
               <div
                 ref={provided.innerRef}
@@ -177,13 +206,9 @@ export function GalleryManager({ projectId }: Props) {
                         ref={dragProvided.innerRef}
                         {...dragProvided.draggableProps}
                         {...dragProvided.dragHandleProps}
-                        className={`group relative aspect-square rounded-xl overflow-hidden border border-portal-border bg-portal-bg transition-shadow cursor-grab active:cursor-grabbing ${
-                          snapshot.isDragging ? "shadow-lg ring-2 ring-portal-accent/30 z-50" : ""
+                        className={`group relative aspect-square rounded-xl overflow-hidden border border-portal-border bg-portal-bg cursor-grab active:cursor-grabbing transition-all duration-200 ${
+                          snapshot.isDragging ? "opacity-40 ring-2 ring-portal-accent/20" : "hover:shadow-md"
                         }`}
-                        style={{
-                          ...dragProvided.draggableProps.style,
-                          ...(snapshot.isDragging ? { opacity: 0.9 } : {}),
-                        }}
                       >
                         {/* Drag handle indicator */}
                         <div className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity rounded-md bg-portal-bg/80 backdrop-blur-sm p-1 pointer-events-none">

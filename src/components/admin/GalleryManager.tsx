@@ -163,7 +163,7 @@ export function GalleryManager({ projectId }: Props) {
         </div>
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="gallery" direction="horizontal">
+          <Droppable droppableId="gallery">
             {(provided) => (
               <div
                 ref={provided.innerRef}
@@ -176,21 +176,23 @@ export function GalleryManager({ projectId }: Props) {
                       <div
                         ref={dragProvided.innerRef}
                         {...dragProvided.draggableProps}
-                        className={`group relative aspect-square rounded-xl overflow-hidden border border-portal-border bg-portal-bg transition-shadow ${
-                          snapshot.isDragging ? "shadow-lg ring-2 ring-portal-accent/30" : ""
+                        {...dragProvided.dragHandleProps}
+                        className={`group relative aspect-square rounded-xl overflow-hidden border border-portal-border bg-portal-bg transition-shadow cursor-grab active:cursor-grabbing ${
+                          snapshot.isDragging ? "shadow-lg ring-2 ring-portal-accent/30 z-50" : ""
                         }`}
+                        style={{
+                          ...dragProvided.draggableProps.style,
+                          ...(snapshot.isDragging ? { opacity: 0.9 } : {}),
+                        }}
                       >
-                        {/* Drag handle */}
-                        <div
-                          {...dragProvided.dragHandleProps}
-                          className="absolute top-2 left-2 z-10 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity rounded-md bg-portal-bg/80 backdrop-blur-sm p-1"
-                        >
+                        {/* Drag handle indicator */}
+                        <div className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity rounded-md bg-portal-bg/80 backdrop-blur-sm p-1 pointer-events-none">
                           <GripVertical size={14} className="text-portal-text-muted" />
                         </div>
 
                         {/* Delete button */}
                         <button
-                          onClick={() => handleDelete(img)}
+                          onClick={(e) => { e.stopPropagation(); handleDelete(img); }}
                           disabled={deleting === img.id}
                           className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity rounded-md bg-destructive/90 backdrop-blur-sm p-1.5 text-white hover:bg-destructive"
                         >
@@ -201,21 +203,22 @@ export function GalleryManager({ projectId }: Props) {
                           )}
                         </button>
 
-                        {/* Image */}
-                        <button
-                          onClick={() => setLightbox(index)}
+                        {/* Image (click for lightbox) */}
+                        <div
+                          onClick={() => { if (!snapshot.isDragging) setLightbox(index); }}
                           className="w-full h-full"
                         >
                           <img
                             src={img.image_url}
                             alt={`Gallery ${index + 1}`}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 pointer-events-none select-none"
                             loading="lazy"
+                            draggable={false}
                           />
-                        </button>
+                        </div>
 
                         {/* Order badge */}
-                        <span className="absolute bottom-2 left-2 rounded-md bg-portal-bg/80 backdrop-blur-sm px-1.5 py-0.5 text-[10px] font-semibold text-portal-text-muted">
+                        <span className="absolute bottom-2 left-2 rounded-md bg-portal-bg/80 backdrop-blur-sm px-1.5 py-0.5 text-[10px] font-semibold text-portal-text-muted pointer-events-none">
                           {index + 1}
                         </span>
                       </div>

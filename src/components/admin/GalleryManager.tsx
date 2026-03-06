@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadPortfolioImage } from "@/lib/portfolio";
 import { useToast } from "@/hooks/use-toast";
 import {
   ImagePlus, Trash2, Loader2, GripVertical, X,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, ArrowUpDown,
 } from "lucide-react";
 import {
   DragDropContext,
@@ -33,6 +33,9 @@ export function GalleryManager({ projectId }: Props) {
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [editingOrder, setEditingOrder] = useState<string | null>(null);
+  const [orderValue, setOrderValue] = useState("");
+  const orderInputRef = useRef<HTMLInputElement>(null);
 
   const fetchImages = useCallback(async () => {
     const { data, error } = await supabase
@@ -101,19 +104,61 @@ export function GalleryManager({ projectId }: Props) {
     setDeleting(null);
   };
 
-  const handleDragEnd = async (result: DropResult) => {
-    if (!result.destination || result.source.index === result.destination.index) return;
-    const reordered = Array.from(images);
-    const [moved] = reordered.splice(result.source.index, 1);
-    reordered.splice(result.destination.index, 0, moved);
+  const persistOrder = async (reordered: GalleryImage[]) => {
     setImages(reordered);
-
     for (let i = 0; i < reordered.length; i++) {
       await supabase
         .from("portfolio_gallery")
         .update({ sort_order: i })
         .eq("id", reordered[i].id);
     }
+  };
+
+  const handleDragEnd = async (result: DropResult) => {
+    if (!result.destination || result.source.index === result.destination.index) return;
+    const reordered = Array.from(images);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+    await persistOrder(reordered);
+  };
+
+  const handleOrderChange = async (imgId: string, currentIndex: number) => {
+    const targetPos = parseInt(orderValue, 10);
+    setEditingOrder(null);
+    setOrderValue("");
+
+    if (isNaN(targetPos) || targetPos < 1 || targetPos > images.length || targetPos === currentIndex + 1) return;
+
+    const reordered = Array.from(images);
+    const [moved] = reordered.splice(currentIndex, 1);
+    reordered.splice(targetPos - 1, 0, moved);
+    await persistOrder(reordered);
+    toast({ title: `Moved to position ${targetPos}` });
+  };
+
+  const startEditingOrder = (imgId: string, currentIndex: number) => {
+    setEditingOrder(imgId);
+    setOrderValue(String(currentIndex + 1));
+    setTimeout(() => orderInputRef.current?.select(), 50);
+  };
+
+  // Move to first / last shortcuts
+  const moveToFirst = async (currentIndex: number) => {
+    if (currentIndex === 0) return;
+    const reordered = Array.from(images);
+    const [moved] = reordered.splice(currentIndex, 1);
+    reordered.unshift(moved);
+    await persistOrder(reordered);
+    toast({ title: "Moved to first" });
+  };
+
+  const moveToLast = async (currentIndex: number) => {
+    if (currentIndex === images.length - 1) return;
+    const reordered = Array.from(images);
+    const [moved] = reordered.splice(currentIndex, 1);
+    reordered.push(moved);
+    await persistOrder(reordered);
+    toast({ title: "Moved to last" });
   };
 
   if (loading) {
@@ -151,7 +196,7 @@ export function GalleryManager({ projectId }: Props) {
 
       {/* Image count */}
       {images.length > 0 && (
-        <p className="text-xs text-portal-text-muted">{images.length} image{images.length !== 1 ? "s" : ""} · Drag to reorder</p>
+        <p className="text-xs text-portal-text-muted">{images.length} image{images.length !== 1 ? "s" : ""} · Drag or click position number to reorder</p>
       )}
 
       {/* Gallery grid with drag & drop */}
@@ -215,6 +260,28 @@ export function GalleryManager({ projectId }: Props) {
                           <GripVertical size={14} className="text-portal-text-muted" />
                         </div>
 
+                        {/* Move to first/last buttons */}
+                        <div className="absolute top-2 right-10 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-0.5">
+                          {index > 0 && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); moveToFirst(index); }}
+                              title="Move to first"
+                              className="rounded-md bg-portal-bg/80 backdrop-blur-sm px-1.5 py-1 text-[10px] font-bold text-portal-text-muted hover:text-portal-accent hover:bg-portal-bg transition-colors"
+                            >
+                              ⇤
+                            </button>
+                          )}
+                          {index < images.length - 1 && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); moveToLast(index); }}
+                              title="Move to last"
+                              className="rounded-md bg-portal-bg/80 backdrop-blur-sm px-1.5 py-1 text-[10px] font-bold text-portal-text-muted hover:text-portal-accent hover:bg-portal-bg transition-colors"
+                            >
+                              ⇥
+                            </button>
+                          )}
+                        </div>
+
                         {/* Delete button */}
                         <button
                           onClick={(e) => { e.stopPropagation(); handleDelete(img); }}
@@ -242,10 +309,37 @@ export function GalleryManager({ projectId }: Props) {
                           />
                         </div>
 
-                        {/* Order badge */}
-                        <span className="absolute bottom-2 left-2 rounded-md bg-portal-bg/80 backdrop-blur-sm px-1.5 py-0.5 text-[10px] font-semibold text-portal-text-muted pointer-events-none">
-                          {index + 1}
-                        </span>
+                        {/* Clickable order badge */}
+                        {editingOrder === img.id ? (
+                          <div
+                            className="absolute bottom-2 left-2 z-20"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <input
+                              ref={orderInputRef}
+                              type="number"
+                              min={1}
+                              max={images.length}
+                              value={orderValue}
+                              onChange={(e) => setOrderValue(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleOrderChange(img.id, index);
+                                if (e.key === "Escape") { setEditingOrder(null); setOrderValue(""); }
+                              }}
+                              onBlur={() => handleOrderChange(img.id, index)}
+                              className="w-10 h-6 rounded-md bg-portal-bg border border-portal-accent text-center text-[11px] font-semibold text-portal-text focus:outline-none focus:ring-1 focus:ring-portal-accent"
+                            />
+                          </div>
+                        ) : (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); startEditingOrder(img.id, index); }}
+                            title="Click to set position"
+                            className="absolute bottom-2 left-2 rounded-md bg-portal-bg/80 backdrop-blur-sm px-1.5 py-0.5 text-[10px] font-semibold text-portal-text-muted hover:text-portal-accent hover:bg-portal-bg/95 transition-colors cursor-pointer flex items-center gap-1"
+                          >
+                            <ArrowUpDown size={9} />
+                            {index + 1}
+                          </button>
+                        )}
                       </div>
                     )}
                   </Draggable>

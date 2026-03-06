@@ -165,6 +165,7 @@ export function GalleryManager({ projectId }: Props) {
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable
             droppableId="gallery"
+            getContainerForClone={() => document.body}
             renderClone={(provided, snapshot, rubric) => {
               const img = images[rubric.source.index];
               return (
@@ -175,9 +176,8 @@ export function GalleryManager({ projectId }: Props) {
                   className="relative aspect-square rounded-xl overflow-hidden border-2 border-portal-accent bg-portal-bg shadow-2xl cursor-grabbing"
                   style={{
                     ...provided.draggableProps.style,
-                    width: 180,
-                    height: 180,
                     opacity: 0.92,
+                    pointerEvents: "none",
                   }}
                 >
                   <img

@@ -7,11 +7,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { FileUploadZone } from "@/components/files/FileUploadZone";
 import { FileList } from "@/components/files/FileList";
-import { CalendarDays, MapPin, Users, ArrowLeft, FolderOpen, LayoutList, MessageSquare, PackageOpen, Receipt } from "lucide-react";
+import { CalendarDays, MapPin, Users, ArrowLeft, FolderOpen, LayoutList, MessageSquare, PackageOpen, Receipt, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { DeliverablesTab } from "@/components/deliverables/DeliverablesTab";
 import { Button } from "@/components/ui/button";
 import { BillingTab } from "@/components/billing/BillingTab";
-
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Project {
   id: string;
@@ -37,6 +37,13 @@ const TABS = [
   { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "deliverables", label: "Deliverables", icon: PackageOpen },
   { id: "billing", label: "Billing", icon: Receipt },
+];
+
+const STATUS_STEPS = [
+  { key: "inquiry", label: "Inquiry", icon: Clock },
+  { key: "active", label: "Active", icon: AlertCircle },
+  { key: "review", label: "Review", icon: AlertCircle },
+  { key: "delivered", label: "Delivered", icon: CheckCircle2 },
 ];
 
 export default function ClientProjectDetail() {
@@ -86,6 +93,7 @@ export default function ClientProjectDetail() {
   );
 
   const staffMembers = members.filter((m) => m.member_role === "STAFF");
+  const currentStepIndex = STATUS_STEPS.findIndex((s) => s.key === project!.status);
 
   return (
     <PortalLayout variant="client">
@@ -121,68 +129,110 @@ export default function ClientProjectDetail() {
         <p className="mb-4 text-portal-text-muted leading-relaxed text-sm max-w-2xl">{project!.description}</p>
       )}
 
+      {/* ── Progress Tracker ── */}
+      <div className="mb-6 rounded-xl border border-portal-border bg-portal-surface p-4">
+        <div className="flex items-center justify-between relative">
+          {/* Progress line */}
+          <div className="absolute top-4 left-0 right-0 h-0.5 bg-portal-border mx-8" />
+          <div className="absolute top-4 left-0 h-0.5 bg-portal-accent mx-8 transition-all duration-500"
+            style={{ width: `${Math.max(0, currentStepIndex / (STATUS_STEPS.length - 1)) * 100}%` }} />
+          {STATUS_STEPS.map((step, i) => {
+            const isComplete = i <= currentStepIndex;
+            const isCurrent = i === currentStepIndex;
+            return (
+              <div key={step.key} className="relative z-10 flex flex-col items-center gap-1.5">
+                <div className={`h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  isCurrent ? "bg-portal-accent text-white ring-4 ring-portal-accent/20" :
+                  isComplete ? "bg-portal-accent text-white" :
+                  "bg-portal-surface border-2 border-portal-border text-portal-text-muted"
+                }`}>
+                  <step.icon size={14} />
+                </div>
+                <span className={`text-[10px] font-medium tracking-wider uppercase ${isCurrent ? "text-portal-accent" : "text-portal-text-muted"}`}>
+                  {step.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-portal-border mb-6">
+      <div className="flex gap-1 border-b border-portal-border mb-6 overflow-x-auto">
         {TABS.map(({ id: tabId, label, icon: Icon }) => (
           <button key={tabId} onClick={() => setTab(tabId)}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-              tab === tabId ? "border-portal-accent text-portal-accent" : "border-transparent text-portal-text-muted hover:text-portal-text"
+            className={`relative flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap ${
+              tab === tabId ? "text-portal-accent" : "text-portal-text-muted hover:text-portal-text"
             }`}>
             <Icon size={14} />{label}
+            {tab === tabId && (
+              <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-portal-accent" />
+            )}
           </button>
         ))}
       </div>
 
-      {tab === "overview" && (
-        <div className="space-y-5">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {project!.location && <InfoCard icon={<MapPin size={15} />} label="Location" value={project!.location} />}
-            {project!.start_date && <InfoCard icon={<CalendarDays size={15} />} label="Start Date" value={new Date(project!.start_date).toLocaleDateString()} />}
-            {project!.target_date && <InfoCard icon={<CalendarDays size={15} />} label="Target Date" value={new Date(project!.target_date).toLocaleDateString()} />}
-          </div>
-          {staffMembers.length > 0 && (
-            <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
-              <div className="flex items-center gap-2 mb-4"><Users size={16} className="text-portal-text-muted" /><h2 className="font-semibold text-portal-text">Your Team</h2></div>
-              <div className="space-y-2">
-                {staffMembers.map((m) => (
-                  <div key={m.id} className="flex items-center gap-3 rounded-lg border border-portal-border bg-portal-bg px-3 py-2">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-portal-accent/20 text-portal-accent text-xs font-semibold">
-                      {(m.profiles?.full_name ?? "?").charAt(0).toUpperCase()}
-                    </div>
-                    <span className="text-sm text-portal-text">{m.profiles?.full_name ?? "Unnamed"}</span>
-                    <span className="ml-auto text-xs text-portal-text-muted">Staff</span>
+      {/* ── Tab Content with Transitions ── */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={tab}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.25 }}
+        >
+          {tab === "overview" && (
+            <div className="space-y-5">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {project!.location && <InfoCard icon={<MapPin size={15} />} label="Location" value={project!.location} />}
+                {project!.start_date && <InfoCard icon={<CalendarDays size={15} />} label="Start Date" value={new Date(project!.start_date).toLocaleDateString()} />}
+                {project!.target_date && <InfoCard icon={<CalendarDays size={15} />} label="Target Date" value={new Date(project!.target_date).toLocaleDateString()} />}
+              </div>
+              {staffMembers.length > 0 && (
+                <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
+                  <div className="flex items-center gap-2 mb-4"><Users size={16} className="text-portal-text-muted" /><h2 className="font-semibold text-portal-text">Your Team</h2></div>
+                  <div className="space-y-2">
+                    {staffMembers.map((m) => (
+                      <div key={m.id} className="flex items-center gap-3 rounded-lg border border-portal-border bg-portal-bg px-3 py-2 hover:border-portal-accent/30 transition-colors">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-portal-accent/20 text-portal-accent text-xs font-semibold">
+                          {(m.profiles?.full_name ?? "?").charAt(0).toUpperCase()}
+                        </div>
+                        <span className="text-sm text-portal-text">{m.profiles?.full_name ?? "Unnamed"}</span>
+                        <span className="ml-auto text-xs text-portal-text-muted">Staff</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === "files" && profile && (
+            <div className="space-y-6">
+              <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
+                <h2 className="font-semibold text-portal-text mb-4 text-sm">Upload Files</h2>
+                <FileUploadZone projectId={project!.id} uploaderId={profile.id} onUploaded={() => setFileRefreshKey((k) => k + 1)} />
+              </div>
+              <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
+                <h2 className="font-semibold text-portal-text mb-4 text-sm">Project Files</h2>
+                <FileList projectId={project!.id} currentUserId={profile.id} refreshKey={fileRefreshKey} role="CLIENT" />
               </div>
             </div>
           )}
-        </div>
-      )}
 
-      {tab === "files" && profile && (
-        <div className="space-y-6">
-          <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
-            <h2 className="font-semibold text-portal-text mb-4 text-sm">Upload Files</h2>
-            <FileUploadZone projectId={project!.id} uploaderId={profile.id} onUploaded={() => setFileRefreshKey((k) => k + 1)} />
-          </div>
-          <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
-            <h2 className="font-semibold text-portal-text mb-4 text-sm">Project Files</h2>
-            <FileList projectId={project!.id} currentUserId={profile.id} refreshKey={fileRefreshKey} role="CLIENT" />
-          </div>
-        </div>
-      )}
+          {tab === "messages" && profile && (
+            <MessageThread projectId={project!.id} currentUserId={profile.id} currentUserRole="CLIENT" />
+          )}
 
-      {tab === "messages" && profile && (
-        <MessageThread projectId={project!.id} currentUserId={profile.id} currentUserRole="CLIENT" />
-      )}
+          {tab === "deliverables" && (
+            <DeliverablesTab projectId={project!.id} role="CLIENT" />
+          )}
 
-      {tab === "deliverables" && (
-        <DeliverablesTab projectId={project!.id} role="CLIENT" />
-      )}
-
-      {tab === "billing" && (
-        <BillingTab projectId={project!.id} role="CLIENT" />
-      )}
+          {tab === "billing" && (
+            <BillingTab projectId={project!.id} role="CLIENT" />
+          )}
+        </motion.div>
+      </AnimatePresence>
     </PortalLayout>
   );
 }
@@ -190,9 +240,13 @@ export default function ClientProjectDetail() {
 
 function InfoCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-portal-border bg-portal-surface p-4">
+    <motion.div
+      whileHover={{ y: -2, scale: 1.01 }}
+      transition={{ duration: 0.2 }}
+      className="rounded-xl border border-portal-border bg-portal-surface p-4 hover:border-portal-accent/30 hover:shadow-sm transition-all"
+    >
       <div className="flex items-center gap-2 mb-1 text-portal-text-muted">{icon}<span className="text-xs font-semibold uppercase tracking-wider">{label}</span></div>
       <p className="text-portal-text font-medium">{value}</p>
-    </div>
+    </motion.div>
   );
 }

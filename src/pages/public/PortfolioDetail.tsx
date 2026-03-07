@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
@@ -7,12 +7,15 @@ import { GalleryImage } from "@/lib/portfolio";
 import { FileAsset, formatBytes, FILE_CATEGORIES, isImageExt, getPublicFileSignedUrl } from "@/lib/files";
 import { FileIcon } from "@/components/files/FileIcon";
 import { FilePreviewModal } from "@/components/files/FilePreviewModal";
+import { CinematicLightbox } from "@/components/media/CinematicLightbox";
+import { FadeUp, StaggerContainer, StaggerItem, SlideIn } from "@/components/motion/MotionWrappers";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 import {
   MapPin, Calendar, Tag, ArrowLeft, ArrowRight,
   ExternalLink, Loader2, Eye, FolderOpen, Maximize2,
+  Camera, FileText, Layers, Clock,
 } from "lucide-react";
-import { CinematicLightbox, LightboxImage } from "@/components/media/CinematicLightbox";
 
 interface ProjectItem {
   id: string;
@@ -32,7 +35,6 @@ interface ProjectItem {
   updated_at: string;
 }
 
-// Using CinematicLightbox component for gallery viewing
 export default function PortfolioDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [item, setItem] = useState<ProjectItem | null>(null);
@@ -45,10 +47,15 @@ export default function PortfolioDetail() {
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [preview, setPreview] = useState<FileAsset | null>(null);
 
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 80]);
+
   useEffect(() => {
     if (!slug) return;
     const fetchData = async () => {
-      // Fetch from projects table by slug
       const { data, error } = await supabase
         .from("projects")
         .select("*")
@@ -60,7 +67,6 @@ export default function PortfolioDetail() {
       const p = data as unknown as ProjectItem;
       setItem(p);
 
-      // Fetch gallery, related projects, and file assets in parallel
       const [{ data: gal }, { data: rel }, { data: fileData }] = await Promise.all([
         supabase.from("portfolio_gallery").select("*").eq("project_id", p.id).order("sort_order"),
         supabase.from("projects")
@@ -77,7 +83,6 @@ export default function PortfolioDetail() {
       const allFiles = (fileData as unknown as FileAsset[]) ?? [];
       setFiles(allFiles);
 
-      // Generate signed URLs for image files
       const imageFiles = allFiles.filter((f) => isImageExt(f.extension ?? ""));
       if (imageFiles.length > 0) {
         const imgs = await Promise.all(
@@ -97,7 +102,10 @@ export default function PortfolioDetail() {
   if (loading) return (
     <div className="bg-background min-h-screen">
       <PublicNav />
-      <div className="flex justify-center py-32"><Loader2 size={28} className="animate-spin text-muted-foreground" /></div>
+      <div className="flex flex-col items-center justify-center py-32 gap-3">
+        <Loader2 size={28} className="animate-spin text-primary" />
+        <p className="text-xs text-muted-foreground tracking-widest uppercase">Loading project</p>
+      </div>
     </div>
   );
 
@@ -115,274 +123,326 @@ export default function PortfolioDetail() {
   const coverUrl = item.thumbnail_url;
   const displaySummary = item.summary || item.description || "";
   const pageTitle = `${item.title} — FORMA`;
+  const allGalleryItems = gallery.length > 0
+    ? gallery.map((g) => ({ id: g.id, url: g.image_url, name: "" }))
+    : galleryImages.map((g, i) => ({ id: `img-${i}`, url: g.url, name: g.name }));
+
+  const nonImageFiles = files.filter((f) => !isImageExt(f.extension ?? ""));
+  const grouped: Record<string, FileAsset[]> = {};
+  for (const f of nonImageFiles) {
+    const cat = f.category;
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(f);
+  }
+  const orderedCategories = FILE_CATEGORIES.map((c) => c.value).filter((c) => grouped[c]);
 
   const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "CreativeWork",
-    "name": item.title,
-    "description": displaySummary,
-    "image": coverUrl,
-    "locationCreated": item.location,
-    "dateCreated": item.year?.toString(),
+    "@context": "https://schema.org", "@type": "CreativeWork",
+    "name": item.title, "description": displaySummary, "image": coverUrl,
+    "locationCreated": item.location, "dateCreated": item.year?.toString(),
     "url": `${window.location.origin}/portfolio/${item.slug}`,
     "author": { "@type": "Organization", "name": "FORMA" },
   };
+
+  const stats = [
+    allGalleryItems.length > 0 && { icon: Camera, n: allGalleryItems.length, label: "Photos" },
+    nonImageFiles.length > 0 && { icon: FileText, n: nonImageFiles.length, label: "Files" },
+    item.tags?.length > 0 && { icon: Tag, n: item.tags.length, label: "Tags" },
+  ].filter(Boolean) as { icon: typeof Camera; n: number; label: string }[];
 
   return (
     <div className="bg-background min-h-screen">
       <MetaTags title={pageTitle} description={displaySummary} image={coverUrl || ""} jsonLd={jsonLd} />
       <PublicNav />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden">
+      {/* ── Parallax Hero ── */}
+      <div ref={heroRef} className="relative overflow-hidden">
         {coverUrl ? (
-          <>
-            <div className="absolute inset-0">
+          <section className="relative h-[70vh] min-h-[500px] max-h-[800px]">
+            <motion.div style={{ scale: heroScale }} className="absolute inset-0">
               <img src={coverUrl} alt={item.title} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-background" />
-            </div>
-            <div className="relative container py-28 md:py-40">
-              <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-6 transition-colors">
-                <ArrowLeft size={14} />Back to Portfolio
-              </Link>
-              <div className="max-w-2xl">
+              <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-background" />
+            </motion.div>
+            <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative h-full container flex flex-col justify-end pb-12 md:pb-16 z-10">
+              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
+                <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-8 transition-colors">
+                  <ArrowLeft size={14} />Back to Portfolio
+                </Link>
+              </motion.div>
+              <div className="max-w-3xl">
                 {item.category && (
-                  <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">{item.category}</p>
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+                    className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 px-4 py-1.5 mb-4">
+                    <Layers size={11} className="text-primary" />
+                    <span className="text-xs font-semibold uppercase tracking-[0.15em] text-white/90">{item.category}</span>
+                  </motion.div>
                 )}
-                <h1 className="font-display text-4xl md:text-6xl font-bold text-white leading-tight">{item.title}</h1>
-                <p className="mt-4 text-white/80 text-lg max-w-lg">{displaySummary}</p>
-                <div className="flex flex-wrap gap-4 mt-6 text-white/70 text-sm">
-                  {item.location && <span className="flex items-center gap-1.5"><MapPin size={14} />{item.location}</span>}
-                  {item.year && <span className="flex items-center gap-1.5"><Calendar size={14} />{item.year}</span>}
-                </div>
+                <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[0.95] tracking-tight">
+                  {item.title}
+                </motion.h1>
+                <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+                  className="mt-4 text-white/75 text-lg max-w-xl font-light leading-relaxed">
+                  {displaySummary}
+                </motion.p>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+                  className="flex flex-wrap items-center gap-3 mt-6">
+                  {item.location && (
+                    <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
+                      <MapPin size={13} />{item.location}
+                    </span>
+                  )}
+                  {item.year && (
+                    <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
+                      <Calendar size={13} />{item.year}
+                    </span>
+                  )}
+                  {stats.map((s) => (
+                    <span key={s.label} className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
+                      <s.icon size={13} />{s.n} {s.label}
+                    </span>
+                  ))}
+                </motion.div>
               </div>
-            </div>
-          </>
+            </motion.div>
+          </section>
         ) : (
-          <div className="container pt-16 pb-10">
+          <section className="container pt-16 pb-10">
             <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors">
               <ArrowLeft size={14} />Back to Portfolio
             </Link>
             {item.category && <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">{item.category}</p>}
             <h1 className="font-display text-5xl font-bold text-foreground">{item.title}</h1>
             <p className="mt-4 text-muted-foreground text-lg">{displaySummary}</p>
-          </div>
+          </section>
         )}
-      </section>
+      </div>
 
-      {/* Content */}
+      {/* ── Content ── */}
       <div className="container py-16">
-        <div className="grid gap-12 lg:grid-cols-[1fr_280px]">
-          <div className="space-y-10">
+        <div className="grid gap-12 lg:grid-cols-[1fr_300px]">
+          <div className="space-y-14">
+            {/* Written content */}
             {item.content && (
-              <div className="prose prose-lg max-w-none text-foreground">
-                <div className="text-foreground leading-relaxed whitespace-pre-wrap text-base">
-                  {item.content}
+              <FadeUp>
+                <div className="prose prose-lg max-w-none">
+                  <div className="text-foreground leading-relaxed whitespace-pre-wrap text-base">{item.content}</div>
                 </div>
-              </div>
+              </FadeUp>
             )}
 
-            {gallery.length > 0 && (
-              <div>
-                <h2 className="font-display text-2xl font-semibold text-foreground mb-6">Gallery</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {gallery.map((img, idx) => (
-                    <button key={img.id} onClick={() => setLightbox(idx)}
-                      className="aspect-square overflow-hidden rounded-xl bg-secondary/50 group">
-                      <img src={img.image_url} alt={`Gallery ${idx + 1}`} loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    </button>
+            {/* Gallery — Masonry-style */}
+            {allGalleryItems.length > 0 && (
+              <FadeUp>
+                <SectionHeader icon={Camera} label="Gallery" count={allGalleryItems.length} />
+                <StaggerContainer className="columns-2 md:columns-3 gap-3 space-y-3" staggerDelay={0.06}>
+                  {allGalleryItems.map((img, idx) => (
+                    <StaggerItem key={img.id}>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setLightbox(idx)}
+                        className="group relative w-full overflow-hidden rounded-xl break-inside-avoid"
+                      >
+                        <img src={img.url} alt={img.name || `Gallery ${idx + 1}`} loading="lazy"
+                          className="w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+                          <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300">
+                            <Maximize2 size={16} className="text-white" />
+                          </div>
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <p className="text-white text-xs font-medium truncate">{img.name || `Photo ${idx + 1}`}</p>
+                        </div>
+                      </motion.button>
+                    </StaggerItem>
                   ))}
-                </div>
-              </div>
-            )}
-
-            {/* Project file images as gallery */}
-            {galleryImages.length > 0 && gallery.length === 0 && (
-              <div>
-                <h2 className="font-display text-2xl font-semibold text-foreground mb-6">Project Photos</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {galleryImages.map((img, idx) => (
-                    <button key={idx} onClick={() => setLightbox(idx)}
-                      className="aspect-square overflow-hidden rounded-xl bg-secondary/50 group relative">
-                      <img src={img.url} alt={img.name} loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                        <Maximize2 size={20} className="text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
+                </StaggerContainer>
+              </FadeUp>
             )}
 
             {/* Non-image project files */}
-            {(() => {
-              const nonImageFiles = files.filter((f) => !isImageExt(f.extension ?? ""));
-              if (nonImageFiles.length === 0) return null;
-              const grouped: Record<string, FileAsset[]> = {};
-              for (const f of nonImageFiles) {
-                const cat = f.category;
-                if (!grouped[cat]) grouped[cat] = [];
-                grouped[cat].push(f);
-              }
-              const orderedCategories = FILE_CATEGORIES.map((c) => c.value).filter((c) => grouped[c]);
-              return (
-                <div>
-                  <div className="flex items-center gap-3 mb-6">
-                    <FolderOpen size={18} className="text-primary" />
-                    <h2 className="font-display text-2xl font-semibold text-foreground">Project Files</h2>
-                  </div>
-                  <div className="space-y-6">
-                    {orderedCategories.map((cat) => {
-                      const catLabel = FILE_CATEGORIES.find((c) => c.value === cat)?.label ?? cat;
-                      return (
-                        <div key={cat}>
-                          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{catLabel}</h3>
-                          <div className="space-y-2">
-                            {grouped[cat].map((file) => (
-                              <div key={file.id}
-                                className="flex items-center gap-3 rounded-2xl border border-border/30 bg-background/60 backdrop-blur-sm px-5 py-3.5 hover:border-primary/30 hover:shadow-[0_0_20px_rgba(var(--primary),0.05)] transition-all">
+            {nonImageFiles.length > 0 && (
+              <FadeUp>
+                <SectionHeader icon={FolderOpen} label="Project Files" count={nonImageFiles.length} />
+                <div className="space-y-6">
+                  {orderedCategories.map((cat) => {
+                    const catLabel = FILE_CATEGORIES.find((c) => c.value === cat)?.label ?? cat;
+                    return (
+                      <div key={cat}>
+                        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{catLabel}</h3>
+                        <StaggerContainer className="space-y-2" staggerDelay={0.05}>
+                          {grouped[cat].map((file) => (
+                            <StaggerItem key={file.id}>
+                              <motion.div
+                                whileHover={{ x: 4 }}
+                                className="flex items-center gap-3 rounded-2xl border border-border/30 bg-card/60 backdrop-blur-sm px-5 py-3.5 hover:border-primary/30 hover:shadow-[0_0_20px_hsl(var(--primary)/0.08)] transition-all cursor-pointer"
+                                onClick={() => setPreview(file)}
+                              >
                                 <FileIcon ext={file.extension ?? ""} size={18} className="text-muted-foreground shrink-0" />
                                 <div className="flex-1 min-w-0">
                                   <p className="truncate text-sm font-medium text-foreground">{file.original_name}</p>
                                   <p className="text-xs text-muted-foreground">
                                     {formatBytes(file.size_bytes)}
-                                    {file.version > 1 && (
-                                      <span className="ml-2 rounded-full bg-primary/15 px-1.5 py-0.5 text-primary text-[10px] font-semibold">v{file.version}</span>
-                                    )}
+                                    {file.version > 1 && <span className="ml-2 rounded-full bg-primary/15 px-1.5 py-0.5 text-primary text-[10px] font-semibold">v{file.version}</span>}
                                     {" · "}{new Date(file.created_at).toLocaleDateString()}
                                   </p>
                                 </div>
-                                <button onClick={() => setPreview(file)} title="Preview"
-                                  className="rounded-xl p-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
-                                  <Eye size={15} />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                                <Eye size={15} className="text-muted-foreground shrink-0" />
+                              </motion.div>
+                            </StaggerItem>
+                          ))}
+                        </StaggerContainer>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })()}
+              </FadeUp>
+            )}
           </div>
 
-          {/* Sidebar */}
+          {/* ── Sidebar ── */}
           <div className="space-y-6">
-            <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-              <h3 className="font-semibold text-foreground text-sm uppercase tracking-wider">Project Details</h3>
-              {item.category && (
-                <div><p className="text-xs text-muted-foreground mb-0.5">Category</p><p className="font-medium text-foreground">{item.category}</p></div>
-              )}
-              {item.location && (
-                <div><p className="text-xs text-muted-foreground mb-0.5">Location</p><p className="font-medium text-foreground flex items-center gap-1"><MapPin size={13} />{item.location}</p></div>
-              )}
-              {item.year && (
-                <div><p className="text-xs text-muted-foreground mb-0.5">Year</p><p className="font-medium text-foreground flex items-center gap-1"><Calendar size={13} />{item.year}</p></div>
-              )}
-              {item.tags && item.tags.length > 0 && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1"><Tag size={11} />Tags</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {item.tags.map((t) => (
-                      <span key={t} className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-muted-foreground">{t}</span>
-                    ))}
+            <SlideIn direction="right" delay={0.3}>
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-5 sticky top-24">
+                <h3 className="font-semibold text-foreground text-sm uppercase tracking-wider flex items-center gap-2">
+                  <Layers size={14} className="text-primary" /> Project Details
+                </h3>
+                {item.category && (
+                  <DetailRow label="Category" value={item.category} />
+                )}
+                {item.location && (
+                  <DetailRow label="Location" value={item.location} icon={<MapPin size={13} />} />
+                )}
+                {item.year && (
+                  <DetailRow label="Year" value={String(item.year)} icon={<Calendar size={13} />} />
+                )}
+                {item.created_at && (
+                  <DetailRow label="Published" value={new Date(item.created_at).toLocaleDateString()} icon={<Clock size={13} />} />
+                )}
+                {item.tags && item.tags.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1"><Tag size={11} />Tags</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {item.tags.map((t) => (
+                        <span key={t} className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors cursor-default">{t}</span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            </SlideIn>
 
-            <div className="rounded-2xl bg-foreground p-6 text-center">
-              <h3 className="font-display text-lg font-bold text-background">Like what you see?</h3>
-              <p className="mt-1.5 text-background/70 text-sm">Let's talk about your project.</p>
-              <Link to="/contact"
-                className="inline-flex items-center gap-2 mt-4 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors">
-                Request a Consultation <ExternalLink size={13} />
-              </Link>
-            </div>
+            <SlideIn direction="right" delay={0.4}>
+              <div className="rounded-2xl bg-foreground p-6 text-center overflow-hidden relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10">
+                  <h3 className="font-display text-lg font-bold text-background">Like what you see?</h3>
+                  <p className="mt-1.5 text-background/70 text-sm">Let's talk about your project.</p>
+                  <Link to="/contact"
+                    className="inline-flex items-center gap-2 mt-4 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30">
+                    Request a Consultation <ExternalLink size={13} />
+                  </Link>
+                </div>
+              </div>
+            </SlideIn>
           </div>
         </div>
 
-        {/* Related */}
+        {/* ── Related Projects ── */}
         {related.length > 0 && (
-          <section className="mt-16 pt-12 border-t border-border/40 relative">
-            <div className="absolute -top-20 right-0 w-72 h-72 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
+          <FadeUp className="mt-20 pt-12 border-t border-border/40">
             <div className="flex items-center gap-3 mb-10">
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
               <h2 className="font-display text-2xl font-bold text-foreground tracking-tight">Related Projects</h2>
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-3">
+            <StaggerContainer className="grid gap-6 sm:grid-cols-3" staggerDelay={0.1}>
               {related.map((r) => {
                 const rLink = r.slug ? `/portfolio/${r.slug}` : `/projects/${r.id}`;
                 return (
-                  <Link key={r.id} to={rLink}
-                    className="group relative block rounded-2xl overflow-hidden glass-card-hover transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg hover:shadow-primary/10">
-                    <div className="aspect-[4/3] overflow-hidden bg-secondary/30 relative">
-                      {r.thumbnail_url ? (
-                        <img src={r.thumbnail_url} alt={r.title} loading="lazy"
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-muted to-secondary" />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      {r.category && (
-                        <span className="absolute top-3 left-3 rounded-full bg-primary/90 backdrop-blur-sm px-3 py-1 text-[11px] font-semibold text-primary-foreground uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                          {r.category}
-                        </span>
-                      )}
-                    </div>
-                    <div className="p-5 relative">
-                      <div className="absolute top-0 left-5 right-5 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <h3 className="font-display font-bold text-foreground group-hover:text-primary transition-colors text-base">{r.title}</h3>
-                      {r.location && (
-                        <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1"><MapPin size={11} />{r.location}</p>
-                      )}
-                      <div className="mt-3 flex items-center gap-1.5 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-0 group-hover:translate-x-1">
-                        View Project <ArrowRight size={12} />
+                  <StaggerItem key={r.id}>
+                    <Link to={rLink} className="group block relative rounded-2xl overflow-hidden glass-card-hover transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/10">
+                      <div className="aspect-[4/3] overflow-hidden bg-secondary/30 relative">
+                        {r.thumbnail_url ? (
+                          <img src={r.thumbnail_url} alt={r.title} loading="lazy"
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-muted to-secondary" />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
+                        <div className="absolute bottom-0 left-0 right-0 p-5">
+                          {r.category && (
+                            <span className="inline-block rounded-full bg-white/10 backdrop-blur-sm border border-white/10 px-2.5 py-0.5 text-[10px] tracking-[0.15em] uppercase font-medium text-white/80 mb-2">
+                              {r.category}
+                            </span>
+                          )}
+                          <h3 className="font-display font-bold text-white text-base leading-tight">{r.title}</h3>
+                          {r.location && <p className="text-xs text-white/60 mt-1.5 flex items-center gap-1"><MapPin size={11} />{r.location}</p>}
+                        </div>
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
+                  </StaggerItem>
                 );
               })}
-            </div>
-          </section>
+            </StaggerContainer>
+          </FadeUp>
         )}
       </div>
 
       {/* CTA */}
-      <section className="border-t border-border py-16 text-center">
-        <div className="container">
-          <h2 className="font-display text-3xl font-bold text-foreground">Ready to start your project?</h2>
-          <p className="mt-3 text-muted-foreground">We'd love to hear about your vision.</p>
-          <Link to="/contact"
-            className="inline-flex items-center gap-2 mt-6 rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors">
-            Request a Consultation
-          </Link>
-        </div>
-      </section>
+      <FadeUp>
+        <section className="border-t border-border py-20 text-center relative overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full bg-primary/5 blur-[120px]" />
+          </div>
+          <div className="container relative z-10">
+            <h2 className="font-display text-4xl font-bold text-foreground tracking-tight">Ready to start your project?</h2>
+            <p className="mt-3 text-muted-foreground">We'd love to hear about your vision.</p>
+            <Link to="/contact"
+              className="inline-flex items-center gap-2 mt-8 rounded-2xl bg-primary px-10 py-3.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
+              Request a Consultation
+            </Link>
+          </div>
+        </section>
+      </FadeUp>
 
       <PublicFooter />
 
-      {lightbox !== null && gallery.length > 0 && (
+      {lightbox !== null && allGalleryItems.length > 0 && (
         <CinematicLightbox
-          images={gallery.map((g) => ({ id: g.id, image_url: g.image_url }))}
-          startIndex={lightbox}
-          onClose={() => setLightbox(null)}
-        />
-      )}
-      {lightbox !== null && gallery.length === 0 && galleryImages.length > 0 && (
-        <CinematicLightbox
-          images={galleryImages.map((g, i) => ({ id: `img-${i}`, image_url: g.url, caption: g.name }))}
+          images={allGalleryItems.map((g) => ({ id: g.id, image_url: g.url, caption: g.name }))}
           startIndex={lightbox}
           onClose={() => setLightbox(null)}
         />
       )}
       {preview && <FilePreviewModal file={preview} onClose={() => setPreview(null)} role="PUBLIC" />}
+    </div>
+  );
+}
+
+/* ── Helpers ── */
+function SectionHeader({ icon: Icon, label, count }: { icon: typeof Camera; label: string; count?: number }) {
+  return (
+    <div className="flex items-center gap-3 mb-6">
+      <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+        <Icon size={16} className="text-primary" />
+      </div>
+      <h2 className="font-display text-2xl font-semibold text-foreground">{label}</h2>
+      {count != null && (
+        <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-muted-foreground">{count}</span>
+      )}
+      <div className="h-px flex-1 bg-border/50" />
+    </div>
+  );
+}
+
+function DetailRow({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
+  return (
+    <div>
+      <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
+      <p className="font-medium text-foreground flex items-center gap-1.5">{icon}{value}</p>
     </div>
   );
 }

@@ -4,8 +4,9 @@ import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/StatusBadge";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useTranslation } from "@/i18n/LanguageContext";
+import { FadeUp, StaggerContainer, StaggerItem } from "@/components/motion/MotionWrappers";
+import { motion } from "framer-motion";
 import { Search, MapPin, CalendarDays, FolderOpen, Loader2, ArrowRight, Sparkles, ImageIcon } from "lucide-react";
 
 interface Project {
@@ -22,38 +23,57 @@ interface Project {
 
 const STATUS_OPTIONS = ["all", "inquiry", "active", "review", "delivered", "archived"];
 
-function ProjectCard({ project, t }: { project: Project; t: (k: string) => string }) {
+function ProjectCard({ project, t, index }: { project: Project; t: (k: string) => string; index: number }) {
   const coverUrl = project.thumbnail_url;
   return (
-    <Link key={project.id} to={`/projects/${project.id}`}
-      className="group block overflow-hidden rounded-2xl border border-border/30 bg-background/60 backdrop-blur-sm hover:border-primary/30 hover:shadow-[0_0_30px_rgba(var(--primary),0.08)] transition-all duration-300">
-      <div className="aspect-[16/9] overflow-hidden relative bg-secondary/30">
-        {coverUrl ? (
-          <img src={coverUrl} alt={project.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <ImageIcon size={32} className="text-muted-foreground/20" />
+    <StaggerItem>
+      <motion.div whileHover={{ y: -6 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
+        <Link to={`/projects/${project.id}`}
+          className="group block overflow-hidden rounded-2xl border border-border/30 bg-card/60 backdrop-blur-sm hover:border-primary/30 hover:shadow-[0_0_30px_hsl(var(--primary)/0.08)] transition-all duration-300">
+          <div className="aspect-[16/9] overflow-hidden relative bg-secondary/30">
+            {coverUrl ? (
+              <img src={coverUrl} alt={project.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted/50 to-secondary/50">
+                <ImageIcon size={32} className="text-muted-foreground/20" />
+              </div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute top-3 right-3"><StatusBadge status={project.status} /></div>
+            {/* Hover arrow */}
+            <div className="absolute bottom-3 right-3 h-9 w-9 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+              <ArrowRight size={14} className="text-white" />
+            </div>
           </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <div className="absolute top-3 right-3"><StatusBadge status={project.status} /></div>
+          <div className="p-5">
+            <h3 className="font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">{project.title}</h3>
+            {project.description && <p className="text-sm text-muted-foreground mt-2 line-clamp-2 font-light leading-relaxed">{project.description}</p>}
+            <div className="flex flex-wrap gap-2 mt-3 text-xs text-muted-foreground">
+              {project.location && (
+                <span className="flex items-center gap-1.5 bg-secondary/60 rounded-full px-2.5 py-1"><MapPin size={10} />{project.location}</span>
+              )}
+              {project.target_date && (
+                <span className="flex items-center gap-1.5 bg-secondary/60 rounded-full px-2.5 py-1"><CalendarDays size={10} />{new Date(project.target_date).toLocaleDateString()}</span>
+              )}
+            </div>
+          </div>
+        </Link>
+      </motion.div>
+    </StaggerItem>
+  );
+}
+
+/* ── Skeleton Card ── */
+function SkeletonCard() {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border/30 bg-card/40 animate-pulse">
+      <div className="aspect-[16/9] bg-muted/40" />
+      <div className="p-5 space-y-3">
+        <div className="h-5 bg-muted/40 rounded-lg w-3/4" />
+        <div className="h-4 bg-muted/30 rounded-lg w-full" />
+        <div className="h-4 bg-muted/30 rounded-lg w-1/2" />
       </div>
-      <div className="p-5">
-        <h3 className="font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">{project.title}</h3>
-        {project.description && <p className="text-sm text-muted-foreground mt-2 line-clamp-2 font-light leading-relaxed">{project.description}</p>}
-        <div className="flex flex-wrap gap-3 mt-3 text-xs text-muted-foreground">
-          {project.location && (
-            <span className="flex items-center gap-1.5 bg-secondary/60 rounded-full px-2.5 py-1"><MapPin size={10} />{project.location}</span>
-          )}
-          {project.target_date && (
-            <span className="flex items-center gap-1.5 bg-secondary/60 rounded-full px-2.5 py-1"><CalendarDays size={10} />{t("project_target_date")} {new Date(project.target_date).toLocaleDateString()}</span>
-          )}
-        </div>
-        <div className="mt-4 flex items-center gap-1 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-          {t("projects_view")} <ArrowRight size={12} />
-        </div>
-      </div>
-    </Link>
+    </div>
   );
 }
 
@@ -63,10 +83,6 @@ export default function PublicProjects() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-
-  const refHero = useScrollReveal();
-  const refGrid = useScrollReveal();
-  const refCta = useScrollReveal();
 
   useEffect(() => {
     supabase
@@ -98,19 +114,38 @@ export default function PublicProjects() {
         <div className="absolute bottom-1/3 -left-32 w-[400px] h-[400px] rounded-full bg-primary/[0.03] blur-[120px] animate-float-delayed" />
       </div>
 
-      <section ref={refHero} className="reveal container pt-20 pb-10 relative z-10">
-        <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-6">
+      {/* ── Hero ── */}
+      <FadeUp className="container pt-20 pb-10 relative z-10">
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}
+          className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-6">
           <Sparkles size={12} className="text-primary" />
           <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">{t("projects_our_work")}</p>
-        </div>
-        <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] font-bold text-foreground leading-tight tracking-tight">
+        </motion.div>
+        <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          className="font-display text-[clamp(2.5rem,6vw,5.5rem)] font-bold text-foreground leading-tight tracking-tight">
           {t("projects_title")}
-        </h1>
-        <p className="mt-4 text-muted-foreground font-light max-w-lg leading-relaxed">
+        </motion.h1>
+        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}
+          className="mt-4 text-muted-foreground font-light max-w-lg leading-relaxed">
           {t("projects_description")}
-        </p>
-      </section>
+        </motion.p>
+        {/* Stats */}
+        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.45 }}
+          className="flex items-center gap-8 mt-8">
+          {[
+            { n: projects.length, label: "Total Projects" },
+            { n: projects.filter(p => p.status === "active").length, label: "Active" },
+            { n: new Set(projects.map(p => p.location).filter(Boolean)).size, label: "Locations" },
+          ].map((s) => (
+            <div key={s.label}>
+              <p className="font-display text-2xl font-bold text-foreground">{s.n}</p>
+              <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mt-0.5">{s.label}</p>
+            </div>
+          ))}
+        </motion.div>
+      </FadeUp>
 
+      {/* ── Filters ── */}
       <section className="sticky top-16 z-30 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="container py-3 flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1 max-w-xs">
@@ -123,7 +158,7 @@ export default function PublicProjects() {
             {STATUS_OPTIONS.map((s) => (
               <button key={s} onClick={() => setStatusFilter(s)}
                 className={`px-4 py-1.5 rounded-full text-xs tracking-[0.1em] uppercase font-medium transition-all duration-200 ${
-                  statusFilter === s ? "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(var(--primary),0.3)]" : "bg-secondary/50 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  statusFilter === s ? "bg-primary text-primary-foreground shadow-[0_0_12px_hsl(var(--primary)/0.3)]" : "bg-secondary/50 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`}>
                 {s === "all" ? t("portfolio_all") : s.charAt(0).toUpperCase() + s.slice(1)}
               </button>
@@ -132,34 +167,52 @@ export default function PublicProjects() {
         </div>
       </section>
 
-      <div ref={refGrid} className="reveal container py-12 relative z-10">
+      {/* ── Grid ── */}
+      <div className="container py-12 relative z-10">
         {loading ? (
-          <div className="flex justify-center py-20"><Loader2 size={28} className="animate-spin text-muted-foreground" /></div>
-        ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <FolderOpen size={48} className="text-muted-foreground/20 mb-4" />
-            <h3 className="font-display text-2xl font-bold text-foreground">{t("projects_no_found")}</h3>
-            <p className="mt-2 text-muted-foreground text-sm">{t("projects_no_found_hint")}</p>
-          </div>
-        ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((project) => (
-              <ProjectCard key={project.id} project={project} t={t} />
-            ))}
+            {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
+        ) : filtered.length === 0 ? (
+          <FadeUp>
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="h-20 w-20 rounded-2xl bg-muted/50 flex items-center justify-center mb-6">
+                <FolderOpen size={32} className="text-muted-foreground/30" />
+              </div>
+              <h3 className="font-display text-2xl font-bold text-foreground">{t("projects_no_found")}</h3>
+              <p className="mt-2 text-muted-foreground text-sm">{t("projects_no_found_hint")}</p>
+            </div>
+          </FadeUp>
+        ) : (
+          <>
+            <p className="text-xs text-muted-foreground tracking-wide mb-6">
+              Showing <span className="text-foreground font-medium">{filtered.length}</span> projects
+            </p>
+            <StaggerContainer className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" staggerDelay={0.06}>
+              {filtered.map((project, i) => (
+                <ProjectCard key={project.id} project={project} t={t} index={i} />
+              ))}
+            </StaggerContainer>
+          </>
         )}
       </div>
 
-      <section ref={refCta} className="reveal border-t border-border/50 py-20 relative z-10">
-        <div className="container text-center">
-          <h2 className="font-display text-4xl font-bold text-foreground tracking-tight">{t("projects_have_in_mind")}</h2>
-          <p className="mt-3 text-muted-foreground text-sm">{t("projects_bring_vision")}</p>
-          <Link to="/contact"
-            className="inline-flex items-center gap-2 mt-8 rounded-2xl bg-primary px-10 py-3 text-sm tracking-wide font-medium text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
-            {t("projects_begin_conversation")}
-          </Link>
-        </div>
-      </section>
+      {/* ── CTA ── */}
+      <FadeUp>
+        <section className="border-t border-border/50 py-20 relative z-10 overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[250px] rounded-full bg-primary/5 blur-[120px]" />
+          </div>
+          <div className="container text-center relative z-10">
+            <h2 className="font-display text-4xl font-bold text-foreground tracking-tight">{t("projects_have_in_mind")}</h2>
+            <p className="mt-3 text-muted-foreground text-sm">{t("projects_bring_vision")}</p>
+            <Link to="/contact"
+              className="inline-flex items-center gap-2 mt-8 rounded-2xl bg-primary px-10 py-3.5 text-sm tracking-wide font-medium text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
+              {t("projects_begin_conversation")}
+            </Link>
+          </div>
+        </section>
+      </FadeUp>
 
       <PublicFooter />
     </div>

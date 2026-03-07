@@ -32,31 +32,7 @@ interface ProjectItem {
   updated_at: string;
 }
 
-function LightBox({ images, startIndex, onClose }: { images: GalleryImage[]; startIndex: number; onClose: () => void }) {
-  const [idx, setIdx] = useState(startIndex);
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowRight") setIdx((i) => (i + 1) % images.length);
-      if (e.key === "ArrowLeft") setIdx((i) => (i - 1 + images.length) % images.length);
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [images.length, onClose]);
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
-      <button onClick={onClose} className="absolute top-4 right-4 rounded-full bg-white/10 p-2.5 text-white hover:bg-white/20 transition-colors"><X size={20} /></button>
-      <button onClick={() => setIdx((i) => (i - 1 + images.length) % images.length)}
-        className="absolute left-4 rounded-full bg-white/10 p-2.5 text-white hover:bg-white/20 transition-colors"><ArrowLeft size={20} /></button>
-      <img src={images[idx].image_url} alt="" className="max-h-[85vh] max-w-[85vw] rounded-lg object-contain" />
-      <button onClick={() => setIdx((i) => (i + 1) % images.length)}
-        className="absolute right-4 rounded-full bg-white/10 p-2.5 text-white hover:bg-white/20 transition-colors"><ArrowRight size={20} /></button>
-      <div className="absolute bottom-4 text-white/60 text-sm">{idx + 1} / {images.length}</div>
-    </div>
-  );
-}
-
+// Old LightBox removed — using CinematicLightbox component instead
 export default function PortfolioDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [item, setItem] = useState<ProjectItem | null>(null);

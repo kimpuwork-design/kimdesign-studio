@@ -369,11 +369,15 @@ export default function PortfolioDetail() {
       <PublicFooter />
 
       {lightbox !== null && gallery.length > 0 && (
-        <LightBox images={gallery} startIndex={lightbox} onClose={() => setLightbox(null)} />
+        <CinematicLightbox
+          images={gallery.map((g) => ({ id: g.id, image_url: g.image_url }))}
+          startIndex={lightbox}
+          onClose={() => setLightbox(null)}
+        />
       )}
       {lightbox !== null && gallery.length === 0 && galleryImages.length > 0 && (
-        <LightBox
-          images={galleryImages.map((g) => ({ id: g.name, image_url: g.url, sort_order: 0, portfolio_id: "", created_at: "" } as GalleryImage))}
+        <CinematicLightbox
+          images={galleryImages.map((g, i) => ({ id: `img-${i}`, image_url: g.url, caption: g.name }))}
           startIndex={lightbox}
           onClose={() => setLightbox(null)}
         />

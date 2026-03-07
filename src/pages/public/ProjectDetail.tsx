@@ -252,7 +252,13 @@ export default function PublicProjectDetail() {
         </div>
       </section>
 
-      {lbIndex !== null && <LightBox images={galleryImages} index={lbIndex} onClose={() => setLbIndex(null)} onNav={setLbIndex} />}
+      {lbIndex !== null && (
+        <CinematicLightbox
+          images={galleryImages.map((g, i) => ({ id: `img-${i}`, image_url: g.url, caption: g.name }))}
+          startIndex={lbIndex}
+          onClose={() => setLbIndex(null)}
+        />
+      )}
       {preview && <FilePreviewModal file={preview} onClose={() => setPreview(null)} role="PUBLIC" />}
 
       <PublicFooter />

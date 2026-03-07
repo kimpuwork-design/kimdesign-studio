@@ -9,7 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { FileAsset, formatBytes, FILE_CATEGORIES, isImageExt, getPublicFileSignedUrl } from "@/lib/files";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { ArrowLeft, MapPin, CalendarDays, Eye, Loader2, FolderOpen, ChevronLeft, ChevronRight, X, Maximize2, Sparkles } from "lucide-react";
+import { ArrowLeft, MapPin, CalendarDays, Eye, Loader2, FolderOpen, Maximize2, Sparkles } from "lucide-react";
+import { CinematicLightbox } from "@/components/media/CinematicLightbox";
 
 interface Project {
   id: string;

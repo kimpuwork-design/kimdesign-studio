@@ -10,8 +10,9 @@ import { FilePreviewModal } from "@/components/files/FilePreviewModal";
 
 import {
   MapPin, Calendar, Tag, ArrowLeft, ArrowRight,
-  X, ExternalLink, Loader2, Eye, FolderOpen, Maximize2,
+  ExternalLink, Loader2, Eye, FolderOpen, Maximize2,
 } from "lucide-react";
+import { CinematicLightbox, LightboxImage } from "@/components/media/CinematicLightbox";
 
 interface ProjectItem {
   id: string;

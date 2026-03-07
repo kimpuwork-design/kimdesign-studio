@@ -32,7 +32,7 @@ interface ProjectItem {
   updated_at: string;
 }
 
-// Old LightBox removed — using CinematicLightbox component instead
+// Using CinematicLightbox component for gallery viewing
 export default function PortfolioDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [item, setItem] = useState<ProjectItem | null>(null);

@@ -22,28 +22,7 @@ interface Project {
   target_date: string | null;
 }
 
-function LightBox({ images, index, onClose, onNav }: { images: { url: string; name: string }[]; index: number; onClose: () => void; onNav: (i: number) => void }) {
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowLeft") onNav(index > 0 ? index - 1 : images.length - 1);
-      if (e.key === "ArrowRight") onNav(index < images.length - 1 ? index + 1 : 0);
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [index, images.length, onClose, onNav]);
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm" onClick={onClose}>
-      <button onClick={onClose} className="absolute top-4 right-4 rounded-full bg-white/10 p-2.5 text-white/70 hover:text-white hover:bg-white/20 transition-colors"><X size={20} /></button>
-      <button onClick={(e) => { e.stopPropagation(); onNav(index > 0 ? index - 1 : images.length - 1); }} className="absolute left-4 rounded-full bg-white/10 p-2.5 text-white/70 hover:text-white hover:bg-white/20 transition-colors"><ChevronLeft size={28} /></button>
-      <button onClick={(e) => { e.stopPropagation(); onNav(index < images.length - 1 ? index + 1 : 0); }} className="absolute right-4 rounded-full bg-white/10 p-2.5 text-white/70 hover:text-white hover:bg-white/20 transition-colors"><ChevronRight size={28} /></button>
-      <img src={images[index].url} alt={images[index].name} className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg" onClick={(e) => e.stopPropagation()} />
-      <span className="absolute bottom-6 text-white/60 text-sm bg-black/40 rounded-full px-4 py-1.5">{index + 1} / {images.length}</span>
-    </div>
-  );
-}
-
+// Old LightBox removed — using CinematicLightbox component instead
 export default function PublicProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();

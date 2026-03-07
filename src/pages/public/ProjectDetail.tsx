@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
@@ -7,10 +7,11 @@ import { FileIcon } from "@/components/files/FileIcon";
 import { FilePreviewModal } from "@/components/files/FilePreviewModal";
 import { supabase } from "@/integrations/supabase/client";
 import { FileAsset, formatBytes, FILE_CATEGORIES, isImageExt, getPublicFileSignedUrl } from "@/lib/files";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { useTranslation } from "@/i18n/LanguageContext";
-import { ArrowLeft, MapPin, CalendarDays, Eye, Loader2, FolderOpen, Maximize2, Sparkles } from "lucide-react";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";
+import { FadeUp, StaggerContainer, StaggerItem } from "@/components/motion/MotionWrappers";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useTranslation } from "@/i18n/LanguageContext";
+import { ArrowLeft, MapPin, CalendarDays, Eye, Loader2, FolderOpen, Maximize2, Camera, FileText } from "lucide-react";
 
 interface Project {
   id: string;
@@ -22,7 +23,6 @@ interface Project {
   target_date: string | null;
 }
 
-// Old LightBox removed — using CinematicLightbox component instead
 export default function PublicProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
@@ -34,9 +34,10 @@ export default function PublicProjectDetail() {
   const [lbIndex, setLbIndex] = useState<number | null>(null);
   const [galleryImages, setGalleryImages] = useState<{ url: string; name: string }[]>([]);
 
-  const refHero = useScrollReveal();
-  const refGallery = useScrollReveal();
-  const refFiles = useScrollReveal();
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   useEffect(() => {
     if (!id) return;
@@ -63,34 +64,32 @@ export default function PublicProjectDetail() {
     ).then((imgs) => setGalleryImages(imgs.filter((i) => i.url)));
   }, [files]);
 
-  if (loading) {
-    return (
-      <div className="bg-background min-h-screen">
-        <PublicNav />
-        <div className="flex items-center justify-center py-32"><Loader2 size={28} className="animate-spin text-muted-foreground" /></div>
+  if (loading) return (
+    <div className="bg-background min-h-screen">
+      <PublicNav />
+      <div className="flex flex-col items-center justify-center py-32 gap-3">
+        <Loader2 size={28} className="animate-spin text-primary" />
+        <p className="text-xs text-muted-foreground tracking-widest uppercase">Loading project</p>
       </div>
-    );
-  }
+    </div>
+  );
 
-  if (notFound || !project) {
-    return (
-      <div className="bg-background min-h-screen">
-        <PublicNav />
-        <div className="container py-32 text-center">
-          <h2 className="font-display text-3xl font-bold text-foreground">{t("project_not_found")}</h2>
-          <p className="mt-3 text-muted-foreground">{t("project_not_found_hint")}</p>
-          <Link to="/projects" className="mt-6 inline-flex items-center gap-2 text-primary text-sm hover:underline">
-            <ArrowLeft size={14} /> {t("project_back")}
-          </Link>
-        </div>
-        <PublicFooter />
+  if (notFound || !project) return (
+    <div className="bg-background min-h-screen">
+      <PublicNav />
+      <div className="container py-32 text-center">
+        <h2 className="font-display text-3xl font-bold text-foreground">{t("project_not_found")}</h2>
+        <p className="mt-3 text-muted-foreground">{t("project_not_found_hint")}</p>
+        <Link to="/projects" className="mt-6 inline-flex items-center gap-2 text-primary text-sm hover:underline">
+          <ArrowLeft size={14} /> {t("project_back")}
+        </Link>
       </div>
-    );
-  }
+      <PublicFooter />
+    </div>
+  );
 
   const imageFiles = files.filter((f) => isImageExt(f.extension ?? ""));
   const nonImageFiles = files.filter((f) => !isImageExt(f.extension ?? ""));
-
   const grouped: Record<string, FileAsset[]> = {};
   for (const f of nonImageFiles) {
     const cat = f.category;
@@ -108,42 +107,50 @@ export default function PublicProjectDetail() {
         <div className="absolute top-1/4 -right-40 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[150px] animate-float" />
       </div>
 
+      {/* ── Parallax Hero ── */}
       {heroImage ? (
-        <section ref={refHero} className="reveal relative overflow-hidden">
-          <div className="absolute inset-0">
+        <div ref={heroRef} className="relative overflow-hidden h-[60vh] min-h-[420px] max-h-[700px]">
+          <motion.div style={{ scale: heroScale }} className="absolute inset-0">
             <img src={heroImage} alt={project.title} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-background" />
-          </div>
-          <div className="relative container py-28 md:py-40 z-10">
-            <Link to="/projects" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-6 transition-colors">
-              <ArrowLeft size={14} /> {t("project_back")}
-            </Link>
+          </motion.div>
+          <motion.div style={{ opacity: heroOpacity }} className="relative h-full container flex flex-col justify-end pb-12 z-10">
+            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
+              <Link to="/projects" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-6 transition-colors">
+                <ArrowLeft size={14} /> {t("project_back")}
+              </Link>
+            </motion.div>
             <div className="max-w-2xl">
               <div className="flex items-center gap-3 mb-4"><StatusBadge status={project.status} /></div>
-              <h1 className="font-display text-4xl md:text-6xl font-bold text-white leading-tight tracking-tight">{project.title}</h1>
-              {project.description && <p className="mt-4 text-white/80 text-lg max-w-lg font-light leading-relaxed">{project.description}</p>}
-              <div className="flex flex-wrap gap-3 mt-6">
+              <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                className="font-display text-4xl md:text-6xl font-bold text-white leading-tight tracking-tight">{project.title}</motion.h1>
+              {project.description && (
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+                  className="mt-4 text-white/80 text-lg max-w-lg font-light leading-relaxed">{project.description}</motion.p>
+              )}
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+                className="flex flex-wrap gap-3 mt-6">
                 {project.location && (
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
+                  <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
                     <MapPin size={14} /> {project.location}
-                  </div>
+                  </span>
                 )}
                 {project.start_date && (
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
+                  <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
                     <CalendarDays size={14} /> {t("project_start_date")}: {new Date(project.start_date).toLocaleDateString()}
-                  </div>
+                  </span>
                 )}
                 {project.target_date && (
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
+                  <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
                     <CalendarDays size={14} /> {t("project_target_date")}: {new Date(project.target_date).toLocaleDateString()}
-                  </div>
+                  </span>
                 )}
-              </div>
+              </motion.div>
             </div>
-          </div>
-        </section>
+          </motion.div>
+        </div>
       ) : (
-        <section ref={refHero} className="reveal container pt-20 pb-10 relative z-10">
+        <section className="container pt-20 pb-10 relative z-10">
           <Link to="/projects" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-6">
             <ArrowLeft size={13} /> {t("project_back")}
           </Link>
@@ -156,50 +163,64 @@ export default function PublicProjectDetail() {
           </div>
           <div className="flex flex-wrap gap-3 mb-10">
             {project.location && (
-              <div className="flex items-center gap-2 bg-secondary/60 rounded-full px-4 py-2 text-sm text-foreground">
+              <span className="flex items-center gap-2 bg-secondary/60 rounded-full px-4 py-2 text-sm text-foreground">
                 <MapPin size={14} className="text-muted-foreground" /> {project.location}
-              </div>
+              </span>
             )}
             {project.start_date && (
-              <div className="flex items-center gap-2 bg-secondary/60 rounded-full px-4 py-2 text-sm text-foreground">
+              <span className="flex items-center gap-2 bg-secondary/60 rounded-full px-4 py-2 text-sm text-foreground">
                 <CalendarDays size={14} className="text-muted-foreground" /> {t("project_start_date")}: {new Date(project.start_date).toLocaleDateString()}
-              </div>
+              </span>
             )}
             {project.target_date && (
-              <div className="flex items-center gap-2 bg-secondary/60 rounded-full px-4 py-2 text-sm text-foreground">
+              <span className="flex items-center gap-2 bg-secondary/60 rounded-full px-4 py-2 text-sm text-foreground">
                 <CalendarDays size={14} className="text-muted-foreground" /> {t("project_target_date")}: {new Date(project.target_date).toLocaleDateString()}
-              </div>
+              </span>
             )}
           </div>
         </section>
       )}
 
+      {/* ── Gallery ── */}
       <div className="container py-12 relative z-10">
         {galleryImages.length > 0 && (
-          <section ref={refGallery} className="reveal mb-16">
+          <FadeUp className="mb-16">
             <div className="flex items-center gap-3 mb-8">
-              <div className="h-1 w-8 rounded-full bg-primary" />
+              <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Camera size={16} className="text-primary" />
+              </div>
               <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("project_gallery")}</h2>
+              <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-muted-foreground">{galleryImages.length}</span>
               <div className="h-px flex-1 bg-border/50" />
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <StaggerContainer className="columns-2 md:columns-3 lg:columns-4 gap-3 space-y-3" staggerDelay={0.05}>
               {galleryImages.map((img, i) => (
-                <button key={i} onClick={() => setLbIndex(i)} className="group relative aspect-square overflow-hidden rounded-2xl border border-border/30 bg-secondary/30">
-                  <img src={img.url} alt={img.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                    <Maximize2 size={20} className="text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
-                  </div>
-                </button>
+                <StaggerItem key={i}>
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                    onClick={() => setLbIndex(i)}
+                    className="group relative w-full overflow-hidden rounded-2xl border border-border/30 bg-secondary/30 break-inside-avoid">
+                    <img src={img.url} alt={img.name} className="w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                      <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300">
+                        <Maximize2 size={16} className="text-white" />
+                      </div>
+                    </div>
+                  </motion.button>
+                </StaggerItem>
               ))}
-            </div>
-          </section>
+            </StaggerContainer>
+          </FadeUp>
         )}
 
+        {/* ── Files ── */}
         {nonImageFiles.length > 0 && (
-          <section ref={refFiles} className="reveal">
+          <FadeUp>
             <div className="flex items-center gap-3 mb-8">
-              <div className="h-1 w-8 rounded-full bg-primary" />
+              <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                <FileText size={16} className="text-primary" />
+              </div>
               <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("project_files")}</h2>
+              <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-muted-foreground">{nonImageFiles.length}</span>
               <div className="h-px flex-1 bg-border/50" />
             </div>
             <div className="space-y-8">
@@ -208,49 +229,59 @@ export default function PublicProjectDetail() {
                 return (
                   <div key={cat}>
                     <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{catLabel}</h3>
-                    <div className="space-y-2">
+                    <StaggerContainer className="space-y-2" staggerDelay={0.04}>
                       {grouped[cat].map((file) => (
-                        <div key={file.id} className="flex items-center gap-3 rounded-2xl border border-border/30 bg-background/60 backdrop-blur-sm px-5 py-3.5 hover:border-primary/30 hover:shadow-[0_0_20px_rgba(var(--primary),0.05)] transition-all">
-                          <FileIcon ext={file.extension ?? ""} size={18} className="text-muted-foreground shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className="truncate text-sm font-medium text-foreground">{file.original_name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {formatBytes(file.size_bytes)}
-                              {file.version > 1 && <span className="ml-2 rounded-full bg-primary/15 px-1.5 py-0.5 text-primary text-[10px] font-semibold">v{file.version}</span>}
-                              {" · "}{new Date(file.created_at).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <button onClick={() => setPreview(file)} title="Preview" className="rounded-xl p-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
-                            <Eye size={15} />
-                          </button>
-                        </div>
+                        <StaggerItem key={file.id}>
+                          <motion.div whileHover={{ x: 4 }}
+                            className="flex items-center gap-3 rounded-2xl border border-border/30 bg-card/60 backdrop-blur-sm px-5 py-3.5 hover:border-primary/30 hover:shadow-[0_0_20px_hsl(var(--primary)/0.05)] transition-all cursor-pointer"
+                            onClick={() => setPreview(file)}>
+                            <FileIcon ext={file.extension ?? ""} size={18} className="text-muted-foreground shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="truncate text-sm font-medium text-foreground">{file.original_name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {formatBytes(file.size_bytes)}
+                                {file.version > 1 && <span className="ml-2 rounded-full bg-primary/15 px-1.5 py-0.5 text-primary text-[10px] font-semibold">v{file.version}</span>}
+                                {" · "}{new Date(file.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <Eye size={15} className="text-muted-foreground" />
+                          </motion.div>
+                        </StaggerItem>
                       ))}
-                    </div>
+                    </StaggerContainer>
                   </div>
                 );
               })}
             </div>
-          </section>
+          </FadeUp>
         )}
 
         {files.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-center rounded-2xl border border-border/30 bg-secondary/20">
-            <FolderOpen size={40} className="text-muted-foreground/20 mb-3" />
-            <p className="text-muted-foreground text-sm">{t("project_no_files")}</p>
-          </div>
+          <FadeUp>
+            <div className="flex flex-col items-center justify-center py-16 text-center rounded-2xl border border-border/30 bg-secondary/20">
+              <FolderOpen size={40} className="text-muted-foreground/20 mb-3" />
+              <p className="text-muted-foreground text-sm">{t("project_no_files")}</p>
+            </div>
+          </FadeUp>
         )}
       </div>
 
-      <section className="border-t border-border/50 py-20 relative z-10">
-        <div className="container text-center">
-          <h2 className="font-display text-4xl font-bold text-foreground tracking-tight">{t("project_interested")}</h2>
-          <p className="mt-3 text-muted-foreground text-sm">{t("project_interested_hint")}</p>
-          <Link to="/contact"
-            className="inline-flex items-center gap-2 mt-8 rounded-2xl bg-primary px-10 py-3 text-sm tracking-wide font-medium text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
-            {t("project_begin_conversation")}
-          </Link>
-        </div>
-      </section>
+      {/* ── CTA ── */}
+      <FadeUp>
+        <section className="border-t border-border/50 py-20 relative z-10 overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[250px] rounded-full bg-primary/5 blur-[120px]" />
+          </div>
+          <div className="container text-center relative z-10">
+            <h2 className="font-display text-4xl font-bold text-foreground tracking-tight">{t("project_interested")}</h2>
+            <p className="mt-3 text-muted-foreground text-sm">{t("project_interested_hint")}</p>
+            <Link to="/contact"
+              className="inline-flex items-center gap-2 mt-8 rounded-2xl bg-primary px-10 py-3.5 text-sm tracking-wide font-medium text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
+              {t("project_begin_conversation")}
+            </Link>
+          </div>
+        </section>
+      </FadeUp>
 
       {lbIndex !== null && (
         <CinematicLightbox

@@ -69,18 +69,18 @@ export default function About() {
 
       {/* Values */}
       {values.length > 0 && (
-        <section className="border-t border-border/50 py-20 relative z-10">
+        <section className="border-t border-border/50 py-12 md:py-20 relative z-10">
           <div className="container">
             <FadeUp>
-              <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-10">{t("about_principles")}</p>
+              <p className="text-[10px] md:text-xs font-medium tracking-[0.25em] uppercase text-primary mb-6 md:mb-10">{t("about_principles")}</p>
             </FadeUp>
-            <StaggerContainer className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <StaggerContainer className="grid gap-3 md:gap-4 grid-cols-2 lg:grid-cols-4">
               {values.map((v: any) => (
                 <StaggerItem key={v.title}>
                   <HoverCard>
-                    <div className="glass-card-public glass-glow-ring p-8 h-full">
-                      <h3 className="font-display text-xl font-medium text-foreground mb-3">{v.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{v.desc}</p>
+                    <div className="glass-card-public glass-glow-ring p-5 md:p-8 h-full">
+                      <h3 className="font-display text-base md:text-xl font-medium text-foreground mb-2 md:mb-3">{v.title}</h3>
+                      <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{v.desc}</p>
                     </div>
                   </HoverCard>
                 </StaggerItem>

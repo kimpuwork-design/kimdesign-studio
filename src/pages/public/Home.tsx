@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { CinematicLightbox, LightboxImage } from "@/components/media/CinematicLightbox";
 import useEmblaCarousel from "embla-carousel-react";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";

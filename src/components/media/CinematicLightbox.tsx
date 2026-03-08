@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { X, ChevronLeft, ChevronRight, Download, ImageOff } from "lucide-react";
 
 export interface LightboxImage {
@@ -59,7 +60,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
   if (!current) return null;
   const hasError = errorIds.has(current.id);
 
-  return (
+  const content = (
     <div
       onTouchStart={(e) => { touchStartX.current = e.touches[0]?.clientX ?? null; }}
       onTouchEnd={(e) => {
@@ -72,7 +73,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
       style={{
         position: "fixed",
         inset: 0,
-        zIndex: 9999,
+        zIndex: 99999,
         background: "rgba(0,0,0,0.95)",
         display: "flex",
         flexDirection: "column",
@@ -81,15 +82,9 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
       {/* Top bar */}
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "8px 12px",
-          flexShrink: 0,
-        }}
+        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", flexShrink: 0 }}
       >
-        <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 13, fontWeight: 500 }}>
+        <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 13, fontWeight: 500, fontFamily: "system-ui, sans-serif" }}>
           {idx + 1} <span style={{ color: "rgba(255,255,255,0.4)" }}>/ {total}</span>
         </span>
         <div style={{ display: "flex", gap: 4 }}>
@@ -115,23 +110,13 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
       {/* Image area */}
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{
-          flex: 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          overflow: "hidden",
-          padding: 8,
-          minHeight: 0,
-        }}
+        style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", padding: 8, minHeight: 0 }}
       >
         {hasError ? (
           <div style={{ textAlign: "center", color: "rgba(255,255,255,0.6)" }}>
-            <ImageOff size={24} style={{ marginBottom: 8 }} />
+            <ImageOff size={24} style={{ margin: "0 auto 8px" }} />
             <p style={{ fontSize: 14 }}>Image failed to load</p>
-            <a href={currentUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", fontSize: 13, textDecoration: "underline" }}>
-              Open directly
-            </a>
+            <a href={currentUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", fontSize: 13, textDecoration: "underline" }}>Open directly</a>
           </div>
         ) : (
           <img
@@ -140,17 +125,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
             alt={current.caption || `Image ${idx + 1}`}
             draggable={false}
             onError={() => setErrorIds((p) => new Set(p).add(current.id))}
-            style={{
-              display: "block",
-              maxWidth: "100%",
-              maxHeight: "100%",
-              objectFit: "contain",
-              borderRadius: 4,
-              // Override global img transitions that might interfere
-              transition: "none",
-              opacity: 1,
-              transform: "none",
-            }}
+            style={{ display: "block", maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 4, transition: "none", opacity: 1, transform: "none" }}
           />
         )}
       </div>
@@ -160,34 +135,26 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
         <>
           <button
             onClick={(e) => { e.stopPropagation(); prev(); }}
-            style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none", cursor: "pointer", display: "none", alignItems: "center", justifyContent: "center" }}
             className="!hidden sm:!flex"
+            style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none", cursor: "pointer", alignItems: "center", justifyContent: "center" }}
           >
             <ChevronLeft size={20} color="rgba(255,255,255,0.8)" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); next(); }}
-            style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none", cursor: "pointer", display: "none", alignItems: "center", justifyContent: "center" }}
             className="!hidden sm:!flex"
+            style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none", cursor: "pointer", alignItems: "center", justifyContent: "center" }}
           >
             <ChevronRight size={20} color="rgba(255,255,255,0.8)" />
           </button>
         </>
       )}
 
-      {/* Thumbnail strip */}
+      {/* Thumbnails */}
       {total > 1 && (
         <div
           onClick={(e) => e.stopPropagation()}
-          style={{
-            flexShrink: 0,
-            padding: "6px 8px",
-            display: "flex",
-            justifyContent: "center",
-            overflowX: "auto",
-            gap: 4,
-            scrollbarWidth: "none" as any,
-          }}
+          style={{ flexShrink: 0, padding: "6px 8px", display: "flex", justifyContent: "center", overflowX: "auto", gap: 4 }}
         >
           {images.map((img, i) => (
             <button
@@ -204,7 +171,6 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
                 cursor: "pointer",
                 padding: 0,
                 background: "transparent",
-                transition: "opacity 0.2s",
               }}
             >
               <img
@@ -220,4 +186,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
       )}
     </div>
   );
+
+  // Render via portal to escape any parent stacking context
+  return createPortal(content, document.body);
 }

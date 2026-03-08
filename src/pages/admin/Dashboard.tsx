@@ -148,16 +148,16 @@ export default function AdminDashboard() {
   return (
     <PortalLayout variant="admin">
       {/* Header */}
-      <div className="mb-8 flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-portal-accent to-portal-accent/60 flex items-center justify-center shadow-lg shadow-portal-accent/20">
-            <Zap size={18} className="text-portal-accent-foreground" />
+      <div className="mb-5 md:mb-8 flex items-start justify-between">
+        <div className="flex items-center gap-2.5 md:gap-3">
+          <div className="h-9 w-9 md:h-11 md:w-11 rounded-xl md:rounded-2xl bg-gradient-to-br from-portal-accent to-portal-accent/60 flex items-center justify-center shadow-lg shadow-portal-accent/20 shrink-0">
+            <Zap size={16} className="md:w-[18px] md:h-[18px] text-portal-accent-foreground" />
           </div>
-          <div>
-            <h1 className="font-display text-2xl font-bold text-portal-text">
+          <div className="min-w-0">
+            <h1 className="font-display text-lg md:text-2xl font-bold text-portal-text truncate">
               {greeting()}, <span className="gradient-text">{profile?.full_name?.split(" ")[0] ?? "Admin"}</span>
             </h1>
-            <p className="text-sm text-portal-text-muted mt-0.5">Here's your studio overview for today.</p>
+            <p className="text-xs md:text-sm text-portal-text-muted mt-0.5 hidden sm:block">Here's your studio overview for today.</p>
           </div>
         </div>
       </div>

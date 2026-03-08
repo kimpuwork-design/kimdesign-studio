@@ -419,11 +419,11 @@ export default function Home() {
               {t("home_view_all")} <ArrowRight size={14} />
             </Link>
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             {featured.map((item, i) => (
               <Link key={item.id} to={`/portfolio/${item.slug}`}
                 className="group block relative overflow-hidden rounded-2xl border border-border/30">
-                <div className={`overflow-hidden ${i === 0 ? "aspect-[3/4]" : "aspect-square"}`}>
+                <div className={`overflow-hidden ${i === 0 ? "aspect-[4/3] sm:aspect-[3/4]" : "aspect-[4/3] sm:aspect-square"}`}>
                   {item.cover_image_url ? (
                     <img src={item.cover_image_url} alt={item.title} loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />

@@ -203,12 +203,12 @@ function TestimonialsCarousel({ testimonials, sectionRef, t }: { testimonials: a
                 key={t.name}
                 className="flex-[0_0_85%] min-w-0 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
               >
-                <div className={`glass-card-public glass-glow-ring p-8 h-full flex flex-col transition-all duration-500 ${
+                <div className={`glass-card-public glass-glow-ring p-5 md:p-8 h-full flex flex-col transition-all duration-500 ${
                   selectedIndex === i ? "scale-[1.02] shadow-lg shadow-primary/5" : "opacity-70"
                 }`}>
-                  <Quote size={32} className="text-primary/20 mb-4 shrink-0" />
-                  <p className="text-muted-foreground leading-relaxed text-sm flex-1">{t.text}</p>
-                  <div className="mt-6 pt-6 border-t border-border/30 flex items-center gap-3">
+                  <Quote size={24} className="md:w-[32px] md:h-[32px] text-primary/20 mb-3 md:mb-4 shrink-0" />
+                  <p className="text-muted-foreground leading-relaxed text-xs md:text-sm flex-1">{t.text}</p>
+                  <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-border/30 flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
                       <span className="font-display text-sm font-bold text-primary">{t.name?.charAt(0)}</span>
                     </div>

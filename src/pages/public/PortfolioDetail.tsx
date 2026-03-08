@@ -188,13 +188,15 @@ export default function PortfolioDetail() {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
                   className="flex flex-wrap items-center gap-2 md:gap-3 mt-4 md:mt-6">
                   {item.location && (
-                    <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
-                      <MapPin size={13} />{item.location}
+                    <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs md:text-sm text-white/80">
+                      <MapPin size={12} />{item.location}
                     </span>
                   )}
                   {item.year && (
-                    <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
-                      <Calendar size={13} />{item.year}
+                    <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs md:text-sm text-white/80">
+                      <Calendar size={12} />{item.year}
+                    </span>
+                  )}
                     </span>
                   )}
                   {stats.map((s) => (

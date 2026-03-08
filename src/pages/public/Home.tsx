@@ -321,14 +321,14 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="flex flex-col justify-center py-10 lg:py-20 lg:pl-12 xl:pl-20">
-            <div className="flex items-center gap-3 mb-10">
-              <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Sparkles size={14} className="text-primary" />
+          <div className="flex flex-col justify-center py-8 md:py-10 lg:py-20 lg:pl-12 xl:pl-20">
+            <div className="flex items-center gap-2.5 md:gap-3 mb-6 md:mb-10">
+              <div className="h-7 w-7 md:h-8 md:w-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Sparkles size={12} className="text-primary md:w-[14px] md:h-[14px]" />
               </div>
-              <p className="text-xs tracking-[0.2em] uppercase text-primary font-semibold">{aboutMe.title_prefix ?? "Principal Architect"}</p>
+              <p className="text-[10px] md:text-xs tracking-[0.2em] uppercase text-primary font-semibold">{aboutMe.title_prefix ?? "Principal Architect"}</p>
             </div>
-            <h2 className="font-display text-[clamp(2.5rem,5vw,4.5rem)] font-bold leading-[1.05] text-foreground mb-2 tracking-tight">
+            <h2 className="font-display text-[clamp(2rem,5vw,4.5rem)] font-bold leading-[1.05] text-foreground mb-2 tracking-tight">
               {aboutMe.name_first ?? "Elena"}<br />
               <span className="text-primary">{aboutMe.name_last ?? "Markov"}.</span>
             </h2>

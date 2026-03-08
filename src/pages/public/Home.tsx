@@ -160,7 +160,7 @@ function TestimonialsCarousel({ testimonials, sectionRef, t }: { testimonials: a
   }, [emblaApi]);
 
   return (
-    <section ref={sectionRef} className="reveal py-24 relative overflow-hidden">
+    <section ref={sectionRef} className="reveal py-14 md:py-24 relative overflow-hidden">
       {/* Ambient background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
@@ -168,13 +168,13 @@ function TestimonialsCarousel({ testimonials, sectionRef, t }: { testimonials: a
       </div>
 
       <div className="container relative z-10">
-        <div className="mb-14 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div className="mb-8 md:mb-14 flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-6">
           <div>
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-3 md:mb-4">
               <div className="h-1 w-8 rounded-full bg-primary" />
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_recognition")}</p>
+              <p className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_recognition")}</p>
             </div>
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_client_voices")}</h2>
+            <h2 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">{t("home_client_voices")}</h2>
           </div>
           {/* Navigation arrows */}
           <div className="flex items-center gap-2">

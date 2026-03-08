@@ -221,15 +221,15 @@ export default function PublicPortfolio() {
               </motion.p>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.55 }}
-                className="mt-10 flex items-center gap-8">
+                className="mt-6 md:mt-10 flex items-center gap-5 md:gap-8 overflow-x-auto pb-2 scrollbar-none">
                 {[
                   { n: items.length, label: t("portfolio_projects_stat") },
                   { n: items.filter(i => i.is_featured).length, label: t("portfolio_featured_stat") },
                   { n: new Set(items.map(i => i.category).filter(Boolean)).size, label: t("portfolio_categories_stat") },
                 ].map((stat) => (
-                  <div key={stat.label}>
-                    <p className="font-display text-3xl font-bold text-foreground">{stat.n}</p>
-                    <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mt-1">{stat.label}</p>
+                  <div key={stat.label} className="shrink-0">
+                    <p className="font-display text-2xl md:text-3xl font-bold text-foreground">{stat.n}</p>
+                    <p className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-muted-foreground mt-1">{stat.label}</p>
                   </div>
                 ))}
               </motion.div>

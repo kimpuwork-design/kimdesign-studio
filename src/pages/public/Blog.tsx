@@ -64,20 +64,20 @@ export default function PublicBlog() {
       </div>
 
       {/* Hero */}
-      <section className="container pt-20 pb-10 relative z-10">
+      <section className="container pt-12 md:pt-20 pb-6 md:pb-10 relative z-10">
         <FadeUp>
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-6">
-            <Sparkles size={12} className="text-primary" />
-            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">{t("blog_insights_badge")}</p>
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-3 md:px-4 py-1.5 md:py-2 mb-4 md:mb-6">
+            <Sparkles size={11} className="md:w-[12px] md:h-[12px] text-primary" />
+            <p className="text-[10px] md:text-xs font-semibold tracking-[0.15em] uppercase text-primary">{t("blog_insights_badge")}</p>
           </div>
         </FadeUp>
         <FadeUp delay={0.1}>
-          <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] font-bold text-foreground leading-tight tracking-tight">
+          <h1 className="font-display text-[clamp(1.75rem,5vw,5.5rem)] font-bold text-foreground leading-[1.1] tracking-tight">
             {t("blog_title")}
           </h1>
         </FadeUp>
         <FadeUp delay={0.2}>
-          <p className="mt-4 text-muted-foreground font-light max-w-lg leading-relaxed">
+          <p className="mt-3 md:mt-4 text-sm md:text-base text-muted-foreground font-light max-w-lg leading-relaxed">
             {t("blog_description")}
           </p>
         </FadeUp>

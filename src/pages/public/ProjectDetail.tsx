@@ -60,15 +60,17 @@ export default function PublicProjectDetail() {
   }, [id]);
 
   useEffect(() => {
+    // Only fetch file-based gallery if no portfolio gallery images were loaded
+    if (galleryImages.length > 0) return;
     const imageFiles = files.filter((f) => isImageExt(f.extension ?? ""));
-    if (imageFiles.length === 0) { setGalleryImages([]); return; }
+    if (imageFiles.length === 0) { return; }
     Promise.all(
       imageFiles.map(async (f) => {
         const url = await getPublicFileSignedUrl(f.id);
         return { url: url ?? "", name: f.original_name };
       })
     ).then((imgs) => setGalleryImages(imgs.filter((i) => i.url)));
-  }, [files]);
+  }, [files, galleryImages.length]);
 
   if (loading) return (
     <div className="bg-background min-h-screen">

@@ -226,7 +226,27 @@ export default function AdminProjects() {
                     </td>
                     <td className="px-4 py-3 text-portal-text-muted text-xs">{project.profiles?.full_name ?? "—"}</td>
                     <td className="px-4 py-3 text-portal-text-muted text-xs">{project.category ?? "—"}</td>
-                    <td className="px-4 py-3"><StatusBadge status={project.status} /></td>
+                    <td className="px-4 py-3">
+                      <select
+                        value={project.status}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={async (e) => {
+                          e.stopPropagation();
+                          const newStatus = e.target.value;
+                          await supabase.from("projects").update({ status: newStatus }).eq("id", project.id);
+                          if (profile) await writeAuditLog({
+                            actor_id: profile.id, action: "project_status_changed", entity_type: "project",
+                            entity_id: project.id, metadata: { from: project.status, to: newStatus },
+                          });
+                          fetchProjects();
+                        }}
+                        className="bg-portal-surface/50 border border-portal-border/50 rounded-lg px-2 py-1 text-[11px] font-medium text-portal-text cursor-pointer focus:outline-none focus:ring-1 focus:ring-portal-accent"
+                      >
+                        {["inquiry", "active", "review", "delivered", "archived"].map((s) => (
+                          <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                        ))}
+                      </select>
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
                         <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold", project.is_public ? "bg-emerald-500/15 text-emerald-400" : "bg-portal-surface text-portal-text-muted/60")}>

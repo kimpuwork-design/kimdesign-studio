@@ -305,7 +305,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
               scale: { type: "spring", stiffness: 300, damping: 30 },
             }}
             onLoad={() => setImgLoaded(prev => ({ ...prev, [current.id]: true }))}
-            className="max-h-[85vh] max-w-[92vw] object-contain rounded-sm pointer-events-none"
+            className="max-h-[80vh] max-w-[90vw] w-auto h-auto object-contain rounded-lg shadow-2xl pointer-events-none"
             draggable={false}
           />
         </AnimatePresence>

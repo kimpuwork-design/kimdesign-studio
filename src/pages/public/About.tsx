@@ -45,16 +45,16 @@ export default function About() {
       {/* Story */}
       {storyParagraphs.length > 0 && (
         <section className="border-t border-border/50 relative z-10">
-          <div className="container grid gap-16 py-20 md:grid-cols-2">
+          <div className="container grid gap-8 md:gap-16 py-12 md:py-20 grid-cols-1 md:grid-cols-2">
             <SlideIn direction="left">
-              <div className="space-y-6 text-muted-foreground leading-relaxed">
+              <div className="space-y-4 md:space-y-6 text-muted-foreground leading-relaxed text-sm md:text-base">
                 {storyParagraphs.slice(0, Math.ceil(storyParagraphs.length / 2)).map((p, i) => (
-                  <p key={i} className={i === 0 ? "text-lg font-light text-foreground" : ""}>{p}</p>
+                  <p key={i} className={i === 0 ? "text-base md:text-lg font-light text-foreground" : ""}>{p}</p>
                 ))}
               </div>
             </SlideIn>
             <SlideIn direction="right" delay={0.15}>
-              <div className="space-y-6 text-muted-foreground leading-relaxed">
+              <div className="space-y-4 md:space-y-6 text-muted-foreground leading-relaxed text-sm md:text-base">
                 {storyParagraphs.slice(Math.ceil(storyParagraphs.length / 2)).map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}

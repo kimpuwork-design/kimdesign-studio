@@ -173,6 +173,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

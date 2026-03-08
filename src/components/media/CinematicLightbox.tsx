@@ -284,15 +284,12 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
         onDoubleClick={handleDoubleClick}
       >
         <AnimatePresence mode="wait" custom={direction}>
-          <motion.img
+          <motion.div
             key={current.id + idx}
-            src={current.image_url}
-            alt={current.caption || `Image ${idx + 1}`}
             custom={direction}
             variants={zoom <= 1 ? slideVariants : undefined}
-            initial={zoom <= 1 ? "enter" : { opacity: 0 }}
+            initial={zoom <= 1 ? "enter" : false}
             animate={zoom <= 1 ? "center" : {
-              opacity: 1,
               scale: zoom,
               x: pan.x,
               y: pan.y,
@@ -304,10 +301,17 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
               opacity: { duration: 0.2 },
               scale: { type: "spring", stiffness: 300, damping: 30 },
             }}
-            onLoad={() => setImgLoaded(prev => ({ ...prev, [current.id]: true }))}
-            className="max-h-[80vh] max-w-[90vw] w-auto h-auto object-contain rounded-lg shadow-2xl pointer-events-none"
-            draggable={false}
-          />
+            className="flex items-center justify-center"
+          >
+            <img
+              src={current.image_url}
+              alt={current.caption || `Image ${idx + 1}`}
+              onLoad={() => setImgLoaded(prev => ({ ...prev, [current.id]: true }))}
+              className="max-h-[80vh] max-w-[90vw] w-auto h-auto object-contain rounded-lg shadow-2xl pointer-events-none"
+              draggable={false}
+              style={{ display: "block" }}
+            />
+          </motion.div>
         </AnimatePresence>
 
         {/* Loading spinner for current image */}

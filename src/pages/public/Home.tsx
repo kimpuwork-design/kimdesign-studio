@@ -406,14 +406,14 @@ export default function Home() {
 
       {/* Featured Projects */}
       {featured.length > 0 && (
-        <section ref={refFeatured} className="reveal container py-12 md:py-24">
-          <div className="flex items-end justify-between mb-8 md:mb-14">
+        <section ref={refFeatured} className="reveal container py-10 md:py-24">
+          <div className="flex items-end justify-between mb-6 md:mb-14">
             <div>
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-3 md:mb-4">
                 <div className="h-1 w-8 rounded-full bg-primary" />
-                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_selected_work")}</p>
+                <p className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_selected_work")}</p>
               </div>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_featured_work")}</h2>
+              <h2 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">{t("home_featured_work")}</h2>
             </div>
             <Link to="/portfolio" className="hidden md:flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xl px-4 py-2 hover:bg-secondary/60">
               {t("home_view_all")} <ArrowRight size={14} />

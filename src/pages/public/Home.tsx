@@ -297,10 +297,10 @@ export default function Home() {
 
       {/* ── ABOUT ME ── */}
       <section ref={refAbout} className="reveal relative overflow-hidden bg-background">
-        <div className="container grid lg:grid-cols-2 lg:min-h-[85vh] gap-8">
+        <div className="container grid lg:grid-cols-2 lg:min-h-[85vh] gap-6 md:gap-8">
           <div className="relative flex items-stretch">
-            <div className="relative w-full overflow-hidden rounded-3xl mt-8 mb-8 lg:mt-0 lg:mb-0">
-              <div className="relative z-10 h-[400px] md:h-[520px] lg:h-full">
+            <div className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl mt-6 mb-6 lg:mt-0 lg:mb-0">
+              <div className="relative z-10 h-[320px] sm:h-[400px] md:h-[520px] lg:h-full">
                 <img src={aboutProfileImg} alt={aboutMe.title_prefix ?? "Principal Architect"} className="h-full w-full object-cover object-center rounded-3xl" />
                 {/* Gradient overlay on image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent rounded-3xl" />

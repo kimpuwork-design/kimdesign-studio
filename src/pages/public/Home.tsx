@@ -285,7 +285,7 @@ export default function Home() {
   const credentials: any[] = aboutMe.credentials ?? [];
 
   return (
-    <div className="bg-background relative overflow-hidden">
+    <div className="bg-background relative overflow-x-hidden">
       <ArchitectureBusinessJsonLd />
       {/* Ambient orbs */}
       <div className="pointer-events-none fixed inset-0 z-0">

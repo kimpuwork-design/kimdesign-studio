@@ -221,9 +221,9 @@ export default function PortfolioDetail() {
       </div>
 
       {/* ── Content ── */}
-      <div className="container py-16">
-        <div className="grid gap-12 lg:grid-cols-[1fr_300px]">
-          <div className="space-y-14">
+      <div className="container py-10 md:py-16">
+        <div className="grid gap-8 md:gap-12 grid-cols-1 lg:grid-cols-[1fr_300px]">
+          <div className="space-y-10 md:space-y-14">
             {/* Written content */}
             {item.content && (
               <FadeUp>

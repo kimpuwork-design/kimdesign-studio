@@ -28,13 +28,13 @@ export default function About() {
       <div className="fixed bottom-1/4 -right-40 w-[400px] h-[400px] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
 
       {/* Hero */}
-      <section className="container py-20 md:py-28 relative z-10">
+      <section className="container py-12 md:py-20 lg:py-28 relative z-10">
         <div className="max-w-3xl">
           <FadeUp>
-            <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-4">{page.hero_subtitle ?? t("about_the_studio")}</p>
+            <p className="text-[10px] md:text-xs font-medium tracking-[0.25em] uppercase text-primary mb-3 md:mb-4">{page.hero_subtitle ?? t("about_the_studio")}</p>
           </FadeUp>
           <FadeUp delay={0.1}>
-            <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] font-light leading-tight text-foreground">
+            <h1 className="font-display text-[clamp(1.75rem,5vw,5.5rem)] font-light leading-[1.1] text-foreground">
               {page.hero_title_line1 ?? "Architecture as a"}<br />
               <em className="not-italic font-semibold">{page.hero_title_line2 ?? "long conversation."}</em>
             </h1>

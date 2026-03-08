@@ -102,6 +102,7 @@
 
   html {
     scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
   }
 
   body {
@@ -110,7 +111,6 @@
     letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* GPU-accelerated rendering for smoother animations */
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }
@@ -118,6 +118,20 @@
   h1, h2, h3, h4 {
     font-family: 'Space Grotesk', sans-serif;
     letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  /* Selection highlight */
+  ::selection {
+    background: hsl(var(--primary) / 0.2);
+    color: hsl(var(--foreground));
+  }
+
+  /* Focus ring — accessible and beautiful */
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary) / 0.5);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 
   /* Smooth all interactive elements globally */
@@ -127,6 +141,40 @@
 
   img {
     transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+  }
+
+  /* Professional prose / article typography */
+  .prose-professional p {
+    font-size: 1.0625rem;
+    line-height: 1.85;
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 1.5em;
+  }
+  .prose-professional h2 {
+    font-size: 1.75rem;
+    margin-top: 2.5em;
+    margin-bottom: 0.75em;
+  }
+  .prose-professional h3 {
+    font-size: 1.375rem;
+    margin-top: 2em;
+    margin-bottom: 0.5em;
+  }
+  .prose-professional blockquote {
+    border-left: 3px solid hsl(var(--primary) / 0.4);
+    padding-left: 1.25rem;
+    font-style: italic;
+    color: hsl(var(--muted-foreground));
+    margin: 2rem 0;
+  }
+  .prose-professional ul, .prose-professional ol {
+    padding-left: 1.5rem;
+    margin: 1.25rem 0;
+  }
+  .prose-professional li {
+    margin-bottom: 0.5em;
+    line-height: 1.75;
+    color: hsl(var(--muted-foreground));
   }
 }
 

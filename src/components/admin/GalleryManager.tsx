@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { uploadPortfolioImage } from "@/lib/portfolio";
 import { useToast } from "@/hooks/use-toast";
 import {
-  ImagePlus, Trash2, Loader2, GripVertical, X,
-  ChevronLeft, ChevronRight, ArrowUpDown,
+  ImagePlus, Trash2, Loader2, GripVertical,
+  ArrowUpDown,
 } from "lucide-react";
 import {
   DragDropContext,
@@ -12,6 +12,8 @@ import {
   Draggable,
   type DropResult,
 } from "@hello-pangea/dnd";
+import { AnimatePresence } from "framer-motion";
+import { CinematicLightbox, type LightboxImage } from "@/components/media/CinematicLightbox";
 
 interface GalleryImage {
   id: string;
@@ -142,7 +144,6 @@ export function GalleryManager({ projectId }: Props) {
     setTimeout(() => orderInputRef.current?.select(), 50);
   };
 
-  // Move to first / last shortcuts
   const moveToFirst = async (currentIndex: number) => {
     if (currentIndex === 0) return;
     const reordered = Array.from(images);
@@ -160,6 +161,13 @@ export function GalleryManager({ projectId }: Props) {
     await persistOrder(reordered);
     toast({ title: "Moved to last" });
   };
+
+  // Convert to lightbox format
+  const lightboxImages: LightboxImage[] = images.map((img, i) => ({
+    id: img.id,
+    image_url: img.image_url,
+    caption: `Gallery image ${i + 1}`,
+  }));
 
   if (loading) {
     return (
@@ -351,34 +359,16 @@ export function GalleryManager({ projectId }: Props) {
         </DragDropContext>
       )}
 
-      {/* Lightbox */}
-      {lightbox !== null && images.length > 0 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
-          <button onClick={() => setLightbox(null)} className="absolute top-4 right-4 rounded-full bg-white/10 p-2.5 text-white hover:bg-white/20 transition-colors">
-            <X size={20} />
-          </button>
-          <button
-            onClick={() => setLightbox((lightbox - 1 + images.length) % images.length)}
-            className="absolute left-4 rounded-full bg-white/10 p-2.5 text-white hover:bg-white/20 transition-colors"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <img
-            src={images[lightbox].image_url}
-            alt=""
-            className="max-h-[85vh] max-w-[85vw] rounded-lg object-contain"
+      {/* CinematicLightbox */}
+      <AnimatePresence>
+        {lightbox !== null && images.length > 0 && (
+          <CinematicLightbox
+            images={lightboxImages}
+            startIndex={lightbox}
+            onClose={() => setLightbox(null)}
           />
-          <button
-            onClick={() => setLightbox((lightbox + 1) % images.length)}
-            className="absolute right-4 rounded-full bg-white/10 p-2.5 text-white hover:bg-white/20 transition-colors"
-          >
-            <ChevronRight size={24} />
-          </button>
-          <div className="absolute bottom-4 text-white/60 text-sm">
-            {lightbox + 1} / {images.length}
-          </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }

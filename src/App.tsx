@@ -13,7 +13,14 @@ import { PageTransition } from "@/components/PageTransition";
 import { usePageTracking } from "@/hooks/usePageTracking";
 
 // Lazy-loaded pages for code splitting
-const Home = lazy(() => import("./pages/public/Home"));
+const lazyRetry = (fn: () => Promise<any>) =>
+  lazy(() => fn().catch(() => {
+    // Force reload on chunk load failure (stale deploy)
+    window.location.reload();
+    return new Promise(() => {});
+  }));
+
+const Home = lazyRetry(() => import("./pages/public/Home"));
 const PublicProjects = lazy(() => import("./pages/public/Projects"));
 const PublicProjectDetail = lazy(() => import("./pages/public/ProjectDetail"));
 const Portfolio = lazy(() => import("./pages/public/Portfolio"));

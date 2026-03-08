@@ -1,19 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadPortfolioImage } from "@/lib/portfolio";
 import { useToast } from "@/hooks/use-toast";
 import {
-  ImagePlus, Trash2, Loader2, GripVertical,
-  ArrowUpDown,
+  ImagePlus, Trash2, Loader2, GripVertical, ArrowUpDown, Type, Pencil,
 } from "lucide-react";
 import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  type DropResult,
+  DragDropContext, Droppable, Draggable, type DropResult,
 } from "@hello-pangea/dnd";
 import { AnimatePresence } from "framer-motion";
 import { CinematicLightbox, type LightboxImage } from "@/components/media/CinematicLightbox";
+import { ImageOverlayEditor } from "@/components/admin/ImageOverlayEditor";
 
 interface GalleryImage {
   id: string;
@@ -21,6 +18,7 @@ interface GalleryImage {
   portfolio_id: string | null;
   image_url: string;
   sort_order: number;
+  caption: string | null;
   created_at: string;
 }
 
@@ -37,7 +35,11 @@ export function GalleryManager({ projectId }: Props) {
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [editingOrder, setEditingOrder] = useState<string | null>(null);
   const [orderValue, setOrderValue] = useState("");
+  const [editingCaption, setEditingCaption] = useState<string | null>(null);
+  const [captionValue, setCaptionValue] = useState("");
+  const [editorImage, setEditorImage] = useState<string | null>(null);
   const orderInputRef = useRef<HTMLInputElement>(null);
+  const captionInputRef = useRef<HTMLInputElement>(null);
 
   const fetchImages = useCallback(async () => {
     const { data, error } = await supabase
@@ -46,11 +48,8 @@ export function GalleryManager({ projectId }: Props) {
       .eq("project_id", projectId)
       .order("sort_order", { ascending: true });
 
-    if (error) {
-      toast({ title: "Error loading gallery", description: error.message, variant: "destructive" });
-    } else {
-      setImages(data ?? []);
-    }
+    if (error) toast({ title: "Error loading gallery", description: error.message, variant: "destructive" });
+    else setImages((data as unknown as GalleryImage[]) ?? []);
     setLoading(false);
   }, [projectId, toast]);
 
@@ -59,34 +58,17 @@ export function GalleryManager({ projectId }: Props) {
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
     setUploading(true);
     const maxOrder = images.length > 0 ? Math.max(...images.map((i) => i.sort_order)) + 1 : 0;
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      if (!file.type.startsWith("image/")) {
-        toast({ title: `${file.name} is not an image`, variant: "destructive" });
-        continue;
-      }
-
+      if (!file.type.startsWith("image/")) { toast({ title: `${file.name} is not an image`, variant: "destructive" }); continue; }
       const url = await uploadPortfolioImage(file, projectId, "gallery");
-      if (!url) {
-        toast({ title: `Failed to upload ${file.name}`, variant: "destructive" });
-        continue;
-      }
-
-      const { error } = await supabase.from("portfolio_gallery").insert({
-        project_id: projectId,
-        image_url: url,
-        sort_order: maxOrder + i,
-      });
-
-      if (error) {
-        toast({ title: `Failed to save ${file.name}`, description: error.message, variant: "destructive" });
-      }
+      if (!url) { toast({ title: `Failed to upload ${file.name}`, variant: "destructive" }); continue; }
+      const { error } = await supabase.from("portfolio_gallery").insert({ project_id: projectId, image_url: url, sort_order: maxOrder + i });
+      if (error) toast({ title: `Failed to save ${file.name}`, description: error.message, variant: "destructive" });
     }
-
     setUploading(false);
     e.target.value = "";
     fetchImages();
@@ -97,22 +79,15 @@ export function GalleryManager({ projectId }: Props) {
     if (!confirm("Delete this gallery image?")) return;
     setDeleting(img.id);
     const { error } = await supabase.from("portfolio_gallery").delete().eq("id", img.id);
-    if (error) {
-      toast({ title: "Delete failed", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Image removed" });
-      fetchImages();
-    }
+    if (error) toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+    else { toast({ title: "Image removed" }); fetchImages(); }
     setDeleting(null);
   };
 
   const persistOrder = async (reordered: GalleryImage[]) => {
     setImages(reordered);
     for (let i = 0; i < reordered.length; i++) {
-      await supabase
-        .from("portfolio_gallery")
-        .update({ sort_order: i })
-        .eq("id", reordered[i].id);
+      await supabase.from("portfolio_gallery").update({ sort_order: i }).eq("id", reordered[i].id);
     }
   };
 
@@ -126,11 +101,8 @@ export function GalleryManager({ projectId }: Props) {
 
   const handleOrderChange = async (imgId: string, currentIndex: number) => {
     const targetPos = parseInt(orderValue, 10);
-    setEditingOrder(null);
-    setOrderValue("");
-
+    setEditingOrder(null); setOrderValue("");
     if (isNaN(targetPos) || targetPos < 1 || targetPos > images.length || targetPos === currentIndex + 1) return;
-
     const reordered = Array.from(images);
     const [moved] = reordered.splice(currentIndex, 1);
     reordered.splice(targetPos - 1, 0, moved);
@@ -139,8 +111,7 @@ export function GalleryManager({ projectId }: Props) {
   };
 
   const startEditingOrder = (imgId: string, currentIndex: number) => {
-    setEditingOrder(imgId);
-    setOrderValue(String(currentIndex + 1));
+    setEditingOrder(imgId); setOrderValue(String(currentIndex + 1));
     setTimeout(() => orderInputRef.current?.select(), 50);
   };
 
@@ -162,52 +133,51 @@ export function GalleryManager({ projectId }: Props) {
     toast({ title: "Moved to last" });
   };
 
-  // Convert to lightbox format
+  // Caption editing
+  const startEditingCaption = (img: GalleryImage) => {
+    setEditingCaption(img.id);
+    setCaptionValue(img.caption ?? "");
+    setTimeout(() => captionInputRef.current?.focus(), 50);
+  };
+
+  const saveCaption = async (imgId: string) => {
+    setEditingCaption(null);
+    const { error } = await supabase.from("portfolio_gallery").update({ caption: captionValue.trim() || null }).eq("id", imgId);
+    if (error) toast({ title: "Failed to save caption", variant: "destructive" });
+    else {
+      setImages((prev) => prev.map((i) => i.id === imgId ? { ...i, caption: captionValue.trim() || null } : i));
+    }
+    setCaptionValue("");
+  };
+
   const lightboxImages: LightboxImage[] = images.map((img, i) => ({
     id: img.id,
     image_url: img.image_url,
-    caption: `Gallery image ${i + 1}`,
+    caption: img.caption || `Gallery image ${i + 1}`,
   }));
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 size={22} className="animate-spin text-portal-text-muted" />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center py-12">
+      <Loader2 size={22} className="animate-spin text-portal-text-muted" />
+    </div>
+  );
 
   return (
     <div className="space-y-6">
       {/* Upload zone */}
       <div className="rounded-xl border border-dashed border-portal-border bg-portal-surface p-6">
         <label className="flex flex-col items-center justify-center cursor-pointer gap-3 text-portal-text-muted hover:text-portal-accent transition-colors">
-          {uploading ? (
-            <Loader2 size={28} className="animate-spin" />
-          ) : (
-            <ImagePlus size={28} />
-          )}
-          <span className="text-sm font-medium">
-            {uploading ? "Uploading..." : "Click to upload gallery images"}
-          </span>
+          {uploading ? <Loader2 size={28} className="animate-spin" /> : <ImagePlus size={28} />}
+          <span className="text-sm font-medium">{uploading ? "Uploading..." : "Click to upload gallery images"}</span>
           <span className="text-xs text-portal-text-muted/60">PNG, JPG, WEBP · Multiple files allowed</span>
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            multiple
-            className="hidden"
-            onChange={handleUpload}
-            disabled={uploading}
-          />
+          <input type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={handleUpload} disabled={uploading} />
         </label>
       </div>
 
-      {/* Image count */}
       {images.length > 0 && (
-        <p className="text-xs text-portal-text-muted">{images.length} image{images.length !== 1 ? "s" : ""} · Drag or click position number to reorder</p>
+        <p className="text-xs text-portal-text-muted">{images.length} image{images.length !== 1 ? "s" : ""} · Drag to reorder · Click caption icon to add text</p>
       )}
 
-      {/* Gallery grid with drag & drop */}
       {images.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-14 text-center">
           <ImagePlus size={40} className="text-portal-text-muted/20 mb-3" />
@@ -216,138 +186,100 @@ export function GalleryManager({ projectId }: Props) {
         </div>
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable
-            droppableId="gallery"
-            getContainerForClone={() => document.body}
+          <Droppable droppableId="gallery" getContainerForClone={() => document.body}
             renderClone={(provided, snapshot, rubric) => {
               const img = images[rubric.source.index];
               return (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.draggableProps}
-                  {...provided.dragHandleProps}
+                <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}
                   className="relative aspect-square rounded-xl overflow-hidden border-2 border-portal-accent bg-portal-bg shadow-2xl cursor-grabbing"
-                  style={{
-                    ...provided.draggableProps.style,
-                    opacity: 0.92,
-                    pointerEvents: "none",
-                  }}
-                >
-                  <img
-                    src={img.image_url}
-                    alt=""
-                    className="w-full h-full object-cover pointer-events-none select-none"
-                    draggable={false}
-                  />
-                  <span className="absolute bottom-2 left-2 rounded-md bg-portal-bg/80 backdrop-blur-sm px-1.5 py-0.5 text-[10px] font-semibold text-portal-text-muted">
-                    {rubric.source.index + 1}
-                  </span>
+                  style={{ ...provided.draggableProps.style, opacity: 0.92, pointerEvents: "none" }}>
+                  <img src={img.image_url} alt="" className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
                 </div>
               );
-            }}
-          >
+            }}>
             {(provided) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
-              >
+              <div ref={provided.innerRef} {...provided.droppableProps} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {images.map((img, index) => (
                   <Draggable key={img.id} draggableId={img.id} index={index}>
                     {(dragProvided, snapshot) => (
-                      <div
-                        ref={dragProvided.innerRef}
-                        {...dragProvided.draggableProps}
-                        {...dragProvided.dragHandleProps}
+                      <div ref={dragProvided.innerRef} {...dragProvided.draggableProps} {...dragProvided.dragHandleProps}
                         className={`group relative aspect-square rounded-xl overflow-hidden border border-portal-border bg-portal-bg cursor-grab active:cursor-grabbing transition-all duration-200 ${
                           snapshot.isDragging ? "opacity-40 ring-2 ring-portal-accent/20" : "hover:shadow-md"
-                        }`}
-                      >
-                        {/* Drag handle indicator */}
+                        }`}>
+                        {/* Drag handle */}
                         <div className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity rounded-md bg-portal-bg/80 backdrop-blur-sm p-1 pointer-events-none">
                           <GripVertical size={14} className="text-portal-text-muted" />
                         </div>
 
-                        {/* Move to first/last buttons */}
-                        <div className="absolute top-2 right-10 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-0.5">
+                        {/* Move buttons */}
+                        <div className="absolute top-2 right-16 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-0.5">
                           {index > 0 && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); moveToFirst(index); }}
-                              title="Move to first"
-                              className="rounded-md bg-portal-bg/80 backdrop-blur-sm px-1.5 py-1 text-[10px] font-bold text-portal-text-muted hover:text-portal-accent hover:bg-portal-bg transition-colors"
-                            >
-                              ⇤
-                            </button>
+                            <button onClick={(e) => { e.stopPropagation(); moveToFirst(index); }} title="Move to first"
+                              className="rounded-md bg-portal-bg/80 backdrop-blur-sm px-1.5 py-1 text-[10px] font-bold text-portal-text-muted hover:text-portal-accent">⇤</button>
                           )}
                           {index < images.length - 1 && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); moveToLast(index); }}
-                              title="Move to last"
-                              className="rounded-md bg-portal-bg/80 backdrop-blur-sm px-1.5 py-1 text-[10px] font-bold text-portal-text-muted hover:text-portal-accent hover:bg-portal-bg transition-colors"
-                            >
-                              ⇥
-                            </button>
+                            <button onClick={(e) => { e.stopPropagation(); moveToLast(index); }} title="Move to last"
+                              className="rounded-md bg-portal-bg/80 backdrop-blur-sm px-1.5 py-1 text-[10px] font-bold text-portal-text-muted hover:text-portal-accent">⇥</button>
                           )}
                         </div>
 
-                        {/* Delete button */}
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleDelete(img); }}
-                          disabled={deleting === img.id}
-                          className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity rounded-md bg-destructive/90 backdrop-blur-sm p-1.5 text-white hover:bg-destructive"
-                        >
-                          {deleting === img.id ? (
-                            <Loader2 size={12} className="animate-spin" />
-                          ) : (
-                            <Trash2 size={12} />
-                          )}
+                        {/* Edit image button */}
+                        <button onClick={(e) => { e.stopPropagation(); setEditorImage(img.image_url); }} title="Edit image"
+                          className="absolute top-2 right-8 z-10 opacity-0 group-hover:opacity-100 transition-opacity rounded-md bg-portal-accent/90 backdrop-blur-sm p-1.5 text-white hover:bg-portal-accent">
+                          <Pencil size={12} />
                         </button>
 
-                        {/* Image (click for lightbox) */}
-                        <div
-                          onClick={() => { if (!snapshot.isDragging) setLightbox(index); }}
-                          className="w-full h-full"
-                        >
-                          <img
-                            src={img.image_url}
-                            alt={`Gallery ${index + 1}`}
+                        {/* Delete button */}
+                        <button onClick={(e) => { e.stopPropagation(); handleDelete(img); }} disabled={deleting === img.id}
+                          className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity rounded-md bg-destructive/90 backdrop-blur-sm p-1.5 text-white hover:bg-destructive">
+                          {deleting === img.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
+                        </button>
+
+                        {/* Image */}
+                        <div onClick={() => { if (!snapshot.isDragging) setLightbox(index); }} className="w-full h-full">
+                          <img src={img.image_url} alt={img.caption || `Gallery ${index + 1}`}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 pointer-events-none select-none"
-                            loading="lazy"
-                            draggable={false}
-                          />
+                            loading="lazy" draggable={false} />
                         </div>
 
-                        {/* Clickable order badge */}
-                        {editingOrder === img.id ? (
-                          <div
-                            className="absolute bottom-2 left-2 z-20"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <input
-                              ref={orderInputRef}
-                              type="number"
-                              min={1}
-                              max={images.length}
-                              value={orderValue}
-                              onChange={(e) => setOrderValue(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") handleOrderChange(img.id, index);
-                                if (e.key === "Escape") { setEditingOrder(null); setOrderValue(""); }
-                              }}
-                              onBlur={() => handleOrderChange(img.id, index)}
-                              className="w-10 h-6 rounded-md bg-portal-bg border border-portal-accent text-center text-[11px] font-semibold text-portal-text focus:outline-none focus:ring-1 focus:ring-portal-accent"
-                            />
+                        {/* Caption overlay */}
+                        {img.caption && !editingCaption && (
+                          <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
+                            <p className="text-white text-xs font-medium truncate">{img.caption}</p>
+                          </div>
+                        )}
+
+                        {/* Caption edit area */}
+                        {editingCaption === img.id ? (
+                          <div className="absolute bottom-2 left-2 right-2 z-20" onClick={(e) => e.stopPropagation()}>
+                            <input ref={captionInputRef} value={captionValue} onChange={(e) => setCaptionValue(e.target.value)}
+                              onKeyDown={(e) => { if (e.key === "Enter") saveCaption(img.id); if (e.key === "Escape") setEditingCaption(null); }}
+                              onBlur={() => saveCaption(img.id)}
+                              placeholder="Add caption..."
+                              className="w-full rounded-md bg-portal-bg border border-portal-accent px-2 py-1 text-xs text-portal-text focus:outline-none" />
                           </div>
                         ) : (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); startEditingOrder(img.id, index); }}
-                            title="Click to set position"
-                            className="absolute bottom-2 left-2 rounded-md bg-portal-bg/80 backdrop-blur-sm px-1.5 py-0.5 text-[10px] font-semibold text-portal-text-muted hover:text-portal-accent hover:bg-portal-bg/95 transition-colors cursor-pointer flex items-center gap-1"
-                          >
-                            <ArrowUpDown size={9} />
-                            {index + 1}
+                          <button onClick={(e) => { e.stopPropagation(); startEditingCaption(img); }} title="Edit caption"
+                            className="absolute bottom-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity rounded-md bg-portal-bg/80 backdrop-blur-sm p-1.5 text-portal-text-muted hover:text-portal-accent">
+                            <Type size={12} />
                           </button>
                         )}
+
+                        {/* Order badge */}
+                        {editingOrder === img.id ? (
+                          <div className="absolute bottom-2 left-2 z-20" onClick={(e) => e.stopPropagation()}>
+                            <input ref={orderInputRef} type="number" min={1} max={images.length} value={orderValue}
+                              onChange={(e) => setOrderValue(e.target.value)}
+                              onKeyDown={(e) => { if (e.key === "Enter") handleOrderChange(img.id, index); if (e.key === "Escape") { setEditingOrder(null); setOrderValue(""); } }}
+                              onBlur={() => handleOrderChange(img.id, index)}
+                              className="w-10 h-6 rounded-md bg-portal-bg border border-portal-accent text-center text-[11px] font-semibold text-portal-text focus:outline-none" />
+                          </div>
+                        ) : !img.caption ? (
+                          <button onClick={(e) => { e.stopPropagation(); startEditingOrder(img.id, index); }} title="Click to set position"
+                            className="absolute bottom-2 left-2 rounded-md bg-portal-bg/80 backdrop-blur-sm px-1.5 py-0.5 text-[10px] font-semibold text-portal-text-muted hover:text-portal-accent cursor-pointer flex items-center gap-1">
+                            <ArrowUpDown size={9} />{index + 1}
+                          </button>
+                        ) : null}
                       </div>
                     )}
                   </Draggable>
@@ -362,13 +294,14 @@ export function GalleryManager({ projectId }: Props) {
       {/* CinematicLightbox */}
       <AnimatePresence>
         {lightbox !== null && images.length > 0 && (
-          <CinematicLightbox
-            images={lightboxImages}
-            startIndex={lightbox}
-            onClose={() => setLightbox(null)}
-          />
+          <CinematicLightbox images={lightboxImages} startIndex={lightbox} onClose={() => setLightbox(null)} />
         )}
       </AnimatePresence>
+
+      {/* Image Overlay Editor */}
+      {editorImage && (
+        <ImageOverlayEditor imageUrl={editorImage} onClose={() => setEditorImage(null)} />
+      )}
     </div>
   );
 }

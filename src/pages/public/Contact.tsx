@@ -84,18 +84,18 @@ export default function Contact() {
       <div className="fixed bottom-1/4 -right-40 w-[400px] h-[400px] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
 
       {/* Hero */}
-      <section className="container py-20 md:py-28 relative z-10">
+      <section className="container py-12 md:py-20 lg:py-28 relative z-10">
         <div className="max-w-2xl">
           <FadeUp>
-            <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-4">{t("contact_title")}</p>
+            <p className="text-[10px] md:text-xs font-medium tracking-[0.25em] uppercase text-primary mb-3 md:mb-4">{t("contact_title")}</p>
           </FadeUp>
           <FadeUp delay={0.1}>
-            <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] font-light leading-tight text-foreground">
+            <h1 className="font-display text-[clamp(1.75rem,5vw,5.5rem)] font-light leading-[1.1] text-foreground">
               {t("contact_lets_start")}<br /><em className="not-italic font-semibold">{t("contact_conversation")}</em>
             </h1>
           </FadeUp>
           <FadeUp delay={0.2}>
-            <p className="mt-6 text-muted-foreground font-light leading-relaxed">
+            <p className="mt-4 md:mt-6 text-sm md:text-base text-muted-foreground font-light leading-relaxed">
               {info.hero_description ?? "We welcome enquiries from private clients, developers, institutions, and fellow collaborators."}
             </p>
           </FadeUp>

@@ -487,7 +487,7 @@ export default function Home() {
 
       {/* Awards */}
       {awards.length > 0 && (
-        <section ref={refAwards} className="reveal py-24 relative overflow-hidden">
+        <section ref={refAwards} className="reveal py-14 md:py-24 relative overflow-hidden">
           {/* Ambient glow */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-1/3 right-0 w-80 h-80 bg-primary/5 rounded-full blur-[120px]" />
@@ -496,13 +496,13 @@ export default function Home() {
 
           <div className="container relative z-10">
             {/* Header */}
-            <div className="mb-16 text-center">
-              <div className="inline-flex items-center gap-2 mb-4">
-                <Award size={14} className="text-primary" />
-                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_awards_recognition")}</p>
+            <div className="mb-10 md:mb-16 text-center">
+              <div className="inline-flex items-center gap-2 mb-3 md:mb-4">
+                <Award size={13} className="md:w-[14px] md:h-[14px] text-primary" />
+                <p className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_awards_recognition")}</p>
               </div>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_honored_work")}</h2>
-              <div className="mt-6 mx-auto w-24 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+              <h2 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">{t("home_honored_work")}</h2>
+              <div className="mt-4 md:mt-6 mx-auto w-24 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
             </div>
 
             {/* Awards timeline-style grid */}

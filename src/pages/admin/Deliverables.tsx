@@ -7,6 +7,7 @@ import { Deliverable, DeliverableDrawer } from "@/components/deliverables/Delive
 import { writeAuditLog } from "@/lib/audit";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, PackageOpen, Search, Filter } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface DeliverableRow extends Deliverable {
   project?: { title: string };
@@ -90,10 +91,10 @@ export default function AdminDeliverables() {
 
   return (
     <PortalLayout variant="admin">
-      <div className="mb-6">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
         <h1 className="font-display text-3xl font-bold text-portal-text">Deliverables</h1>
         <p className="mt-1 text-portal-text-muted text-sm">Global view of all project deliverables.</p>
-      </div>
+      </motion.div>
 
       {/* Search + Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
@@ -110,7 +111,9 @@ export default function AdminDeliverables() {
           {FILTERS.map((f) => (
             <button key={f.value} onClick={() => setStatusFilter(f.value)}
               className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                statusFilter === f.value ? "bg-portal-accent text-white" : "bg-portal-border text-portal-text-muted hover:text-portal-text"
+                statusFilter === f.value
+                  ? "bg-portal-accent text-portal-accent-foreground"
+                  : "bg-portal-border text-portal-text-muted hover:text-portal-text"
               }`}>
               {f.label}
             </button>
@@ -124,10 +127,11 @@ export default function AdminDeliverables() {
           <Loader2 size={22} className="animate-spin text-portal-text-muted" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl border border-portal-border bg-portal-surface">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center justify-center py-16 text-center rounded-xl border border-portal-border bg-portal-surface">
           <PackageOpen size={36} className="text-portal-text-muted/30 mb-3" />
           <p className="font-medium text-portal-text">No deliverables found</p>
-        </div>
+        </motion.div>
       ) : (
         <div className="rounded-xl border border-portal-border bg-portal-surface overflow-hidden">
           <table className="w-full text-sm">
@@ -142,8 +146,12 @@ export default function AdminDeliverables() {
             </thead>
             <tbody>
               {filtered.map((del, i) => (
-                <tr key={del.id}
-                  className={`border-b border-portal-border hover:bg-portal-bg transition-colors cursor-pointer ${i === filtered.length - 1 ? "border-none" : ""}`}
+                <motion.tr
+                  key={del.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.03, duration: 0.25 }}
+                  className={`border-b border-portal-border hover:bg-portal-accent/5 transition-colors cursor-pointer ${i === filtered.length - 1 ? "border-none" : ""}`}
                   onClick={() => setSelected(del)}>
                   <td className="px-4 py-3">
                     <p className="font-medium text-portal-text">{del.title}</p>
@@ -166,7 +174,7 @@ export default function AdminDeliverables() {
                       ))}
                     </select>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
             </tbody>
           </table>

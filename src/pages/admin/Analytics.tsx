@@ -4,10 +4,11 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  LineChart, Line, PieChart, Pie, Cell, AreaChart, Area,
+  PieChart, Pie, Cell, AreaChart, Area,
 } from "recharts";
-import { format, subDays, startOfDay, eachDayOfInterval, parseISO } from "date-fns";
+import { format, subDays, eachDayOfInterval } from "date-fns";
 import { Eye, Users, Globe, Clock, TrendingUp, Monitor, Smartphone, ArrowUpRight, ArrowDownRight, Activity, MousePointerClick } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface PageView {
   id: string;
@@ -19,17 +20,8 @@ interface PageView {
   created_at: string;
 }
 
-interface DayData {
-  date: string;
-  views: number;
-  visitors: number;
-}
-
-interface PageData {
-  path: string;
-  views: number;
-  percentage: number;
-}
+interface DayData { date: string; views: number; visitors: number; }
+interface PageData { path: string; views: number; percentage: number; }
 
 const ACCENT_COLORS = ["#818cf8", "#34d399", "#fbbf24", "#f472b6", "#60a5fa", "#a78bfa", "#fb923c"];
 
@@ -41,13 +33,8 @@ const RANGE_OPTIONS = [
 ];
 
 const PAGE_LABELS: Record<string, string> = {
-  "/": "Home",
-  "/portfolio": "Portfolio",
-  "/projects": "Projects",
-  "/services": "Services",
-  "/about": "About",
-  "/contact": "Contact",
-  "/blog": "Blog",
+  "/": "Home", "/portfolio": "Portfolio", "/projects": "Projects",
+  "/services": "Services", "/about": "About", "/contact": "Contact", "/blog": "Blog",
 };
 
 function getDeviceType(ua: string | null): "desktop" | "mobile" | "tablet" {
@@ -76,27 +63,18 @@ export default function Analytics() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Compute metrics
   const totalViews = views.length;
   const uniqueVisitors = new Set(views.map((v) => v.visitor_id).filter(Boolean)).size;
   const uniqueSessions = new Set(views.map((v) => v.session_id).filter(Boolean)).size;
   const avgPagesPerSession = uniqueSessions > 0 ? (totalViews / uniqueSessions).toFixed(1) : "0";
 
-  // Previous period comparison
-  const prevSince = subDays(new Date(), rangeDays * 2).toISOString();
-  const currentStart = subDays(new Date(), rangeDays).toISOString();
-  // We only have current data, so compute trend from first/second half
   const midpoint = Math.floor(views.length / 2);
   const firstHalf = views.slice(0, midpoint).length;
   const secondHalf = views.slice(midpoint).length;
   const viewsTrend = firstHalf > 0 ? Math.round(((secondHalf - firstHalf) / firstHalf) * 100) : 0;
 
-  // Daily chart data
   const dailyData: DayData[] = (() => {
-    const days = eachDayOfInterval({
-      start: subDays(new Date(), rangeDays - 1),
-      end: new Date(),
-    });
+    const days = eachDayOfInterval({ start: subDays(new Date(), rangeDays - 1), end: new Date() });
     return days.map((day) => {
       const dayStr = format(day, "yyyy-MM-dd");
       const dayViews = views.filter((v) => v.created_at.startsWith(dayStr));
@@ -108,59 +86,38 @@ export default function Analytics() {
     });
   })();
 
-  // Top pages
   const pageMap = new Map<string, number>();
   views.forEach((v) => pageMap.set(v.path, (pageMap.get(v.path) || 0) + 1));
   const topPages: PageData[] = [...pageMap.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
-    .map(([path, count]) => ({
-      path,
-      views: count,
-      percentage: totalViews > 0 ? Math.round((count / totalViews) * 100) : 0,
-    }));
+    .sort((a, b) => b[1] - a[1]).slice(0, 10)
+    .map(([path, count]) => ({ path, views: count, percentage: totalViews > 0 ? Math.round((count / totalViews) * 100) : 0 }));
 
-  // Device breakdown
   const devices = { desktop: 0, mobile: 0, tablet: 0 };
   views.forEach((v) => { devices[getDeviceType(v.user_agent)]++; });
   const deviceData = [
-    { name: "Desktop", value: devices.desktop, icon: Monitor },
-    { name: "Mobile", value: devices.mobile, icon: Smartphone },
-    { name: "Tablet", value: devices.tablet, icon: Monitor },
+    { name: "Desktop", value: devices.desktop },
+    { name: "Mobile", value: devices.mobile },
+    { name: "Tablet", value: devices.tablet },
   ].filter((d) => d.value > 0);
 
-  // Top referrers
   const refMap = new Map<string, number>();
   views.forEach((v) => {
     if (v.referrer) {
-      try {
-        const host = new URL(v.referrer).hostname || "Direct";
-        refMap.set(host, (refMap.get(host) || 0) + 1);
-      } catch {
-        refMap.set("Direct", (refMap.get("Direct") || 0) + 1);
-      }
+      try { refMap.set(new URL(v.referrer).hostname || "Direct", (refMap.get(new URL(v.referrer).hostname) || 0) + 1); }
+      catch { refMap.set("Direct", (refMap.get("Direct") || 0) + 1); }
     }
   });
-  const topReferrers = [...refMap.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
+  const topReferrers = [...refMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
 
-  // Hourly heatmap
   const hourly = Array(24).fill(0);
-  views.forEach((v) => {
-    const h = new Date(v.created_at).getHours();
-    hourly[h]++;
-  });
-  const hourlyData = hourly.map((count, hour) => ({
-    hour: `${hour.toString().padStart(2, "0")}:00`,
-    views: count,
-  }));
+  views.forEach((v) => { hourly[new Date(v.created_at).getHours()]++; });
+  const hourlyData = hourly.map((count, hour) => ({ hour: `${hour.toString().padStart(2, "0")}:00`, views: count }));
 
   const statCards = [
-    { label: "Page Views", value: totalViews.toLocaleString(), icon: Eye, trend: viewsTrend, color: "text-indigo-400" },
-    { label: "Unique Visitors", value: uniqueVisitors.toLocaleString(), icon: Users, color: "text-emerald-400" },
-    { label: "Sessions", value: uniqueSessions.toLocaleString(), icon: Activity, color: "text-amber-400" },
-    { label: "Pages / Session", value: avgPagesPerSession, icon: MousePointerClick, color: "text-pink-400" },
+    { label: "Page Views", value: totalViews.toLocaleString(), icon: Eye, trend: viewsTrend, color: "text-indigo-400", gradient: "from-indigo-500/20 to-indigo-600/5" },
+    { label: "Unique Visitors", value: uniqueVisitors.toLocaleString(), icon: Users, color: "text-emerald-400", gradient: "from-emerald-500/20 to-emerald-600/5" },
+    { label: "Sessions", value: uniqueSessions.toLocaleString(), icon: Activity, color: "text-amber-400", gradient: "from-amber-500/20 to-amber-600/5" },
+    { label: "Pages / Session", value: avgPagesPerSession, icon: MousePointerClick, color: "text-pink-400", gradient: "from-pink-500/20 to-pink-600/5" },
   ];
 
   return (
@@ -168,17 +125,14 @@ export default function Analytics() {
       <PageHeader title="Site Analytics" subtitle="Track visitor activity across your public website" />
 
       {/* Range selector */}
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex items-center gap-1 mb-6 bg-portal-bg/50 rounded-xl p-1 border border-portal-border/50 max-w-fit">
         {RANGE_OPTIONS.map((opt) => (
-          <button
-            key={opt.days}
-            onClick={() => setRangeDays(opt.days)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+          <button key={opt.days} onClick={() => setRangeDays(opt.days)}
+            className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${
               rangeDays === opt.days
-                ? "bg-portal-accent text-portal-accent-foreground"
-                : "bg-portal-surface/60 text-portal-text-muted hover:bg-portal-surface"
-            }`}
-          >
+                ? "bg-portal-accent text-portal-accent-foreground shadow-sm"
+                : "text-portal-text-muted hover:text-portal-text hover:bg-portal-surface/50"
+            }`}>
             {opt.label}
           </button>
         ))}
@@ -192,25 +146,30 @@ export default function Analytics() {
         <div className="space-y-6">
           {/* Stat cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {statCards.map((s) => (
-              <div key={s.label} className="glass-card p-5 rounded-2xl">
-                <div className="flex items-center justify-between mb-3">
-                  <s.icon size={18} className={s.color} />
-                  {s.trend !== undefined && s.trend !== 0 && (
-                    <span className={`flex items-center gap-0.5 text-xs font-medium ${s.trend > 0 ? "text-emerald-400" : "text-red-400"}`}>
-                      {s.trend > 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
-                      {Math.abs(s.trend)}%
-                    </span>
-                  )}
+            {statCards.map((s, i) => (
+              <motion.div key={s.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+                className="glass-card glass-card-hover group relative overflow-hidden p-5 rounded-2xl">
+                <div className={`absolute inset-0 bg-gradient-to-br ${s.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-3">
+                    <s.icon size={18} className={s.color} />
+                    {s.trend !== undefined && s.trend !== 0 && (
+                      <span className={`flex items-center gap-0.5 text-xs font-medium ${s.trend > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                        {s.trend > 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                        {Math.abs(s.trend)}%
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-2xl font-bold text-portal-text">{s.value}</div>
+                  <div className="text-xs text-portal-text-muted mt-1">{s.label}</div>
                 </div>
-                <div className="text-2xl font-bold text-portal-text">{s.value}</div>
-                <div className="text-xs text-portal-text-muted mt-1">{s.label}</div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
-          {/* Main chart — Views & Visitors over time */}
-          <div className="glass-card p-6 rounded-2xl">
+          {/* Main chart */}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+            className="glass-card p-6 rounded-2xl">
             <h3 className="text-sm font-semibold text-portal-text mb-4">Traffic Overview</h3>
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={dailyData}>
@@ -226,15 +185,12 @@ export default function Analytics() {
                 </defs>
                 <XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip
-                  contentStyle={{ background: "rgba(15,23,42,0.9)", border: "1px solid rgba(148,163,184,0.2)", borderRadius: 12, fontSize: 12 }}
-                  labelStyle={{ color: "#e2e8f0" }}
-                />
+                <Tooltip contentStyle={{ background: "rgba(15,23,42,0.9)", border: "1px solid rgba(148,163,184,0.2)", borderRadius: 12, fontSize: 12 }} labelStyle={{ color: "#e2e8f0" }} />
                 <Area type="monotone" dataKey="views" stroke="#818cf8" fill="url(#viewsGrad)" strokeWidth={2} name="Page Views" />
                 <Area type="monotone" dataKey="visitors" stroke="#34d399" fill="url(#visitorsGrad)" strokeWidth={2} name="Visitors" />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Top Pages */}
@@ -252,16 +208,10 @@ export default function Analytics() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-sm text-portal-text truncate">{PAGE_LABELS[page.path] || page.path}</span>
-                          <span className="text-xs text-portal-text-muted ml-2">{page.views} views</span>
+                          <span className="text-xs text-portal-text-muted ml-2">{page.views}</span>
                         </div>
                         <div className="h-1.5 rounded-full bg-portal-surface overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-all"
-                            style={{
-                              width: `${page.percentage}%`,
-                              backgroundColor: ACCENT_COLORS[i % ACCENT_COLORS.length],
-                            }}
-                          />
+                          <div className="h-full rounded-full transition-all" style={{ width: `${page.percentage}%`, backgroundColor: ACCENT_COLORS[i % ACCENT_COLORS.length] }} />
                         </div>
                       </div>
                     </div>
@@ -270,7 +220,7 @@ export default function Analytics() {
               )}
             </div>
 
-            {/* Device Breakdown */}
+            {/* Devices */}
             <div className="glass-card p-6 rounded-2xl">
               <h3 className="text-sm font-semibold text-portal-text mb-4 flex items-center gap-2">
                 <Monitor size={16} className="text-portal-accent" /> Devices
@@ -282,9 +232,7 @@ export default function Analytics() {
                   <ResponsiveContainer width={140} height={140}>
                     <PieChart>
                       <Pie data={deviceData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={35} outerRadius={60} strokeWidth={0}>
-                        {deviceData.map((_, i) => (
-                          <Cell key={i} fill={ACCENT_COLORS[i % ACCENT_COLORS.length]} />
-                        ))}
+                        {deviceData.map((_, i) => <Cell key={i} fill={ACCENT_COLORS[i % ACCENT_COLORS.length]} />)}
                       </Pie>
                     </PieChart>
                   </ResponsiveContainer>
@@ -294,9 +242,7 @@ export default function Analytics() {
                         <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: ACCENT_COLORS[i % ACCENT_COLORS.length] }} />
                         <span className="text-sm text-portal-text flex-1">{d.name}</span>
                         <span className="text-sm font-medium text-portal-text">{d.value}</span>
-                        <span className="text-xs text-portal-text-muted">
-                          ({totalViews > 0 ? Math.round((d.value / totalViews) * 100) : 0}%)
-                        </span>
+                        <span className="text-xs text-portal-text-muted">({totalViews > 0 ? Math.round((d.value / totalViews) * 100) : 0}%)</span>
                       </div>
                     ))}
                   </div>
@@ -304,7 +250,7 @@ export default function Analytics() {
               )}
             </div>
 
-            {/* Hourly Activity */}
+            {/* Hourly */}
             <div className="glass-card p-6 rounded-2xl">
               <h3 className="text-sm font-semibold text-portal-text mb-4 flex items-center gap-2">
                 <Clock size={16} className="text-portal-accent" /> Hourly Activity
@@ -313,15 +259,13 @@ export default function Analytics() {
                 <BarChart data={hourlyData}>
                   <XAxis dataKey="hour" tick={{ fill: "#94a3b8", fontSize: 9 }} axisLine={false} tickLine={false} interval={2} />
                   <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    contentStyle={{ background: "rgba(15,23,42,0.9)", border: "1px solid rgba(148,163,184,0.2)", borderRadius: 12, fontSize: 12 }}
-                  />
+                  <Tooltip contentStyle={{ background: "rgba(15,23,42,0.9)", border: "1px solid rgba(148,163,184,0.2)", borderRadius: 12, fontSize: 12 }} />
                   <Bar dataKey="views" fill="#818cf8" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            {/* Top Referrers */}
+            {/* Referrers */}
             <div className="glass-card p-6 rounded-2xl">
               <h3 className="text-sm font-semibold text-portal-text mb-4 flex items-center gap-2">
                 <TrendingUp size={16} className="text-portal-accent" /> Top Referrers
@@ -330,7 +274,6 @@ export default function Analytics() {
                 <div className="flex flex-col items-center justify-center py-8 text-portal-text-muted">
                   <Globe size={32} className="mb-2 opacity-40" />
                   <p className="text-sm">No referrer data yet</p>
-                  <p className="text-xs mt-1">Visitors mostly arrive directly</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -346,7 +289,7 @@ export default function Analytics() {
             </div>
           </div>
 
-          {/* Live recent views */}
+          {/* Recent views */}
           <div className="glass-card p-6 rounded-2xl">
             <h3 className="text-sm font-semibold text-portal-text mb-4 flex items-center gap-2">
               <Activity size={16} className="text-emerald-400" /> Recent Page Views
@@ -363,7 +306,7 @@ export default function Analytics() {
                 </thead>
                 <tbody>
                   {views.slice(-20).reverse().map((v) => (
-                    <tr key={v.id} className="border-b border-portal-border/20 hover:bg-portal-surface/30 transition-colors">
+                    <tr key={v.id} className="border-b border-portal-border/20 hover:bg-portal-accent/5 transition-colors">
                       <td className="py-2 px-3 text-portal-text font-medium">{PAGE_LABELS[v.path] || v.path}</td>
                       <td className="py-2 px-3 text-portal-text-muted text-xs">{format(new Date(v.created_at), "MMM d, HH:mm")}</td>
                       <td className="py-2 px-3 text-portal-text-muted text-xs capitalize hidden md:table-cell">{getDeviceType(v.user_agent)}</td>
@@ -375,7 +318,7 @@ export default function Analytics() {
                 </tbody>
               </table>
               {views.length === 0 && (
-                <p className="text-center text-portal-text-muted py-8 text-sm">No page views recorded yet. Visit your public site to start tracking!</p>
+                <p className="text-center text-portal-text-muted py-8 text-sm">No page views recorded yet.</p>
               )}
             </div>
           </div>

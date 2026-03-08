@@ -186,7 +186,7 @@ export default function PortfolioDetail() {
                   {displaySummary}
                 </motion.p>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-                  className="flex flex-wrap items-center gap-3 mt-6">
+                  className="flex flex-wrap items-center gap-2 md:gap-3 mt-4 md:mt-6">
                   {item.location && (
                     <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
                       <MapPin size={13} />{item.location}

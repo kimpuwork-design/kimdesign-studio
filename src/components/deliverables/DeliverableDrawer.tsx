@@ -205,6 +205,16 @@ export function DeliverableDrawer({ deliverable: initialDeliverable, role, onClo
             )}
           </div>
 
+          {/* Approval Stamp */}
+          {(deliverable.status === "approved" || deliverable.status === "rejected") && (
+            <div className="flex justify-center py-2">
+              <ApprovalStamp
+                status={deliverable.status}
+                reviewedAt={deliverable.reviewed_at}
+              />
+            </div>
+          )}
+
           {/* Client feedback shown on rejection */}
           {deliverable.client_feedback && deliverable.status === "rejected" && (
             <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">

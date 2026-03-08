@@ -73,7 +73,12 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-black/95 select-none">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm select-none" onClick={onClose}>
+      <div
+        className="relative flex flex-col bg-black/95 rounded-2xl border border-white/10 shadow-2xl overflow-hidden"
+        style={{ maxWidth: "92vw", maxHeight: "92vh" }}
+        onClick={(e) => e.stopPropagation()}
+      >
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-3 bg-black/60 border-b border-white/10 shrink-0">
         <div className="flex items-center gap-3">

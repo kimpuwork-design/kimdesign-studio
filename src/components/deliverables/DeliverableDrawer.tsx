@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getSignedUrl } from "@/lib/files";
 import { writeAuditLog } from "@/lib/audit";
 import { DeliverableStatusBadge } from "./DeliverableStatusBadge";
+import { ApprovalStamp } from "./ApprovalStamp";
 import { FileIcon } from "@/components/files/FileIcon";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -203,6 +204,16 @@ export function DeliverableDrawer({ deliverable: initialDeliverable, role, onClo
               </div>
             )}
           </div>
+
+          {/* Approval Stamp */}
+          {(deliverable.status === "approved" || deliverable.status === "rejected") && (
+            <div className="flex justify-center py-2">
+              <ApprovalStamp
+                status={deliverable.status}
+                reviewedAt={deliverable.reviewed_at}
+              />
+            </div>
+          )}
 
           {/* Client feedback shown on rejection */}
           {deliverable.client_feedback && deliverable.status === "rejected" && (

@@ -9,10 +9,12 @@ import { FileUploadZone } from "@/components/files/FileUploadZone";
 import { FileList } from "@/components/files/FileList";
 import {
   CalendarDays, MapPin, Users, User, ArrowLeft,
-  FolderOpen, LayoutList, MessageSquare, Pencil, PackageOpen, Receipt, ImageIcon,
+  FolderOpen, LayoutList, MessageSquare, Pencil, PackageOpen, Receipt, ImageIcon, Milestone, SplitSquareHorizontal,
 } from "lucide-react";
 import { DeliverablesTab } from "@/components/deliverables/DeliverablesTab";
 import { GalleryManager } from "@/components/admin/GalleryManager";
+import { ProjectTimeline } from "@/components/admin/ProjectTimeline";
+import { BeforeAfterSlider } from "@/components/media/BeforeAfterSlider";
 import { Button } from "@/components/ui/button";
 import { ProjectFormModal } from "@/components/admin/ProjectFormModal";
 import { StaffAssignModal } from "@/components/admin/StaffAssignModal";
@@ -30,6 +32,7 @@ interface Project {
   location: string | null;
   start_date: string | null;
   target_date: string | null;
+  created_at: string;
   updated_at: string;
   is_public: boolean;
   thumbnail_url: string | null;
@@ -181,6 +184,27 @@ export default function AdminProjectDetail() {
             {project!.start_date && <InfoCard icon={<CalendarDays size={15} />} label="Start Date" value={new Date(project!.start_date).toLocaleDateString()} />}
             {project!.target_date && <InfoCard icon={<CalendarDays size={15} />} label="Target Date" value={new Date(project!.target_date).toLocaleDateString()} />}
           </div>
+
+          {/* Project Timeline */}
+          <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Milestone size={16} className="text-portal-accent" />
+              <h2 className="font-semibold text-portal-text">Project Timeline</h2>
+            </div>
+            <ProjectTimeline milestones={(() => {
+              const STATUS_ORDER = ["inquiry", "active", "review", "delivered", "archived"];
+              const currentIdx = STATUS_ORDER.indexOf(project!.status);
+              return STATUS_ORDER.filter(s => s !== "archived").map((s, i) => ({
+                id: s,
+                label: s.charAt(0).toUpperCase() + s.slice(1),
+                status: i < currentIdx ? "completed" as const : i === currentIdx ? "current" as const : "upcoming" as const,
+                date: s === "inquiry" ? project!.created_at : s === "active" ? project!.start_date : s === "delivered" ? project!.target_date : null,
+                description: s === "inquiry" ? "Project initiated" : s === "active" ? "Design & development in progress" : s === "review" ? "Client review & feedback" : "Final delivery",
+              }));
+            })()} />
+          </div>
+
+          {/* Team */}
           <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
             <div className="flex items-center gap-2 mb-4">
               <Users size={16} className="text-portal-text-muted" />

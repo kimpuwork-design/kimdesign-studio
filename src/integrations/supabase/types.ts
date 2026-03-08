@@ -641,6 +641,7 @@ export type Database = {
       }
       portfolio_gallery: {
         Row: {
+          caption: string | null
           created_at: string
           id: string
           image_url: string
@@ -649,6 +650,7 @@ export type Database = {
           sort_order: number
         }
         Insert: {
+          caption?: string | null
           created_at?: string
           id?: string
           image_url: string
@@ -657,6 +659,7 @@ export type Database = {
           sort_order?: number
         }
         Update: {
+          caption?: string | null
           created_at?: string
           id?: string
           image_url?: string

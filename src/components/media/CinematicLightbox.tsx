@@ -72,11 +72,15 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
       onClick={onClose}
       style={{
         position: "fixed",
-        inset: 0,
+        top: 0, left: 0, right: 0, bottom: 0,
         zIndex: 99999,
         background: "rgba(0,0,0,0.95)",
         display: "flex",
         flexDirection: "column",
+        height: "100dvh",
+        maxHeight: "100dvh",
+        overflow: "hidden",
+        touchAction: "none",
       }}
     >
       {/* Top bar */}

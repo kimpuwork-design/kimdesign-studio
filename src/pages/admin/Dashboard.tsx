@@ -282,7 +282,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Activity & Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
         <div className="glass-card p-5">
           <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Recent Activity</h2>
           {activity.length > 0 ? (

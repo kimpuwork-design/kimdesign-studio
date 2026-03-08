@@ -120,7 +120,7 @@ export default function PublicBlog() {
             </div>
           </FadeUp>
         ) : (
-          <StaggerContainer className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <StaggerContainer className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((post) => (
               <StaggerItem key={post.id}>
                 <HoverCard>

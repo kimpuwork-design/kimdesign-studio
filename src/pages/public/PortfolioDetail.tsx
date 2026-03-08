@@ -166,7 +166,7 @@ export default function PortfolioDetail() {
             <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative h-full container flex flex-col justify-end pb-8 md:pb-16 z-10">
               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
                 <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-8 transition-colors">
-                  <ArrowLeft size={14} />Back to Portfolio
+                  <ArrowLeft size={14} />Back
                 </Link>
               </motion.div>
               <div className="max-w-3xl">

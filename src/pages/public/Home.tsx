@@ -381,7 +381,7 @@ export default function Home() {
               <Button size="lg" asChild className="rounded-2xl px-6 md:px-8 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow text-sm md:text-base h-12 md:h-13 w-full sm:w-auto">
                 <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={14} className="ml-2" /></Link>
               </Button>
-              <Button variant="outline" size="lg" asChild className="rounded-2xl px-8 tracking-wide text-base h-13 border-border/50 hover:bg-secondary/60">
+              <Button variant="outline" size="lg" asChild className="rounded-2xl px-6 md:px-8 tracking-wide text-sm md:text-base h-12 md:h-13 border-border/50 hover:bg-secondary/60 w-full sm:w-auto">
                 <Link to="/contact">{t("home_work_with_us")}</Link>
               </Button>
             </div>

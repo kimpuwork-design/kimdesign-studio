@@ -197,11 +197,11 @@ function TestimonialsCarousel({ testimonials, sectionRef, t }: { testimonials: a
 
         {/* Carousel */}
         <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex gap-6">
+          <div className="flex gap-4 md:gap-6">
             {testimonials.map((t: any, i: number) => (
               <div
                 key={t.name}
-                className="flex-[0_0_100%] min-w-0 md:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
+                className="flex-[0_0_85%] min-w-0 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
               >
                 <div className={`glass-card-public glass-glow-ring p-8 h-full flex flex-col transition-all duration-500 ${
                   selectedIndex === i ? "scale-[1.02] shadow-lg shadow-primary/5" : "opacity-70"

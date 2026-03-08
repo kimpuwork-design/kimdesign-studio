@@ -106,7 +106,7 @@ export default function PublicBlog() {
       </section>
 
       {/* Posts grid */}
-      <div className="container py-12 relative z-10">
+      <div className="container py-8 md:py-12 relative z-10">
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 size={28} className="animate-spin text-muted-foreground" />

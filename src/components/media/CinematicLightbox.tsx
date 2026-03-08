@@ -172,8 +172,8 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
               src={currentUrl}
               alt={current.caption || `Image ${idx + 1}`}
               draggable={false}
-              className={`block m-auto p-4 max-w-none max-h-none ${loadState === "loaded" ? "opacity-100" : "opacity-0"}`}
-              style={{ width: "auto", height: "auto" }}
+              className={`block p-4 ${loadState === "loaded" ? "opacity-100" : "opacity-0"}`}
+              style={{ width: "auto", height: "auto", maxWidth: "88vw", maxHeight: "75vh" }}
               onLoad={() => setLoadState("loaded")}
               onError={() => setLoadState("error")}
             />

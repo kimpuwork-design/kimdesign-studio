@@ -103,7 +103,7 @@ export default function Contact() {
       </section>
 
       <section className="border-t border-border/50 relative z-10">
-        <div className="container py-16 grid gap-16 md:grid-cols-[1fr_2fr]">
+        <div className="container py-10 md:py-16 grid gap-10 md:gap-16 grid-cols-1 md:grid-cols-[1fr_2fr]">
           {/* Info */}
           <SlideIn direction="left">
             <div className="space-y-8">

@@ -506,11 +506,11 @@ export default function Home() {
             </div>
 
             {/* Awards timeline-style grid */}
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 md:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {awards.map((a: any, i: number) => (
                 <div
                   key={a.year + a.title}
-                  className={`reveal reveal-delay-${Math.min(i + 1, 4)} group glass-card-public glass-glow-ring p-8 relative overflow-hidden`}
+                  className={`reveal reveal-delay-${Math.min(i + 1, 4)} group glass-card-public glass-glow-ring p-5 md:p-8 relative overflow-hidden`}
                 >
                   {/* Decorative corner accent */}
                   <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-bl-[60px] transition-all duration-500 group-hover:bg-primary/10 group-hover:w-24 group-hover:h-24" />

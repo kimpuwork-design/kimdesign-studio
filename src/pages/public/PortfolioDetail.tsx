@@ -158,12 +158,12 @@ export default function PortfolioDetail() {
       {/* ── Parallax Hero ── */}
       <div ref={heroRef} className="relative overflow-hidden">
         {coverUrl ? (
-          <section className="relative h-[70vh] min-h-[500px] max-h-[800px]">
+          <section className="relative h-[55vh] md:h-[70vh] min-h-[400px] max-h-[800px]">
             <motion.div style={{ scale: heroScale }} className="absolute inset-0">
               <img src={coverUrl} alt={item.title} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-background" />
             </motion.div>
-            <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative h-full container flex flex-col justify-end pb-12 md:pb-16 z-10">
+            <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative h-full container flex flex-col justify-end pb-8 md:pb-16 z-10">
               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
                 <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-8 transition-colors">
                   <ArrowLeft size={14} />Back to Portfolio

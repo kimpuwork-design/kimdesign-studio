@@ -188,7 +188,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Charts Row */}
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
+      <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-3 mb-5 md:mb-8">
         {/* Revenue Chart — wider */}
         <div className="glass-card p-5 md:col-span-2">
           <div className="flex items-center justify-between mb-4">

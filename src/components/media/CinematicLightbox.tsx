@@ -211,7 +211,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed inset-0 z-[100] flex flex-col bg-black select-none"
+      className="fixed inset-0 z-[100] flex flex-col bg-black/90 backdrop-blur-sm select-none"
       onMouseMove={scheduleHide}
       onClick={(e) => {
         if (e.target === imgContainerRef.current) {
@@ -305,7 +305,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
               scale: { type: "spring", stiffness: 300, damping: 30 },
             }}
             onLoad={() => setImgLoaded(prev => ({ ...prev, [current.id]: true }))}
-            className="max-h-[85vh] max-w-[92vw] object-contain rounded-sm pointer-events-none"
+            className="max-h-[80vh] max-w-[90vw] w-auto h-auto object-contain rounded-lg shadow-2xl pointer-events-none"
             draggable={false}
           />
         </AnimatePresence>

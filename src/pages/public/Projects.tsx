@@ -7,7 +7,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, StaggerContainer, StaggerItem } from "@/components/motion/MotionWrappers";
 import { motion } from "framer-motion";
-import { Search, MapPin, CalendarDays, FolderOpen, Loader2, ArrowRight, Sparkles, ImageIcon } from "lucide-react";
+import { Search, MapPin, CalendarDays, FolderOpen, ArrowRight, Sparkles, ImageIcon, Star } from "lucide-react";
 
 interface Project {
   id: string;
@@ -19,28 +19,85 @@ interface Project {
   target_date: string | null;
   created_at: string;
   thumbnail_url: string | null;
+  is_featured: boolean;
+  category: string | null;
 }
 
 const STATUS_OPTIONS = ["all", "inquiry", "active", "review", "delivered", "archived"];
 
-function ProjectCard({ project, t, index }: { project: Project; t: (k: string) => string; index: number }) {
-  const coverUrl = project.thumbnail_url;
+/* ── Featured Hero Card ── */
+function FeaturedCard({ project, t }: { project: Project; t: (k: string) => string }) {
+  return (
+    <FadeUp className="mb-10">
+      <Link to={`/projects/${project.id}`}
+        className="group relative block overflow-hidden rounded-3xl border border-border/30 bg-card/60 backdrop-blur-sm hover:border-primary/40 transition-all duration-500">
+        <div className="grid md:grid-cols-2">
+          <div className="aspect-[4/3] md:aspect-auto overflow-hidden relative bg-secondary/30">
+            {project.thumbnail_url ? (
+              <img src={project.thumbnail_url} alt={project.title} loading="eager"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted/50 to-secondary/50 min-h-[300px]">
+                <ImageIcon size={48} className="text-muted-foreground/20" />
+              </div>
+            )}
+          </div>
+          <div className="p-8 md:p-10 flex flex-col justify-center">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-[10px] font-semibold tracking-[0.15em] uppercase text-primary">
+                <Star size={10} className="fill-primary" /> Featured
+              </span>
+              <StatusBadge status={project.status} />
+            </div>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground leading-tight tracking-tight group-hover:text-primary transition-colors">
+              {project.title}
+            </h2>
+            {project.description && (
+              <p className="mt-3 text-muted-foreground font-light leading-relaxed line-clamp-3">{project.description}</p>
+            )}
+            <div className="flex flex-wrap gap-2 mt-4 text-xs text-muted-foreground">
+              {project.category && (
+                <span className="bg-secondary/60 rounded-full px-3 py-1">{project.category}</span>
+              )}
+              {project.location && (
+                <span className="flex items-center gap-1.5 bg-secondary/60 rounded-full px-3 py-1">
+                  <MapPin size={10} />{project.location}
+                </span>
+              )}
+            </div>
+            <div className="mt-6 flex items-center gap-2 text-sm font-medium text-primary group-hover:gap-3 transition-all">
+              View Project <ArrowRight size={16} />
+            </div>
+          </div>
+        </div>
+      </Link>
+    </FadeUp>
+  );
+}
+
+function ProjectCard({ project, t }: { project: Project; t: (k: string) => string }) {
   return (
     <StaggerItem>
       <motion.div whileHover={{ y: -6 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
         <Link to={`/projects/${project.id}`}
           className="group block overflow-hidden rounded-2xl border border-border/30 bg-card/60 backdrop-blur-sm hover:border-primary/30 hover:shadow-[0_0_30px_hsl(var(--primary)/0.08)] transition-all duration-300">
           <div className="aspect-[16/9] overflow-hidden relative bg-secondary/30">
-            {coverUrl ? (
-              <img src={coverUrl} alt={project.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            {project.thumbnail_url ? (
+              <img src={project.thumbnail_url} alt={project.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted/50 to-secondary/50">
                 <ImageIcon size={32} className="text-muted-foreground/20" />
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="absolute top-3 right-3"><StatusBadge status={project.status} /></div>
-            {/* Hover arrow */}
+            <div className="absolute top-3 left-3 flex items-center gap-1.5">
+              <StatusBadge status={project.status} />
+              {project.is_featured && (
+                <span className="h-6 w-6 rounded-full bg-primary/20 backdrop-blur-sm flex items-center justify-center">
+                  <Star size={10} className="text-primary fill-primary" />
+                </span>
+              )}
+            </div>
             <div className="absolute bottom-3 right-3 h-9 w-9 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
               <ArrowRight size={14} className="text-white" />
             </div>
@@ -49,6 +106,9 @@ function ProjectCard({ project, t, index }: { project: Project; t: (k: string) =
             <h3 className="font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">{project.title}</h3>
             {project.description && <p className="text-sm text-muted-foreground mt-2 line-clamp-2 font-light leading-relaxed">{project.description}</p>}
             <div className="flex flex-wrap gap-2 mt-3 text-xs text-muted-foreground">
+              {project.category && (
+                <span className="bg-secondary/60 rounded-full px-2.5 py-1">{project.category}</span>
+              )}
               {project.location && (
                 <span className="flex items-center gap-1.5 bg-secondary/60 rounded-full px-2.5 py-1"><MapPin size={10} />{project.location}</span>
               )}
@@ -63,7 +123,6 @@ function ProjectCard({ project, t, index }: { project: Project; t: (k: string) =
   );
 }
 
-/* ── Skeleton Card ── */
 function SkeletonCard() {
   return (
     <div className="overflow-hidden rounded-2xl border border-border/30 bg-card/40 animate-pulse">
@@ -83,12 +142,14 @@ export default function PublicProjects() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   useEffect(() => {
     supabase
       .from("projects")
-      .select("id, title, description, status, location, start_date, target_date, created_at, thumbnail_url")
+      .select("id, title, description, status, location, start_date, target_date, created_at, thumbnail_url, is_featured, category")
       .eq("is_public", true)
+      .order("is_featured", { ascending: false })
       .order("created_at", { ascending: false })
       .then(({ data }) => {
         setProjects((data as Project[]) ?? []);
@@ -96,14 +157,20 @@ export default function PublicProjects() {
       });
   }, []);
 
+  const categories = ["all", ...Array.from(new Set(projects.map(p => p.category).filter(Boolean) as string[]))];
+
   const filtered = projects.filter((p) => {
     if (statusFilter !== "all" && p.status !== statusFilter) return false;
+    if (categoryFilter !== "all" && p.category !== categoryFilter) return false;
     if (search.trim()) {
       const q = search.toLowerCase();
       return p.title.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q) || p.location?.toLowerCase().includes(q);
     }
     return true;
   });
+
+  const featuredProject = filtered.find(p => p.is_featured);
+  const regularProjects = featuredProject ? filtered.filter(p => p.id !== featuredProject.id) : filtered;
 
   return (
     <div className="bg-background min-h-screen relative">
@@ -114,7 +181,7 @@ export default function PublicProjects() {
         <div className="absolute bottom-1/3 -left-32 w-[400px] h-[400px] rounded-full bg-primary/[0.03] blur-[120px] animate-float-delayed" />
       </div>
 
-      {/* ── Hero ── */}
+      {/* Hero */}
       <FadeUp className="container pt-20 pb-10 relative z-10">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}
           className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-6">
@@ -129,7 +196,6 @@ export default function PublicProjects() {
           className="mt-4 text-muted-foreground font-light max-w-lg leading-relaxed">
           {t("projects_description")}
         </motion.p>
-        {/* Stats */}
         <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.45 }}
           className="flex items-center gap-8 mt-8">
           {[
@@ -145,7 +211,7 @@ export default function PublicProjects() {
         </motion.div>
       </FadeUp>
 
-      {/* ── Filters ── */}
+      {/* Filters */}
       <section className="sticky top-16 z-30 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="container py-3 flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1 max-w-xs">
@@ -163,11 +229,24 @@ export default function PublicProjects() {
                 {s === "all" ? t("portfolio_all") : s.charAt(0).toUpperCase() + s.slice(1)}
               </button>
             ))}
+            {categories.length > 2 && (
+              <>
+                <div className="w-px h-5 bg-border/50 mx-1 hidden sm:block" />
+                {categories.filter(c => c !== "all").map((c) => (
+                  <button key={c} onClick={() => setCategoryFilter(categoryFilter === c ? "all" : c)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+                      categoryFilter === c ? "bg-foreground text-background" : "bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    }`}>
+                    {c}
+                  </button>
+                ))}
+              </>
+            )}
           </div>
         </div>
       </section>
 
-      {/* ── Grid ── */}
+      {/* Grid */}
       <div className="container py-12 relative z-10">
         {loading ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -188,16 +267,22 @@ export default function PublicProjects() {
             <p className="text-xs text-muted-foreground tracking-wide mb-6">
               Showing <span className="text-foreground font-medium">{filtered.length}</span> projects
             </p>
+
+            {/* Featured Hero */}
+            {featuredProject && statusFilter === "all" && categoryFilter === "all" && !search.trim() && (
+              <FeaturedCard project={featuredProject} t={t} />
+            )}
+
             <StaggerContainer className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" staggerDelay={0.06}>
-              {filtered.map((project, i) => (
-                <ProjectCard key={project.id} project={project} t={t} index={i} />
+              {regularProjects.map((project) => (
+                <ProjectCard key={project.id} project={project} t={t} />
               ))}
             </StaggerContainer>
           </>
         )}
       </div>
 
-      {/* ── CTA ── */}
+      {/* CTA */}
       <FadeUp>
         <section className="border-t border-border/50 py-20 relative z-10 overflow-hidden">
           <div className="absolute inset-0 pointer-events-none">

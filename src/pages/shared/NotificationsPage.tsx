@@ -1,11 +1,15 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { PortalLayout } from "@/components/PortalLayout";
+import { PageHeader } from "@/components/PageHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Bell, CheckCheck, Trash2, ExternalLink, Loader2 } from "lucide-react";
+import { Bell, CheckCheck, Trash2, ExternalLink, Loader2, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+import { formatDistanceToNow } from "date-fns";
+import { motion } from "framer-motion";
 
 interface Notification {
   id: string;
@@ -79,111 +83,141 @@ export default function NotificationsPage({ variant }: Props) {
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
+  // Group notifications by date
+  const grouped = notifications.reduce<Record<string, Notification[]>>((acc, n) => {
+    const date = new Date(n.created_at);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    let key: string;
+    if (date.toDateString() === today.toDateString()) key = "Today";
+    else if (date.toDateString() === yesterday.toDateString()) key = "Yesterday";
+    else key = date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(n);
+    return acc;
+  }, {});
+
   return (
     <PortalLayout variant={variant}>
-      <div className="mb-8 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-bold text-portal-text">Notifications</h1>
-          <p className="mt-1 text-portal-text-muted">
-            {unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1">
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <PageHeader
+          title="Notifications"
+          subtitle={unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
+          className="mb-0"
+        />
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex gap-0.5 bg-portal-surface/30 rounded-lg p-0.5">
             {(["all", "unread"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                className={cn(
+                  "rounded-md px-3 py-1.5 text-[11px] font-medium transition-all",
                   filter === f
-                    ? "border-portal-accent bg-portal-accent/15 text-portal-accent"
-                    : "border-portal-border text-portal-text-muted hover:border-portal-accent/50"
-                }`}
+                    ? "bg-portal-surface text-portal-accent shadow-sm"
+                    : "text-portal-text-muted hover:text-portal-text"
+                )}
               >
                 {f === "all" ? "All" : "Unread"}
               </button>
             ))}
           </div>
           {unreadCount > 0 && (
-            <Button size="sm" variant="outline" onClick={markAllRead} className="border-portal-border text-portal-text-muted text-xs">
-              <CheckCheck size={13} className="mr-1.5" />Mark all read
+            <Button size="sm" variant="outline" onClick={markAllRead}
+              className="border-portal-border/40 text-portal-text-muted text-[11px] h-8">
+              <CheckCheck size={12} className="mr-1" />Mark all read
             </Button>
           )}
         </div>
       </div>
 
-      <div className="rounded-xl border border-portal-border bg-portal-surface overflow-hidden">
+      <div className="glass-card overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 size={22} className="animate-spin text-portal-text-muted" />
+          <div className="flex items-center justify-center py-20">
+            <Loader2 size={20} className="animate-spin text-portal-text-muted" />
           </div>
         ) : notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <Bell size={40} className="mb-4 text-portal-text-muted opacity-30" />
-            <p className="font-medium text-portal-text">No notifications</p>
-            <p className="mt-1 text-sm text-portal-text-muted">
+            <Inbox size={36} className="mb-3 text-portal-text-muted/30" />
+            <p className="font-medium text-portal-text text-sm">No notifications</p>
+            <p className="mt-1 text-xs text-portal-text-muted">
               {filter === "unread" ? "No unread notifications." : "You're all caught up!"}
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-portal-border">
-            {notifications.map((notif) => (
-              <div
-                key={notif.id}
-                className={`flex items-start gap-4 px-5 py-4 hover:bg-portal-surface-hover transition-colors ${
-                  !notif.is_read ? "bg-portal-accent/5" : ""
-                }`}
-              >
-                {/* Unread dot */}
-                <div className="mt-1 shrink-0">
-                  {!notif.is_read
-                    ? <span className="flex h-2.5 w-2.5 rounded-full bg-portal-accent" />
-                    : <span className="flex h-2.5 w-2.5 rounded-full bg-transparent" />}
+          <div>
+            {Object.entries(grouped).map(([date, notifs]) => (
+              <div key={date}>
+                <div className="px-5 py-2 bg-portal-surface/20 border-b border-portal-border/30">
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-portal-text-muted/60">{date}</span>
                 </div>
-
-                {/* Icon */}
-                <span className="text-xl shrink-0">{TYPE_ICON[notif.type] ?? "🔔"}</span>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium text-portal-text ${!notif.is_read ? "" : "opacity-80"}`}>
-                    {notif.title}
-                  </p>
-                  {notif.body && (
-                    <p className="mt-0.5 text-xs text-portal-text-muted line-clamp-2">{notif.body}</p>
-                  )}
-                  <p className="mt-1 text-[10px] text-portal-text-muted">
-                    {new Date(notif.created_at).toLocaleString()}
-                  </p>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-1 shrink-0">
-                  {notif.link && (
-                    <button
+                <div className="divide-y divide-portal-border/20">
+                  {notifs.map((notif, i) => (
+                    <motion.div
+                      key={notif.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: i * 0.03 }}
+                      className={cn(
+                        "flex items-start gap-3 px-5 py-3.5 hover:bg-portal-surface-hover/30 transition-colors cursor-pointer group",
+                        !notif.is_read && "bg-portal-accent/[0.04]"
+                      )}
                       onClick={() => handleClick(notif)}
-                      className="rounded p-1.5 text-portal-text-muted hover:bg-portal-bg hover:text-portal-accent transition-colors"
-                      title="Go to"
                     >
-                      <ExternalLink size={14} />
-                    </button>
-                  )}
-                  {!notif.is_read && (
-                    <button
-                      onClick={() => markRead(notif.id)}
-                      className="rounded p-1.5 text-portal-text-muted hover:bg-portal-bg hover:text-portal-text transition-colors"
-                      title="Mark read"
-                    >
-                      <CheckCheck size={14} />
-                    </button>
-                  )}
-                  <button
-                    onClick={() => deleteNotif(notif.id)}
-                    className="rounded p-1.5 text-portal-text-muted hover:bg-destructive/10 hover:text-destructive transition-colors"
-                    title="Delete"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                      {/* Unread indicator */}
+                      <div className="mt-2 shrink-0 w-2">
+                        {!notif.is_read && <span className="flex h-2 w-2 rounded-full bg-portal-accent" />}
+                      </div>
+
+                      {/* Icon */}
+                      <span className="text-base shrink-0 mt-0.5">{TYPE_ICON[notif.type] ?? "🔔"}</span>
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <p className={cn("text-xs font-medium text-portal-text", notif.is_read && "opacity-70")}>
+                          {notif.title}
+                        </p>
+                        {notif.body && (
+                          <p className="mt-0.5 text-[11px] text-portal-text-muted line-clamp-1">{notif.body}</p>
+                        )}
+                        <p className="mt-1 text-[10px] text-portal-text-muted/50">
+                          {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true })}
+                        </p>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {notif.link && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleClick(notif); }}
+                            className="rounded-md p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-accent transition-colors"
+                            title="Go to"
+                          >
+                            <ExternalLink size={13} />
+                          </button>
+                        )}
+                        {!notif.is_read && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); markRead(notif.id); }}
+                            className="rounded-md p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors"
+                            title="Mark read"
+                          >
+                            <CheckCheck size={13} />
+                          </button>
+                        )}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deleteNotif(notif.id); }}
+                          className="rounded-md p-1.5 text-portal-text-muted hover:bg-destructive/10 hover:text-destructive transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
             ))}

@@ -160,7 +160,7 @@ function TestimonialsCarousel({ testimonials, sectionRef, t }: { testimonials: a
   }, [emblaApi]);
 
   return (
-    <section ref={sectionRef} className="reveal py-24 relative overflow-hidden">
+    <section ref={sectionRef} className="reveal py-14 md:py-24 relative overflow-hidden">
       {/* Ambient background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
@@ -168,13 +168,13 @@ function TestimonialsCarousel({ testimonials, sectionRef, t }: { testimonials: a
       </div>
 
       <div className="container relative z-10">
-        <div className="mb-14 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div className="mb-8 md:mb-14 flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-6">
           <div>
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-3 md:mb-4">
               <div className="h-1 w-8 rounded-full bg-primary" />
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_recognition")}</p>
+              <p className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_recognition")}</p>
             </div>
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_client_voices")}</h2>
+            <h2 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">{t("home_client_voices")}</h2>
           </div>
           {/* Navigation arrows */}
           <div className="flex items-center gap-2">
@@ -197,18 +197,18 @@ function TestimonialsCarousel({ testimonials, sectionRef, t }: { testimonials: a
 
         {/* Carousel */}
         <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex gap-6">
+          <div className="flex gap-4 md:gap-6">
             {testimonials.map((t: any, i: number) => (
               <div
                 key={t.name}
-                className="flex-[0_0_100%] min-w-0 md:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
+                className="flex-[0_0_85%] min-w-0 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
               >
-                <div className={`glass-card-public glass-glow-ring p-8 h-full flex flex-col transition-all duration-500 ${
+                <div className={`glass-card-public glass-glow-ring p-5 md:p-8 h-full flex flex-col transition-all duration-500 ${
                   selectedIndex === i ? "scale-[1.02] shadow-lg shadow-primary/5" : "opacity-70"
                 }`}>
-                  <Quote size={32} className="text-primary/20 mb-4 shrink-0" />
-                  <p className="text-muted-foreground leading-relaxed text-sm flex-1">{t.text}</p>
-                  <div className="mt-6 pt-6 border-t border-border/30 flex items-center gap-3">
+                  <Quote size={24} className="md:w-[32px] md:h-[32px] text-primary/20 mb-3 md:mb-4 shrink-0" />
+                  <p className="text-muted-foreground leading-relaxed text-xs md:text-sm flex-1">{t.text}</p>
+                  <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-border/30 flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
                       <span className="font-display text-sm font-bold text-primary">{t.name?.charAt(0)}</span>
                     </div>
@@ -406,14 +406,14 @@ export default function Home() {
 
       {/* Featured Projects */}
       {featured.length > 0 && (
-        <section ref={refFeatured} className="reveal container py-12 md:py-24">
-          <div className="flex items-end justify-between mb-8 md:mb-14">
+        <section ref={refFeatured} className="reveal container py-10 md:py-24">
+          <div className="flex items-end justify-between mb-6 md:mb-14">
             <div>
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-3 md:mb-4">
                 <div className="h-1 w-8 rounded-full bg-primary" />
-                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_selected_work")}</p>
+                <p className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_selected_work")}</p>
               </div>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_featured_work")}</h2>
+              <h2 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">{t("home_featured_work")}</h2>
             </div>
             <Link to="/portfolio" className="hidden md:flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xl px-4 py-2 hover:bg-secondary/60">
               {t("home_view_all")} <ArrowRight size={14} />
@@ -455,23 +455,23 @@ export default function Home() {
       {servicesHome.length > 0 && (
         <section ref={refServices} className="reveal py-12 md:py-24">
           <div className="container">
-            <div className="mb-14">
-              <div className="flex items-center gap-2 mb-4">
+            <div className="mb-8 md:mb-14">
+              <div className="flex items-center gap-2 mb-3 md:mb-4">
                 <div className="h-1 w-8 rounded-full bg-primary" />
-                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_disciplines")}</p>
+                <p className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_disciplines")}</p>
               </div>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_what_we_do")}</h2>
+              <h2 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">{t("home_what_we_do")}</h2>
             </div>
             <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
               {servicesHome.map((s: any) => {
                 const Icon = ICON_MAP[s.icon] ?? Building2;
                 return (
-                  <div key={s.title} className="group glass-card-public glass-glow-ring p-8">
-                    <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/15 transition-colors">
-                      <Icon size={22} className="text-primary" />
+                  <div key={s.title} className="group glass-card-public glass-glow-ring p-5 md:p-8">
+                    <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl md:rounded-2xl bg-primary/10 flex items-center justify-center mb-4 md:mb-5 group-hover:bg-primary/15 transition-colors">
+                      <Icon size={18} className="md:w-[22px] md:h-[22px] text-primary" />
                     </div>
-                    <h3 className="font-display text-lg font-semibold text-foreground mb-3">{s.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                    <h3 className="font-display text-base md:text-lg font-semibold text-foreground mb-2 md:mb-3">{s.title}</h3>
+                    <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
                   </div>
                 );
               })}
@@ -487,7 +487,7 @@ export default function Home() {
 
       {/* Awards */}
       {awards.length > 0 && (
-        <section ref={refAwards} className="reveal py-24 relative overflow-hidden">
+        <section ref={refAwards} className="reveal py-14 md:py-24 relative overflow-hidden">
           {/* Ambient glow */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-1/3 right-0 w-80 h-80 bg-primary/5 rounded-full blur-[120px]" />
@@ -496,21 +496,21 @@ export default function Home() {
 
           <div className="container relative z-10">
             {/* Header */}
-            <div className="mb-16 text-center">
-              <div className="inline-flex items-center gap-2 mb-4">
-                <Award size={14} className="text-primary" />
-                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_awards_recognition")}</p>
+            <div className="mb-10 md:mb-16 text-center">
+              <div className="inline-flex items-center gap-2 mb-3 md:mb-4">
+                <Award size={13} className="md:w-[14px] md:h-[14px] text-primary" />
+                <p className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_awards_recognition")}</p>
               </div>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_honored_work")}</h2>
-              <div className="mt-6 mx-auto w-24 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+              <h2 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">{t("home_honored_work")}</h2>
+              <div className="mt-4 md:mt-6 mx-auto w-24 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
             </div>
 
             {/* Awards timeline-style grid */}
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 md:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {awards.map((a: any, i: number) => (
                 <div
                   key={a.year + a.title}
-                  className={`reveal reveal-delay-${Math.min(i + 1, 4)} group glass-card-public glass-glow-ring p-8 relative overflow-hidden`}
+                  className={`reveal reveal-delay-${Math.min(i + 1, 4)} group glass-card-public glass-glow-ring p-5 md:p-8 relative overflow-hidden`}
                 >
                   {/* Decorative corner accent */}
                   <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-bl-[60px] transition-all duration-500 group-hover:bg-primary/10 group-hover:w-24 group-hover:h-24" />

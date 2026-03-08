@@ -158,15 +158,15 @@ export default function PortfolioDetail() {
       {/* ── Parallax Hero ── */}
       <div ref={heroRef} className="relative overflow-hidden">
         {coverUrl ? (
-          <section className="relative h-[70vh] min-h-[500px] max-h-[800px]">
+          <section className="relative h-[55vh] md:h-[70vh] min-h-[400px] max-h-[800px]">
             <motion.div style={{ scale: heroScale }} className="absolute inset-0">
               <img src={coverUrl} alt={item.title} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-background" />
             </motion.div>
-            <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative h-full container flex flex-col justify-end pb-12 md:pb-16 z-10">
+            <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative h-full container flex flex-col justify-end pb-8 md:pb-16 z-10">
               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
                 <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-8 transition-colors">
-                  <ArrowLeft size={14} />Back to Portfolio
+                  <ArrowLeft size={14} />Back
                 </Link>
               </motion.div>
               <div className="max-w-3xl">
@@ -178,28 +178,28 @@ export default function PortfolioDetail() {
                   </motion.div>
                 )}
                 <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[0.95] tracking-tight">
+                  className="font-display text-2xl md:text-5xl lg:text-7xl font-bold text-white leading-[0.95] tracking-tight">
                   {item.title}
                 </motion.h1>
                 <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-                  className="mt-4 text-white/75 text-lg max-w-xl font-light leading-relaxed">
+                  className="mt-3 md:mt-4 text-white/75 text-sm md:text-lg max-w-xl font-light leading-relaxed">
                   {displaySummary}
                 </motion.p>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-                  className="flex flex-wrap items-center gap-3 mt-6">
+                  className="flex flex-wrap items-center gap-2 md:gap-3 mt-4 md:mt-6">
                   {item.location && (
-                    <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
-                      <MapPin size={13} />{item.location}
+                    <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs md:text-sm text-white/80">
+                      <MapPin size={12} />{item.location}
                     </span>
                   )}
                   {item.year && (
-                    <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
-                      <Calendar size={13} />{item.year}
+                    <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs md:text-sm text-white/80">
+                      <Calendar size={12} />{item.year}
                     </span>
                   )}
                   {stats.map((s) => (
-                    <span key={s.label} className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/80">
-                      <s.icon size={13} />{s.n} {s.label}
+                    <span key={s.label} className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs md:text-sm text-white/80">
+                      <s.icon size={12} />{s.n} {s.label}
                     </span>
                   ))}
                 </motion.div>
@@ -219,9 +219,9 @@ export default function PortfolioDetail() {
       </div>
 
       {/* ── Content ── */}
-      <div className="container py-16">
-        <div className="grid gap-12 lg:grid-cols-[1fr_300px]">
-          <div className="space-y-14">
+      <div className="container py-10 md:py-16">
+        <div className="grid gap-8 md:gap-12 grid-cols-1 lg:grid-cols-[1fr_300px]">
+          <div className="space-y-10 md:space-y-14">
             {/* Written content */}
             {item.content && (
               <FadeUp>

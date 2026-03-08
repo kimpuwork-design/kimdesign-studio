@@ -112,19 +112,16 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
       {/* Image area — scrollable for oversized images */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-auto flex items-start justify-center p-4"
+        className="flex-1 overflow-auto flex items-center justify-center min-h-0"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        onClick={(e) => {
-          if (e.target === scrollRef.current) onClose();
-        }}
       >
         <img
           key={current.id}
           src={current.image_url}
           alt={current.caption || `Image ${idx + 1}`}
           draggable={false}
-          className="block"
+          className="block p-4"
           style={{ width: "auto", height: "auto" }}
         />
       </div>

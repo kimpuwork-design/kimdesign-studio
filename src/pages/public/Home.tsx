@@ -395,8 +395,8 @@ export default function Home() {
 
       {/* Stats */}
       {stats.length > 0 && (
-        <section ref={refStats} className="reveal py-16">
-          <div className="container grid grid-cols-2 gap-4 md:grid-cols-4">
+        <section ref={refStats} className="reveal py-10 md:py-16">
+          <div className="container grid grid-cols-2 gap-3 md:gap-4 md:grid-cols-4">
             {stats.map((s: any, i: number) => (
               <AnimatedStat key={s.label} value={s.value} suffix={s.suffix} label={s.label} index={i} />
             ))}

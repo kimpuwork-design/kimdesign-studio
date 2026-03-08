@@ -64,20 +64,20 @@ export default function PublicBlog() {
       </div>
 
       {/* Hero */}
-      <section className="container pt-20 pb-10 relative z-10">
+      <section className="container pt-12 md:pt-20 pb-6 md:pb-10 relative z-10">
         <FadeUp>
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-6">
-            <Sparkles size={12} className="text-primary" />
-            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">{t("blog_insights_badge")}</p>
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-3 md:px-4 py-1.5 md:py-2 mb-4 md:mb-6">
+            <Sparkles size={11} className="md:w-[12px] md:h-[12px] text-primary" />
+            <p className="text-[10px] md:text-xs font-semibold tracking-[0.15em] uppercase text-primary">{t("blog_insights_badge")}</p>
           </div>
         </FadeUp>
         <FadeUp delay={0.1}>
-          <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] font-bold text-foreground leading-tight tracking-tight">
+          <h1 className="font-display text-[clamp(1.75rem,5vw,5.5rem)] font-bold text-foreground leading-[1.1] tracking-tight">
             {t("blog_title")}
           </h1>
         </FadeUp>
         <FadeUp delay={0.2}>
-          <p className="mt-4 text-muted-foreground font-light max-w-lg leading-relaxed">
+          <p className="mt-3 md:mt-4 text-sm md:text-base text-muted-foreground font-light max-w-lg leading-relaxed">
             {t("blog_description")}
           </p>
         </FadeUp>
@@ -85,17 +85,17 @@ export default function PublicBlog() {
 
       {/* Filters */}
       <section className="sticky top-16 z-30 bg-background/80 backdrop-blur-xl border-b border-border/50">
-        <div className="container py-3 flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1 max-w-xs">
+        <div className="container py-2.5 md:py-3 flex flex-col sm:flex-row gap-2.5 md:gap-3">
+          <div className="relative flex-1 sm:max-w-xs">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder={t("blog_search")}
               className="w-full pl-9 pr-3 py-2 rounded-xl border border-border/50 bg-background/60 backdrop-blur-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
           </div>
-          <div className="flex gap-2 flex-wrap items-center">
+          <div className="flex gap-1.5 md:gap-2 overflow-x-auto scrollbar-none items-center pb-0.5">
             {CATEGORIES.map((c) => (
               <button key={c} onClick={() => setCategory(c)}
-                className={`px-4 py-1.5 rounded-full text-xs tracking-[0.1em] uppercase font-medium transition-all duration-200 ${
+                className={`px-3 md:px-4 py-1.5 rounded-full text-[10px] md:text-xs tracking-[0.1em] uppercase font-medium transition-all duration-200 whitespace-nowrap shrink-0 ${
                   category === c ? "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(var(--primary),0.3)]" : "bg-secondary/50 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`}>
                 {c === "All" ? t("portfolio_all") : c}
@@ -106,7 +106,7 @@ export default function PublicBlog() {
       </section>
 
       {/* Posts grid */}
-      <div className="container py-12 relative z-10">
+      <div className="container py-8 md:py-12 relative z-10">
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 size={28} className="animate-spin text-muted-foreground" />
@@ -120,7 +120,7 @@ export default function PublicBlog() {
             </div>
           </FadeUp>
         ) : (
-          <StaggerContainer className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <StaggerContainer className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((post) => (
               <StaggerItem key={post.id}>
                 <HoverCard>
@@ -135,7 +135,7 @@ export default function PublicBlog() {
                         </div>
                       )}
                     </div>
-                    <div className="p-5">
+                    <div className="p-4 md:p-5">
                       <div className="flex items-center gap-2 mb-3">
                         {post.category && (
                           <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] tracking-wide uppercase font-semibold text-primary">{post.category}</span>

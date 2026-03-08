@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { X, ChevronLeft, ChevronRight, Download, ImageOff, Loader2 } from "lucide-react";
+import { createPortal } from "react-dom";
+import { X, ChevronLeft, ChevronRight, Download, ImageOff } from "lucide-react";
 
 export interface LightboxImage {
   id: string;
@@ -17,211 +18,175 @@ const SWIPE_THRESHOLD = 50;
 
 export function CinematicLightbox({ images, startIndex, onClose }: Props) {
   const total = images.length;
-
   const clampIndex = useCallback(
-    (value: number) => {
-      if (total <= 0) return 0;
-      return Math.min(Math.max(value, 0), total - 1);
-    },
+    (v: number) => (total <= 0 ? 0 : Math.min(Math.max(v, 0), total - 1)),
     [total]
   );
 
   const [idx, setIdx] = useState(() => clampIndex(startIndex));
-  const [loadState, setLoadState] = useState<"loading" | "loaded" | "error">("loading");
-  const touchStart = useRef<number | null>(null);
+  const [errorIds, setErrorIds] = useState<Set<string>>(new Set());
+  const touchStartX = useRef<number | null>(null);
 
-  useEffect(() => {
-    setIdx(clampIndex(startIndex));
-  }, [startIndex, total, clampIndex]);
+  useEffect(() => { setIdx(clampIndex(startIndex)); }, [startIndex, total, clampIndex]);
 
   const current = images[idx];
-
   const currentUrl = useMemo(() => {
     const raw = current?.image_url?.trim() ?? "";
     if (!raw) return "";
-    if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:")) return raw;
+    if (raw.startsWith("http") || raw.startsWith("data:")) return raw;
     if (raw.startsWith("/")) return `${window.location.origin}${raw}`;
     return raw;
   }, [current?.image_url]);
 
-  useEffect(() => {
-    setLoadState("loading");
-  }, [current?.id, currentUrl]);
-
-  const prev = useCallback(() => {
-    if (total <= 1) return;
-    setIdx((i) => (i - 1 + total) % total);
-  }, [total]);
-
-  const next = useCallback(() => {
-    if (total <= 1) return;
-    setIdx((i) => (i + 1) % total);
-  }, [total]);
+  const prev = useCallback(() => { if (total > 1) setIdx((i) => (i - 1 + total) % total); }, [total]);
+  const next = useCallback(() => { if (total > 1) setIdx((i) => (i + 1) % total); }, [total]);
 
   useEffect(() => {
+    const s = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = s; };
   }, []);
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
+    const h = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
       if (e.key === "ArrowRight") next();
       if (e.key === "ArrowLeft") prev();
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
   }, [next, prev, onClose]);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStart.current = e.touches[0]?.clientX ?? null;
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStart.current === null) return;
-    const dx = (e.changedTouches[0]?.clientX ?? 0) - touchStart.current;
-    if (Math.abs(dx) > SWIPE_THRESHOLD) dx < 0 ? next() : prev();
-    touchStart.current = null;
-  };
-
-  const handleDownload = () => {
-    if (!currentUrl) return;
-    const a = document.createElement("a");
-    a.href = currentUrl;
-    a.download = `image-${idx + 1}`;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.click();
-  };
-
   if (!current) return null;
+  const hasError = errorIds.has(current.id);
 
-  return (
+  const content = (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm select-none"
+      onTouchStart={(e) => { touchStartX.current = e.touches[0]?.clientX ?? null; }}
+      onTouchEnd={(e) => {
+        if (touchStartX.current === null) return;
+        const dx = (e.changedTouches[0]?.clientX ?? 0) - touchStartX.current;
+        if (Math.abs(dx) > SWIPE_THRESHOLD) dx < 0 ? next() : prev();
+        touchStartX.current = null;
+      }}
       onClick={onClose}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 99999,
+        background: "rgba(0,0,0,0.95)",
+        display: "flex",
+        flexDirection: "column",
+      }}
     >
-      {/* ── Mobile: full-screen layout · Desktop: popup modal ── */}
+      {/* Top bar */}
       <div
-        className="relative flex flex-col overflow-hidden
-          w-full h-full
-          sm:w-auto sm:h-auto sm:rounded-2xl sm:border sm:border-border sm:shadow-2xl sm:max-w-[92vw] sm:max-h-[92vh]
-          bg-black sm:bg-card/95"
         onClick={(e) => e.stopPropagation()}
+        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", flexShrink: 0 }}
       >
-        {/* Top bar */}
-        <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 bg-black/60 sm:bg-muted/50 border-b border-white/10 sm:border-border shrink-0 safe-area-top">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <span className="text-white sm:text-foreground text-xs sm:text-sm font-medium tabular-nums shrink-0">
-              {idx + 1} <span className="text-white/50 sm:text-muted-foreground">/ {total}</span>
-            </span>
-            {current.caption && (
-              <span className="text-white/60 sm:text-muted-foreground text-xs sm:text-sm hidden sm:inline truncate max-w-[300px]">
-                — {current.caption}
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-1">
-            <button
-              onClick={handleDownload}
-              title="Download"
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 sm:bg-secondary flex items-center justify-center text-white/70 sm:text-muted-foreground hover:text-white sm:hover:text-foreground transition-colors"
-            >
-              <Download size={15} />
-            </button>
-            <button
-              onClick={onClose}
-              title="Close"
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 sm:bg-secondary flex items-center justify-center text-white/70 sm:text-muted-foreground hover:text-white sm:hover:text-foreground transition-colors"
-            >
-              <X size={15} />
-            </button>
-          </div>
+        <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 13, fontWeight: 500, fontFamily: "system-ui, sans-serif" }}>
+          {idx + 1} <span style={{ color: "rgba(255,255,255,0.4)" }}>/ {total}</span>
+        </span>
+        <div style={{ display: "flex", gap: 4 }}>
+          <button
+            onClick={() => {
+              if (!currentUrl) return;
+              const a = document.createElement("a");
+              a.href = currentUrl; a.download = `image-${idx + 1}`; a.target = "_blank"; a.click();
+            }}
+            style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            <Download size={14} color="rgba(255,255,255,0.7)" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onClose(); }}
+            style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            <X size={14} color="rgba(255,255,255,0.7)" />
+          </button>
         </div>
+      </div>
 
-        {/* Image area */}
-        <div className="relative flex-1 flex items-center justify-center overflow-hidden min-h-0 bg-black sm:bg-foreground/95">
-          {loadState === "loading" && (
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <Loader2 size={24} className="animate-spin text-white/80 sm:text-background/80" />
-            </div>
-          )}
-
-          {loadState === "error" ? (
-            <div className="flex flex-col items-center justify-center gap-3 p-6 text-center">
-              <ImageOff size={24} className="text-white/70" />
-              <p className="text-sm text-white/70">Image failed to load.</p>
-              <a href={currentUrl} target="_blank" rel="noopener noreferrer" className="text-sm underline text-white">
-                Open image directly
-              </a>
-            </div>
-          ) : (
-            <img
-              key={current.id}
-              src={currentUrl}
-              alt={current.caption || `Image ${idx + 1}`}
-              draggable={false}
-              className={`block object-contain p-2 sm:p-4 transition-opacity duration-200 ${
-                loadState === "loaded" ? "opacity-100" : "opacity-0"
-              }`}
-              style={{
-                maxWidth: "100%",
-                maxHeight: "calc(100vh - 7rem)",
-              }}
-              onLoad={() => setLoadState("loaded")}
-              onError={() => setLoadState("error")}
-            />
-          )}
-        </div>
-
-        {/* Nav arrows — hidden on mobile (use swipe), visible on desktop */}
-        {total > 1 && (
-          <div className="absolute inset-y-0 inset-x-0 hidden sm:flex items-center justify-between pointer-events-none px-2 sm:px-4">
-            <button
-              onClick={prev}
-              className="pointer-events-auto w-11 h-11 rounded-full bg-secondary/90 flex items-center justify-center text-foreground hover:bg-secondary transition-colors active:scale-95"
-            >
-              <ChevronLeft size={22} />
-            </button>
-            <button
-              onClick={next}
-              className="pointer-events-auto w-11 h-11 rounded-full bg-secondary/90 flex items-center justify-center text-foreground hover:bg-secondary transition-colors active:scale-95"
-            >
-              <ChevronRight size={22} />
-            </button>
+      {/* Image area */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", padding: 8, minHeight: 0 }}
+      >
+        {hasError ? (
+          <div style={{ textAlign: "center", color: "rgba(255,255,255,0.6)" }}>
+            <ImageOff size={24} style={{ margin: "0 auto 8px" }} />
+            <p style={{ fontSize: 14 }}>Image failed to load</p>
+            <a href={currentUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", fontSize: 13, textDecoration: "underline" }}>Open directly</a>
           </div>
-        )}
-
-        {/* Thumbnail strip */}
-        {total > 1 && (
-          <div className="shrink-0 bg-black/60 sm:bg-muted/40 border-t border-white/10 sm:border-border px-3 sm:px-4 py-2 sm:py-3 safe-area-bottom">
-            <div className="flex gap-1.5 sm:gap-2 overflow-x-auto justify-center" style={{ scrollbarWidth: "none" }}>
-              {images.map((img, i) => (
-                <button
-                  key={`${img.id}-${i}`}
-                  onClick={() => setIdx(i)}
-                  className={`shrink-0 w-10 h-10 sm:w-14 sm:h-14 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all ${
-                    i === idx ? "border-primary opacity-100 scale-105" : "border-transparent opacity-50 hover:opacity-80"
-                  }`}
-                >
-                  <img
-                    src={img.image_url}
-                    alt={img.caption || `Thumbnail ${i + 1}`}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    draggable={false}
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
+        ) : (
+          <img
+            key={current.id}
+            src={currentUrl}
+            alt={current.caption || `Image ${idx + 1}`}
+            draggable={false}
+            onError={() => setErrorIds((p) => new Set(p).add(current.id))}
+            style={{ display: "block", maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 4, transition: "none", opacity: 1, transform: "none" }}
+          />
         )}
       </div>
+
+      {/* Desktop nav arrows */}
+      {total > 1 && (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); prev(); }}
+            className="!hidden sm:!flex"
+            style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none", cursor: "pointer", alignItems: "center", justifyContent: "center" }}
+          >
+            <ChevronLeft size={20} color="rgba(255,255,255,0.8)" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); next(); }}
+            className="!hidden sm:!flex"
+            style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none", cursor: "pointer", alignItems: "center", justifyContent: "center" }}
+          >
+            <ChevronRight size={20} color="rgba(255,255,255,0.8)" />
+          </button>
+        </>
+      )}
+
+      {/* Thumbnails */}
+      {total > 1 && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{ flexShrink: 0, padding: "6px 8px", display: "flex", justifyContent: "center", overflowX: "auto", gap: 4 }}
+        >
+          {images.map((img, i) => (
+            <button
+              key={`${img.id}-${i}`}
+              onClick={() => setIdx(i)}
+              style={{
+                flexShrink: 0,
+                width: i === idx ? 40 : 36,
+                height: i === idx ? 40 : 36,
+                borderRadius: 4,
+                overflow: "hidden",
+                border: i === idx ? "2px solid #fff" : "2px solid transparent",
+                opacity: i === idx ? 1 : 0.4,
+                cursor: "pointer",
+                padding: 0,
+                background: "transparent",
+              }}
+            >
+              <img
+                src={img.image_url}
+                alt=""
+                draggable={false}
+                loading="lazy"
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "none", opacity: 1, transform: "none" }}
+              />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
+
+  // Render via portal to escape any parent stacking context
+  return createPortal(content, document.body);
 }

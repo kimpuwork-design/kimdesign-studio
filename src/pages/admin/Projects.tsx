@@ -115,9 +115,9 @@ export default function AdminProjects() {
       />
 
       {/* Filters */}
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="relative w-full max-w-xs">
+      <div className="mb-4 md:mb-5 space-y-2.5 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="relative flex-1 sm:flex-initial sm:w-52 md:w-64">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-portal-text-muted" />
             <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..."
               className="pl-9 h-9 text-xs bg-portal-surface/30 border-portal-border/50 text-portal-text placeholder:text-portal-text-muted" />
@@ -133,11 +133,11 @@ export default function AdminProjects() {
             </button>
           </div>
         </div>
-        <div className="flex flex-wrap gap-1">
+        <div className="flex gap-1 overflow-x-auto scrollbar-none pb-0.5">
           {STATUS_OPTIONS.map((s) => (
             <button key={s} onClick={() => setStatusFilter(s)}
               className={cn(
-                "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all",
+                "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all whitespace-nowrap shrink-0",
                 statusFilter === s
                   ? "border-portal-accent bg-portal-accent/15 text-portal-accent"
                   : "border-portal-border/50 text-portal-text-muted hover:border-portal-accent/40 hover:text-portal-text"

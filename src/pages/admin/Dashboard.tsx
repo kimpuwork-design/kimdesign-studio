@@ -148,47 +148,47 @@ export default function AdminDashboard() {
   return (
     <PortalLayout variant="admin">
       {/* Header */}
-      <div className="mb-8 flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-portal-accent to-portal-accent/60 flex items-center justify-center shadow-lg shadow-portal-accent/20">
-            <Zap size={18} className="text-portal-accent-foreground" />
+      <div className="mb-5 md:mb-8 flex items-start justify-between">
+        <div className="flex items-center gap-2.5 md:gap-3">
+          <div className="h-9 w-9 md:h-11 md:w-11 rounded-xl md:rounded-2xl bg-gradient-to-br from-portal-accent to-portal-accent/60 flex items-center justify-center shadow-lg shadow-portal-accent/20 shrink-0">
+            <Zap size={16} className="md:w-[18px] md:h-[18px] text-portal-accent-foreground" />
           </div>
-          <div>
-            <h1 className="font-display text-2xl font-bold text-portal-text">
+          <div className="min-w-0">
+            <h1 className="font-display text-lg md:text-2xl font-bold text-portal-text truncate">
               {greeting()}, <span className="gradient-text">{profile?.full_name?.split(" ")[0] ?? "Admin"}</span>
             </h1>
-            <p className="text-sm text-portal-text-muted mt-0.5">Here's your studio overview for today.</p>
+            <p className="text-xs md:text-sm text-portal-text-muted mt-0.5 hidden sm:block">Here's your studio overview for today.</p>
           </div>
         </div>
       </div>
 
-      {/* Stat Cards — compact with gradient icon */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 mb-8">
+      {/* Stat Cards — horizontal scroll on mobile, grid on desktop */}
+      <div className="flex gap-2.5 overflow-x-auto scrollbar-none pb-1 mb-5 md:mb-8 md:grid md:grid-cols-5 md:overflow-visible md:pb-0">
         {statCards.map((s) => {
           const Icon = s.icon;
           return (
             <button
               key={s.label}
               onClick={() => navigate(s.href)}
-              className="group glass-card glass-card-hover p-4 text-left"
+              className="group glass-card glass-card-hover p-3 md:p-4 text-left min-w-[130px] md:min-w-0 shrink-0 md:shrink"
             >
-              <div className="flex items-center justify-between mb-3">
-                <div className={`rounded-lg p-2 bg-gradient-to-br ${s.color} shadow-lg`}>
-                  <Icon size={14} className="text-white" />
+              <div className="flex items-center justify-between mb-2 md:mb-3">
+                <div className={`rounded-lg p-1.5 md:p-2 bg-gradient-to-br ${s.color} shadow-lg`}>
+                  <Icon size={12} className="md:w-[14px] md:h-[14px] text-white" />
                 </div>
-                <ArrowUpRight size={12} className="text-portal-text-muted opacity-0 group-hover:opacity-100 transition-all" />
+                <ArrowUpRight size={10} className="text-portal-text-muted opacity-0 group-hover:opacity-100 transition-all hidden md:block" />
               </div>
-              <p className="font-display text-2xl font-bold text-portal-text tracking-tight">
-                {loading ? <span className="inline-block h-7 w-16 shimmer rounded-lg" /> : s.value}
+              <p className="font-display text-lg md:text-2xl font-bold text-portal-text tracking-tight">
+                {loading ? <span className="inline-block h-5 md:h-7 w-12 md:w-16 shimmer rounded-lg" /> : s.value}
               </p>
-              <p className="text-[11px] text-portal-text-muted mt-1 font-medium uppercase tracking-wider">{s.label}</p>
+              <p className="text-[9px] md:text-[11px] text-portal-text-muted mt-0.5 md:mt-1 font-medium uppercase tracking-wider">{s.label}</p>
             </button>
           );
         })}
       </div>
 
       {/* Charts Row */}
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
+      <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-3 mb-5 md:mb-8">
         {/* Revenue Chart — wider */}
         <div className="glass-card p-5 md:col-span-2">
           <div className="flex items-center justify-between mb-4">
@@ -250,7 +250,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Lead Pipeline + Deadlines */}
-      <div className="grid gap-4 md:grid-cols-2 mb-8">
+      <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2 mb-5 md:mb-8">
         {stats.leadConversion.length > 0 && (
           <div className="glass-card p-5">
             <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Lead Pipeline</h2>
@@ -282,7 +282,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Activity & Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
         <div className="glass-card p-5">
           <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Recent Activity</h2>
           {activity.length > 0 ? (
@@ -307,19 +307,19 @@ export default function AdminDashboard() {
 
         <div className="glass-card p-5">
           <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 gap-1.5 md:gap-2">
             {quickActions.map((action) => {
               const Icon = action.icon;
               return (
                 <button
                   key={action.label}
                   onClick={() => navigate(action.href)}
-                  className="group flex items-center gap-2.5 rounded-xl border border-portal-border/40 bg-portal-surface/20 px-3 py-3 text-left text-xs hover:bg-portal-surface/50 hover:border-portal-accent/30 transition-all duration-200"
+                  className="group flex items-center gap-2 md:gap-2.5 rounded-xl border border-portal-border/40 bg-portal-surface/20 px-2.5 py-2.5 md:px-3 md:py-3 text-left text-[11px] md:text-xs hover:bg-portal-surface/50 hover:border-portal-accent/30 transition-all duration-200"
                 >
-                  <div className="rounded-lg bg-portal-surface/80 p-1.5 group-hover:bg-portal-accent/15 transition-colors">
-                    <Icon size={13} className="text-portal-text-muted group-hover:text-portal-accent transition-colors" />
+                  <div className="rounded-lg bg-portal-surface/80 p-1 md:p-1.5 group-hover:bg-portal-accent/15 transition-colors shrink-0">
+                    <Icon size={12} className="md:w-[13px] md:h-[13px] text-portal-text-muted group-hover:text-portal-accent transition-colors" />
                   </div>
-                  <span className="font-medium text-portal-text">{action.label}</span>
+                  <span className="font-medium text-portal-text truncate">{action.label}</span>
                 </button>
               );
             })}

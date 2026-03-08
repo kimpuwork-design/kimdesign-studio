@@ -107,21 +107,21 @@ export default function AdminSettings() {
 
   return (
     <PortalLayout variant="admin">
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="font-display text-3xl font-bold text-portal-text">Settings</h1>
-        <p className="mt-1 text-portal-text-muted">Studio branding, contact info, account, and social links.</p>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-5 md:mb-8">
+        <h1 className="font-display text-xl md:text-3xl font-bold text-portal-text">Settings</h1>
+        <p className="mt-1 text-xs md:text-base text-portal-text-muted">Studio branding, contact info, account, and social links.</p>
       </motion.div>
 
-      {/* Tab Navigation */}
-      <div className="flex gap-1 mb-6 bg-portal-bg/50 rounded-xl p-1 border border-portal-border/50 overflow-x-auto max-w-fit">
+      {/* Tab Navigation — horizontal scroll on mobile */}
+      <div className="flex gap-0.5 md:gap-1 mb-4 md:mb-6 bg-portal-bg/50 rounded-xl p-1 border border-portal-border/50 overflow-x-auto scrollbar-none max-w-full md:max-w-fit">
         {SETTINGS_TABS.map(({ id, label, icon: Icon }) => (
           <button key={id} onClick={() => setActiveTab(id)}
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
+            className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 text-xs md:text-sm font-medium rounded-lg transition-all whitespace-nowrap shrink-0 ${
               activeTab === id
                 ? "bg-portal-accent text-portal-accent-foreground shadow-sm"
                 : "text-portal-text-muted hover:text-portal-text hover:bg-portal-surface/50"
             }`}>
-            <Icon size={14} />{label}
+            <Icon size={13} className="md:w-[14px] md:h-[14px]" />{label}
           </button>
         ))}
       </div>
@@ -133,7 +133,7 @@ export default function AdminSettings() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2 }}
-          className="max-w-2xl"
+          className="max-w-2xl px-0"
         >
           {/* Account Tab */}
           {activeTab === "account" && (

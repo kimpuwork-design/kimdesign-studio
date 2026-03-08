@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getSignedUrl } from "@/lib/files";
 import { writeAuditLog } from "@/lib/audit";
 import { DeliverableStatusBadge } from "./DeliverableStatusBadge";
+import { ApprovalStamp } from "./ApprovalStamp";
 import { FileIcon } from "@/components/files/FileIcon";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";

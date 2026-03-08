@@ -242,24 +242,24 @@ export default function PublicPortfolio() {
 
       {/* ── Sticky Filters ── */}
       <section className="sticky top-16 z-30 bg-background/80 backdrop-blur-xl border-b border-border/30">
-        <div className="container py-3 flex flex-col sm:flex-row gap-3 items-center">
-          <div className="relative flex-1 max-w-xs">
+        <div className="container py-2.5 md:py-3 flex flex-col gap-2.5 md:flex-row md:gap-3 md:items-center">
+          <div className="relative flex-1 max-w-full md:max-w-xs">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               placeholder={t("portfolio_search")}
               className="w-full pl-9 pr-3 py-2 rounded-xl border border-border/50 bg-background/60 backdrop-blur-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all" />
           </div>
-          <div className="flex gap-1.5 flex-wrap items-center flex-1">
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-0.5 md:pb-0 items-center flex-1">
             {CATEGORIES.map((c) => (
               <button key={c} onClick={() => { setCategory(c); setPage(1); }}
-                className={`px-3.5 py-1.5 rounded-full text-[10px] tracking-[0.1em] uppercase font-medium transition-all duration-200 ${
+                className={`px-3 md:px-3.5 py-1.5 rounded-full text-[10px] tracking-[0.1em] uppercase font-medium transition-all duration-200 whitespace-nowrap shrink-0 ${
                   category === c ? "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(var(--primary),0.3)]" : "bg-secondary/30 text-muted-foreground hover:text-foreground hover:bg-secondary/60"
                 }`}>
                 {c === "All" ? t("portfolio_all") : c}
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-1 rounded-xl border border-border/40 bg-background/40 p-1">
+          <div className="hidden md:flex items-center gap-1 rounded-xl border border-border/40 bg-background/40 p-1">
             <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-lg transition-all ${viewMode === "grid" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
               <LayoutGrid size={15} />
             </button>

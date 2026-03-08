@@ -128,7 +128,7 @@ export function PortalLayout({ children, variant }: PortalLayoutProps) {
           </div>
         </header>
         <main className="flex-1 overflow-auto">
-          <div className="p-4 md:p-8 animate-page-enter">
+          <div className="p-3 md:p-4 lg:p-8 animate-page-enter">
             {children}
           </div>
         </main>

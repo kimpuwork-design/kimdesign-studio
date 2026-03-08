@@ -568,6 +568,18 @@ export default function Home() {
 
       <PublicFooter />
       <FloatingChatButton />
+
+      {lightboxIdx !== null && (
+        <CinematicLightbox
+          images={featured.filter(f => f.cover_image_url).map(f => ({
+            id: f.id,
+            image_url: f.cover_image_url!,
+            caption: f.title,
+          }))}
+          startIndex={lightboxIdx}
+          onClose={() => setLightboxIdx(null)}
+        />
+      )}
     </div>
   );
 }

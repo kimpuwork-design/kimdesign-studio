@@ -1,11 +1,11 @@
 import { PortalLayout } from "@/components/PortalLayout";
 import { UpcomingDeadlines } from "@/components/admin/UpcomingDeadlines";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Sparkles } from "lucide-react";
+import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Sparkles, Zap } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import { format, subDays, startOfMonth } from "date-fns";
 
 interface Stats {
@@ -37,6 +37,7 @@ const STATUS_COLORS: Record<string, string> = {
   "in-progress": "#60a5fa",
   review: "#a78bfa",
   completed: "#4ade80",
+  delivered: "#4ade80",
   archived: "#9ca3af",
 };
 
@@ -67,19 +68,11 @@ export default function AdminDashboard() {
     const revenue = (revenueRes.data || []).reduce((sum, inv) => sum + Number(inv.total || 0), 0);
     const outstanding = (outstandingRes.data || []).reduce((sum, inv) => sum + Number(inv.total || 0), 0);
 
-    // Lead conversion
     const leadCounts: Record<string, number> = {};
     (allLeadsRes.data || []).forEach((l: any) => { leadCounts[l.status] = (leadCounts[l.status] || 0) + 1; });
     const leadConversion = Object.entries(leadCounts).map(([status, count]) => ({ status, count }));
 
-    setStats({
-      totalClients: clientsRes.count || 0,
-      activeProjects: projectsRes.count || 0,
-      newLeads: leadsRes.count || 0,
-      revenue,
-      outstanding,
-      leadConversion,
-    });
+    setStats({ totalClients: clientsRes.count || 0, activeProjects: projectsRes.count || 0, newLeads: leadsRes.count || 0, revenue, outstanding, leadConversion });
 
     if (activityRes.data) {
       const actorIds = [...new Set(activityRes.data.map(a => a.actor_id).filter(Boolean))];
@@ -89,10 +82,7 @@ export default function AdminDashboard() {
         if (profiles) profiles.forEach(p => { nameMap[p.id] = p.full_name || "Unknown"; });
       }
       setActivity(activityRes.data.map(a => ({
-        id: a.id,
-        action: a.action,
-        entity_type: a.entity_type,
-        created_at: a.created_at,
+        id: a.id, action: a.action, entity_type: a.entity_type, created_at: a.created_at,
         actor_name: a.actor_id ? (nameMap[a.actor_id] || "Unknown") : null,
       })));
     }
@@ -125,16 +115,16 @@ export default function AdminDashboard() {
   useEffect(() => { fetchDashboardData(); }, [fetchDashboardData]);
 
   const statCards = [
-    { icon: Users, label: "Total Clients", value: stats.totalClients.toString(), gradient: "from-blue-500/20 to-blue-600/5", iconBg: "bg-blue-500/15", iconColor: "text-blue-400", href: "/admin/clients" },
-    { icon: Briefcase, label: "Active Projects", value: stats.activeProjects.toString(), gradient: "from-violet-500/20 to-violet-600/5", iconBg: "bg-violet-500/15", iconColor: "text-violet-400", href: "/admin/projects" },
-    { icon: TrendingUp, label: "New Leads", value: stats.newLeads.toString(), gradient: "from-emerald-500/20 to-emerald-600/5", iconBg: "bg-emerald-500/15", iconColor: "text-emerald-400", href: "/admin/leads" },
-    { icon: DollarSign, label: "Revenue (mo)", value: `$${stats.revenue.toLocaleString()}`, gradient: "from-amber-500/20 to-amber-600/5", iconBg: "bg-amber-500/15", iconColor: "text-amber-400", href: "/admin/invoices" },
-    { icon: AlertCircle, label: "Outstanding", value: `$${stats.outstanding.toLocaleString()}`, gradient: "from-red-500/20 to-red-600/5", iconBg: "bg-red-500/15", iconColor: "text-red-400", href: "/admin/invoices" },
+    { icon: Users, label: "Clients", value: stats.totalClients.toString(), color: "from-blue-500 to-blue-600", href: "/admin/clients" },
+    { icon: Briefcase, label: "Active Projects", value: stats.activeProjects.toString(), color: "from-violet-500 to-violet-600", href: "/admin/projects" },
+    { icon: TrendingUp, label: "New Leads", value: stats.newLeads.toString(), color: "from-emerald-500 to-emerald-600", href: "/admin/leads" },
+    { icon: DollarSign, label: "Revenue (mo)", value: `$${stats.revenue.toLocaleString()}`, color: "from-amber-500 to-amber-600", href: "/admin/invoices" },
+    { icon: AlertCircle, label: "Outstanding", value: `$${stats.outstanding.toLocaleString()}`, color: "from-rose-500 to-rose-600", href: "/admin/invoices" },
   ];
 
   const quickActions = [
     { label: "Add Client", icon: Plus, href: "/admin/clients" },
-    { label: "Create Project", icon: Briefcase, href: "/admin/projects" },
+    { label: "New Project", icon: Briefcase, href: "/admin/projects" },
     { label: "Upload Files", icon: Upload, href: "/admin/files" },
     { label: "View Reports", icon: BarChart3, href: "/admin/invoices" },
     { label: "Manage Leads", icon: TrendingUp, href: "/admin/leads" },
@@ -142,10 +132,10 @@ export default function AdminDashboard() {
   ];
 
   const getActionIcon = (action: string) => {
-    if (action.includes("create") || action.includes("insert")) return <Plus size={14} className="text-emerald-400" />;
-    if (action.includes("update") || action.includes("edit")) return <CheckCircle2 size={14} className="text-blue-400" />;
-    if (action.includes("delete")) return <AlertCircle size={14} className="text-red-400" />;
-    return <Clock size={14} className="text-portal-text-muted" />;
+    if (action.includes("create") || action.includes("insert")) return <Plus size={12} className="text-emerald-400" />;
+    if (action.includes("update") || action.includes("edit")) return <CheckCircle2 size={12} className="text-blue-400" />;
+    if (action.includes("delete")) return <AlertCircle size={12} className="text-red-400" />;
+    return <Clock size={12} className="text-portal-text-muted" />;
   };
 
   const greeting = () => {
@@ -157,175 +147,179 @@ export default function AdminDashboard() {
 
   return (
     <PortalLayout variant="admin">
-      {/* Header with gradient text */}
-      <div className="mb-10">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-portal-accent/30 to-portal-accent/10 flex items-center justify-center">
-            <Sparkles size={18} className="text-portal-accent" />
+      {/* Header */}
+      <div className="mb-8 flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-portal-accent to-portal-accent/60 flex items-center justify-center shadow-lg shadow-portal-accent/20">
+            <Zap size={18} className="text-portal-accent-foreground" />
           </div>
           <div>
             <h1 className="font-display text-2xl font-bold text-portal-text">
               {greeting()}, <span className="gradient-text">{profile?.full_name?.split(" ")[0] ?? "Admin"}</span>
             </h1>
-            <p className="text-sm text-portal-text-muted">Here's your studio overview for today.</p>
+            <p className="text-sm text-portal-text-muted mt-0.5">Here's your studio overview for today.</p>
           </div>
         </div>
       </div>
 
-      {/* Stat Cards — glass morphism */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 mb-8">
+      {/* Stat Cards — compact with gradient icon */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 mb-8">
         {statCards.map((s) => {
           const Icon = s.icon;
           return (
             <button
               key={s.label}
               onClick={() => navigate(s.href)}
-              className="group relative glass-card glass-card-hover p-5 text-left overflow-hidden"
+              className="group glass-card glass-card-hover p-4 text-left"
             >
-              {/* Gradient overlay */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${s.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-              
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-portal-text-muted">{s.label}</span>
-                  <div className={`rounded-xl p-2.5 ${s.iconBg} backdrop-blur-sm`}>
-                    <Icon size={16} className={s.iconColor} />
-                  </div>
+              <div className="flex items-center justify-between mb-3">
+                <div className={`rounded-lg p-2 bg-gradient-to-br ${s.color} shadow-lg`}>
+                  <Icon size={14} className="text-white" />
                 </div>
-                <p className="font-display text-3xl font-bold text-portal-text tracking-tight">
-                  {loading ? <span className="inline-block h-8 w-20 shimmer rounded-lg" /> : s.value}
-                </p>
-                <div className="mt-3 flex items-center gap-1 text-[11px] text-portal-text-muted opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                  View details <ArrowUpRight size={11} />
-                </div>
+                <ArrowUpRight size={12} className="text-portal-text-muted opacity-0 group-hover:opacity-100 transition-all" />
               </div>
+              <p className="font-display text-2xl font-bold text-portal-text tracking-tight">
+                {loading ? <span className="inline-block h-7 w-16 shimmer rounded-lg" /> : s.value}
+              </p>
+              <p className="text-[11px] text-portal-text-muted mt-1 font-medium uppercase tracking-wider">{s.label}</p>
             </button>
           );
         })}
       </div>
 
-      {/* Charts Row — glass */}
-      <div className="grid gap-4 md:grid-cols-2 mb-8">
-        <div className="glass-card p-6">
-          <h2 className="font-display text-base font-semibold text-portal-text mb-5">Revenue (6 months)</h2>
+      {/* Charts Row */}
+      <div className="grid gap-4 md:grid-cols-3 mb-8">
+        {/* Revenue Chart — wider */}
+        <div className="glass-card p-5 md:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-sm font-semibold text-portal-text">Revenue Trend</h2>
+            <span className="text-[10px] text-portal-text-muted uppercase tracking-wider">Last 6 months</span>
+          </div>
           {recentInvoices.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={recentInvoices}>
-                <XAxis dataKey="month" tick={{ fill: "hsl(220 12% 50%)", fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "hsl(220 12% 50%)", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}`} />
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={recentInvoices}>
+                <defs>
+                  <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(32 95% 55%)" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="hsl(32 95% 55%)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="month" tick={{ fill: "hsl(220 12% 50%)", fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "hsl(220 12% 50%)", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}`} width={50} />
                 <Tooltip
-                  contentStyle={{ background: "hsl(230 20% 14% / 0.9)", backdropFilter: "blur(12px)", border: "1px solid hsl(230 15% 25% / 0.5)", borderRadius: 12, color: "hsl(220 20% 93%)" }}
+                  contentStyle={{ background: "hsl(230 20% 14% / 0.95)", backdropFilter: "blur(12px)", border: "1px solid hsl(230 15% 25% / 0.5)", borderRadius: 10, color: "hsl(220 20% 93%)", fontSize: 12 }}
                   formatter={(value: number) => [`$${value.toLocaleString()}`, "Revenue"]}
                 />
-                <Bar dataKey="total" fill="hsl(32 95% 55%)" radius={[6, 6, 0, 0]} />
-              </BarChart>
+                <Area type="monotone" dataKey="total" stroke="hsl(32 95% 55%)" strokeWidth={2} fill="url(#revenueGrad)" />
+              </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-[220px] items-center justify-center text-sm text-portal-text-muted">No revenue data yet.</div>
+            <div className="flex h-[200px] items-center justify-center text-sm text-portal-text-muted">No revenue data yet.</div>
           )}
         </div>
 
-        <div className="glass-card p-6">
-          <h2 className="font-display text-base font-semibold text-portal-text mb-5">Projects by Status</h2>
+        {/* Project Status — pie */}
+        <div className="glass-card p-5">
+          <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Project Status</h2>
           {projectStatuses.length > 0 ? (
-            <div className="flex items-center gap-6">
-              <ResponsiveContainer width="45%" height={220}>
+            <div className="flex flex-col items-center">
+              <ResponsiveContainer width="100%" height={140}>
                 <PieChart>
-                  <Pie data={projectStatuses} dataKey="count" nameKey="status" cx="50%" cy="50%" outerRadius={85} innerRadius={50} strokeWidth={2} stroke="hsl(230 25% 7%)">
+                  <Pie data={projectStatuses} dataKey="count" nameKey="status" cx="50%" cy="50%" outerRadius={60} innerRadius={38} strokeWidth={2} stroke="hsl(230 25% 7%)">
                     {projectStatuses.map((entry) => (
                       <Cell key={entry.status} fill={STATUS_COLORS[entry.status] || "#6b7280"} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ background: "hsl(230 20% 14% / 0.9)", backdropFilter: "blur(12px)", border: "1px solid hsl(230 15% 25% / 0.5)", borderRadius: 12, color: "hsl(220 20% 93%)" }} />
+                  <Tooltip contentStyle={{ background: "hsl(230 20% 14% / 0.95)", backdropFilter: "blur(12px)", border: "1px solid hsl(230 15% 25% / 0.5)", borderRadius: 10, color: "hsl(220 20% 93%)", fontSize: 12 }} />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="flex-1 space-y-2.5">
+              <div className="w-full space-y-1.5 mt-2">
                 {projectStatuses.map((s) => (
-                  <div key={s.status} className="flex items-center gap-2.5 text-sm">
-                    <span className="h-2.5 w-2.5 rounded-full ring-2 ring-portal-bg" style={{ backgroundColor: STATUS_COLORS[s.status] || "#6b7280" }} />
-                    <span className="capitalize text-portal-text-muted text-xs">{s.status}</span>
-                    <span className="ml-auto font-display font-semibold text-portal-text">{s.count}</span>
+                  <div key={s.status} className="flex items-center gap-2 text-xs">
+                    <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: STATUS_COLORS[s.status] || "#6b7280" }} />
+                    <span className="capitalize text-portal-text-muted flex-1">{s.status}</span>
+                    <span className="font-display font-bold text-portal-text">{s.count}</span>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="flex h-[220px] items-center justify-center text-sm text-portal-text-muted">No projects yet.</div>
+            <div className="flex h-[200px] items-center justify-center text-sm text-portal-text-muted">No projects yet.</div>
           )}
         </div>
       </div>
 
-      {/* Lead Conversion */}
-      {stats.leadConversion.length > 0 && (
-        <div className="glass-card p-6 mb-8">
-          <h2 className="font-display text-base font-semibold text-portal-text mb-5">Lead Pipeline</h2>
-          <div className="flex items-center gap-6">
-            <ResponsiveContainer width="50%" height={180}>
-              <BarChart data={stats.leadConversion} layout="vertical">
-                <XAxis type="number" tick={{ fill: "hsl(220 12% 50%)", fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis type="category" dataKey="status" tick={{ fill: "hsl(220 12% 50%)", fontSize: 11 }} axisLine={false} tickLine={false} width={80} />
-                <Tooltip contentStyle={{ background: "hsl(230 20% 14% / 0.9)", backdropFilter: "blur(12px)", border: "1px solid hsl(230 15% 25% / 0.5)", borderRadius: 12, color: "hsl(220 20% 93%)" }} />
-                <Bar dataKey="count" fill="hsl(160 60% 50%)" radius={[0, 6, 6, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-            <div className="flex-1 space-y-3">
-              {stats.leadConversion.map((l) => (
-                <div key={l.status} className="flex items-center justify-between">
-                  <span className="capitalize text-sm text-portal-text-muted">{l.status}</span>
-                  <span className="font-display font-bold text-portal-text text-lg">{l.count}</span>
-                </div>
-              ))}
+      {/* Lead Pipeline + Deadlines */}
+      <div className="grid gap-4 md:grid-cols-2 mb-8">
+        {stats.leadConversion.length > 0 && (
+          <div className="glass-card p-5">
+            <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Lead Pipeline</h2>
+            <div className="space-y-3">
+              {stats.leadConversion.map((l) => {
+                const total = stats.leadConversion.reduce((s, x) => s + x.count, 0);
+                const pct = total > 0 ? (l.count / total) * 100 : 0;
+                return (
+                  <div key={l.status}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="capitalize text-xs text-portal-text-muted">{l.status}</span>
+                      <span className="font-display font-bold text-portal-text text-sm">{l.count}</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-portal-surface overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
+        )}
+        <div>
+          <UpcomingDeadlines />
         </div>
-      )}
-
-      {/* Deadlines */}
-      <div className="mb-8">
-        <UpcomingDeadlines />
       </div>
 
-      {/* Activity & Quick Actions — glass */}
+      {/* Activity & Quick Actions */}
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="glass-card p-6">
-          <h2 className="font-display text-base font-semibold text-portal-text mb-5">Recent Activity</h2>
+        <div className="glass-card p-5">
+          <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Recent Activity</h2>
           {activity.length > 0 ? (
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               {activity.map((a) => (
-                <div key={a.id} className="flex items-start gap-3 rounded-xl px-3 py-2.5 hover:bg-portal-surface-hover/50 transition-all">
-                  <div className="mt-0.5 rounded-lg bg-portal-surface p-1.5">{getActionIcon(a.action)}</div>
+                <div key={a.id} className="flex items-start gap-2.5 rounded-lg px-2.5 py-2 hover:bg-portal-surface-hover/40 transition-all">
+                  <div className="mt-0.5 rounded-md bg-portal-surface p-1.5">{getActionIcon(a.action)}</div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-portal-text truncate">
+                    <p className="text-xs text-portal-text">
                       <span className="font-medium">{a.actor_name || "System"}</span>{" "}
-                      <span className="text-portal-text-muted">{a.action}</span>{" "}
-                      <span className="capitalize text-portal-text-muted">({a.entity_type})</span>
+                      <span className="text-portal-text-muted">{a.action}</span>
                     </p>
-                    <p className="text-[11px] text-portal-text-muted mt-0.5">{format(new Date(a.created_at), "MMM d, h:mm a")}</p>
+                    <p className="text-[10px] text-portal-text-muted mt-0.5">{format(new Date(a.created_at), "MMM d, h:mm a")}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-portal-text-muted">No activity yet.</p>
+            <p className="text-xs text-portal-text-muted py-4 text-center">No activity yet.</p>
           )}
         </div>
 
-        <div className="glass-card p-6">
-          <h2 className="font-display text-base font-semibold text-portal-text mb-5">Quick Actions</h2>
-          <div className="grid grid-cols-2 gap-2.5">
+        <div className="glass-card p-5">
+          <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-2 gap-2">
             {quickActions.map((action) => {
               const Icon = action.icon;
               return (
                 <button
                   key={action.label}
                   onClick={() => navigate(action.href)}
-                  className="group flex items-center gap-3 rounded-xl border border-portal-border/50 bg-portal-surface/30 px-4 py-3.5 text-left text-sm text-portal-text hover:bg-portal-surface/60 hover:border-portal-accent/30 transition-all duration-200"
+                  className="group flex items-center gap-2.5 rounded-xl border border-portal-border/40 bg-portal-surface/20 px-3 py-3 text-left text-xs hover:bg-portal-surface/50 hover:border-portal-accent/30 transition-all duration-200"
                 >
-                  <div className="rounded-lg bg-portal-surface p-2 group-hover:bg-portal-accent/15 transition-colors">
-                    <Icon size={14} className="text-portal-text-muted group-hover:text-portal-accent transition-colors shrink-0" />
+                  <div className="rounded-lg bg-portal-surface/80 p-1.5 group-hover:bg-portal-accent/15 transition-colors">
+                    <Icon size={13} className="text-portal-text-muted group-hover:text-portal-accent transition-colors" />
                   </div>
-                  <span className="text-xs font-medium">{action.label}</span>
-                  <ArrowUpRight size={10} className="ml-auto opacity-0 group-hover:opacity-100 text-portal-accent transition-all" />
+                  <span className="font-medium text-portal-text">{action.label}</span>
                 </button>
               );
             })}

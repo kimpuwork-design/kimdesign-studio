@@ -51,20 +51,20 @@ export default function Services() {
       {/* Services grid */}
       {services.length > 0 && (
         <section className="border-t border-border/50 relative z-10">
-          <div className="container py-16">
-            <StaggerContainer className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" staggerDelay={0.08}>
+          <div className="container py-10 md:py-16">
+            <StaggerContainer className="grid gap-3 md:gap-4 sm:grid-cols-2 lg:grid-cols-3" staggerDelay={0.08}>
               {services.map((s: any) => {
                 const Icon = ICON_MAP[s.icon] ?? Building2;
                 return (
                   <StaggerItem key={s.title}>
                     <HoverCard>
-                      <div className="group rounded-2xl border border-border/50 bg-background/60 backdrop-blur-sm p-8 hover:border-primary/30 hover:shadow-[0_0_20px_rgba(var(--primary),0.05)] transition-all duration-300 h-full">
-                        <div className="rounded-xl bg-primary/10 p-2.5 w-fit mb-5">
-                          <Icon size={22} className="text-primary" />
+                      <div className="group rounded-2xl border border-border/50 bg-background/60 backdrop-blur-sm p-5 md:p-8 hover:border-primary/30 hover:shadow-[0_0_20px_rgba(var(--primary),0.05)] transition-all duration-300 h-full">
+                        <div className="rounded-xl bg-primary/10 p-2 md:p-2.5 w-fit mb-3 md:mb-5">
+                          <Icon size={18} className="md:w-[22px] md:h-[22px] text-primary" />
                         </div>
-                        <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-2">{s.stage}</p>
-                        <h3 className="font-display text-2xl font-medium text-foreground mb-3">{s.title}</h3>
-                        <p className="text-sm text-muted-foreground leading-relaxed mb-6">{s.desc}</p>
+                        <p className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-1.5 md:mb-2">{s.stage}</p>
+                        <h3 className="font-display text-lg md:text-2xl font-medium text-foreground mb-2 md:mb-3">{s.title}</h3>
+                        <p className="text-xs md:text-sm text-muted-foreground leading-relaxed mb-4 md:mb-6">{s.desc}</p>
                         <Button variant="outline" className="rounded-2xl text-xs tracking-wide" size="sm" asChild>
                           <Link to="/contact">{t("services_enquire")}</Link>
                         </Button>

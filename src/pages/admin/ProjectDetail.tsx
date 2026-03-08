@@ -113,15 +113,15 @@ export default function AdminProjectDetail() {
 
       {/* Hero thumbnail */}
       {project!.thumbnail_url && (
-        <div className="relative w-full aspect-[3/1] rounded-xl overflow-hidden mb-5 border border-portal-border">
+        <div className="relative w-full aspect-[2/1] md:aspect-[3/1] rounded-xl overflow-hidden mb-4 md:mb-5 border border-portal-border">
           <img src={project!.thumbnail_url} alt={project!.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-portal-bg/90 via-portal-bg/30 to-transparent" />
-          <div className="absolute bottom-4 left-5 right-5">
-            <h1 className="font-display text-3xl font-bold text-white drop-shadow-lg">{project!.title}</h1>
+          <div className="absolute bottom-3 left-3 right-3 md:bottom-4 md:left-5 md:right-5">
+            <h1 className="font-display text-xl md:text-3xl font-bold text-white drop-shadow-lg">{project!.title}</h1>
             {project!.profiles && (
-              <div className="flex items-center gap-2 mt-1.5 text-white/70">
-                <User size={14} />
-                <span className="text-sm">
+              <div className="flex items-center gap-2 mt-1 md:mt-1.5 text-white/70">
+                <User size={12} className="md:w-[14px] md:h-[14px]" />
+                <span className="text-xs md:text-sm">
                   {project!.profiles.full_name}
                   {project!.profiles.company && ` · ${project!.profiles.company}`}
                 </span>
@@ -133,13 +133,13 @@ export default function AdminProjectDetail() {
 
       {/* Header (no thumbnail fallback) */}
       {!project!.thumbnail_url && (
-        <div className="flex items-start justify-between gap-4 mb-2">
-          <div>
-            <h1 className="font-display text-3xl font-bold text-portal-text">{project!.title}</h1>
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <div className="min-w-0">
+            <h1 className="font-display text-xl md:text-3xl font-bold text-portal-text truncate">{project!.title}</h1>
             {project!.profiles && (
-              <div className="flex items-center gap-2 mt-2 text-portal-text-muted">
-                <User size={14} />
-                <span className="text-sm">
+              <div className="flex items-center gap-2 mt-1.5 md:mt-2 text-portal-text-muted">
+                <User size={12} className="md:w-[14px] md:h-[14px]" />
+                <span className="text-xs md:text-sm">
                   {project!.profiles.full_name}
                   {project!.profiles.company && ` · ${project!.profiles.company}`}
                 </span>

@@ -197,8 +197,6 @@ export default function PortfolioDetail() {
                       <Calendar size={12} />{item.year}
                     </span>
                   )}
-                    </span>
-                  )}
                   {stats.map((s) => (
                     <span key={s.label} className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs md:text-sm text-white/80">
                       <s.icon size={12} />{s.n} {s.label}

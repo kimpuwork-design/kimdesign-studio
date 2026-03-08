@@ -1,0 +1,1 @@
+ALTER TABLE public.portfolio_gallery ADD COLUMN caption text DEFAULT NULL;

@@ -543,8 +543,8 @@ export default function Home() {
 
       {/* CTA */}
       <section ref={refCta} className="reveal">
-        <div className="container py-24">
-          <div className="max-w-3xl mx-auto text-center glass-card-public p-16 relative overflow-hidden glass-glow-ring">
+        <div className="container py-12 md:py-24">
+          <div className="max-w-3xl mx-auto text-center glass-card-public p-8 md:p-16 relative overflow-hidden glass-glow-ring">
             {/* Background glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px]" />
             <div className="relative z-10">

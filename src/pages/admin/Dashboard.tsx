@@ -250,7 +250,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Lead Pipeline + Deadlines */}
-      <div className="grid gap-4 md:grid-cols-2 mb-8">
+      <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2 mb-5 md:mb-8">
         {stats.leadConversion.length > 0 && (
           <div className="glass-card p-5">
             <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Lead Pipeline</h2>

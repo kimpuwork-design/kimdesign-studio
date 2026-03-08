@@ -3,12 +3,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, FolderOpen, User, LogOut, ChevronLeft, ChevronRight,
-  Briefcase, Users, FileArchive, Image, Settings, Activity, UserCog, Shield, PackageOpen, Receipt, FileText,
-  type LucideIcon, Sparkles, Newspaper, BarChart3
+  Briefcase, Users, FileArchive, Settings, Activity, UserCog, Shield, PackageOpen, Receipt, FileText,
+  type LucideIcon, Newspaper, BarChart3, Globe, ChevronDown
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useSettings } from "@/hooks/useSettings";
 import { KMonogramLogo } from "@/components/KMonogramLogo";
+import { useState } from "react";
 
 interface NavItem {
   label: string;
@@ -16,36 +17,80 @@ interface NavItem {
   icon: LucideIcon;
 }
 
-const clientNav: NavItem[] = [
-  { label: "Dashboard", href: "/app", icon: LayoutDashboard },
-  { label: "My Projects", href: "/app/projects", icon: FolderOpen },
-  { label: "Notifications", href: "/app/notifications", icon: Activity },
-  { label: "Profile", href: "/app/profile", icon: User },
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const clientNav: NavGroup[] = [
+  {
+    label: "Main",
+    items: [
+      { label: "Dashboard", href: "/app", icon: LayoutDashboard },
+      { label: "My Projects", href: "/app/projects", icon: FolderOpen },
+      { label: "Notifications", href: "/app/notifications", icon: Activity },
+      { label: "Profile", href: "/app/profile", icon: User },
+    ],
+  },
 ];
 
-const staffNav: NavItem[] = [
-  { label: "Dashboard", href: "/staff", icon: LayoutDashboard },
-  { label: "Projects", href: "/staff/projects", icon: FolderOpen },
-  { label: "Notifications", href: "/staff/notifications", icon: Activity },
+const staffNav: NavGroup[] = [
+  {
+    label: "Main",
+    items: [
+      { label: "Dashboard", href: "/staff", icon: LayoutDashboard },
+      { label: "Projects", href: "/staff/projects", icon: FolderOpen },
+      { label: "Notifications", href: "/staff/notifications", icon: Activity },
+    ],
+  },
 ];
 
-const adminNav: NavItem[] = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Leads", href: "/admin/leads", icon: Users },
-  { label: "Clients", href: "/admin/clients", icon: UserCog },
-  { label: "Projects", href: "/admin/projects", icon: Briefcase },
-  { label: "Deliverables", href: "/admin/deliverables", icon: PackageOpen },
-  { label: "Quotes", href: "/admin/quotes", icon: Receipt },
-  { label: "Invoices", href: "/admin/invoices", icon: FileText },
-  { label: "Files", href: "/admin/files", icon: FileArchive },
-  
-  { label: "Blog", href: "/admin/blog", icon: Newspaper },
-  { label: "Team", href: "/admin/team", icon: Users },
-  { label: "Notifications", href: "/admin/notifications", icon: Activity },
-  { label: "Site Content", href: "/admin/site-content", icon: FileText },
-  { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
-  { label: "Audit Logs", href: "/admin/audit-logs", icon: Activity },
+const adminNav: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [
+      { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+      { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "CRM",
+    items: [
+      { label: "Leads", href: "/admin/leads", icon: Users },
+      { label: "Clients", href: "/admin/clients", icon: UserCog },
+    ],
+  },
+  {
+    label: "Projects",
+    items: [
+      { label: "Projects", href: "/admin/projects", icon: Briefcase },
+      { label: "Deliverables", href: "/admin/deliverables", icon: PackageOpen },
+      { label: "Files", href: "/admin/files", icon: FileArchive },
+    ],
+  },
+  {
+    label: "Finance",
+    items: [
+      { label: "Quotes", href: "/admin/quotes", icon: Receipt },
+      { label: "Invoices", href: "/admin/invoices", icon: FileText },
+    ],
+  },
+  {
+    label: "Content",
+    items: [
+      { label: "Blog", href: "/admin/blog", icon: Newspaper },
+      { label: "Site Content", href: "/admin/site-content", icon: FileText },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { label: "Team", href: "/admin/team", icon: Users },
+      { label: "Notifications", href: "/admin/notifications", icon: Activity },
+      { label: "Settings", href: "/admin/settings", icon: Settings },
+      { label: "Audit Logs", href: "/admin/audit-logs", icon: Activity },
+    ],
+  },
 ];
 
 interface PortalSidebarProps {
@@ -62,7 +107,7 @@ export function PortalSidebar({ variant, collapsed = false, onToggleCollapse }: 
   const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
   const logoUrl = settings?.logo_url;
 
-  const navItems =
+  const navGroups =
     variant === "admin" ? adminNav :
     variant === "staff" ? staffNav :
     clientNav;
@@ -155,25 +200,11 @@ export function PortalSidebar({ variant, collapsed = false, onToggleCollapse }: 
         )}
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-0.5">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.href ||
-            (item.href !== "/app" && item.href !== "/staff" && item.href !== "/admin" &&
-              location.pathname.startsWith(item.href));
-          return (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn("portal-nav-item", isActive && "active", collapsed && "justify-center px-0")}
-              title={collapsed ? item.label : undefined}
-            >
-              <Icon size={16} className="shrink-0" />
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
-          );
-        })}
+      {/* Nav — Grouped */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
+        {navGroups.map((group) => (
+          <NavSection key={group.label} group={group} collapsed={collapsed} currentPath={location.pathname} />
+        ))}
       </nav>
 
       {/* Footer */}
@@ -191,7 +222,7 @@ export function PortalSidebar({ variant, collapsed = false, onToggleCollapse }: 
           </div>
         )}
         <Link to="/" className={cn("portal-nav-item", collapsed && "justify-center px-0")} title={collapsed ? "Public Site" : undefined}>
-          <LayoutDashboard size={16} className="shrink-0" />
+          <Globe size={16} className="shrink-0" />
           {!collapsed && <span>Public Site</span>}
         </Link>
         <button
@@ -204,5 +235,66 @@ export function PortalSidebar({ variant, collapsed = false, onToggleCollapse }: 
         </button>
       </div>
     </aside>
+  );
+}
+
+/* ── Collapsible Nav Section ── */
+function NavSection({ group, collapsed, currentPath }: { group: NavGroup; collapsed: boolean; currentPath: string }) {
+  const hasActive = group.items.some(item => 
+    currentPath === item.href || 
+    (item.href !== "/app" && item.href !== "/staff" && item.href !== "/admin" && currentPath.startsWith(item.href))
+  );
+  const [open, setOpen] = useState(true);
+
+  if (collapsed) {
+    return (
+      <div className="space-y-0.5">
+        {group.items.map((item) => {
+          const Icon = item.icon;
+          const isActive = currentPath === item.href ||
+            (item.href !== "/app" && item.href !== "/staff" && item.href !== "/admin" && currentPath.startsWith(item.href));
+          return (
+            <Link key={item.href} to={item.href}
+              className={cn("portal-nav-item justify-center px-0", isActive && "active")}
+              title={item.label}>
+              <Icon size={16} className="shrink-0" />
+            </Link>
+          );
+        })}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-3 py-1.5 mb-1 group"
+      >
+        <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-portal-text-muted/60 group-hover:text-portal-text-muted transition-colors">
+          {group.label}
+        </span>
+        <ChevronDown size={10} className={cn(
+          "text-portal-text-muted/40 transition-transform duration-200",
+          !open && "-rotate-90"
+        )} />
+      </button>
+      {open && (
+        <div className="space-y-0.5">
+          {group.items.map((item) => {
+            const Icon = item.icon;
+            const isActive = currentPath === item.href ||
+              (item.href !== "/app" && item.href !== "/staff" && item.href !== "/admin" && currentPath.startsWith(item.href));
+            return (
+              <Link key={item.href} to={item.href}
+                className={cn("portal-nav-item", isActive && "active")}>
+                <Icon size={16} className="shrink-0" />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }

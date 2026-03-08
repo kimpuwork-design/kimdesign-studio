@@ -3,13 +3,42 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
-import { Menu, Sun, Moon, Search, Command } from "lucide-react";
+import { Menu, Sun, Moon, Search, Command, ChevronRight, Home } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Link, useLocation } from "react-router-dom";
 
 interface PortalLayoutProps {
   children: React.ReactNode;
   variant: "client" | "staff" | "admin";
+}
+
+/* ── Breadcrumb builder ── */
+function useBreadcrumbs(variant: "client" | "staff" | "admin") {
+  const location = useLocation();
+  const base = variant === "admin" ? "/admin" : variant === "staff" ? "/staff" : "/app";
+  const segments = location.pathname.replace(base, "").split("/").filter(Boolean);
+  
+  const crumbs: { label: string; href?: string }[] = [
+    { label: variant === "admin" ? "Admin" : variant === "staff" ? "Staff" : "Dashboard", href: base },
+  ];
+
+  const labelMap: Record<string, string> = {
+    projects: "Projects", leads: "Leads", clients: "Clients", invoices: "Invoices",
+    quotes: "Quotes", deliverables: "Deliverables", files: "Files", blog: "Blog",
+    team: "Team", settings: "Settings", notifications: "Notifications", analytics: "Analytics",
+    "site-content": "Site Content", "audit-logs": "Audit Logs", profile: "Profile",
+  };
+
+  let path = base;
+  segments.forEach((seg, i) => {
+    path += `/${seg}`;
+    const isLast = i === segments.length - 1;
+    const label = labelMap[seg] || (seg.length > 8 ? seg.slice(0, 8) + "…" : seg);
+    crumbs.push({ label, href: isLast ? undefined : path });
+  });
+
+  return crumbs;
 }
 
 export function PortalLayout({ children, variant }: PortalLayoutProps) {
@@ -18,6 +47,7 @@ export function PortalLayout({ children, variant }: PortalLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const { theme, setTheme } = useTheme();
+  const breadcrumbs = useBreadcrumbs(variant);
 
   return (
     <div className="flex min-h-screen portal-layout relative">
@@ -45,33 +75,50 @@ export function PortalLayout({ children, variant }: PortalLayoutProps) {
 
       <div className="flex flex-1 flex-col overflow-hidden relative z-10">
         {/* Topbar — frosted glass */}
-        <header className="flex items-center justify-between gap-3 border-b border-portal-border/50 bg-portal-bg/60 backdrop-blur-xl px-4 md:px-6 py-3 h-16 shrink-0 sticky top-0 z-30">
+        <header className="flex items-center justify-between gap-3 border-b border-portal-border/50 bg-portal-bg/60 backdrop-blur-xl px-4 md:px-6 py-3 h-14 shrink-0 sticky top-0 z-30">
           <div className="flex items-center gap-3">
             {isMobile && (
               <button
                 onClick={() => setMobileOpen(true)}
-                className="rounded-xl p-2.5 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all"
+                className="rounded-xl p-2 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all"
                 aria-label="Open menu"
               >
-                <Menu size={20} />
+                <Menu size={18} />
               </button>
             )}
+            
+            {/* Breadcrumbs */}
+            <nav className="hidden md:flex items-center gap-1 text-xs text-portal-text-muted">
+              {breadcrumbs.map((crumb, i) => (
+                <span key={i} className="flex items-center gap-1">
+                  {i > 0 && <ChevronRight size={10} className="text-portal-text-muted/40" />}
+                  {crumb.href ? (
+                    <Link to={crumb.href} className="hover:text-portal-text transition-colors">
+                      {i === 0 ? <Home size={12} /> : crumb.label}
+                    </Link>
+                  ) : (
+                    <span className="text-portal-text font-medium">{crumb.label}</span>
+                  )}
+                </span>
+              ))}
+            </nav>
+
             {/* Search hint */}
-            <button className="hidden md:flex items-center gap-2 rounded-xl border border-portal-border/50 bg-portal-surface/40 px-3.5 py-2 text-xs text-portal-text-muted hover:border-portal-accent/30 hover:text-portal-text transition-all w-64">
-              <Search size={14} />
-              <span className="flex-1 text-left">Search...</span>
-              <kbd className="flex items-center gap-0.5 rounded-md border border-portal-border/50 bg-portal-bg/60 px-1.5 py-0.5 text-[10px] font-medium">
-                <Command size={9} />K
+            <button className="hidden lg:flex items-center gap-2 rounded-lg border border-portal-border/40 bg-portal-surface/30 px-3 py-1.5 text-[11px] text-portal-text-muted hover:border-portal-accent/30 hover:text-portal-text transition-all ml-4">
+              <Search size={12} />
+              <span>Search...</span>
+              <kbd className="flex items-center gap-0.5 rounded border border-portal-border/40 bg-portal-bg/50 px-1 py-0.5 text-[9px] font-medium ml-3">
+                <Command size={8} />K
               </kbd>
             </button>
           </div>
           <div className="flex items-center gap-1">
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="rounded-xl p-2.5 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all"
+              className="rounded-lg p-2 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all"
               aria-label="Toggle theme"
             >
-              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+              {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
             </button>
             {profile && <NotificationBell />}
           </div>

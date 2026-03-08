@@ -8,10 +8,11 @@ import { StaffAssignModal } from "@/components/admin/StaffAssignModal";
 import { supabase } from "@/integrations/supabase/client";
 import { writeAuditLog } from "@/lib/audit";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus, Search, Pencil, Trash2, Users, ExternalLink, Star, Eye, EyeOff } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Users, ExternalLink, Star, Eye, EyeOff, LayoutGrid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface Project {
   id: string;
@@ -51,6 +52,7 @@ export default function AdminProjects() {
   const [assignProject, setAssignProject] = useState<Project | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [toggling, setToggling] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -103,121 +105,166 @@ export default function AdminProjects() {
     <PortalLayout variant="admin">
       <PageHeader
         title="Projects & Portfolio"
-        subtitle="Manage all studio projects and portfolio items"
+        subtitle={`${projects.length} projects`}
         action={
           <Button onClick={() => { setEditProject(null); setShowForm(true); }}
-            className="bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90">
-            <Plus size={15} className="mr-2" /> New Project
+            className="bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90 shadow-lg shadow-portal-accent/20">
+            <Plus size={15} className="mr-1.5" /> New Project
           </Button>
         }
       />
 
       {/* Filters */}
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative w-full max-w-xs">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-portal-text-muted" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search title…"
-            className="pl-9 bg-portal-bg/50 backdrop-blur-sm border-portal-border text-portal-text placeholder:text-portal-text-muted" />
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative w-full max-w-xs">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-portal-text-muted" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..."
+              className="pl-9 h-9 text-xs bg-portal-surface/30 border-portal-border/50 text-portal-text placeholder:text-portal-text-muted" />
+          </div>
+          <div className="hidden md:flex border border-portal-border/40 rounded-lg overflow-hidden">
+            <button onClick={() => setViewMode("table")}
+              className={cn("p-2 transition-colors", viewMode === "table" ? "bg-portal-surface text-portal-text" : "text-portal-text-muted hover:text-portal-text")}>
+              <List size={14} />
+            </button>
+            <button onClick={() => setViewMode("grid")}
+              className={cn("p-2 transition-colors", viewMode === "grid" ? "bg-portal-surface text-portal-text" : "text-portal-text-muted hover:text-portal-text")}>
+              <LayoutGrid size={14} />
+            </button>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1">
           {STATUS_OPTIONS.map((s) => (
             <button key={s} onClick={() => setStatusFilter(s)}
-              className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+              className={cn(
+                "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all",
                 statusFilter === s
                   ? "border-portal-accent bg-portal-accent/15 text-portal-accent"
-                  : "border-portal-border text-portal-text-muted hover:border-portal-accent/50"
-              }`}>
+                  : "border-portal-border/50 text-portal-text-muted hover:border-portal-accent/40 hover:text-portal-text"
+              )}>
               {s.charAt(0).toUpperCase() + s.slice(1)}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Table */}
-      <div className="glass-card overflow-hidden">
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-portal-accent border-t-transparent" />
-          </div>
-        ) : projects.length === 0 ? (
-          <div className="py-16 text-center">
-            <p className="font-medium text-portal-text">No projects found</p>
-            <p className="mt-1 text-sm text-portal-text-muted">Create your first project to get started.</p>
-            <Button className="mt-4 bg-portal-accent text-portal-accent-foreground" size="sm"
-              onClick={() => { setEditProject(null); setShowForm(true); }}>
-              <Plus size={14} className="mr-1" /> New Project
-            </Button>
-          </div>
-        ) : (
+      {/* Content */}
+      {loading ? (
+        <div className="glass-card flex items-center justify-center py-20">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-portal-accent border-t-transparent" />
+        </div>
+      ) : projects.length === 0 ? (
+        <div className="glass-card py-20 text-center">
+          <p className="font-medium text-portal-text">No projects found</p>
+          <p className="mt-1 text-sm text-portal-text-muted">Create your first project to get started.</p>
+          <Button className="mt-4 bg-portal-accent text-portal-accent-foreground" size="sm"
+            onClick={() => { setEditProject(null); setShowForm(true); }}>
+            <Plus size={14} className="mr-1" /> New Project
+          </Button>
+        </div>
+      ) : viewMode === "grid" ? (
+        /* Grid View */
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {projects.map((project) => (
+            <div key={project.id} className="glass-card glass-card-hover overflow-hidden group cursor-pointer"
+              onClick={() => navigate(`/admin/projects/${project.id}`)}>
+              <div className="aspect-[16/10] relative overflow-hidden bg-portal-surface">
+                {project.thumbnail_url ? (
+                  <img src={project.thumbnail_url} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-portal-text-muted">
+                    <LayoutGrid size={24} />
+                  </div>
+                )}
+                <div className="absolute top-2 right-2 flex gap-1">
+                  {project.is_featured && (
+                    <span className="rounded-full bg-yellow-500/90 p-1"><Star size={10} className="text-white fill-white" /></span>
+                  )}
+                  <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", project.is_public ? "bg-emerald-500/90 text-white" : "bg-portal-bg/80 text-portal-text-muted backdrop-blur-sm")}>
+                    {project.is_public ? "Public" : "Draft"}
+                  </span>
+                </div>
+              </div>
+              <div className="p-3">
+                <p className="font-display text-sm font-semibold text-portal-text truncate">{project.title}</p>
+                <p className="text-[11px] text-portal-text-muted mt-0.5">{project.profiles?.full_name ?? "—"}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <StatusBadge status={project.status} />
+                  <span className="text-[10px] text-portal-text-muted">{new Date(project.updated_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* Table View */
+        <div className="glass-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-portal-border bg-gradient-to-r from-portal-surface to-portal-bg">
+                <tr className="border-b border-portal-border/60 bg-portal-surface/30">
                   {["Title", "Client", "Category", "Status", "Portfolio", "Updated", "Actions"].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-portal-text-muted">{h}</th>
+                    <th key={h} className="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-widest text-portal-text-muted/70">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-portal-border/50">
+              <tbody className="divide-y divide-portal-border/30">
                 {projects.map((project) => (
-                  <tr key={project.id} className="hover:bg-portal-accent/5 transition-colors">
+                  <tr key={project.id} className="hover:bg-portal-accent/[0.04] transition-colors group">
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2.5">
                         {project.thumbnail_url ? (
-                          <img src={project.thumbnail_url} alt="" className="h-8 w-12 rounded object-cover shrink-0 bg-portal-border" loading="lazy" />
+                          <img src={project.thumbnail_url} alt="" className="h-8 w-12 rounded-md object-cover shrink-0 bg-portal-border" loading="lazy" />
                         ) : (
-                          <div className="h-8 w-12 rounded bg-portal-border shrink-0" />
+                          <div className="h-8 w-12 rounded-md bg-portal-surface shrink-0" />
                         )}
-                        <div>
-                          <p className="font-medium text-portal-text max-w-[160px] truncate">{project.title}</p>
-                          {project.slug && <p className="text-[10px] text-portal-text-muted">/{project.slug}</p>}
+                        <div className="min-w-0">
+                          <p className="font-medium text-portal-text text-xs truncate max-w-[160px]">{project.title}</p>
+                          {project.slug && <p className="text-[10px] text-portal-text-muted/60">/{project.slug}</p>}
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-portal-text-muted text-xs">
-                      {project.profiles?.full_name ?? "—"}
-                      {project.profiles?.company && <span className="block text-portal-text-muted/60">{project.profiles.company}</span>}
-                    </td>
+                    <td className="px-4 py-3 text-portal-text-muted text-xs">{project.profiles?.full_name ?? "—"}</td>
                     <td className="px-4 py-3 text-portal-text-muted text-xs">{project.category ?? "—"}</td>
                     <td className="px-4 py-3"><StatusBadge status={project.status} /></td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
-                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${project.is_public ? "bg-emerald-500/15 text-emerald-500" : "bg-portal-border text-portal-text-muted"}`}>
+                        <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold", project.is_public ? "bg-emerald-500/15 text-emerald-400" : "bg-portal-surface text-portal-text-muted/60")}>
                           {project.is_public ? "Public" : "Draft"}
                         </span>
-                        {project.is_featured && <Star size={12} className="text-yellow-400 fill-yellow-400" />}
+                        {project.is_featured && <Star size={11} className="text-yellow-400 fill-yellow-400" />}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-portal-text-muted text-xs">
+                    <td className="px-4 py-3 text-portal-text-muted text-[11px]">
                       {new Date(project.updated_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => navigate(`/admin/projects/${project.id}`)}
-                          className="rounded p-1.5 text-portal-text-muted hover:bg-portal-bg hover:text-portal-accent transition-colors" title="View detail">
-                          <ExternalLink size={14} />
+                      <div className="flex items-center gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <button onClick={(e) => { e.stopPropagation(); navigate(`/admin/projects/${project.id}`); }}
+                          className="rounded-md p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-accent transition-colors" title="View">
+                          <ExternalLink size={13} />
                         </button>
-                        <button onClick={() => handleToggleFeatured(project)} title="Toggle featured"
-                          className={`rounded p-1.5 transition-colors ${project.is_featured ? "text-yellow-400 hover:text-yellow-300" : "text-portal-text-muted hover:text-portal-text"} hover:bg-portal-bg`}
+                        <button onClick={(e) => { e.stopPropagation(); handleToggleFeatured(project); }} title="Toggle featured"
+                          className={cn("rounded-md p-1.5 transition-colors hover:bg-portal-surface", project.is_featured ? "text-yellow-400" : "text-portal-text-muted hover:text-portal-text")}
                           disabled={toggling === project.id + "_feat"}>
-                          <Star size={14} />
+                          <Star size={13} />
                         </button>
-                        <button onClick={() => handleTogglePublic(project)} title={project.is_public ? "Unpublish" : "Publish"}
-                          className="rounded p-1.5 text-portal-text-muted hover:bg-portal-bg hover:text-portal-text transition-colors"
+                        <button onClick={(e) => { e.stopPropagation(); handleTogglePublic(project); }} title={project.is_public ? "Unpublish" : "Publish"}
+                          className="rounded-md p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors"
                           disabled={toggling === project.id}>
-                          {project.is_public ? <EyeOff size={14} /> : <Eye size={14} />}
+                          {project.is_public ? <EyeOff size={13} /> : <Eye size={13} />}
                         </button>
-                        <button onClick={() => { setEditProject(project); setShowForm(true); }}
-                          className="rounded p-1.5 text-portal-text-muted hover:bg-portal-bg hover:text-portal-text transition-colors" title="Edit">
-                          <Pencil size={14} />
+                        <button onClick={(e) => { e.stopPropagation(); setEditProject(project); setShowForm(true); }}
+                          className="rounded-md p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors" title="Edit">
+                          <Pencil size={13} />
                         </button>
-                        <button onClick={() => setAssignProject(project)}
-                          className="rounded p-1.5 text-portal-text-muted hover:bg-portal-bg hover:text-portal-text transition-colors" title="Assign Staff">
-                          <Users size={14} />
+                        <button onClick={(e) => { e.stopPropagation(); setAssignProject(project); }}
+                          className="rounded-md p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors" title="Assign Staff">
+                          <Users size={13} />
                         </button>
-                        <button onClick={() => handleDelete(project)} disabled={deleting === project.id}
-                          className="rounded p-1.5 text-portal-text-muted hover:bg-destructive/15 hover:text-destructive transition-colors" title="Delete">
-                          <Trash2 size={14} />
+                        <button onClick={(e) => { e.stopPropagation(); handleDelete(project); }} disabled={deleting === project.id}
+                          className="rounded-md p-1.5 text-portal-text-muted hover:bg-destructive/15 hover:text-destructive transition-colors" title="Delete">
+                          <Trash2 size={13} />
                         </button>
                       </div>
                     </td>
@@ -226,8 +273,8 @@ export default function AdminProjects() {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {showForm && (
         <ProjectFormModal

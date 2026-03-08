@@ -211,7 +211,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed inset-0 z-[100] flex flex-col bg-black select-none"
+      className="fixed inset-0 z-[100] flex flex-col bg-black/90 backdrop-blur-sm select-none"
       onMouseMove={scheduleHide}
       onClick={(e) => {
         if (e.target === imgContainerRef.current) {

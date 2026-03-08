@@ -27,7 +27,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
   );
 
   const [idx, setIdx] = useState(() => clampIndex(startIndex));
-  const [loadState, setLoadState] = useState<"loading" | "loaded" | "error">("loading");
+  const [errorIds, setErrorIds] = useState<Set<string>>(new Set());
   const touchStart = useRef<number | null>(null);
 
   useEffect(() => {
@@ -43,10 +43,6 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
     if (raw.startsWith("/")) return `${window.location.origin}${raw}`;
     return raw;
   }, [current?.image_url]);
-
-  useEffect(() => {
-    setLoadState("loading");
-  }, [current?.id, currentUrl]);
 
   const prev = useCallback(() => {
     if (total <= 1) return;
@@ -98,6 +94,8 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
 
   if (!current) return null;
 
+  const hasError = errorIds.has(current.id);
+
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm select-none"
@@ -105,7 +103,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* ── Mobile: full-screen layout · Desktop: popup modal ── */}
+      {/* Mobile: full-screen · Desktop: popup modal */}
       <div
         className="relative flex flex-col overflow-hidden
           w-full h-full
@@ -114,7 +112,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top bar */}
-        <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 bg-black/60 sm:bg-muted/50 border-b border-white/10 sm:border-border shrink-0 safe-area-top">
+        <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 bg-black/60 sm:bg-muted/50 border-b border-white/10 sm:border-border shrink-0">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <span className="text-white sm:text-foreground text-xs sm:text-sm font-medium tabular-nums shrink-0">
               {idx + 1} <span className="text-white/50 sm:text-muted-foreground">/ {total}</span>
@@ -146,13 +144,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
 
         {/* Image area */}
         <div className="relative flex-1 flex items-center justify-center overflow-hidden min-h-0 bg-black sm:bg-foreground/95">
-          {loadState === "loading" && (
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <Loader2 size={24} className="animate-spin text-white/80 sm:text-background/80" />
-            </div>
-          )}
-
-          {loadState === "error" ? (
+          {hasError ? (
             <div className="flex flex-col items-center justify-center gap-3 p-6 text-center">
               <ImageOff size={24} className="text-white/70" />
               <p className="text-sm text-white/70">Image failed to load.</p>
@@ -166,15 +158,9 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
               src={currentUrl}
               alt={current.caption || `Image ${idx + 1}`}
               draggable={false}
-              className={`block object-contain p-2 sm:p-4 transition-opacity duration-200 ${
-                loadState === "loaded" ? "opacity-100" : "opacity-0"
-              }`}
-              style={{
-                maxWidth: "100%",
-                maxHeight: "calc(100vh - 7rem)",
-              }}
-              onLoad={() => setLoadState("loaded")}
-              onError={() => setLoadState("error")}
+              className="block object-contain p-2 sm:p-4"
+              style={{ maxWidth: "100%", maxHeight: "calc(100vh - 7rem)" }}
+              onError={() => setErrorIds((prev) => new Set(prev).add(current.id))}
             />
           )}
         </div>
@@ -199,7 +185,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
 
         {/* Thumbnail strip */}
         {total > 1 && (
-          <div className="shrink-0 bg-black/60 sm:bg-muted/40 border-t border-white/10 sm:border-border px-3 sm:px-4 py-2 sm:py-3 safe-area-bottom">
+          <div className="shrink-0 bg-black/60 sm:bg-muted/40 border-t border-white/10 sm:border-border px-3 sm:px-4 py-2 sm:py-3">
             <div className="flex gap-1.5 sm:gap-2 overflow-x-auto justify-center" style={{ scrollbarWidth: "none" }}>
               {images.map((img, i) => (
                 <button

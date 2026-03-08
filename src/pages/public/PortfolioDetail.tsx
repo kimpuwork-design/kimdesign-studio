@@ -178,7 +178,7 @@ export default function PortfolioDetail() {
                   </motion.div>
                 )}
                 <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[0.95] tracking-tight">
+                  className="font-display text-2xl md:text-5xl lg:text-7xl font-bold text-white leading-[0.95] tracking-tight">
                   {item.title}
                 </motion.h1>
                 <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}

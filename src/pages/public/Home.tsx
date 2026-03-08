@@ -362,15 +362,15 @@ export default function Home() {
 
       {/* Hero */}
       <section ref={refHero} className="reveal relative lg:min-h-[90vh] flex items-center">
-        <div className="container py-12 md:py-36">
+        <div className="container py-10 md:py-36">
           <div className="max-w-4xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-8">
-              <Sparkles size={12} className="text-primary" />
-              <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-3 md:px-4 py-1.5 md:py-2 mb-5 md:mb-8">
+              <Sparkles size={11} className="text-primary shrink-0" />
+              <p className="text-[10px] md:text-xs font-semibold tracking-[0.12em] md:tracking-[0.15em] uppercase text-primary">
                 {hero.badge ?? "Architecture · Interiors · Urbanism"}
               </p>
             </div>
-            <h1 className="font-display text-[clamp(3rem,8vw,6.5rem)] font-bold leading-[1.02] text-foreground tracking-tight">
+            <h1 className="font-display text-[clamp(2.5rem,8vw,6.5rem)] font-bold leading-[1.02] text-foreground tracking-tight">
               {hero.title_line1 ?? "Building spaces"}<br />
               <span className="text-primary">{hero.title_line2 ?? "that endure."}</span>
             </h1>

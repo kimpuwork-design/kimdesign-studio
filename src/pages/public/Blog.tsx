@@ -85,17 +85,17 @@ export default function PublicBlog() {
 
       {/* Filters */}
       <section className="sticky top-16 z-30 bg-background/80 backdrop-blur-xl border-b border-border/50">
-        <div className="container py-3 flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1 max-w-xs">
+        <div className="container py-2.5 md:py-3 flex flex-col sm:flex-row gap-2.5 md:gap-3">
+          <div className="relative flex-1 sm:max-w-xs">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder={t("blog_search")}
               className="w-full pl-9 pr-3 py-2 rounded-xl border border-border/50 bg-background/60 backdrop-blur-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
           </div>
-          <div className="flex gap-2 flex-wrap items-center">
+          <div className="flex gap-1.5 md:gap-2 overflow-x-auto scrollbar-none items-center pb-0.5">
             {CATEGORIES.map((c) => (
               <button key={c} onClick={() => setCategory(c)}
-                className={`px-4 py-1.5 rounded-full text-xs tracking-[0.1em] uppercase font-medium transition-all duration-200 ${
+                className={`px-3 md:px-4 py-1.5 rounded-full text-[10px] md:text-xs tracking-[0.1em] uppercase font-medium transition-all duration-200 whitespace-nowrap shrink-0 ${
                   category === c ? "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(var(--primary),0.3)]" : "bg-secondary/50 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`}>
                 {c === "All" ? t("portfolio_all") : c}

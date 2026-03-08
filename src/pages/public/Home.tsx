@@ -406,8 +406,8 @@ export default function Home() {
 
       {/* Featured Projects */}
       {featured.length > 0 && (
-        <section ref={refFeatured} className="reveal container py-24">
-          <div className="flex items-end justify-between mb-14">
+        <section ref={refFeatured} className="reveal container py-12 md:py-24">
+          <div className="flex items-end justify-between mb-8 md:mb-14">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-1 w-8 rounded-full bg-primary" />

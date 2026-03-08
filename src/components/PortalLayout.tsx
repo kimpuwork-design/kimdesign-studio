@@ -75,35 +75,39 @@ export function PortalLayout({ children, variant }: PortalLayoutProps) {
 
       <div className="flex flex-1 flex-col overflow-hidden relative z-10">
         {/* Topbar — frosted glass */}
-        <header className="flex items-center justify-between gap-3 border-b border-portal-border/50 bg-portal-bg/60 backdrop-blur-xl px-4 md:px-6 py-3 h-14 shrink-0 sticky top-0 z-30">
-          <div className="flex items-center gap-3">
+        <header className="flex items-center justify-between gap-2 border-b border-portal-border/50 bg-portal-bg/60 backdrop-blur-xl px-3 md:px-6 py-2.5 md:py-3 h-13 md:h-14 shrink-0 sticky top-0 z-30">
+          <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
             {isMobile && (
               <button
                 onClick={() => setMobileOpen(true)}
-                className="rounded-xl p-2 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all"
+                className="rounded-xl p-2 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all shrink-0"
                 aria-label="Open menu"
               >
                 <Menu size={18} />
               </button>
             )}
             
-            {/* Breadcrumbs */}
-            <nav className="hidden md:flex items-center gap-1 text-xs text-portal-text-muted">
-              {breadcrumbs.map((crumb, i) => (
-                <span key={i} className="flex items-center gap-1">
-                  {i > 0 && <ChevronRight size={10} className="text-portal-text-muted/40" />}
-                  {crumb.href ? (
-                    <Link to={crumb.href} className="hover:text-portal-text transition-colors">
-                      {i === 0 ? <Home size={12} /> : crumb.label}
-                    </Link>
-                  ) : (
-                    <span className="text-portal-text font-medium">{crumb.label}</span>
-                  )}
-                </span>
-              ))}
+            {/* Breadcrumbs — show condensed on mobile */}
+            <nav className="flex items-center gap-1 text-xs text-portal-text-muted min-w-0 overflow-hidden">
+              {breadcrumbs.map((crumb, i) => {
+                // On mobile, only show last 2 crumbs
+                if (isMobile && i < breadcrumbs.length - 2) return null;
+                return (
+                  <span key={i} className="flex items-center gap-1 shrink-0">
+                    {((isMobile && i > 0) || (!isMobile && i > 0)) && <ChevronRight size={10} className="text-portal-text-muted/40" />}
+                    {crumb.href ? (
+                      <Link to={crumb.href} className="hover:text-portal-text transition-colors">
+                        {i === 0 && !isMobile ? <Home size={12} /> : <span className="truncate max-w-[80px] md:max-w-none block">{crumb.label}</span>}
+                      </Link>
+                    ) : (
+                      <span className="text-portal-text font-medium truncate max-w-[120px] md:max-w-none block">{crumb.label}</span>
+                    )}
+                  </span>
+                );
+              })}
             </nav>
 
-            {/* Search hint */}
+            {/* Search hint — hide on mobile */}
             <button className="hidden lg:flex items-center gap-2 rounded-lg border border-portal-border/40 bg-portal-surface/30 px-3 py-1.5 text-[11px] text-portal-text-muted hover:border-portal-accent/30 hover:text-portal-text transition-all ml-4">
               <Search size={12} />
               <span>Search...</span>
@@ -112,19 +116,19 @@ export function PortalLayout({ children, variant }: PortalLayoutProps) {
               </kbd>
             </button>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 md:gap-1 shrink-0">
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="rounded-lg p-2 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all"
+              className="rounded-lg p-1.5 md:p-2 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all"
               aria-label="Toggle theme"
             >
-              {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+              {theme === "dark" ? <Sun size={14} className="md:w-[15px] md:h-[15px]" /> : <Moon size={14} className="md:w-[15px] md:h-[15px]" />}
             </button>
             {profile && <NotificationBell />}
           </div>
         </header>
         <main className="flex-1 overflow-auto">
-          <div className="p-4 md:p-8 animate-page-enter">
+          <div className="p-3 md:p-4 lg:p-8 animate-page-enter">
             {children}
           </div>
         </main>

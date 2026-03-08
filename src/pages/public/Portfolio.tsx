@@ -201,35 +201,35 @@ export default function PublicPortfolio() {
       {/* ── Cinematic Hero ── */}
       <div ref={heroRef} className="relative overflow-hidden">
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10">
-          <section className="container pt-28 pb-16 md:pt-36 md:pb-20">
+          <section className="container pt-20 pb-10 md:pt-28 md:pb-16">
             <div className="max-w-3xl">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
-                className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-8">
-                <Sparkles size={12} className="text-primary" />
-                <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">{t("portfolio_selected_work")}</p>
+                className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-3 md:px-4 py-1.5 md:py-2 mb-5 md:mb-8">
+                <Sparkles size={11} className="text-primary shrink-0" />
+                <p className="text-[10px] md:text-xs font-semibold tracking-[0.12em] md:tracking-[0.15em] uppercase text-primary">{t("portfolio_selected_work")}</p>
               </motion.div>
 
               <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="font-display text-[clamp(3rem,8vw,6.5rem)] font-bold text-foreground leading-[0.95] tracking-tight">
+                className="font-display text-[clamp(2.5rem,8vw,6.5rem)] font-bold text-foreground leading-[0.95] tracking-tight">
                 {t("portfolio_our")}<br />
                 <span className="text-primary">{t("portfolio_title")}</span>
               </motion.h1>
 
               <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}
-                className="mt-6 text-muted-foreground font-light max-w-lg leading-relaxed text-lg">
+                className="mt-4 md:mt-6 text-muted-foreground font-light max-w-lg leading-relaxed text-base md:text-lg">
                 {t("portfolio_description")}
               </motion.p>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.55 }}
-                className="mt-10 flex items-center gap-8">
+                className="mt-6 md:mt-10 flex items-center gap-5 md:gap-8 overflow-x-auto pb-2 scrollbar-none">
                 {[
                   { n: items.length, label: t("portfolio_projects_stat") },
                   { n: items.filter(i => i.is_featured).length, label: t("portfolio_featured_stat") },
                   { n: new Set(items.map(i => i.category).filter(Boolean)).size, label: t("portfolio_categories_stat") },
                 ].map((stat) => (
-                  <div key={stat.label}>
-                    <p className="font-display text-3xl font-bold text-foreground">{stat.n}</p>
-                    <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mt-1">{stat.label}</p>
+                  <div key={stat.label} className="shrink-0">
+                    <p className="font-display text-2xl md:text-3xl font-bold text-foreground">{stat.n}</p>
+                    <p className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-muted-foreground mt-1">{stat.label}</p>
                   </div>
                 ))}
               </motion.div>
@@ -242,24 +242,24 @@ export default function PublicPortfolio() {
 
       {/* ── Sticky Filters ── */}
       <section className="sticky top-16 z-30 bg-background/80 backdrop-blur-xl border-b border-border/30">
-        <div className="container py-3 flex flex-col sm:flex-row gap-3 items-center">
-          <div className="relative flex-1 max-w-xs">
+        <div className="container py-2.5 md:py-3 flex flex-col gap-2.5 md:flex-row md:gap-3 md:items-center">
+          <div className="relative flex-1 max-w-full md:max-w-xs">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               placeholder={t("portfolio_search")}
               className="w-full pl-9 pr-3 py-2 rounded-xl border border-border/50 bg-background/60 backdrop-blur-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all" />
           </div>
-          <div className="flex gap-1.5 flex-wrap items-center flex-1">
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-0.5 md:pb-0 items-center flex-1">
             {CATEGORIES.map((c) => (
               <button key={c} onClick={() => { setCategory(c); setPage(1); }}
-                className={`px-3.5 py-1.5 rounded-full text-[10px] tracking-[0.1em] uppercase font-medium transition-all duration-200 ${
+                className={`px-3 md:px-3.5 py-1.5 rounded-full text-[10px] tracking-[0.1em] uppercase font-medium transition-all duration-200 whitespace-nowrap shrink-0 ${
                   category === c ? "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(var(--primary),0.3)]" : "bg-secondary/30 text-muted-foreground hover:text-foreground hover:bg-secondary/60"
                 }`}>
                 {c === "All" ? t("portfolio_all") : c}
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-1 rounded-xl border border-border/40 bg-background/40 p-1">
+          <div className="hidden md:flex items-center gap-1 rounded-xl border border-border/40 bg-background/40 p-1">
             <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-lg transition-all ${viewMode === "grid" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
               <LayoutGrid size={15} />
             </button>

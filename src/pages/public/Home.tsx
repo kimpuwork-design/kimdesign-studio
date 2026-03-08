@@ -297,10 +297,10 @@ export default function Home() {
 
       {/* ── ABOUT ME ── */}
       <section ref={refAbout} className="reveal relative overflow-hidden bg-background">
-        <div className="container grid lg:grid-cols-2 lg:min-h-[85vh] gap-8">
+        <div className="container grid lg:grid-cols-2 lg:min-h-[85vh] gap-6 md:gap-8">
           <div className="relative flex items-stretch">
-            <div className="relative w-full overflow-hidden rounded-3xl mt-8 mb-8 lg:mt-0 lg:mb-0">
-              <div className="relative z-10 h-[400px] md:h-[520px] lg:h-full">
+            <div className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl mt-6 mb-6 lg:mt-0 lg:mb-0">
+              <div className="relative z-10 h-[320px] sm:h-[400px] md:h-[520px] lg:h-full">
                 <img src={aboutProfileImg} alt={aboutMe.title_prefix ?? "Principal Architect"} className="h-full w-full object-cover object-center rounded-3xl" />
                 {/* Gradient overlay on image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent rounded-3xl" />
@@ -321,14 +321,14 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="flex flex-col justify-center py-10 lg:py-20 lg:pl-12 xl:pl-20">
-            <div className="flex items-center gap-3 mb-10">
-              <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Sparkles size={14} className="text-primary" />
+          <div className="flex flex-col justify-center py-8 md:py-10 lg:py-20 lg:pl-12 xl:pl-20">
+            <div className="flex items-center gap-2.5 md:gap-3 mb-6 md:mb-10">
+              <div className="h-7 w-7 md:h-8 md:w-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Sparkles size={12} className="text-primary md:w-[14px] md:h-[14px]" />
               </div>
-              <p className="text-xs tracking-[0.2em] uppercase text-primary font-semibold">{aboutMe.title_prefix ?? "Principal Architect"}</p>
+              <p className="text-[10px] md:text-xs tracking-[0.2em] uppercase text-primary font-semibold">{aboutMe.title_prefix ?? "Principal Architect"}</p>
             </div>
-            <h2 className="font-display text-[clamp(2.5rem,5vw,4.5rem)] font-bold leading-[1.05] text-foreground mb-2 tracking-tight">
+            <h2 className="font-display text-[clamp(2rem,5vw,4.5rem)] font-bold leading-[1.05] text-foreground mb-2 tracking-tight">
               {aboutMe.name_first ?? "Elena"}<br />
               <span className="text-primary">{aboutMe.name_last ?? "Markov"}.</span>
             </h2>
@@ -362,26 +362,26 @@ export default function Home() {
 
       {/* Hero */}
       <section ref={refHero} className="reveal relative lg:min-h-[90vh] flex items-center">
-        <div className="container py-12 md:py-36">
+        <div className="container py-10 md:py-36">
           <div className="max-w-4xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-8">
-              <Sparkles size={12} className="text-primary" />
-              <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-3 md:px-4 py-1.5 md:py-2 mb-5 md:mb-8">
+              <Sparkles size={11} className="text-primary shrink-0" />
+              <p className="text-[10px] md:text-xs font-semibold tracking-[0.12em] md:tracking-[0.15em] uppercase text-primary">
                 {hero.badge ?? "Architecture · Interiors · Urbanism"}
               </p>
             </div>
-            <h1 className="font-display text-[clamp(3rem,8vw,6.5rem)] font-bold leading-[1.02] text-foreground tracking-tight">
+            <h1 className="font-display text-[clamp(2.5rem,8vw,6.5rem)] font-bold leading-[1.02] text-foreground tracking-tight">
               {hero.title_line1 ?? "Building spaces"}<br />
               <span className="text-primary">{hero.title_line2 ?? "that endure."}</span>
             </h1>
-            <p className="mt-8 text-lg font-light text-muted-foreground max-w-lg leading-relaxed">
+            <p className="mt-5 md:mt-8 text-base md:text-lg font-light text-muted-foreground max-w-lg leading-relaxed">
               {hero.description ?? ""}
             </p>
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Button size="lg" asChild className="rounded-2xl px-8 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow text-base h-13">
-                <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={16} className="ml-2" /></Link>
+            <div className="mt-6 md:mt-10 flex flex-col sm:flex-row gap-3 md:gap-4">
+              <Button size="lg" asChild className="rounded-2xl px-6 md:px-8 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow text-sm md:text-base h-12 md:h-13 w-full sm:w-auto">
+                <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={14} className="ml-2" /></Link>
               </Button>
-              <Button variant="outline" size="lg" asChild className="rounded-2xl px-8 tracking-wide text-base h-13 border-border/50 hover:bg-secondary/60">
+              <Button variant="outline" size="lg" asChild className="rounded-2xl px-6 md:px-8 tracking-wide text-sm md:text-base h-12 md:h-13 border-border/50 hover:bg-secondary/60 w-full sm:w-auto">
                 <Link to="/contact">{t("home_work_with_us")}</Link>
               </Button>
             </div>
@@ -395,8 +395,8 @@ export default function Home() {
 
       {/* Stats */}
       {stats.length > 0 && (
-        <section ref={refStats} className="reveal py-16">
-          <div className="container grid grid-cols-2 gap-4 md:grid-cols-4">
+        <section ref={refStats} className="reveal py-10 md:py-16">
+          <div className="container grid grid-cols-2 gap-3 md:gap-4 md:grid-cols-4">
             {stats.map((s: any, i: number) => (
               <AnimatedStat key={s.label} value={s.value} suffix={s.suffix} label={s.label} index={i} />
             ))}
@@ -406,8 +406,8 @@ export default function Home() {
 
       {/* Featured Projects */}
       {featured.length > 0 && (
-        <section ref={refFeatured} className="reveal container py-24">
-          <div className="flex items-end justify-between mb-14">
+        <section ref={refFeatured} className="reveal container py-12 md:py-24">
+          <div className="flex items-end justify-between mb-8 md:mb-14">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-1 w-8 rounded-full bg-primary" />
@@ -419,11 +419,11 @@ export default function Home() {
               {t("home_view_all")} <ArrowRight size={14} />
             </Link>
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             {featured.map((item, i) => (
               <Link key={item.id} to={`/portfolio/${item.slug}`}
                 className="group block relative overflow-hidden rounded-2xl border border-border/30">
-                <div className={`overflow-hidden ${i === 0 ? "aspect-[3/4]" : "aspect-square"}`}>
+                <div className={`overflow-hidden ${i === 0 ? "aspect-[4/3] sm:aspect-[3/4]" : "aspect-[4/3] sm:aspect-square"}`}>
                   {item.cover_image_url ? (
                     <img src={item.cover_image_url} alt={item.title} loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -453,7 +453,7 @@ export default function Home() {
 
       {/* Services */}
       {servicesHome.length > 0 && (
-        <section ref={refServices} className="reveal py-24">
+        <section ref={refServices} className="reveal py-12 md:py-24">
           <div className="container">
             <div className="mb-14">
               <div className="flex items-center gap-2 mb-4">
@@ -462,7 +462,7 @@ export default function Home() {
               </div>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_what_we_do")}</h2>
             </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
               {servicesHome.map((s: any) => {
                 const Icon = ICON_MAP[s.icon] ?? Building2;
                 return (
@@ -543,17 +543,17 @@ export default function Home() {
 
       {/* CTA */}
       <section ref={refCta} className="reveal">
-        <div className="container py-24">
-          <div className="max-w-3xl mx-auto text-center glass-card-public p-16 relative overflow-hidden glass-glow-ring">
+        <div className="container py-12 md:py-24">
+          <div className="max-w-3xl mx-auto text-center glass-card-public p-8 md:p-16 relative overflow-hidden glass-glow-ring">
             {/* Background glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px]" />
             <div className="relative z-10">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">
+              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">
                 {cta.title_line1 ?? "Let's build something"}<br />
                 <span className="text-primary">{cta.title_line2 ?? "remarkable."}</span>
               </h2>
-              <p className="mt-6 text-muted-foreground text-lg">{cta.subtitle ?? "Every great building begins with a conversation."}</p>
-              <Button className="mt-8 rounded-2xl px-10 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow h-13 text-base" size="lg" asChild>
+              <p className="mt-4 md:mt-6 text-muted-foreground text-base md:text-lg">{cta.subtitle ?? "Every great building begins with a conversation."}</p>
+              <Button className="mt-6 md:mt-8 rounded-2xl px-8 md:px-10 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow h-12 md:h-13 text-sm md:text-base w-full sm:w-auto" size="lg" asChild>
                 <Link to="/contact">{t("home_begin_project")} <ArrowRight size={16} className="ml-2" /></Link>
               </Button>
             </div>

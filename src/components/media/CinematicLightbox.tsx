@@ -73,7 +73,12 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-black/95 select-none">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm select-none" onClick={onClose}>
+      <div
+        className="relative flex flex-col bg-black/95 rounded-2xl border border-white/10 shadow-2xl overflow-hidden"
+        style={{ maxWidth: "92vw", maxHeight: "92vh" }}
+        onClick={(e) => e.stopPropagation()}
+      >
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-3 bg-black/60 border-b border-white/10 shrink-0">
         <div className="flex items-center gap-3">
@@ -107,26 +112,23 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
       {/* Image area — scrollable for oversized images */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-auto flex items-start justify-center p-4"
+        className="flex-1 overflow-auto flex items-center justify-center min-h-0"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        onClick={(e) => {
-          if (e.target === scrollRef.current) onClose();
-        }}
       >
         <img
           key={current.id}
           src={current.image_url}
           alt={current.caption || `Image ${idx + 1}`}
           draggable={false}
-          className="block"
+          className="block p-4"
           style={{ width: "auto", height: "auto" }}
         />
       </div>
 
-      {/* Nav arrows */}
+      {/* Nav arrows — positioned on the backdrop layer */}
       {total > 1 && (
-        <div className="absolute inset-y-0 inset-x-0 flex items-center justify-between pointer-events-none px-2 sm:px-4">
+        <div className="absolute inset-y-0 inset-x-0 flex items-center justify-between pointer-events-none px-2 sm:px-4 z-[101]">
           <button
             onClick={prev}
             className="pointer-events-auto w-12 h-12 rounded-full bg-white/[0.1] backdrop-blur-sm flex items-center justify-center text-white/80 hover:bg-white/20 hover:text-white transition-colors active:scale-95"
@@ -168,6 +170,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

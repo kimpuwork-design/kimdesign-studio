@@ -29,19 +29,19 @@ export default function Services() {
       <div className="fixed bottom-1/3 -left-40 w-[400px] h-[400px] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
 
       {/* Hero */}
-      <section className="container py-20 md:py-28 relative z-10">
+      <section className="container py-12 md:py-20 lg:py-28 relative z-10">
         <div className="max-w-2xl">
           <FadeUp>
-            <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-4">{page.hero_subtitle ?? "Services"}</p>
+            <p className="text-[10px] md:text-xs font-medium tracking-[0.25em] uppercase text-primary mb-3 md:mb-4">{page.hero_subtitle ?? "Services"}</p>
           </FadeUp>
           <FadeUp delay={0.1}>
-            <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] font-light leading-tight text-foreground">
+            <h1 className="font-display text-[clamp(1.75rem,5vw,5.5rem)] font-light leading-[1.1] text-foreground">
               {page.hero_title_line1 ?? "Every project,"}<br />
               <em className="not-italic font-semibold">{page.hero_title_line2 ?? "built from scratch."}</em>
             </h1>
           </FadeUp>
           <FadeUp delay={0.2}>
-            <p className="mt-6 text-muted-foreground font-light leading-relaxed">
+            <p className="mt-4 md:mt-6 text-sm md:text-base text-muted-foreground font-light leading-relaxed">
               {page.hero_description ?? ""}
             </p>
           </FadeUp>

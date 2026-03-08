@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { X, ChevronLeft, ChevronRight, Download, ImageOff } from "lucide-react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { X, ChevronLeft, ChevronRight, Download, ImageOff, Loader2 } from "lucide-react";
 
 export interface LightboxImage {
   id: string;
@@ -17,6 +17,7 @@ const SWIPE_THRESHOLD = 50;
 
 export function CinematicLightbox({ images, startIndex, onClose }: Props) {
   const total = images.length;
+
   const clampIndex = useCallback(
     (value: number) => {
       if (total <= 0) return 0;
@@ -26,7 +27,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
   );
 
   const [idx, setIdx] = useState(() => clampIndex(startIndex));
-  const [failedIds, setFailedIds] = useState<Record<string, boolean>>({});
+  const [loadState, setLoadState] = useState<"loading" | "loaded" | "error">("loading");
   const touchStart = useRef<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -35,6 +36,18 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
   }, [startIndex, total, clampIndex]);
 
   const current = images[idx];
+
+  const currentUrl = useMemo(() => {
+    const raw = current?.image_url?.trim() ?? "";
+    if (!raw) return "";
+    if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:")) return raw;
+    if (raw.startsWith("/")) return `${window.location.origin}${raw}`;
+    return raw;
+  }, [current?.image_url]);
+
+  useEffect(() => {
+    setLoadState("loading");
+  }, [current?.id, currentUrl]);
 
   const prev = useCallback(() => {
     if (total <= 1) return;
@@ -77,16 +90,14 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStart.current === null) return;
     const dx = (e.changedTouches[0]?.clientX ?? 0) - touchStart.current;
-    if (Math.abs(dx) > SWIPE_THRESHOLD) {
-      dx < 0 ? next() : prev();
-    }
+    if (Math.abs(dx) > SWIPE_THRESHOLD) dx < 0 ? next() : prev();
     touchStart.current = null;
   };
 
   const handleDownload = () => {
-    if (!current?.image_url) return;
+    if (!currentUrl) return;
     const a = document.createElement("a");
-    a.href = current.image_url;
+    a.href = currentUrl;
     a.download = `image-${idx + 1}`;
     a.target = "_blank";
     a.rel = "noopener noreferrer";
@@ -94,8 +105,6 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
   };
 
   if (!current) return null;
-
-  const failed = failedIds[current.id] === true;
 
   return (
     <div
@@ -139,32 +148,34 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
 
         <div
           ref={scrollRef}
-          className="flex-1 overflow-auto min-h-0"
+          className="relative flex-1 overflow-auto min-h-[320px] bg-foreground/95"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          {failed ? (
+          {loadState === "loading" && (
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <Loader2 size={24} className="animate-spin text-background/80" />
+            </div>
+          )}
+
+          {loadState === "error" ? (
             <div className="h-full min-h-[320px] flex flex-col items-center justify-center gap-3 p-6 text-center">
-              <ImageOff size={24} className="text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">Image failed to load.</p>
-              <a
-                href={current.image_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm underline text-foreground"
-              >
+              <ImageOff size={24} className="text-background/70" />
+              <p className="text-sm text-background/70">Image failed to load.</p>
+              <a href={currentUrl} target="_blank" rel="noopener noreferrer" className="text-sm underline text-background">
                 Open image directly
               </a>
             </div>
           ) : (
             <img
               key={current.id}
-              src={current.image_url}
+              src={currentUrl}
               alt={current.caption || `Image ${idx + 1}`}
               draggable={false}
-              className="block m-auto p-4"
+              className={`block m-auto p-4 max-w-none max-h-none ${loadState === "loaded" ? "opacity-100" : "opacity-0"}`}
               style={{ width: "auto", height: "auto" }}
-              onError={() => setFailedIds((prevState) => ({ ...prevState, [current.id]: true }))}
+              onLoad={() => setLoadState("loaded")}
+              onError={() => setLoadState("error")}
             />
           )}
         </div>
@@ -194,9 +205,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
                   key={`${img.id}-${i}`}
                   onClick={() => setIdx(i)}
                   className={`shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all ${
-                    i === idx
-                      ? "border-primary opacity-100 scale-105"
-                      : "border-transparent opacity-50 hover:opacity-80"
+                    i === idx ? "border-primary opacity-100 scale-105" : "border-transparent opacity-50 hover:opacity-80"
                   }`}
                 >
                   <img

@@ -112,7 +112,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
       onClick={onClose}
     >
       <div
-        className="relative flex flex-col bg-card/95 rounded-2xl border border-border shadow-2xl overflow-hidden"
+        className="relative flex flex-col bg-card/95 rounded-2xl border border-border shadow-2xl overflow-hidden w-auto h-auto"
         style={{ maxWidth: "92vw", maxHeight: "92vh" }}
         onClick={(e) => e.stopPropagation()}
       >

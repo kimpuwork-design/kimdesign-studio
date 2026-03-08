@@ -453,7 +453,7 @@ export default function Home() {
 
       {/* Services */}
       {servicesHome.length > 0 && (
-        <section ref={refServices} className="reveal py-24">
+        <section ref={refServices} className="reveal py-12 md:py-24">
           <div className="container">
             <div className="mb-14">
               <div className="flex items-center gap-2 mb-4">

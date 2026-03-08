@@ -250,6 +250,7 @@ export default function Home() {
     "about_me", "hero", "stats", "services_home", "testimonials", "awards", "cta"
   );
   const [featured, setFeatured] = useState<PortfolioItem[]>([]);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
   const refAbout = useScrollReveal();
   const refHero = useScrollReveal();

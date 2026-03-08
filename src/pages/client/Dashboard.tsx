@@ -2,22 +2,29 @@ import { useEffect, useState } from "react";
 import { PortalLayout } from "@/components/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { FolderOpen, Clock, CheckCircle, PackageOpen, FileText, Sparkles } from "lucide-react";
+import { FolderOpen, Clock, CheckCircle, PackageOpen, FileText, ArrowRight, Bell, MessageSquare, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { format, formatDistanceToNow } from "date-fns";
 
 interface Project {
   id: string;
   title: string;
   status: string;
   updated_at: string;
+  thumbnail_url: string | null;
+  target_date: string | null;
 }
 
-const GRADIENT_COLORS = [
-  "from-blue-500/20 to-blue-600/5",
-  "from-yellow-500/20 to-amber-600/5",
-  "from-green-500/20 to-emerald-600/5",
-  "from-purple-500/20 to-violet-600/5",
-];
+interface Notification {
+  id: string;
+  title: string;
+  body: string | null;
+  type: string;
+  link: string | null;
+  created_at: string;
+  is_read: boolean;
+}
 
 export default function ClientDashboard() {
   const { profile } = useAuth();
@@ -25,94 +32,201 @@ export default function ClientDashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [pendingApprovals, setPendingApprovals] = useState(0);
   const [unpaidInvoices, setUnpaidInvoices] = useState(0);
+  const [recentNotifs, setRecentNotifs] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!profile) return;
-    supabase
-      .from("projects")
-      .select("id, title, status, updated_at")
-      .order("updated_at", { ascending: false })
-      .then(({ data }) => setProjects((data as Project[]) ?? []));
 
-    supabase
-      .from("deliverables")
-      .select("id, project_id, projects!inner(client_id)")
-      .eq("status", "submitted")
-      .then(({ data }) => {
-        const mine = (data ?? []).filter((d: any) => d.projects?.client_id === profile.id);
-        setPendingApprovals(mine.length);
-      });
-
-    supabase
-      .from("invoices")
-      .select("id, project_id, projects!inner(client_id)")
-      .eq("status", "sent")
-      .then(({ data }) => {
-        const mine = (data ?? []).filter((d: any) => d.projects?.client_id === profile.id);
-        setUnpaidInvoices(mine.length);
-      });
+    setLoading(true);
+    Promise.all([
+      supabase
+        .from("projects")
+        .select("id, title, status, updated_at, thumbnail_url, target_date")
+        .order("updated_at", { ascending: false }),
+      supabase
+        .from("deliverables")
+        .select("id, project_id, projects!inner(client_id)")
+        .eq("status", "submitted"),
+      supabase
+        .from("invoices")
+        .select("id, project_id, projects!inner(client_id)")
+        .eq("status", "sent"),
+      supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", profile.id)
+        .eq("is_read", false)
+        .order("created_at", { ascending: false })
+        .limit(5),
+    ]).then(([projRes, delRes, invRes, notifRes]) => {
+      setProjects((projRes.data as Project[]) ?? []);
+      const myDels = (delRes.data ?? []).filter((d: any) => d.projects?.client_id === profile.id);
+      setPendingApprovals(myDels.length);
+      const myInvs = (invRes.data ?? []).filter((d: any) => d.projects?.client_id === profile.id);
+      setUnpaidInvoices(myInvs.length);
+      setRecentNotifs((notifRes.data as Notification[]) ?? []);
+      setLoading(false);
+    });
   }, [profile]);
 
-  const activeCount = projects.filter((p) => p.status === "active").length;
+  const activeCount = projects.filter((p) => p.status === "active" || p.status === "review").length;
   const completedCount = projects.filter((p) => p.status === "delivered").length;
+
+  const greeting = () => {
+    const h = new Date().getHours();
+    if (h < 12) return "Good morning";
+    if (h < 17) return "Good afternoon";
+    return "Good evening";
+  };
+
+  const statCards = [
+    { icon: FolderOpen, label: "Active Projects", value: activeCount, gradient: "from-blue-500 to-blue-600", href: "/app/projects" },
+    { icon: PackageOpen, label: "Pending Review", value: pendingApprovals, gradient: "from-amber-500 to-amber-600", alert: pendingApprovals > 0 },
+    { icon: CheckCircle, label: "Completed", value: completedCount, gradient: "from-emerald-500 to-emerald-600" },
+    { icon: FileText, label: "Unpaid Invoices", value: unpaidInvoices, gradient: "from-rose-500 to-rose-600", alert: unpaidInvoices > 0 },
+  ];
+
+  const TYPE_ICONS: Record<string, string> = { message: "💬", deliverable: "📦", system: "🔔" };
 
   return (
     <PortalLayout variant="client">
+      {/* Welcome Header */}
       <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold text-portal-text flex items-center gap-2">
-          <Sparkles size={24} className="text-portal-accent" />
-          <span className="gradient-text">Welcome back, {profile?.full_name?.split(" ")[0] ?? "there"}</span> 👋
-        </h1>
-        <p className="mt-1 text-portal-text-muted">Here's what's happening with your projects.</p>
+        <div className="flex items-center gap-3">
+          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-portal-accent to-portal-accent/60 flex items-center justify-center shadow-lg shadow-portal-accent/20">
+            <Zap size={18} className="text-portal-accent-foreground" />
+          </div>
+          <div>
+            <h1 className="font-display text-2xl font-bold text-portal-text">
+              {greeting()}, <span className="gradient-text">{profile?.full_name?.split(" ")[0] ?? "there"}</span>
+            </h1>
+            <p className="text-sm text-portal-text-muted mt-0.5">Here's what's happening with your projects.</p>
+          </div>
+        </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        {[
-          { icon: FolderOpen, label: "Active Projects", value: activeCount, color: "text-blue-400", gradient: GRADIENT_COLORS[0] },
-          { icon: PackageOpen, label: "Pending Approvals", value: pendingApprovals, color: "text-yellow-400", gradient: GRADIENT_COLORS[1], alert: pendingApprovals > 0 },
-          { icon: CheckCircle, label: "Completed", value: completedCount, color: "text-green-400", gradient: GRADIENT_COLORS[2] },
-          { icon: FileText, label: "Unpaid Invoices", value: unpaidInvoices, color: "text-purple-400", gradient: GRADIENT_COLORS[3], alert: unpaidInvoices > 0 },
-        ].map((s) => {
+      {/* Stat Cards */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        {statCards.map((s, i) => {
           const Icon = s.icon;
           return (
-            <div key={s.label} className="glass-card glass-card-hover group relative overflow-hidden p-5">
-              <div className={`absolute inset-0 bg-gradient-to-br ${s.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-medium uppercase tracking-wider text-portal-text-muted">{s.label}</span>
-                  <div className={`rounded-lg p-1.5 bg-gradient-to-br ${s.gradient}`}>
-                    <Icon size={16} className={s.color} />
-                  </div>
+            <motion.button
+              key={s.label}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08, duration: 0.4 }}
+              onClick={() => s.href && navigate(s.href)}
+              className="glass-card glass-card-hover p-4 text-left group"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className={`rounded-lg p-2 bg-gradient-to-br ${s.gradient} shadow-lg`}>
+                  <Icon size={14} className="text-white" />
                 </div>
-                <p className={`font-display text-3xl font-bold ${s.alert ? "text-yellow-400" : "text-portal-text"}`}>{s.value}</p>
+                {s.alert && (
+                  <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                )}
               </div>
-            </div>
+              <p className={`font-display text-2xl font-bold tracking-tight ${s.alert ? "text-amber-400" : "text-portal-text"}`}>
+                {loading ? <span className="inline-block h-7 w-16 shimmer rounded-lg" /> : s.value}
+              </p>
+              <p className="text-[11px] text-portal-text-muted mt-1 font-medium uppercase tracking-wider">{s.label}</p>
+            </motion.button>
           );
         })}
       </div>
 
-      <div className="glass-card p-6">
-        <h2 className="font-display text-lg font-semibold text-portal-text mb-4">Recent Projects</h2>
-        {projects.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-portal-text-muted">
-            <FolderOpen size={40} className="mb-3 opacity-30" />
-            <p className="text-sm">No projects yet. Your studio will add one soon.</p>
+      <div className="grid gap-4 md:grid-cols-3">
+        {/* Recent Projects */}
+        <div className="glass-card p-5 md:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-sm font-semibold text-portal-text">Recent Projects</h2>
+            <button onClick={() => navigate("/app/projects")}
+              className="text-[11px] text-portal-accent flex items-center gap-1 hover:underline">
+              View all <ArrowRight size={10} />
+            </button>
           </div>
-        ) : (
-          <div className="space-y-2">
-            {projects.slice(0, 5).map((p) => (
-              <button key={p.id} onClick={() => navigate(`/app/projects/${p.id}`)}
-                className="w-full flex items-center justify-between glass-card-hover rounded-lg px-4 py-3 text-left transition-all duration-200">
-                <span className="text-sm font-medium text-portal-text">{p.title}</span>
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm ${
-                  p.status === "active" ? "bg-blue-400/15 text-blue-400 border border-blue-400/20" :
-                  p.status === "delivered" ? "bg-green-500/15 text-green-500 border border-green-500/20" :
-                  "bg-portal-border text-portal-text-muted"
-                }`}>{p.status}</span>
-              </button>
-            ))}
+          {projects.length === 0 && !loading ? (
+            <div className="flex flex-col items-center justify-center py-10 text-portal-text-muted">
+              <FolderOpen size={32} className="mb-2 opacity-30" />
+              <p className="text-xs">No projects yet. Your studio will add one soon.</p>
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              {projects.slice(0, 5).map((p, i) => (
+                <motion.button
+                  key={p.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.06 }}
+                  onClick={() => navigate(`/app/projects/${p.id}`)}
+                  className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left hover:bg-portal-surface-hover/50 transition-all group"
+                >
+                  {/* Thumbnail */}
+                  <div className="h-10 w-14 rounded-lg overflow-hidden bg-portal-surface shrink-0">
+                    {p.thumbnail_url ? (
+                      <img src={p.thumbnail_url} alt="" className="h-full w-full object-cover" loading="lazy" />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center">
+                        <FolderOpen size={14} className="text-portal-text-muted/30" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-portal-text truncate">{p.title}</p>
+                    <p className="text-[10px] text-portal-text-muted mt-0.5">
+                      Updated {formatDistanceToNow(new Date(p.updated_at), { addSuffix: true })}
+                    </p>
+                  </div>
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${
+                    p.status === "active" ? "bg-blue-500/15 text-blue-400" :
+                    p.status === "delivered" ? "bg-emerald-500/15 text-emerald-400" :
+                    p.status === "review" ? "bg-violet-500/15 text-violet-400" :
+                    "bg-portal-surface text-portal-text-muted"
+                  }`}>{p.status}</span>
+                  <ArrowRight size={12} className="text-portal-text-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                </motion.button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Recent Notifications */}
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-sm font-semibold text-portal-text">Notifications</h2>
+            <button onClick={() => navigate("/app/notifications")}
+              className="text-[11px] text-portal-accent flex items-center gap-1 hover:underline">
+              View all <ArrowRight size={10} />
+            </button>
           </div>
-        )}
+          {recentNotifs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-portal-text-muted">
+              <Bell size={24} className="mb-2 opacity-30" />
+              <p className="text-[11px]">All caught up!</p>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {recentNotifs.map((n) => (
+                <button
+                  key={n.id}
+                  onClick={() => n.link && navigate(n.link)}
+                  className="w-full text-left flex items-start gap-2.5 rounded-lg px-2.5 py-2 hover:bg-portal-surface-hover/40 transition-all"
+                >
+                  <span className="text-sm mt-0.5 shrink-0">{TYPE_ICONS[n.type] ?? "🔔"}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] font-medium text-portal-text truncate">{n.title}</p>
+                    {n.body && <p className="text-[10px] text-portal-text-muted truncate mt-0.5">{n.body}</p>}
+                    <p className="text-[9px] text-portal-text-muted/60 mt-0.5">
+                      {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+                    </p>
+                  </div>
+                  <span className="flex h-1.5 w-1.5 rounded-full bg-portal-accent shrink-0 mt-1.5" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </PortalLayout>
   );

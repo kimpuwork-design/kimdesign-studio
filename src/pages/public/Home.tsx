@@ -455,23 +455,23 @@ export default function Home() {
       {servicesHome.length > 0 && (
         <section ref={refServices} className="reveal py-12 md:py-24">
           <div className="container">
-            <div className="mb-14">
-              <div className="flex items-center gap-2 mb-4">
+            <div className="mb-8 md:mb-14">
+              <div className="flex items-center gap-2 mb-3 md:mb-4">
                 <div className="h-1 w-8 rounded-full bg-primary" />
-                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_disciplines")}</p>
+                <p className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_disciplines")}</p>
               </div>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">{t("home_what_we_do")}</h2>
+              <h2 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">{t("home_what_we_do")}</h2>
             </div>
             <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
               {servicesHome.map((s: any) => {
                 const Icon = ICON_MAP[s.icon] ?? Building2;
                 return (
-                  <div key={s.title} className="group glass-card-public glass-glow-ring p-8">
-                    <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/15 transition-colors">
-                      <Icon size={22} className="text-primary" />
+                  <div key={s.title} className="group glass-card-public glass-glow-ring p-5 md:p-8">
+                    <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl md:rounded-2xl bg-primary/10 flex items-center justify-center mb-4 md:mb-5 group-hover:bg-primary/15 transition-colors">
+                      <Icon size={18} className="md:w-[22px] md:h-[22px] text-primary" />
                     </div>
-                    <h3 className="font-display text-lg font-semibold text-foreground mb-3">{s.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                    <h3 className="font-display text-base md:text-lg font-semibold text-foreground mb-2 md:mb-3">{s.title}</h3>
+                    <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
                   </div>
                 );
               })}

@@ -21,50 +21,50 @@ const lazyRetry = (fn: () => Promise<any>) =>
   }));
 
 const Home = lazyRetry(() => import("./pages/public/Home"));
-const PublicProjects = lazy(() => import("./pages/public/Projects"));
-const PublicProjectDetail = lazy(() => import("./pages/public/ProjectDetail"));
-const Portfolio = lazy(() => import("./pages/public/Portfolio"));
-const PortfolioDetail = lazy(() => import("./pages/public/PortfolioDetail"));
-const Services = lazy(() => import("./pages/public/Services"));
-const About = lazy(() => import("./pages/public/About"));
-const Contact = lazy(() => import("./pages/public/Contact"));
-const PublicBlog = lazy(() => import("./pages/public/Blog"));
-const PublicBlogDetail = lazy(() => import("./pages/public/BlogDetail"));
+const PublicProjects = lazyRetry(() => import("./pages/public/Projects"));
+const PublicProjectDetail = lazyRetry(() => import("./pages/public/ProjectDetail"));
+const Portfolio = lazyRetry(() => import("./pages/public/Portfolio"));
+const PortfolioDetail = lazyRetry(() => import("./pages/public/PortfolioDetail"));
+const Services = lazyRetry(() => import("./pages/public/Services"));
+const About = lazyRetry(() => import("./pages/public/About"));
+const Contact = lazyRetry(() => import("./pages/public/Contact"));
+const PublicBlog = lazyRetry(() => import("./pages/public/Blog"));
+const PublicBlogDetail = lazyRetry(() => import("./pages/public/BlogDetail"));
 
-const Login = lazy(() => import("./pages/auth/Login"));
-const Register = lazy(() => import("./pages/auth/Register"));
+const Login = lazyRetry(() => import("./pages/auth/Login"));
+const Register = lazyRetry(() => import("./pages/auth/Register"));
 
-const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
-const AdminProjects = lazy(() => import("./pages/admin/Projects"));
-const AdminProjectDetail = lazy(() => import("./pages/admin/ProjectDetail"));
-const AdminClients = lazy(() => import("./pages/admin/Clients"));
-const AdminLeads = lazy(() => import("./pages/admin/Leads"));
-const AdminDeliverables = lazy(() => import("./pages/admin/Deliverables"));
-const AdminQuotes = lazy(() => import("./pages/admin/Quotes"));
-const AdminInvoices = lazy(() => import("./pages/admin/Invoices"));
-const AdminFiles = lazy(() => import("./pages/admin/Files"));
-const AdminPortfolio = lazy(() => import("./pages/admin/Projects")); // Portfolio merged into Projects
-const AdminPortfolioEditor = lazy(() => import("./pages/admin/PortfolioEditor"));
-const AdminTeam = lazy(() => import("./pages/admin/Team"));
-const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
-const AdminSiteContent = lazy(() => import("./pages/admin/SiteContent"));
-const AdminAuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
-const AdminBlog = lazy(() => import("./pages/admin/Blog"));
-const AdminBlogEditor = lazy(() => import("./pages/admin/BlogEditor"));
-const AdminAnalytics = lazy(() => import("./pages/admin/Analytics"));
+const AdminDashboard = lazyRetry(() => import("./pages/admin/Dashboard"));
+const AdminProjects = lazyRetry(() => import("./pages/admin/Projects"));
+const AdminProjectDetail = lazyRetry(() => import("./pages/admin/ProjectDetail"));
+const AdminClients = lazyRetry(() => import("./pages/admin/Clients"));
+const AdminLeads = lazyRetry(() => import("./pages/admin/Leads"));
+const AdminDeliverables = lazyRetry(() => import("./pages/admin/Deliverables"));
+const AdminQuotes = lazyRetry(() => import("./pages/admin/Quotes"));
+const AdminInvoices = lazyRetry(() => import("./pages/admin/Invoices"));
+const AdminFiles = lazyRetry(() => import("./pages/admin/Files"));
+const AdminPortfolio = lazyRetry(() => import("./pages/admin/Projects"));
+const AdminPortfolioEditor = lazyRetry(() => import("./pages/admin/PortfolioEditor"));
+const AdminTeam = lazyRetry(() => import("./pages/admin/Team"));
+const AdminSettings = lazyRetry(() => import("./pages/admin/AdminSettings"));
+const AdminSiteContent = lazyRetry(() => import("./pages/admin/SiteContent"));
+const AdminAuditLogs = lazyRetry(() => import("./pages/admin/AuditLogs"));
+const AdminBlog = lazyRetry(() => import("./pages/admin/Blog"));
+const AdminBlogEditor = lazyRetry(() => import("./pages/admin/BlogEditor"));
+const AdminAnalytics = lazyRetry(() => import("./pages/admin/Analytics"));
 
-const StaffDashboard = lazy(() => import("./pages/staff/Dashboard"));
-const StaffProjects = lazy(() => import("./pages/staff/Projects"));
-const StaffProjectDetail = lazy(() => import("./pages/staff/ProjectDetail"));
+const StaffDashboard = lazyRetry(() => import("./pages/staff/Dashboard"));
+const StaffProjects = lazyRetry(() => import("./pages/staff/Projects"));
+const StaffProjectDetail = lazyRetry(() => import("./pages/staff/ProjectDetail"));
 
-const ClientDashboard = lazy(() => import("./pages/client/Dashboard"));
-const ClientProjects = lazy(() => import("./pages/client/Projects"));
-const ClientProjectDetail = lazy(() => import("./pages/client/ProjectDetail"));
-const ClientProfile = lazy(() => import("./pages/client/Profile"));
+const ClientDashboard = lazyRetry(() => import("./pages/client/Dashboard"));
+const ClientProjects = lazyRetry(() => import("./pages/client/Projects"));
+const ClientProjectDetail = lazyRetry(() => import("./pages/client/ProjectDetail"));
+const ClientProfile = lazyRetry(() => import("./pages/client/Profile"));
 
-const NotificationsPage = lazy(() => import("./pages/shared/NotificationsPage"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const NotAuthorized = lazy(() => import("./pages/NotAuthorized"));
+const NotificationsPage = lazyRetry(() => import("./pages/shared/NotificationsPage"));
+const NotFound = lazyRetry(() => import("./pages/NotFound"));
+const NotAuthorized = lazyRetry(() => import("./pages/NotAuthorized"));
 
 const queryClient = new QueryClient();
 

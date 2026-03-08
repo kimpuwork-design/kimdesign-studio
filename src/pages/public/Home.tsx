@@ -548,12 +548,12 @@ export default function Home() {
             {/* Background glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px]" />
             <div className="relative z-10">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">
+              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">
                 {cta.title_line1 ?? "Let's build something"}<br />
                 <span className="text-primary">{cta.title_line2 ?? "remarkable."}</span>
               </h2>
-              <p className="mt-6 text-muted-foreground text-lg">{cta.subtitle ?? "Every great building begins with a conversation."}</p>
-              <Button className="mt-8 rounded-2xl px-10 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow h-13 text-base" size="lg" asChild>
+              <p className="mt-4 md:mt-6 text-muted-foreground text-base md:text-lg">{cta.subtitle ?? "Every great building begins with a conversation."}</p>
+              <Button className="mt-6 md:mt-8 rounded-2xl px-8 md:px-10 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow h-12 md:h-13 text-sm md:text-base w-full sm:w-auto" size="lg" asChild>
                 <Link to="/contact">{t("home_begin_project")} <ArrowRight size={16} className="ml-2" /></Link>
               </Button>
             </div>

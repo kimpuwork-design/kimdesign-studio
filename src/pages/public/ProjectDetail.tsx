@@ -44,10 +44,16 @@ export default function PublicProjectDetail() {
     Promise.all([
       supabase.from("projects").select("id, title, description, status, location, start_date, target_date").eq("id", id).eq("is_public", true).single(),
       supabase.from("file_assets").select("*").eq("project_id", id).eq("is_deleted", false).order("created_at", { ascending: false }),
-    ]).then(([{ data: proj, error }, { data: fileData }]) => {
+      supabase.from("portfolio_gallery").select("id, image_url, caption, sort_order").eq("project_id", id).order("sort_order"),
+    ]).then(([{ data: proj, error }, { data: fileData }, { data: galleryData }]) => {
       if (error || !proj) { setNotFound(true); } else {
         setProject(proj as Project);
         setFiles((fileData as unknown as FileAsset[]) ?? []);
+        // Merge portfolio gallery images into galleryImages
+        const pgImages = (galleryData ?? []).map((g: any) => ({ url: g.image_url, name: g.caption || "Gallery image" }));
+        if (pgImages.length > 0) {
+          setGalleryImages(pgImages);
+        }
       }
       setLoading(false);
     });

@@ -129,9 +129,9 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
         />
       </div>
 
-      {/* Nav arrows */}
+      {/* Nav arrows — positioned on the backdrop layer */}
       {total > 1 && (
-        <div className="absolute inset-y-0 inset-x-0 flex items-center justify-between pointer-events-none px-2 sm:px-4">
+        <div className="absolute inset-y-0 inset-x-0 flex items-center justify-between pointer-events-none px-2 sm:px-4 z-[101]">
           <button
             onClick={prev}
             className="pointer-events-auto w-12 h-12 rounded-full bg-white/[0.1] backdrop-blur-sm flex items-center justify-center text-white/80 hover:bg-white/20 hover:text-white transition-colors active:scale-95"

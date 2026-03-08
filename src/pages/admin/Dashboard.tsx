@@ -162,26 +162,26 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Stat Cards — compact with gradient icon */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 mb-8">
+      {/* Stat Cards — horizontal scroll on mobile, grid on desktop */}
+      <div className="flex gap-2.5 overflow-x-auto scrollbar-none pb-1 mb-5 md:mb-8 md:grid md:grid-cols-5 md:overflow-visible md:pb-0">
         {statCards.map((s) => {
           const Icon = s.icon;
           return (
             <button
               key={s.label}
               onClick={() => navigate(s.href)}
-              className="group glass-card glass-card-hover p-4 text-left"
+              className="group glass-card glass-card-hover p-3 md:p-4 text-left min-w-[130px] md:min-w-0 shrink-0 md:shrink"
             >
-              <div className="flex items-center justify-between mb-3">
-                <div className={`rounded-lg p-2 bg-gradient-to-br ${s.color} shadow-lg`}>
-                  <Icon size={14} className="text-white" />
+              <div className="flex items-center justify-between mb-2 md:mb-3">
+                <div className={`rounded-lg p-1.5 md:p-2 bg-gradient-to-br ${s.color} shadow-lg`}>
+                  <Icon size={12} className="md:w-[14px] md:h-[14px] text-white" />
                 </div>
-                <ArrowUpRight size={12} className="text-portal-text-muted opacity-0 group-hover:opacity-100 transition-all" />
+                <ArrowUpRight size={10} className="text-portal-text-muted opacity-0 group-hover:opacity-100 transition-all hidden md:block" />
               </div>
-              <p className="font-display text-2xl font-bold text-portal-text tracking-tight">
-                {loading ? <span className="inline-block h-7 w-16 shimmer rounded-lg" /> : s.value}
+              <p className="font-display text-lg md:text-2xl font-bold text-portal-text tracking-tight">
+                {loading ? <span className="inline-block h-5 md:h-7 w-12 md:w-16 shimmer rounded-lg" /> : s.value}
               </p>
-              <p className="text-[11px] text-portal-text-muted mt-1 font-medium uppercase tracking-wider">{s.label}</p>
+              <p className="text-[9px] md:text-[11px] text-portal-text-muted mt-0.5 md:mt-1 font-medium uppercase tracking-wider">{s.label}</p>
             </button>
           );
         })}

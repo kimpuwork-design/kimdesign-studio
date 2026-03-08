@@ -423,8 +423,8 @@ export default function Home() {
           </div>
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             {featured.map((item, i) => (
-              <Link key={item.id} to={`/portfolio/${item.slug}`}
-                className="group block relative overflow-hidden rounded-2xl border border-border/30">
+              <div key={item.id} className="group block relative overflow-hidden rounded-2xl border border-border/30 cursor-pointer"
+                onClick={() => item.cover_image_url && setLightboxIdx(i)}>
                 <div className={`overflow-hidden ${i === 0 ? "aspect-[4/3] sm:aspect-[3/4]" : "aspect-[4/3] sm:aspect-square"}`}>
                   {item.cover_image_url ? (
                     <img src={item.cover_image_url} alt={item.title} loading="lazy"
@@ -435,16 +435,19 @@ export default function Home() {
                     </div>
                   )}
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                  <h3 className="font-display text-xl font-bold text-background drop-shadow-lg">{item.title}</h3>
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <Link to={`/portfolio/${item.slug}`} onClick={(e) => e.stopPropagation()}
+                    className="font-display text-xl font-bold text-background drop-shadow-lg hover:underline">
+                    {item.title}
+                  </Link>
                   <div className="flex items-center gap-3 mt-2 text-xs text-background/70">
                     {item.category && <span className="tracking-wide bg-background/10 backdrop-blur-sm rounded-full px-3 py-1">{item.category}</span>}
                     {item.location && <span className="flex items-center gap-1"><MapPin size={9} />{item.location}</span>}
                     {item.year && <span>{item.year}</span>}
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
           <div className="mt-8 text-center md:hidden">

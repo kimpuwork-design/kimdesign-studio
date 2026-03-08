@@ -307,19 +307,19 @@ export default function AdminDashboard() {
 
         <div className="glass-card p-5">
           <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 gap-1.5 md:gap-2">
             {quickActions.map((action) => {
               const Icon = action.icon;
               return (
                 <button
                   key={action.label}
                   onClick={() => navigate(action.href)}
-                  className="group flex items-center gap-2.5 rounded-xl border border-portal-border/40 bg-portal-surface/20 px-3 py-3 text-left text-xs hover:bg-portal-surface/50 hover:border-portal-accent/30 transition-all duration-200"
+                  className="group flex items-center gap-2 md:gap-2.5 rounded-xl border border-portal-border/40 bg-portal-surface/20 px-2.5 py-2.5 md:px-3 md:py-3 text-left text-[11px] md:text-xs hover:bg-portal-surface/50 hover:border-portal-accent/30 transition-all duration-200"
                 >
-                  <div className="rounded-lg bg-portal-surface/80 p-1.5 group-hover:bg-portal-accent/15 transition-colors">
-                    <Icon size={13} className="text-portal-text-muted group-hover:text-portal-accent transition-colors" />
+                  <div className="rounded-lg bg-portal-surface/80 p-1 md:p-1.5 group-hover:bg-portal-accent/15 transition-colors shrink-0">
+                    <Icon size={12} className="md:w-[13px] md:h-[13px] text-portal-text-muted group-hover:text-portal-accent transition-colors" />
                   </div>
-                  <span className="font-medium text-portal-text">{action.label}</span>
+                  <span className="font-medium text-portal-text truncate">{action.label}</span>
                 </button>
               );
             })}

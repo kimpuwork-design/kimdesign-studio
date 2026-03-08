@@ -153,26 +153,26 @@ export default function AdminProjectDetail() {
         <p className="mt-1 mb-2 text-portal-text-muted leading-relaxed text-sm max-w-2xl">{project!.description}</p>
       )}
 
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2">
         <StatusBadge status={project!.status} />
-        <Button size="sm" variant="outline" className="border-portal-border text-portal-text-muted"
+        <Button size="sm" variant="outline" className="border-portal-border text-portal-text-muted h-8 text-xs"
           onClick={() => setShowEdit(true)}>
-          <Pencil size={13} className="mr-1.5" />Edit
+          <Pencil size={12} className="mr-1" />Edit
         </Button>
-        <Button size="sm" variant="outline" className="border-portal-border text-portal-text-muted"
+        <Button size="sm" variant="outline" className="border-portal-border text-portal-text-muted h-8 text-xs"
           onClick={() => setShowAssign(true)}>
-          <Users size={13} className="mr-1.5" />Team
+          <Users size={12} className="mr-1" />Team
         </Button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 border-b border-portal-border mb-6 mt-4">
+      {/* Tabs — horizontal scroll on mobile */}
+      <div className="flex gap-0.5 md:gap-1 border-b border-portal-border mb-4 md:mb-6 mt-3 md:mt-4 overflow-x-auto scrollbar-none">
         {TABS.map(({ id: tabId, label, icon: Icon }) => (
           <button key={tabId} onClick={() => setTab(tabId)}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-2 md:py-2.5 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
               tab === tabId ? "border-portal-accent text-portal-accent" : "border-transparent text-portal-text-muted hover:text-portal-text"
             }`}>
-            <Icon size={14} />{label}
+            <Icon size={13} className="md:w-[14px] md:h-[14px]" />{label}
           </button>
         ))}
       </div>

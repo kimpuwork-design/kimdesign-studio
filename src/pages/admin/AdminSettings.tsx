@@ -133,7 +133,7 @@ export default function AdminSettings() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2 }}
-          className="max-w-2xl"
+          className="max-w-2xl px-0"
         >
           {/* Account Tab */}
           {activeTab === "account" && (

@@ -201,22 +201,22 @@ export default function PublicPortfolio() {
       {/* ── Cinematic Hero ── */}
       <div ref={heroRef} className="relative overflow-hidden">
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10">
-          <section className="container pt-28 pb-16 md:pt-36 md:pb-20">
+          <section className="container pt-20 pb-10 md:pt-28 md:pb-16">
             <div className="max-w-3xl">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
-                className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-8">
-                <Sparkles size={12} className="text-primary" />
-                <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">{t("portfolio_selected_work")}</p>
+                className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-3 md:px-4 py-1.5 md:py-2 mb-5 md:mb-8">
+                <Sparkles size={11} className="text-primary shrink-0" />
+                <p className="text-[10px] md:text-xs font-semibold tracking-[0.12em] md:tracking-[0.15em] uppercase text-primary">{t("portfolio_selected_work")}</p>
               </motion.div>
 
               <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="font-display text-[clamp(3rem,8vw,6.5rem)] font-bold text-foreground leading-[0.95] tracking-tight">
+                className="font-display text-[clamp(2.5rem,8vw,6.5rem)] font-bold text-foreground leading-[0.95] tracking-tight">
                 {t("portfolio_our")}<br />
                 <span className="text-primary">{t("portfolio_title")}</span>
               </motion.h1>
 
               <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}
-                className="mt-6 text-muted-foreground font-light max-w-lg leading-relaxed text-lg">
+                className="mt-4 md:mt-6 text-muted-foreground font-light max-w-lg leading-relaxed text-base md:text-lg">
                 {t("portfolio_description")}
               </motion.p>
 

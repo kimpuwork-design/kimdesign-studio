@@ -9,10 +9,12 @@ import { FileUploadZone } from "@/components/files/FileUploadZone";
 import { FileList } from "@/components/files/FileList";
 import {
   CalendarDays, MapPin, Users, User, ArrowLeft,
-  FolderOpen, LayoutList, MessageSquare, Pencil, PackageOpen, Receipt, ImageIcon,
+  FolderOpen, LayoutList, MessageSquare, Pencil, PackageOpen, Receipt, ImageIcon, Milestone, SplitSquareHorizontal,
 } from "lucide-react";
 import { DeliverablesTab } from "@/components/deliverables/DeliverablesTab";
 import { GalleryManager } from "@/components/admin/GalleryManager";
+import { ProjectTimeline } from "@/components/admin/ProjectTimeline";
+import { BeforeAfterSlider } from "@/components/media/BeforeAfterSlider";
 import { Button } from "@/components/ui/button";
 import { ProjectFormModal } from "@/components/admin/ProjectFormModal";
 import { StaffAssignModal } from "@/components/admin/StaffAssignModal";

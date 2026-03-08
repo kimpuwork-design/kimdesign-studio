@@ -92,24 +92,24 @@ export default function About() {
 
       {/* Team */}
       {team.length > 0 && (
-        <section className="container py-20 relative z-10">
+        <section className="container py-12 md:py-20 relative z-10">
           <FadeUp>
-            <p className="text-xs font-medium tracking-[0.25em] uppercase text-primary mb-10">{t("about_people")}</p>
+            <p className="text-[10px] md:text-xs font-medium tracking-[0.25em] uppercase text-primary mb-6 md:mb-10">{t("about_people")}</p>
           </FadeUp>
-          <StaggerContainer className="grid gap-6 md:grid-cols-3">
+          <StaggerContainer className="grid gap-3 md:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             {team.map((p: any) => (
               <StaggerItem key={p.name}>
                 <HoverCard>
                   <div className="group glass-card-public overflow-hidden glass-glow-ring">
                     {p.image_url ? (
-                      <img src={p.image_url} alt={p.name} className="h-48 w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={p.image_url} alt={p.name} className="h-36 md:h-48 w-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
-                      <div className="h-48 bg-secondary/60" />
+                      <div className="h-36 md:h-48 bg-secondary/60" />
                     )}
-                    <div className="p-6">
-                      <h3 className="font-display text-xl font-medium text-foreground">{p.name}</h3>
-                      <p className="text-xs tracking-wide text-primary mt-1 mb-3 uppercase">{p.role}</p>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{p.bio}</p>
+                    <div className="p-4 md:p-6">
+                      <h3 className="font-display text-base md:text-xl font-medium text-foreground">{p.name}</h3>
+                      <p className="text-[10px] md:text-xs tracking-wide text-primary mt-0.5 md:mt-1 mb-2 md:mb-3 uppercase">{p.role}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{p.bio}</p>
                     </div>
                   </div>
                 </HoverCard>

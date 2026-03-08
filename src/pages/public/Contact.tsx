@@ -154,7 +154,7 @@ export default function Contact() {
                   </div>
                 </FadeIn>
               ) : (
-                <form onSubmit={handleSubmit} className="glass-form p-8 space-y-6" noValidate>
+                <form onSubmit={handleSubmit} className="glass-form p-5 md:p-8 space-y-4 md:space-y-6" noValidate>
                   <div className="grid gap-5 sm:grid-cols-2">
                     <div className="space-y-1.5">
                       <Label htmlFor="name" className="text-xs tracking-wide uppercase text-muted-foreground">{t("contact_full_name")}</Label>

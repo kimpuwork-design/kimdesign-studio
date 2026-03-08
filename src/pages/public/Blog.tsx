@@ -135,7 +135,7 @@ export default function PublicBlog() {
                         </div>
                       )}
                     </div>
-                    <div className="p-5">
+                    <div className="p-4 md:p-5">
                       <div className="flex items-center gap-2 mb-3">
                         {post.category && (
                           <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] tracking-wide uppercase font-semibold text-primary">{post.category}</span>

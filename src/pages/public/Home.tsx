@@ -374,12 +374,12 @@ export default function Home() {
               {hero.title_line1 ?? "Building spaces"}<br />
               <span className="text-primary">{hero.title_line2 ?? "that endure."}</span>
             </h1>
-            <p className="mt-8 text-lg font-light text-muted-foreground max-w-lg leading-relaxed">
+            <p className="mt-5 md:mt-8 text-base md:text-lg font-light text-muted-foreground max-w-lg leading-relaxed">
               {hero.description ?? ""}
             </p>
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Button size="lg" asChild className="rounded-2xl px-8 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow text-base h-13">
-                <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={16} className="ml-2" /></Link>
+            <div className="mt-6 md:mt-10 flex flex-col sm:flex-row gap-3 md:gap-4">
+              <Button size="lg" asChild className="rounded-2xl px-6 md:px-8 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow text-sm md:text-base h-12 md:h-13 w-full sm:w-auto">
+                <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={14} className="ml-2" /></Link>
               </Button>
               <Button variant="outline" size="lg" asChild className="rounded-2xl px-8 tracking-wide text-base h-13 border-border/50 hover:bg-secondary/60">
                 <Link to="/contact">{t("home_work_with_us")}</Link>

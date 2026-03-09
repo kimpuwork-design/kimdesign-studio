@@ -315,6 +315,42 @@ function TestimonialsCarousel({ testimonials, t }: { testimonials: any[]; t: (k:
     </section>
   );
 }
+
+/* ─── Kinetic Floating Element ─── */
+function KineticShape({ 
+  className, 
+  mousePos, 
+  baseX, 
+  baseY, 
+  repelStrength = 30,
+  children 
+}: { 
+  className?: string; 
+  mousePos: { x: number; y: number }; 
+  baseX: number; 
+  baseY: number; 
+  repelStrength?: number;
+  children: React.ReactNode;
+}) {
+  const dx = mousePos.x - baseX;
+  const dy = mousePos.y - baseY;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const maxDist = 0.4;
+  const factor = Math.max(0, 1 - dist / maxDist);
+  const offsetX = -dx * factor * repelStrength;
+  const offsetY = -dy * factor * repelStrength;
+  
+  return (
+    <motion.div
+      className={className}
+      animate={{ x: offsetX, y: offsetY }}
+      transition={{ type: "spring", stiffness: 150, damping: 15 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 /* ─── Main Component ─── */
 export default function Home() {
   const { settings } = useSettings();

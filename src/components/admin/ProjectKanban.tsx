@@ -157,7 +157,7 @@ export function ProjectKanban({ projects, onRefresh }: ProjectKanbanProps) {
                                 <span className="rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[8px] font-semibold text-emerald-400">Public</span>
                               )}
                             </div>
-                          </motion.div>
+                          </div>
                         )}
                       </Draggable>
                     ))}

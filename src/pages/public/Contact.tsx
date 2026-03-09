@@ -90,83 +90,61 @@ export default function Contact() {
       <PublicNav />
 
       {/* ── Hero with architectural texture + parallax ── */}
-      {(() => {
-        const heroRef = useRef<HTMLDivElement>(null);
-        const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-        const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-        const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 60]);
-        return (
-          <div ref={heroRef} className="relative overflow-hidden">
-            {/* Animated geometric decorative elements */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8, duration: 1 }}>
-                <motion.div
-                  animate={{ y: [0, -18, 0], rotate: [0, 4, 0] }}
-                  transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute top-[10%] right-[8%] w-[220px] h-[220px] border border-primary/[0.05]"
-                />
-                <motion.div
-                  animate={{ y: [0, 14, 0], rotate: [12, 18, 12] }}
-                  transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute top-[25%] right-[12%] w-[160px] h-[160px] border border-primary/[0.04] rotate-12"
-                />
-                <motion.div
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute bottom-[20%] left-[5%] w-[80px] h-[80px] border border-primary/[0.04] rounded-full"
-                />
-                <motion.div
-                  animate={{ scaleY: [0.4, 1, 0.4] }}
-                  transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute bottom-[10%] left-[6%] w-px h-[140px] bg-gradient-to-b from-transparent via-primary/[0.06] to-transparent"
-                  style={{ transformOrigin: "bottom" }}
-                />
-              </motion.div>
+      <div ref={heroRef} className="relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8, duration: 1 }}>
+            <motion.div
+              animate={{ y: [0, -18, 0], rotate: [0, 4, 0] }}
+              transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-[10%] right-[8%] w-[220px] h-[220px] border border-primary/[0.05]"
+            />
+            <motion.div
+              animate={{ y: [0, 14, 0], rotate: [12, 18, 12] }}
+              transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-[25%] right-[12%] w-[160px] h-[160px] border border-primary/[0.04] rotate-12"
+            />
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute bottom-[20%] left-[5%] w-[80px] h-[80px] border border-primary/[0.04] rounded-full"
+            />
+            <motion.div
+              animate={{ scaleY: [0.4, 1, 0.4] }}
+              transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute bottom-[10%] left-[6%] w-px h-[140px] bg-gradient-to-b from-transparent via-primary/[0.06] to-transparent"
+              style={{ transformOrigin: "bottom" }}
+            />
+          </motion.div>
+        </div>
+        <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
+        <motion.div style={{ opacity: heroOpacity, y: heroY }} className="relative z-10">
+          <div className="container py-20 md:py-32 lg:py-40">
+            <div className="max-w-4xl">
+              <SectionLabel text={t("contact_title")} />
+              <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
+                {(t("contact_lets_start") || "Let's start a").split(" ").map((word: string, i: number) => (
+                  <motion.span key={i} initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.3 + i * 0.08, ease: luxuryEase }}
+                    className="inline-block mr-[0.3em]">{word}</motion.span>
+                ))}
+                <br />
+                <span className="text-primary hero-shimmer-text">
+                  {(t("contact_conversation") || "conversation.").split(" ").map((word: string, i: number) => (
+                    <motion.span key={`l2-${i}`} initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.7, delay: 0.6 + i * 0.08, ease: luxuryEase }}
+                      className="inline-block mr-[0.3em]">{word}</motion.span>
+                  ))}
+                </span>
+              </h1>
+              <FadeUp delay={0.3}>
+                <p className="mt-8 text-lg text-muted-foreground font-light leading-relaxed max-w-lg">
+                  {info.hero_description ?? "We welcome enquiries from private clients, developers, institutions, and fellow collaborators."}
+                </p>
+              </FadeUp>
             </div>
-            <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
-
-            <motion.div style={{ opacity: heroOpacity, y: heroY }} className="relative z-10">
-              <div className="container py-20 md:py-32 lg:py-40">
-                <div className="max-w-4xl">
-                  <SectionLabel text={t("contact_title")} />
-                  <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
-                    {(t("contact_lets_start") || "Let's start a").split(" ").map((word: string, i: number) => (
-                      <motion.span
-                        key={i}
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.7, delay: 0.3 + i * 0.08, ease: luxuryEase }}
-                        className="inline-block mr-[0.3em]"
-                      >
-                        {word}
-                      </motion.span>
-                    ))}
-                    <br />
-                    <span className="text-primary hero-shimmer-text">
-                      {(t("contact_conversation") || "conversation.").split(" ").map((word: string, i: number) => (
-                        <motion.span
-                          key={`l2-${i}`}
-                          initial={{ opacity: 0, y: 50 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.7, delay: 0.6 + i * 0.08, ease: luxuryEase }}
-                          className="inline-block mr-[0.3em]"
-                        >
-                          {word}
-                        </motion.span>
-                      ))}
-                    </span>
-                  </h1>
-                  <FadeUp delay={0.3}>
-                    <p className="mt-8 text-lg text-muted-foreground font-light leading-relaxed max-w-lg">
-                      {info.hero_description ?? "We welcome enquiries from private clients, developers, institutions, and fellow collaborators."}
-                    </p>
-                  </FadeUp>
-                </div>
-              </div>
-            </motion.div>
           </div>
-        );
-      })()}
+        </motion.div>
+      </div>
 
       {/* ── Contact content ── */}
       <section className="border-t border-border/30 relative z-10">

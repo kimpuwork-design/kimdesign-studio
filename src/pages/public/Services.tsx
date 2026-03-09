@@ -1,6 +1,6 @@
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
-import { Building2, Ruler, Leaf, PenTool, FileText, Lightbulb, ArrowRight, ChevronDown } from "lucide-react";
+import { Building2, Ruler, Leaf, PenTool, FileText, Lightbulb, ArrowRight, ChevronDown, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useSiteContent } from "@/hooks/useSiteContent";
@@ -10,11 +10,147 @@ import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, StaggerContainer, StaggerItem, TextReveal, LineDraw } from "@/components/motion/MotionWrappers";
 import { TextScramble } from "@/components/TextScramble";
 import { SectionLabel } from "@/components/SectionLabel";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, FileText, Lightbulb };
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
+
+/* ── Horizontal Service Showcase ── */
+function HorizontalShowcase({ services }: { services: any[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isInView, setIsInView] = useState(false);
+  
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+  
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", `-${(services.length - 1) * 100}%`]);
+  
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on("change", (latest) => {
+      const newIndex = Math.round(latest * (services.length - 1));
+      setActiveIndex(Math.min(newIndex, services.length - 1));
+    });
+    return unsubscribe;
+  }, [scrollYProgress, services.length]);
+
+  return (
+    <section ref={containerRef} className="relative" style={{ height: `${services.length * 100}vh` }}>
+      <div className="sticky top-0 h-screen overflow-hidden">
+        {/* Progress indicators */}
+        <div className="absolute top-1/2 left-8 -translate-y-1/2 z-20 hidden lg:flex flex-col gap-3">
+          {services.map((_, i) => (
+            <motion.div
+              key={i}
+              className="relative"
+              animate={{ opacity: i === activeIndex ? 1 : 0.3 }}
+            >
+              <div className={`w-8 h-[2px] transition-all duration-500 ${
+                i === activeIndex ? "bg-primary" : "bg-border"
+              }`} />
+              {i === activeIndex && (
+                <motion.span
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="absolute left-10 top-1/2 -translate-y-1/2 text-[10px] tracking-[0.2em] uppercase text-primary whitespace-nowrap"
+                >
+                  {String(i + 1).padStart(2, '0')}
+                </motion.span>
+              )}
+            </motion.div>
+          ))}
+        </div>
+        
+        {/* Horizontal slides */}
+        <motion.div 
+          style={{ x }}
+          className="flex h-full"
+        >
+          {services.map((service, i) => {
+            const Icon = ICON_MAP[service.icon] ?? Building2;
+            return (
+              <div key={service.title} className="min-w-full h-full flex items-center">
+                <div className="container">
+                  <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                    {/* Left: Content */}
+                    <div className="max-w-xl">
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: activeIndex === i ? 1 : 0.3 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <div className="flex items-center gap-4 mb-8">
+                          <span className="font-display text-7xl md:text-8xl text-border/20">
+                            {String(i + 1).padStart(2, '0')}
+                          </span>
+                          <Icon size={24} className="text-primary" />
+                        </div>
+                        <p className="text-[9px] tracking-[0.3em] uppercase text-primary/60 mb-3">{service.stage}</p>
+                        <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground mb-6 leading-[0.95]">
+                          {service.title}
+                        </h2>
+                        <p className="text-muted-foreground leading-[1.9] text-base mb-8">{service.desc}</p>
+                        <Link 
+                          to="/contact"
+                          className="inline-flex items-center gap-3 text-sm tracking-[0.15em] uppercase text-foreground hover:text-primary transition-colors group"
+                        >
+                          Enquire about this service
+                          <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                        </Link>
+                      </motion.div>
+                    </div>
+                    
+                    {/* Right: Visual */}
+                    <div className="hidden lg:block relative">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ 
+                          opacity: activeIndex === i ? 1 : 0,
+                          scale: activeIndex === i ? 1 : 0.9
+                        }}
+                        transition={{ duration: 0.6, ease: luxuryEase }}
+                        className="aspect-square relative"
+                      >
+                        {/* Decorative frame */}
+                        <div className="absolute inset-8 border border-primary/10" />
+                        <div className="absolute inset-12 border border-primary/5" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Icon size={120} className="text-primary/10" strokeWidth={0.5} />
+                        </div>
+                        {/* Corner accents */}
+                        <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-primary/30" />
+                        <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-primary/30" />
+                        <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-primary/30" />
+                        <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-primary/30" />
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </motion.div>
+        
+        {/* Scroll hint */}
+        <motion.div 
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          animate={{ opacity: activeIndex === services.length - 1 ? 0 : 1 }}
+        >
+          <span className="text-[9px] tracking-[0.2em] uppercase text-muted-foreground">Scroll</span>
+          <motion.div
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            <ChevronDown size={16} className="text-muted-foreground" />
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
 
 /* ── Interactive Process Accordion ── */
 function ProcessAccordion({ steps }: { steps: any[] }) {
@@ -75,7 +211,6 @@ function ProcessAccordion({ steps }: { steps: any[] }) {
     </div>
   );
 }
-
 export default function Services() {
   useSEO({ title: "Services", description: "Architecture, interior design, and planning services by KIM DESIGN STUDIO" });
   const { content } = useSiteContent("services_full", "services_page", "process");

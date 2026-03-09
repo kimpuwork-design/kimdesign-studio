@@ -2,14 +2,27 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { KMonogramLogo } from "@/components/KMonogramLogo";
 
-const luxuryEase = [0.22, 1, 0.36, 1] as const;
+const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 export function PageLoader() {
   const [visible, setVisible] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(false), 1800);
-    return () => clearTimeout(timer);
+    const duration = 2000;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - start) / duration, 1);
+      // Ease-out quartic for smooth deceleration
+      const eased = 1 - Math.pow(1 - p, 4);
+      setProgress(Math.round(eased * 100));
+      if (p < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        setTimeout(() => setVisible(false), 400);
+      }
+    };
+    requestAnimationFrame(tick);
   }, []);
 
   return (
@@ -17,42 +30,70 @@ export function PageLoader() {
       {visible && (
         <motion.div
           key="loader"
-          exit={{ opacity: 0, transition: { duration: 0.6, ease: luxuryEase } }}
-          className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-background"
+          exit={{
+            clipPath: "inset(0 0 100% 0)",
+            transition: { duration: 0.7, ease },
+          }}
+          className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-foreground"
         >
-          {/* Logo reveal */}
+          {/* Logo with draw animation */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: luxuryEase }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease }}
           >
-            <KMonogramLogo size={48} className="rounded-sm" />
+            <KMonogramLogo size={56} className="rounded-lg" animated />
           </motion.div>
 
-          {/* Studio name */}
+          {/* Studio name — letter stagger */}
+          <div className="mt-8 overflow-hidden">
+            <motion.p
+              initial={{ y: "100%" }}
+              animate={{ y: "0%" }}
+              transition={{ duration: 0.6, delay: 0.5, ease }}
+              className="font-display text-lg tracking-[0.25em] text-background/80"
+            >
+              KIM DESIGN STUDIO
+            </motion.p>
+          </div>
+
+          {/* Progress bar */}
+          <div className="mt-10 w-[120px] relative">
+            <div className="h-px bg-background/10 w-full" />
+            <motion.div
+              className="h-px bg-background/60 absolute top-0 left-0"
+              style={{ width: `${progress}%` }}
+              transition={{ duration: 0.05 }}
+            />
+          </div>
+
+          {/* Percentage counter */}
           <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6, ease: luxuryEase }}
-            className="mt-6 font-display text-lg tracking-[0.15em] text-foreground"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+            className="mt-4 text-[11px] tracking-[0.2em] text-background/30 tabular-nums font-mono"
           >
-            KIM DESIGN STUDIO
+            {progress}%
           </motion.p>
 
-          {/* Loading line */}
-          <motion.div
-            className="mt-8 h-px bg-primary/30 overflow-hidden"
-            initial={{ width: 0 }}
-            animate={{ width: 120 }}
-            transition={{ delay: 0.2, duration: 1.4, ease: luxuryEase }}
+          {/* Corner details */}
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
+            className="absolute bottom-8 left-8 text-[9px] tracking-[0.3em] uppercase text-background/15"
           >
-            <motion.div
-              className="h-full bg-primary"
-              initial={{ x: "-100%" }}
-              animate={{ x: "100%" }}
-              transition={{ duration: 1.2, ease: luxuryEase, repeat: 1 }}
-            />
-          </motion.div>
+            Architecture · Design
+          </motion.span>
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
+            className="absolute bottom-8 right-8 text-[9px] tracking-[0.3em] uppercase text-background/15"
+          >
+            Yangon, Myanmar
+          </motion.span>
         </motion.div>
       )}
     </AnimatePresence>

@@ -117,28 +117,28 @@ export function PublicNav() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-x-0 top-16 bottom-0 z-40 bg-background md:hidden overflow-y-auto"
+            initial={{ clipPath: "inset(0 0 100% 0)" }}
+            animate={{ clipPath: "inset(0 0 0% 0)" }}
+            exit={{ clipPath: "inset(0 0 100% 0)" }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-x-0 top-0 bottom-0 z-40 bg-foreground md:hidden overflow-y-auto"
           >
-            <div className="container py-8 flex flex-col h-full">
-              <nav className="flex-1 space-y-1">
+            <div className="container pt-24 pb-10 flex flex-col h-full">
+              <nav className="flex-1 space-y-0">
                 {NAV_KEYS.map((l, i) => {
                   const isActive = location.pathname === l.href || location.pathname.startsWith(l.href + "/");
                   return (
                     <motion.div key={l.href}
-                      initial={{ opacity: 0, y: 15 }}
+                      initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+                      transition={{ delay: 0.15 + i * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
                       <Link to={l.href}
-                        className={`flex items-center justify-between py-5 px-2 border-b border-border/30 transition-colors ${
-                          isActive ? "text-foreground" : "text-muted-foreground"
+                        className={`flex items-center justify-between py-5 border-b border-background/10 transition-colors ${
+                          isActive ? "text-background" : "text-background/50 hover:text-background/80"
                         }`}
                         onClick={() => setMobileOpen(false)}>
-                        <span className="font-display text-2xl">{t(l.key)}</span>
-                        <ArrowRight size={16} className={`transition-colors ${isActive ? "text-primary" : "text-muted-foreground/30"}`} />
+                        <span className="font-display text-3xl sm:text-4xl">{t(l.key)}</span>
+                        <ArrowRight size={18} className={`transition-all duration-300 ${isActive ? "text-primary-foreground opacity-100" : "opacity-0"}`} />
                       </Link>
                     </motion.div>
                   );
@@ -146,14 +146,17 @@ export function PublicNav() {
               </nav>
 
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.35, duration: 0.3 }}
-                className="pt-6 pb-safe mt-auto">
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.4 }}
+                className="pt-8 pb-safe mt-auto space-y-6">
                 <Link to="/contact" onClick={() => setMobileOpen(false)}
                   className="flex items-center justify-center gap-2 w-full py-4 bg-primary text-primary-foreground text-sm tracking-[0.15em] uppercase">
                   {t("nav_contact")} <ArrowRight size={14} />
                 </Link>
+                <p className="text-center text-[10px] tracking-[0.3em] uppercase text-background/20">
+                  {studioName}
+                </p>
               </motion.div>
             </div>
           </motion.div>

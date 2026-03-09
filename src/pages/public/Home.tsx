@@ -573,12 +573,12 @@ export default function Home() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ duration: 0.8, delay: i * 0.1, ease: luxuryEase }}
-                  whileHover={{ y: -8, transition: { duration: 0.4, ease: luxuryEase } }}
                   className="flex-shrink-0 w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[35vw] group cursor-pointer"
                   onClick={() => item.cover_image_url && setLightboxIdx(i)}
                   data-cursor-hover
                   data-cursor-label="Explore"
                 >
+                <TiltCard tiltStrength={6} className="relative">
                   <div className="relative overflow-hidden aspect-[3/4] md:aspect-[4/5]">
                     {item.cover_image_url && (
                       <img src={item.cover_image_url} alt={item.title}

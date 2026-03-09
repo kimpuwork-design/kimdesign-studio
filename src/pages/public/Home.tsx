@@ -552,8 +552,8 @@ export default function Home() {
       {servicesHome.length > 0 && (
         <section className="border-t border-border/30 bg-muted/20">
           <div className="container py-24 md:py-36">
+            <SectionLabel text={t("home_disciplines")} />
             <FadeUp>
-              <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-4">{t("home_disciplines")}</p>
               <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1] mb-16 md:mb-20">{t("home_what_we_do")}</h2>
             </FadeUp>
 

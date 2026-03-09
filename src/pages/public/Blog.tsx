@@ -153,10 +153,23 @@ export default function PublicBlog() {
             {/* Featured hero post */}
             {heroPost && (
               <FadeUp>
-                <Link to={`/blog/${heroPost.slug}`} className="group grid md:grid-cols-2 gap-6 md:gap-10 items-center" data-cursor-hover data-cursor-label="Read">
-                  <div className="overflow-hidden aspect-[16/10]">
+              <Link to={`/blog/${heroPost.slug}`} className="group grid md:grid-cols-2 gap-6 md:gap-10 items-center" data-cursor-hover data-cursor-label="Read">
+                  <div className="overflow-hidden aspect-[16/10]"
+                    onMouseMove={(e) => {
+                      const img = e.currentTarget.querySelector('img');
+                      if (!img) return;
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = (e.clientX - rect.left) / rect.width - 0.5;
+                      const y = (e.clientY - rect.top) / rect.height - 0.5;
+                      img.style.transform = `scale(1.08) translate(${-x * 14}px, ${-y * 14}px)`;
+                    }}
+                    onMouseLeave={(e) => {
+                      const img = e.currentTarget.querySelector('img');
+                      if (img) img.style.transform = 'scale(1) translate(0, 0)';
+                    }}
+                  >
                     {heroPost.cover_image_url ? (
-                      <img src={heroPost.cover_image_url} alt={heroPost.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-[1000ms]" />
+                      <img src={heroPost.cover_image_url} alt={heroPost.title} className="w-full h-full object-cover transition-transform duration-700 ease-out" />
                     ) : (
                       <div className="w-full h-full bg-muted/30" />
                     )}

@@ -24,7 +24,19 @@ import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, GraduationCap, Awa
 import { SectionLabel } from "@/components/SectionLabel";
 import { LiveClock } from "@/components/LiveClock";
 import { AnimatedDivider } from "@/components/AnimatedDivider";
+import { SectionIndicator } from "@/components/SectionIndicator";
+import { TiltCard } from "@/components/TiltCard";
 import profileImg from "@/assets/profile-placeholder.jpg";
+
+const HOME_SECTIONS = [
+  { id: "hero", label: "Home" },
+  { id: "about", label: "About" },
+  { id: "stats", label: "Numbers" },
+  { id: "projects", label: "Projects" },
+  { id: "services", label: "Services" },
+  { id: "testimonials", label: "Voices" },
+  { id: "awards", label: "Awards" },
+];
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, GraduationCap, Award, Globe };
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
@@ -224,9 +236,10 @@ export default function Home() {
     <div className="bg-background relative overflow-x-hidden">
       <ArchitectureBusinessJsonLd />
       <PublicNav />
+      <SectionIndicator sections={HOME_SECTIONS} />
 
       {/* ══════════ HERO — Split screen ══════════ */}
-      <div ref={heroRef} className="relative">
+      <div ref={heroRef} className="relative" id="hero">
         <motion.section
           style={{ opacity: heroOpacity, y: heroY }}
           onMouseMove={handleHeroMouse}
@@ -425,7 +438,7 @@ export default function Home() {
       </div>
 
       {/* ══════════ ABOUT / INTRO ══════════ */}
-      <section className="border-t border-border/30">
+      <section id="about" className="border-t border-border/30">
         <div className="container py-24 md:py-36">
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
             <SlideIn direction="left">
@@ -512,7 +525,7 @@ export default function Home() {
 
       {/* ══════════ STATS ══════════ */}
       {stats.length > 0 && (
-        <section className="border-t border-border/30">
+        <section id="stats" className="border-t border-border/30">
           <div className="container">
             <div className="grid grid-cols-2 md:grid-cols-4">
               {stats.map((s: any, i: number) => (
@@ -532,7 +545,7 @@ export default function Home() {
 
       {/* ══════════ FEATURED PROJECTS — Horizontal scroll cinematic ══════════ */}
       {featured.length > 0 && (
-        <section className="border-t border-border/30">
+        <section id="projects" className="border-t border-border/30">
           <div className="container pt-24 md:pt-36 pb-8 md:pb-12">
             <div className="flex items-end justify-between mb-12 md:mb-16">
               <div>
@@ -560,12 +573,12 @@ export default function Home() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ duration: 0.8, delay: i * 0.1, ease: luxuryEase }}
-                  whileHover={{ y: -8, transition: { duration: 0.4, ease: luxuryEase } }}
                   className="flex-shrink-0 w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[35vw] group cursor-pointer"
                   onClick={() => item.cover_image_url && setLightboxIdx(i)}
                   data-cursor-hover
                   data-cursor-label="Explore"
                 >
+                <TiltCard tiltStrength={6} className="relative">
                   <div className="relative overflow-hidden aspect-[3/4] md:aspect-[4/5]">
                     {item.cover_image_url && (
                       <img src={item.cover_image_url} alt={item.title}
@@ -595,6 +608,7 @@ export default function Home() {
                       )}
                     </div>
                   </div>
+                  </TiltCard>
                 </motion.div>
               ))}
             </div>
@@ -614,7 +628,7 @@ export default function Home() {
 
       {/* ══════════ SERVICES ══════════ */}
       {servicesHome.length > 0 && (
-        <section className="border-t border-border/30 bg-muted/20">
+        <section id="services" className="border-t border-border/30 bg-muted/20">
           <div className="container py-24 md:py-36">
             <SectionLabel text={t("home_disciplines")} />
             <FadeUp>
@@ -643,13 +657,14 @@ export default function Home() {
       )}
 
       {/* ══════════ TESTIMONIALS ══════════ */}
+      <div id="testimonials" />
       {testimonials.length > 0 && (
         <TestimonialsCarousel testimonials={testimonials} t={t} />
       )}
 
       {/* ══════════ AWARDS ══════════ */}
       {awards.length > 0 && (
-        <section className="border-t border-border/30">
+        <section id="awards" className="border-t border-border/30">
           <div className="container py-24 md:py-36">
             <div className="text-center mb-16 md:mb-20">
               <SectionLabel text={t("home_awards_recognition")} className="justify-center" />

@@ -11,6 +11,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { CommandPalette } from "@/components/CommandPalette";
 import { PageTransition } from "@/components/PageTransition";
 import { usePageTracking } from "@/hooks/usePageTracking";
+import { CustomCursor } from "@/components/CustomCursor";
 
 // Lazy-loaded pages for code splitting
 const lazyRetry = (fn: () => Promise<any>) =>

@@ -132,6 +132,10 @@ export default function AdminProjects() {
               className={cn("p-2 transition-colors", viewMode === "grid" ? "bg-portal-surface text-portal-text" : "text-portal-text-muted hover:text-portal-text")}>
               <LayoutGrid size={14} />
             </button>
+            <button onClick={() => setViewMode("kanban")}
+              className={cn("p-2 transition-colors", viewMode === "kanban" ? "bg-portal-surface text-portal-text" : "text-portal-text-muted hover:text-portal-text")}>
+              <Columns size={14} />
+            </button>
           </div>
         </div>
         <div className="flex gap-1 overflow-x-auto scrollbar-none pb-0.5">

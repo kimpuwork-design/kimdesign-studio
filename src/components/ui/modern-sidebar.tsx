@@ -55,6 +55,7 @@ const adminNav: NavGroup[] = [
     items: [
       { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
       { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+      { label: "Activity", href: "/admin/activity", icon: Activity },
     ],
   },
   {

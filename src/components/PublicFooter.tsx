@@ -6,6 +6,7 @@ import { useTranslation } from "@/i18n/LanguageContext";
 import { motion } from "framer-motion";
 import { FadeUp, TextReveal } from "@/components/motion/MotionWrappers";
 import { MagneticButton } from "@/components/MagneticButton";
+import { SectionLabel } from "@/components/SectionLabel";
 
 const NAV_KEYS = [
   { key: "nav_projects", href: "/portfolio" },
@@ -82,27 +83,32 @@ export function PublicFooter() {
                 <span className="font-display text-base text-foreground">{studioName}</span>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed max-w-[240px]">{tagline}</p>
-              <div className="flex items-center gap-3 mt-6">
-                {email && (
-                  <a href={`mailto:${email}`} className="h-9 w-9 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all" aria-label="Email">
-                    <Mail size={14} />
-                  </a>
-                )}
-                {instagram && (
-                  <a href={instagram} target="_blank" rel="noreferrer" className="h-9 w-9 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all" aria-label="Instagram">
-                    <Instagram size={14} />
-                  </a>
-                )}
-                {facebook && (
-                  <a href={facebook} target="_blank" rel="noreferrer" className="h-9 w-9 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all" aria-label="Facebook">
-                    <ArrowUpRight size={14} />
-                  </a>
-                )}
-                {behance && (
-                  <a href={behance} target="_blank" rel="noreferrer" className="h-9 w-9 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all" aria-label="Behance">
-                    <ArrowUpRight size={14} />
-                  </a>
-                )}
+              <div className="flex items-center gap-2 mt-6">
+                {[
+                  email ? { href: `mailto:${email}`, label: "Email", icon: Mail } : null,
+                  instagram ? { href: instagram, label: "Instagram", icon: Instagram } : null,
+                  facebook ? { href: facebook, label: "Facebook", icon: ArrowUpRight } : null,
+                  behance ? { href: behance, label: "Behance", icon: ArrowUpRight } : null,
+                ].filter(Boolean).map((item, i) => {
+                  const Icon = item!.icon;
+                  return (
+                    <motion.a
+                      key={item!.label}
+                      href={item!.href}
+                      target={item!.href.startsWith("mailto") ? undefined : "_blank"}
+                      rel="noreferrer"
+                      initial={{ opacity: 0, y: 8 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.3, delay: 0.1 + i * 0.05, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+                      whileHover={{ y: -2, borderColor: "hsl(var(--foreground) / 0.4)" }}
+                      className="h-9 w-9 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label={item!.label}
+                    >
+                      <Icon size={14} />
+                    </motion.a>
+                  );
+                })}
               </div>
             </div>
 
@@ -110,10 +116,18 @@ export function PublicFooter() {
             <div>
               <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground/60 mb-5">{t("footer_navigate")}</p>
               <nav className="flex flex-col gap-3">
-                {NAV_KEYS.map((l) => (
-                  <Link key={l.href} to={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors w-fit">
-                    {t(l.key)}
-                  </Link>
+                {NAV_KEYS.map((l, i) => (
+                  <motion.div
+                    key={l.href}
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+                  >
+                    <Link to={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors w-fit link-underline inline-block">
+                      {t(l.key)}
+                    </Link>
+                  </motion.div>
                 ))}
               </nav>
             </div>

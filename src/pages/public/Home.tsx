@@ -596,24 +596,25 @@ export default function Home() {
       {awards.length > 0 && (
         <section className="border-t border-border/30">
           <div className="container py-24 md:py-36">
-            <FadeUp>
-              <div className="text-center mb-16 md:mb-20">
-                <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-4">{t("home_awards_recognition")}</p>
+            <div className="text-center mb-16 md:mb-20">
+              <SectionLabel text={t("home_awards_recognition")} className="justify-center" />
+              <FadeUp>
                 <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1]">{t("home_honored_work")}</h2>
-              </div>
-            </FadeUp>
+              </FadeUp>
+            </div>
 
-            <StaggerContainer className="divide-y divide-border/30 max-w-3xl mx-auto" staggerDelay={0.06}>
+            <StaggerContainer className="max-w-3xl mx-auto" staggerDelay={0.06}>
               {awards.map((a: any) => (
                 <StaggerItem key={a.year + a.title}>
-                  <div className="flex items-start gap-6 md:gap-10 py-7 md:py-9 group">
-                    <span className="font-display text-3xl md:text-4xl text-primary/40 shrink-0 w-[80px]">{a.year}</span>
+                  <div className="flex items-start gap-6 md:gap-10 py-7 md:py-9 group border-b border-border/30 last:border-b-0 cursor-default">
+                    <span className="font-display text-3xl md:text-4xl text-primary/40 group-hover:text-primary/70 transition-colors duration-500 shrink-0 w-[80px]">{a.year}</span>
                     <div className="flex-1">
                       <h3 className="font-display text-lg md:text-xl text-foreground leading-snug group-hover:text-primary transition-colors duration-300">
                         {a.title}
                       </h3>
                       <p className="text-xs tracking-[0.15em] text-muted-foreground uppercase mt-2">{a.org}</p>
                     </div>
+                    <ArrowRight size={16} className="text-transparent group-hover:text-primary transition-all duration-500 group-hover:translate-x-1 mt-1 shrink-0" />
                   </div>
                 </StaggerItem>
               ))}

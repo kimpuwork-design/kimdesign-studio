@@ -525,7 +525,7 @@ export default function Home() {
 
       {/* ══════════ STATS ══════════ */}
       {stats.length > 0 && (
-        <section className="border-t border-border/30">
+        <section id="stats" className="border-t border-border/30">
           <div className="container">
             <div className="grid grid-cols-2 md:grid-cols-4">
               {stats.map((s: any, i: number) => (

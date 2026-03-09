@@ -76,17 +76,14 @@ export function FadeIn({
 }
 
 // Stagger children container
-export function StaggerContainer({
-  children,
-  className = "",
-  staggerDelay = 0.1,
-}: {
+export const StaggerContainer = forwardRef<HTMLDivElement, {
   children: ReactNode;
   className?: string;
   staggerDelay?: number;
-}) {
+}>(({ children, className = "", staggerDelay = 0.1 }, ref) => {
   return (
     <motion.div
+      ref={ref}
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: staggerDelay, delayChildren: 0.1 } },
@@ -99,26 +96,25 @@ export function StaggerContainer({
       {children}
     </motion.div>
   );
-}
+});
+StaggerContainer.displayName = "StaggerContainer";
 
 const staggerItemVariants: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: luxuryEase } },
 };
 
-export function StaggerItem({
-  children,
-  className = "",
-}: {
+export const StaggerItem = forwardRef<HTMLDivElement, {
   children: ReactNode;
   className?: string;
-}) {
+}>(({ children, className = "" }, ref) => {
   return (
-    <motion.div variants={staggerItemVariants} className={className}>
+    <motion.div ref={ref} variants={staggerItemVariants} className={className}>
       {children}
     </motion.div>
   );
-}
+});
+StaggerItem.displayName = "StaggerItem";
 
 // Scale on hover card
 export function HoverCard({

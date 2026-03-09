@@ -326,23 +326,15 @@ export default function PublicPortfolio() {
       </div>
 
       {/* ── CTA ── */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.03] to-transparent pointer-events-none" />
-        <div className="border-t border-border/30 py-24 md:py-32 relative z-10">
+      <section className="border-t border-border/40">
+        <div className="container py-24 md:py-32">
           <FadeUp>
-            <div className="container text-center">
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-8">
-                <Sparkles size={12} className="text-primary" />
-                <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">{t("portfolio_start_project")}</p>
-              </div>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight leading-tight">
-                {t("portfolio_inspired")}
-              </h2>
-              <p className="mt-4 text-muted-foreground font-light max-w-md mx-auto leading-relaxed">
-                {t("portfolio_lets_create")}
-              </p>
+            <div className="text-center max-w-2xl mx-auto">
+              <p className="text-xs tracking-[0.3em] uppercase text-primary mb-6">{t("portfolio_start_project")}</p>
+              <h2 className="font-display text-4xl md:text-5xl text-foreground">{t("portfolio_inspired")}</h2>
+              <p className="mt-4 text-muted-foreground max-w-md mx-auto leading-relaxed">{t("portfolio_lets_create")}</p>
               <Link to="/contact"
-                className="inline-flex items-center gap-2 mt-10 rounded-2xl bg-primary px-10 py-4 text-sm tracking-wide font-medium text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:shadow-xl transition-all duration-300">
+                className="inline-flex items-center gap-2 mt-10 bg-primary px-8 py-3.5 text-sm tracking-wider text-primary-foreground hover:bg-primary/90 transition-colors rounded-sm">
                 {t("portfolio_begin_conversation")} <ArrowRight size={14} />
               </Link>
             </div>

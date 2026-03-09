@@ -414,7 +414,8 @@ export default function Home() {
       </div>
 
       {/* ══════════ MARQUEE TICKER ══════════ */}
-      <div className="border-t border-b border-border/30 py-5 md:py-6 overflow-hidden">
+      <AnimatedDivider />
+      <div className="border-b border-border/30 py-5 md:py-6 overflow-hidden">
         <Marquee
           items={["Architecture", "Interior Design", "Urban Planning", "Landscape", "Sustainability", "Heritage", "Residential", "Commercial"]}
           separator="—"

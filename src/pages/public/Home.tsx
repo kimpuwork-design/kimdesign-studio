@@ -663,7 +663,7 @@ export default function Home() {
 
       {/* ══════════ AWARDS ══════════ */}
       {awards.length > 0 && (
-        <section className="border-t border-border/30">
+        <section id="awards" className="border-t border-border/30">
           <div className="container py-24 md:py-36">
             <div className="text-center mb-16 md:mb-20">
               <SectionLabel text={t("home_awards_recognition")} className="justify-center" />

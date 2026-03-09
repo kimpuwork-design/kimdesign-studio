@@ -104,16 +104,12 @@ export function ProjectKanban({ projects, onRefresh }: ProjectKanbanProps) {
                     {col.items.map((project, index) => (
                       <Draggable key={project.id} draggableId={project.id} index={index}>
                         {(provided, snapshot) => (
-                          <motion.div
+                          <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            layout
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
                             className={cn(
-                              "glass-card p-3 cursor-grab active:cursor-grabbing group",
+                              "glass-card p-3 cursor-grab active:cursor-grabbing group transition-all",
                               snapshot.isDragging && "shadow-xl ring-1 ring-portal-accent/30 rotate-1",
                               moving === project.id && "opacity-50"
                             )}

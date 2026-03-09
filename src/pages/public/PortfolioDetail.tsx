@@ -284,29 +284,13 @@ export default function PortfolioDetail() {
               </FadeUp>
             )}
 
-            {/* Gallery — Masonry-style */}
+            {/* Gallery — Masonry with parallax depth */}
             {allGalleryItems.length > 0 && (
               <FadeUp>
                 <SectionHeader icon={Camera} label="Gallery" count={allGalleryItems.length} />
                 <StaggerContainer className="columns-2 md:columns-3 gap-3 md:gap-4 space-y-3 md:space-y-4" staggerDelay={0.06}>
                   {allGalleryItems.map((img, idx) => (
-                    <StaggerItem key={img.id}>
-                      <motion.button
-                        whileHover={{ scale: 1.015 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => setLightbox(idx)}
-                        className="group relative w-full overflow-hidden break-inside-avoid"
-                        data-cursor-hover
-                      >
-                        <img src={img.url} alt={img.name || `Gallery ${idx + 1}`} loading="lazy"
-                          className="w-full object-cover group-hover:scale-[1.04] transition-transform duration-[900ms]" />
-                        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-colors duration-300 flex items-center justify-center">
-                          <div className="h-10 w-10 bg-background/80 flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300">
-                            <Maximize2 size={14} className="text-foreground" />
-                          </div>
-                        </div>
-                      </motion.button>
-                    </StaggerItem>
+                    <GalleryImageCard key={img.id} img={img} idx={idx} onClick={() => setLightbox(idx)} />
                   ))}
                 </StaggerContainer>
               </FadeUp>

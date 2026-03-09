@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, MouseEvent as ReactMouseEvent } from "react";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";
 import useEmblaCarousel from "embla-carousel-react";
 import { PublicNav } from "@/components/PublicNav";

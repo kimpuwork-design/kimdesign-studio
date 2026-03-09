@@ -14,6 +14,7 @@ import { usePageTracking } from "@/hooks/usePageTracking";
 import { CustomCursor } from "@/components/CustomCursor";
 import { PageLoader as InitialLoader } from "@/components/PageLoader";
 import { ScrollProgress } from "@/components/ScrollProgress";
+import { BackToTop } from "@/components/BackToTop";
 
 // Lazy-loaded pages for code splitting
 const lazyRetry = (fn: () => Promise<any>) =>
@@ -90,6 +91,7 @@ const App = () => (
       <CustomCursor />
       <InitialLoader />
       <ScrollProgress />
+      <BackToTop />
       <Toaster />
       <Sonner />
       <BrowserRouter>

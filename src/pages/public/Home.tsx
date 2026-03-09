@@ -14,12 +14,12 @@ import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { ArchitectureBusinessJsonLd } from "@/components/JsonLd";
-import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, Calendar, GraduationCap, Award, Globe, Sparkles, ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, Calendar, GraduationCap, Award, Globe, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import profileImg from "@/assets/profile-placeholder.jpg";
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, GraduationCap, Award, Globe };
 
-function useCountUp(target: number, duration = 1800) {
+function useCountUp(target: number, duration = 2000) {
   const [count, setCount] = useState(0);
   const started = useRef(false);
   const start = useCallback(() => {
@@ -38,94 +38,27 @@ function useCountUp(target: number, duration = 1800) {
   return { count, start };
 }
 
-function AnimatedStat({ value, suffix, label, index = 0 }: { value: number; suffix: string; label: string; index?: number }) {
+function AnimatedStat({ value, suffix, label }: { value: number; suffix: string; label: string }) {
   const { count, start } = useCountUp(value);
-  const [progress, setProgress] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
-
-  // Map stat value to a visual percentage for the ring (capped at 100)
-  const maxValues: Record<string, number> = { "Projects Completed": 150, "Years Experience": 30, "Awards Won": 20, "Team Members": 25 };
-  const targetPercent = Math.min((value / (maxValues[label] || value)) * 100, 100);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          start();
-          // Animate progress ring with slight delay
-          const timer = setTimeout(() => setProgress(targetPercent), 100);
-          observer.unobserve(el);
-          return () => clearTimeout(timer);
-        }
-      },
+      ([entry]) => { if (entry.isIntersecting) { start(); observer.unobserve(el); } },
       { threshold: 0.4 }
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [start, targetPercent]);
-
-  const size = 120;
-  const strokeWidth = 6;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
-
-  // Accent colors for each stat ring
-  const ringColors = [
-    "hsl(var(--primary))",
-    "hsl(var(--primary) / 0.8)",
-    "hsl(var(--primary) / 0.65)",
-    "hsl(var(--primary) / 0.5)",
-  ];
-  const glowColors = [
-    "hsl(var(--primary) / 0.3)",
-    "hsl(var(--primary) / 0.25)",
-    "hsl(var(--primary) / 0.2)",
-    "hsl(var(--primary) / 0.15)",
-  ];
+  }, [start]);
 
   return (
-    <div ref={ref} className="glass-card-public glass-glow-ring flex flex-col items-center justify-center p-6 md:p-8 group">
-      {/* Circular Progress Ring */}
-      <div className="relative mb-4">
-        <svg width={size} height={size} className="transform -rotate-90 drop-shadow-sm">
-          {/* Background track */}
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke="hsl(var(--border) / 0.3)"
-            strokeWidth={strokeWidth}
-          />
-          {/* Animated progress arc */}
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke={ringColors[index % ringColors.length]}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            className="transition-all duration-[2000ms] ease-out"
-            style={{
-              filter: `drop-shadow(0 0 6px ${glowColors[index % glowColors.length]})`,
-            }}
-          />
-        </svg>
-        {/* Center number */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <p className="font-display text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-none">
-            {count}<span className="text-primary text-xl md:text-2xl">{suffix}</span>
-          </p>
-        </div>
-      </div>
-      {/* Label */}
-      <p className="text-xs tracking-[0.15em] uppercase text-muted-foreground font-medium text-center group-hover:text-foreground transition-colors duration-300">
+    <div ref={ref} className="text-center py-8 md:py-12">
+      <p className="font-display text-5xl md:text-6xl lg:text-7xl font-light text-foreground tracking-tight leading-none">
+        {count}<span className="text-primary">{suffix}</span>
+      </p>
+      <p className="mt-3 text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium">
         {label}
       </p>
     </div>
@@ -135,87 +68,61 @@ function AnimatedStat({ value, suffix, label, index = 0 }: { value: number; suff
 function TestimonialsCarousel({ testimonials, sectionRef, t }: { testimonials: any[]; sectionRef: React.RefObject<HTMLElement>; t: (k: string) => string }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [canScrollPrev, setCanScrollPrev] = useState(false);
-  const [canScrollNext, setCanScrollNext] = useState(false);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     setSelectedIndex(emblaApi.selectedScrollSnap());
-    setCanScrollPrev(emblaApi.canScrollPrev());
-    setCanScrollNext(emblaApi.canScrollNext());
   }, [emblaApi]);
 
   useEffect(() => {
     if (!emblaApi) return;
     onSelect();
     emblaApi.on("select", onSelect);
-    emblaApi.on("reInit", onSelect);
-    return () => { emblaApi.off("select", onSelect); emblaApi.off("reInit", onSelect); };
+    return () => { emblaApi.off("select", onSelect); };
   }, [emblaApi, onSelect]);
 
-  // Auto-play
   useEffect(() => {
     if (!emblaApi) return;
-    const interval = setInterval(() => emblaApi.scrollNext(), 5000);
+    const interval = setInterval(() => emblaApi.scrollNext(), 6000);
     return () => clearInterval(interval);
   }, [emblaApi]);
 
   return (
-    <section ref={sectionRef} className="reveal py-14 md:py-24 relative overflow-hidden">
-      {/* Ambient background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-primary/3 rounded-full blur-[100px]" />
-      </div>
-
-      <div className="container relative z-10">
-        <div className="mb-8 md:mb-14 flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-6">
+    <section ref={sectionRef} className="reveal py-20 md:py-32">
+      <div className="container">
+        <div className="mb-12 md:mb-20 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-3 md:mb-4">
-              <div className="h-1 w-8 rounded-full bg-primary" />
-              <p className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_recognition")}</p>
-            </div>
-            <h2 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">{t("home_client_voices")}</h2>
+            <p className="text-xs tracking-[0.25em] uppercase text-primary mb-4">{t("home_recognition")}</p>
+            <h2 className="font-display text-3xl md:text-5xl lg:text-6xl text-foreground">{t("home_client_voices")}</h2>
           </div>
-          {/* Navigation arrows */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => emblaApi?.scrollPrev()}
-              disabled={!canScrollPrev}
-              className="h-10 w-10 rounded-full border border-border/50 bg-background/50 backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all disabled:opacity-30"
-            >
+          <div className="flex items-center gap-3">
+            <button onClick={() => emblaApi?.scrollPrev()}
+              className="h-11 w-11 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all">
               <ChevronLeft size={18} />
             </button>
-            <button
-              onClick={() => emblaApi?.scrollNext()}
-              disabled={!canScrollNext}
-              className="h-10 w-10 rounded-full border border-border/50 bg-background/50 backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all disabled:opacity-30"
-            >
+            <button onClick={() => emblaApi?.scrollNext()}
+              className="h-11 w-11 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all">
               <ChevronRight size={18} />
             </button>
           </div>
         </div>
 
-        {/* Carousel */}
         <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex gap-4 md:gap-6">
+          <div className="flex gap-6 md:gap-8">
             {testimonials.map((t: any, i: number) => (
-              <div
-                key={t.name}
-                className="flex-[0_0_85%] min-w-0 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
-              >
-                <div className={`glass-card-public glass-glow-ring p-5 md:p-8 h-full flex flex-col transition-all duration-500 ${
-                  selectedIndex === i ? "scale-[1.02] shadow-lg shadow-primary/5" : "opacity-70"
+              <div key={t.name} className="flex-[0_0_85%] min-w-0 sm:flex-[0_0_48%] lg:flex-[0_0_33.333%]">
+                <div className={`border border-border/50 rounded-lg p-6 md:p-8 h-full flex flex-col transition-all duration-500 ${
+                  selectedIndex === i ? "bg-card" : "bg-transparent opacity-50"
                 }`}>
-                  <Quote size={24} className="md:w-[32px] md:h-[32px] text-primary/20 mb-3 md:mb-4 shrink-0" />
-                  <p className="text-muted-foreground leading-relaxed text-xs md:text-sm flex-1">{t.text}</p>
-                  <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-border/30 flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="font-display text-sm font-bold text-primary">{t.name?.charAt(0)}</span>
+                  <Quote size={20} className="text-primary/30 mb-4 shrink-0" />
+                  <p className="text-muted-foreground leading-relaxed text-sm flex-1 italic">{t.text}</p>
+                  <div className="mt-6 pt-6 border-t border-border/30 flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                      <span className="font-display text-base text-foreground">{t.name?.charAt(0)}</span>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                      <p className="text-xs text-muted-foreground tracking-wide">{t.role}</p>
+                      <p className="text-sm font-medium text-foreground">{t.name}</p>
+                      <p className="text-xs text-muted-foreground">{t.role}</p>
                     </div>
                   </div>
                 </div>
@@ -224,18 +131,12 @@ function TestimonialsCarousel({ testimonials, sectionRef, t }: { testimonials: a
           </div>
         </div>
 
-        {/* Dot indicators */}
-        <div className="flex items-center justify-center gap-2 mt-8">
+        <div className="flex items-center justify-center gap-2 mt-10">
           {testimonials.map((_: any, i: number) => (
-            <button
-              key={i}
-              onClick={() => emblaApi?.scrollTo(i)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                selectedIndex === i
-                  ? "w-8 bg-primary"
-                  : "w-2 bg-border/60 hover:bg-muted-foreground/40"
-              }`}
-            />
+            <button key={i} onClick={() => emblaApi?.scrollTo(i)}
+              className={`h-1.5 rounded-full transition-all duration-400 ${
+                selectedIndex === i ? "w-8 bg-primary" : "w-1.5 bg-border"
+              }`} />
           ))}
         </div>
       </div>
@@ -289,194 +190,185 @@ export default function Home() {
   return (
     <div className="bg-background relative overflow-x-hidden">
       <ArchitectureBusinessJsonLd />
-      {/* Ambient orbs */}
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute top-0 left-1/4 h-[500px] w-[500px] rounded-full bg-primary/[0.04] blur-[120px] animate-float" />
-        <div className="absolute bottom-1/4 right-0 h-[400px] w-[400px] rounded-full bg-primary/[0.03] blur-[100px] animate-float-delayed" />
-      </div>
-
       <PublicNav />
 
-      {/* ── ABOUT ME ── */}
-      <section ref={refAbout} className="reveal relative overflow-hidden bg-background">
-        <div className="container grid lg:grid-cols-2 lg:min-h-[85vh] gap-6 md:gap-8">
-          <div className="relative flex items-stretch">
-            <div className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl mt-6 mb-6 lg:mt-0 lg:mb-0">
-              <div className="relative z-10 h-[320px] sm:h-[400px] md:h-[520px] lg:h-full">
-                <img src={aboutProfileImg} alt={aboutMe.title_prefix ?? "Principal Architect"} className="h-full w-full object-cover object-center rounded-3xl" />
-                {/* Gradient overlay on image */}
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent rounded-3xl" />
-                <div className="absolute bottom-6 left-6 right-6 glass-card-public px-6 py-5">
-                  <p className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground mb-3 font-medium">{t("home_credentials")}</p>
+      {/* ── ABOUT / INTRO ── */}
+      <section ref={refAbout} className="reveal">
+        <div className="container py-16 md:py-28">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            {/* Image */}
+            <div className="relative">
+              <div className="aspect-[3/4] overflow-hidden rounded-sm">
+                <img src={aboutProfileImg} alt={aboutMe.title_prefix ?? "Principal Architect"} 
+                  className="h-full w-full object-cover object-center" />
+              </div>
+              {/* Credentials overlay */}
+              {credentials.length > 0 && (
+                <div className="absolute bottom-6 left-6 right-6 bg-background/90 backdrop-blur-sm border border-border/50 rounded-sm p-5">
+                  <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-3">{t("home_credentials")}</p>
                   <div className="space-y-2">
                     {credentials.map((c: any) => {
                       const Icon = ICON_MAP[c.icon] ?? Award;
                       return (
                         <div key={c.text} className="flex items-center gap-2.5">
-                          <Icon size={12} className="text-primary shrink-0" />
-                          <span className="text-xs text-foreground/80">{c.text}</span>
+                          <Icon size={11} className="text-primary shrink-0" />
+                          <span className="text-xs text-foreground/70">{c.text}</span>
                         </div>
                       );
                     })}
                   </div>
                 </div>
+              )}
+            </div>
+
+            {/* Content */}
+            <div className="lg:pl-4">
+              <p className="text-xs tracking-[0.3em] uppercase text-primary mb-6">{aboutMe.title_prefix ?? "Principal Architect"}</p>
+              <h2 className="font-display text-[clamp(2.5rem,5vw,5rem)] leading-[1.05] text-foreground">
+                {aboutMe.name_first ?? "Elena"}<br />
+                <span className="text-primary">{aboutMe.name_last ?? "Markov"}</span>
+              </h2>
+              <div className="flex items-center gap-4 my-10">
+                <div className="h-px w-12 bg-primary/40" />
+                <span className="text-xs tracking-[0.2em] text-muted-foreground">Est. {aboutMe.est_year ?? "2008"}</span>
               </div>
-            </div>
-          </div>
-          <div className="flex flex-col justify-center py-8 md:py-10 lg:py-20 lg:pl-12 xl:pl-20">
-            <div className="flex items-center gap-2.5 md:gap-3 mb-6 md:mb-10">
-              <div className="h-7 w-7 md:h-8 md:w-8 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Sparkles size={12} className="text-primary md:w-[14px] md:h-[14px]" />
+              <div className="space-y-5 max-w-lg">
+                <p className="text-base leading-relaxed text-foreground/80">{aboutMe.bio_main ?? ""}</p>
+                <p className="text-sm leading-relaxed text-muted-foreground">{aboutMe.bio_secondary ?? ""}</p>
               </div>
-              <p className="text-[10px] md:text-xs tracking-[0.2em] uppercase text-primary font-semibold">{aboutMe.title_prefix ?? "Principal Architect"}</p>
-            </div>
-            <h2 className="font-display text-[clamp(2rem,5vw,4.5rem)] font-bold leading-[1.05] text-foreground mb-2 tracking-tight">
-              {aboutMe.name_first ?? "Elena"}<br />
-              <span className="text-primary">{aboutMe.name_last ?? "Markov"}.</span>
-            </h2>
-            <div className="flex items-center gap-4 my-8">
-              <div className="h-px max-w-[60px] w-full bg-border" />
-              <span className="text-xs tracking-[0.2em] text-muted-foreground font-medium">Est. {aboutMe.est_year ?? "2008"}</span>
-            </div>
-            <div className="space-y-4 max-w-md">
-              <p className="text-base font-light leading-relaxed text-foreground/90">{aboutMe.bio_main ?? ""}</p>
-              <p className="text-sm leading-relaxed text-muted-foreground">{aboutMe.bio_secondary ?? ""}</p>
-              <p className="text-sm leading-relaxed text-muted-foreground">{aboutMe.bio_tertiary ?? ""}</p>
-            </div>
-            <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <Button asChild className="rounded-2xl px-8 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow">
-                <Link to="/about">{t("home_full_profile")} <ArrowRight size={14} className="ml-2" /></Link>
-              </Button>
-              <Button variant="ghost" asChild className="rounded-2xl px-8 tracking-wide text-muted-foreground hover:text-foreground">
-                <Link to="/contact">{t("home_work_together")}</Link>
-              </Button>
-            </div>
-            {aboutMe.quote && (
-              <div className="mt-14 pt-10 border-t border-border/50">
-                <blockquote className="font-display text-xl font-medium text-muted-foreground leading-relaxed italic">
-                  "{aboutMe.quote}"
+              <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
+                <Button asChild className="rounded-sm px-8 h-12 tracking-wider text-sm">
+                  <Link to="/about">{t("home_full_profile")} <ArrowRight size={14} className="ml-2" /></Link>
+                </Button>
+                <Button variant="ghost" asChild className="rounded-sm px-8 h-12 tracking-wider text-sm text-muted-foreground hover:text-foreground">
+                  <Link to="/contact">{t("home_work_together")}</Link>
+                </Button>
+              </div>
+              {aboutMe.quote && (
+                <blockquote className="mt-16 pt-8 border-t border-border/50">
+                  <p className="font-display text-xl md:text-2xl text-muted-foreground leading-relaxed italic">
+                    "{aboutMe.quote}"
+                  </p>
                 </blockquote>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Hero */}
-      <section ref={refHero} className="reveal relative lg:min-h-[90vh] flex items-center">
-        <div className="container py-10 md:py-36">
+      {/* ── HERO STATEMENT ── */}
+      <section ref={refHero} className="reveal border-t border-border/40">
+        <div className="container py-20 md:py-36">
           <div className="max-w-4xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-3 md:px-4 py-1.5 md:py-2 mb-5 md:mb-8">
-              <Sparkles size={11} className="text-primary shrink-0" />
-              <p className="text-[10px] md:text-xs font-semibold tracking-[0.12em] md:tracking-[0.15em] uppercase text-primary">
-                {hero.badge ?? "Architecture · Interiors · Urbanism"}
-              </p>
-            </div>
-            <h1 className="font-display text-[clamp(2.5rem,8vw,6.5rem)] font-bold leading-[1.02] text-foreground tracking-tight">
+            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-8">
+              {hero.badge ?? "Architecture · Interiors · Urbanism"}
+            </p>
+            <h1 className="font-display text-[clamp(3rem,8vw,7rem)] leading-[1.02] text-foreground">
               {hero.title_line1 ?? "Building spaces"}<br />
               <span className="text-primary">{hero.title_line2 ?? "that endure."}</span>
             </h1>
-            <p className="mt-5 md:mt-8 text-base md:text-lg font-light text-muted-foreground max-w-lg leading-relaxed">
+            <p className="mt-8 text-lg text-muted-foreground max-w-lg leading-relaxed">
               {hero.description ?? ""}
             </p>
-            <div className="mt-6 md:mt-10 flex flex-col sm:flex-row gap-3 md:gap-4">
-              <Button size="lg" asChild className="rounded-2xl px-6 md:px-8 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow text-sm md:text-base h-12 md:h-13 w-full sm:w-auto">
+            <div className="mt-10 flex flex-col sm:flex-row gap-4">
+              <Button size="lg" asChild className="rounded-sm px-8 h-13 tracking-wider text-sm">
                 <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={14} className="ml-2" /></Link>
               </Button>
-              <Button variant="outline" size="lg" asChild className="rounded-2xl px-6 md:px-8 tracking-wide text-sm md:text-base h-12 md:h-13 border-border/50 hover:bg-secondary/60 w-full sm:w-auto">
+              <Button variant="outline" size="lg" asChild className="rounded-sm px-8 h-13 tracking-wider text-sm border-border hover:bg-muted">
                 <Link to="/contact">{t("home_work_with_us")}</Link>
               </Button>
             </div>
           </div>
         </div>
-        {/* Decorative grid */}
-        <div className="absolute top-0 right-0 w-1/3 h-full opacity-[0.03] pointer-events-none">
-          <div className="h-full w-full" style={{ backgroundImage: 'radial-gradient(circle, hsl(var(--foreground)) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-        </div>
       </section>
 
-      {/* Stats */}
+      {/* ── STATS ── */}
       {stats.length > 0 && (
-        <section ref={refStats} className="reveal py-10 md:py-16">
-          <div className="container grid grid-cols-2 gap-3 md:gap-4 md:grid-cols-4">
-            {stats.map((s: any, i: number) => (
-              <AnimatedStat key={s.label} value={s.value} suffix={s.suffix} label={s.label} index={i} />
-            ))}
+        <section ref={refStats} className="reveal border-t border-border/40">
+          <div className="container">
+            <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border/40">
+              {stats.map((s: any) => (
+                <AnimatedStat key={s.label} value={s.value} suffix={s.suffix} label={s.label} />
+              ))}
+            </div>
           </div>
         </section>
       )}
 
-      {/* Featured Projects */}
+      {/* ── FEATURED PROJECTS ── */}
       {featured.length > 0 && (
-        <section ref={refFeatured} className="reveal container py-10 md:py-24">
-          <div className="flex items-end justify-between mb-6 md:mb-14">
-            <div>
-              <div className="flex items-center gap-2 mb-3 md:mb-4">
-                <div className="h-1 w-8 rounded-full bg-primary" />
-                <p className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_selected_work")}</p>
+        <section ref={refFeatured} className="reveal border-t border-border/40">
+          <div className="container py-20 md:py-32">
+            <div className="flex items-end justify-between mb-12 md:mb-16">
+              <div>
+                <p className="text-xs tracking-[0.3em] uppercase text-primary mb-4">{t("home_selected_work")}</p>
+                <h2 className="font-display text-3xl md:text-5xl lg:text-6xl text-foreground">{t("home_featured_work")}</h2>
               </div>
-              <h2 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">{t("home_featured_work")}</h2>
+              <Link to="/portfolio" className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                {t("home_view_all")} <ArrowRight size={14} />
+              </Link>
             </div>
-            <Link to="/portfolio" className="hidden md:flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xl px-4 py-2 hover:bg-secondary/60">
-              {t("home_view_all")} <ArrowRight size={14} />
-            </Link>
-          </div>
-          <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-            {featured.map((item, i) => (
-              <div key={item.id} className="group block relative overflow-hidden rounded-2xl border border-border/30 cursor-pointer"
-                onClick={() => item.cover_image_url && setLightboxIdx(i)}>
-                <div className={`overflow-hidden ${i === 0 ? "aspect-[4/3] sm:aspect-[3/4]" : "aspect-[4/3] sm:aspect-square"}`}>
-                  {item.cover_image_url ? (
-                    <img src={item.cover_image_url} alt={item.title} loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                  ) : (
-                    <div className="w-full h-full bg-muted flex items-center justify-center">
-                      <Building2 size={40} className="text-muted-foreground/30" />
+
+            <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3">
+              {featured.map((item, i) => (
+                <div key={item.id} className="group relative overflow-hidden cursor-pointer rounded-sm"
+                  onClick={() => item.cover_image_url && setLightboxIdx(i)}>
+                  <div className={`overflow-hidden ${i === 0 ? "aspect-[3/4]" : "aspect-[4/5]"}`}>
+                    {item.cover_image_url ? (
+                      <img src={item.cover_image_url} alt={item.title} loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-[1000ms]" />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <Building2 size={32} className="text-muted-foreground/20" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
+                    <Link to={`/portfolio/${item.slug}`} onClick={(e) => e.stopPropagation()}
+                      className="font-display text-2xl text-white hover:underline underline-offset-4">
+                      {item.title}
+                    </Link>
+                    <div className="flex items-center gap-3 mt-2 text-xs text-white/60">
+                      {item.category && <span>{item.category}</span>}
+                      {item.location && <span className="flex items-center gap-1"><MapPin size={10} />{item.location}</span>}
+                      {item.year && <span>{item.year}</span>}
                     </div>
-                  )}
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <Link to={`/portfolio/${item.slug}`} onClick={(e) => e.stopPropagation()}
-                    className="font-display text-xl font-bold text-background drop-shadow-lg hover:underline">
-                    {item.title}
-                  </Link>
-                  <div className="flex items-center gap-3 mt-2 text-xs text-background/70">
-                    {item.category && <span className="tracking-wide bg-background/10 backdrop-blur-sm rounded-full px-3 py-1">{item.category}</span>}
-                    {item.location && <span className="flex items-center gap-1"><MapPin size={9} />{item.location}</span>}
-                    {item.year && <span>{item.year}</span>}
+                  </div>
+                  {/* Always-visible minimal info */}
+                  <div className="mt-4">
+                    <h3 className="font-display text-lg text-foreground">{item.title}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">{item.category}{item.year ? ` · ${item.year}` : ''}</p>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-8 text-center md:hidden">
-            <Button variant="outline" asChild className="rounded-2xl"><Link to="/portfolio">{t("home_all_projects")}</Link></Button>
+              ))}
+            </div>
+
+            <div className="mt-10 text-center md:hidden">
+              <Button variant="outline" asChild className="rounded-sm">
+                <Link to="/portfolio">{t("home_all_projects")}</Link>
+              </Button>
+            </div>
           </div>
         </section>
       )}
 
-      {/* Services */}
+      {/* ── SERVICES ── */}
       {servicesHome.length > 0 && (
-        <section ref={refServices} className="reveal py-12 md:py-24">
-          <div className="container">
-            <div className="mb-8 md:mb-14">
-              <div className="flex items-center gap-2 mb-3 md:mb-4">
-                <div className="h-1 w-8 rounded-full bg-primary" />
-                <p className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_disciplines")}</p>
-              </div>
-              <h2 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">{t("home_what_we_do")}</h2>
+        <section ref={refServices} className="reveal border-t border-border/40">
+          <div className="container py-20 md:py-32">
+            <div className="mb-12 md:mb-16">
+              <p className="text-xs tracking-[0.3em] uppercase text-primary mb-4">{t("home_disciplines")}</p>
+              <h2 className="font-display text-3xl md:text-5xl lg:text-6xl text-foreground">{t("home_what_we_do")}</h2>
             </div>
-            <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-px bg-border/40 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border border-border/40">
               {servicesHome.map((s: any) => {
                 const Icon = ICON_MAP[s.icon] ?? Building2;
                 return (
-                  <div key={s.title} className="group glass-card-public glass-glow-ring p-5 md:p-8">
-                    <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl md:rounded-2xl bg-primary/10 flex items-center justify-center mb-4 md:mb-5 group-hover:bg-primary/15 transition-colors">
-                      <Icon size={18} className="md:w-[22px] md:h-[22px] text-primary" />
-                    </div>
-                    <h3 className="font-display text-base md:text-lg font-semibold text-foreground mb-2 md:mb-3">{s.title}</h3>
-                    <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                  <div key={s.title} className="bg-background p-6 md:p-8 group hover:bg-muted/30 transition-colors duration-300">
+                    <Icon size={20} className="text-primary mb-5" />
+                    <h3 className="font-display text-xl text-foreground mb-3">{s.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
                   </div>
                 );
               })}
@@ -485,60 +377,28 @@ export default function Home() {
         </section>
       )}
 
-      {/* Testimonials */}
+      {/* ── TESTIMONIALS ── */}
       {testimonials.length > 0 && (
         <TestimonialsCarousel testimonials={testimonials} sectionRef={refTestimonials} t={t} />
       )}
 
-      {/* Awards */}
+      {/* ── AWARDS ── */}
       {awards.length > 0 && (
-        <section ref={refAwards} className="reveal py-14 md:py-24 relative overflow-hidden">
-          {/* Ambient glow */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-1/3 right-0 w-80 h-80 bg-primary/5 rounded-full blur-[120px]" />
-            <div className="absolute bottom-0 left-1/4 w-64 h-64 bg-primary/3 rounded-full blur-[100px]" />
-          </div>
-
-          <div className="container relative z-10">
-            {/* Header */}
-            <div className="mb-10 md:mb-16 text-center">
-              <div className="inline-flex items-center gap-2 mb-3 md:mb-4">
-                <Award size={13} className="md:w-[14px] md:h-[14px] text-primary" />
-                <p className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase text-primary">{t("home_awards_recognition")}</p>
-              </div>
-              <h2 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">{t("home_honored_work")}</h2>
-              <div className="mt-4 md:mt-6 mx-auto w-24 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+        <section ref={refAwards} className="reveal border-t border-border/40">
+          <div className="container py-20 md:py-32">
+            <div className="mb-12 md:mb-16 text-center">
+              <p className="text-xs tracking-[0.3em] uppercase text-primary mb-4">{t("home_awards_recognition")}</p>
+              <h2 className="font-display text-3xl md:text-5xl lg:text-6xl text-foreground">{t("home_honored_work")}</h2>
             </div>
 
-            {/* Awards timeline-style grid */}
-            <div className="grid gap-3 md:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {awards.map((a: any, i: number) => (
-                <div
-                  key={a.year + a.title}
-                  className={`reveal reveal-delay-${Math.min(i + 1, 4)} group glass-card-public glass-glow-ring p-5 md:p-8 relative overflow-hidden`}
-                >
-                  {/* Decorative corner accent */}
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-bl-[60px] transition-all duration-500 group-hover:bg-primary/10 group-hover:w-24 group-hover:h-24" />
-
-                  <div className="relative z-10 flex flex-col h-full">
-                    {/* Year badge */}
-                    <div className="inline-flex items-center gap-2 mb-4">
-                      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
-                        <Calendar size={14} className="text-primary" />
-                      </div>
-                      <span className="font-display text-sm font-bold text-primary tracking-wide">{a.year}</span>
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="font-display text-lg font-semibold text-foreground leading-snug mb-2 group-hover:text-primary transition-colors duration-300">
-                      {a.title}
-                    </h3>
-
-                    {/* Organization */}
-                    <div className="mt-auto pt-4 border-t border-border/20">
-                      <p className="text-xs tracking-[0.12em] text-muted-foreground uppercase font-medium">{a.org}</p>
-                    </div>
-                  </div>
+            <div className="grid gap-px bg-border/40 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 border border-border/40">
+              {awards.map((a: any) => (
+                <div key={a.year + a.title} className="bg-background p-6 md:p-8 group hover:bg-muted/30 transition-colors duration-300">
+                  <span className="font-display text-3xl text-primary/60 mb-4 block">{a.year}</span>
+                  <h3 className="font-display text-lg text-foreground leading-snug mb-3 group-hover:text-primary transition-colors duration-300">
+                    {a.title}
+                  </h3>
+                  <p className="text-xs tracking-[0.15em] text-muted-foreground uppercase">{a.org}</p>
                 </div>
               ))}
             </div>
@@ -546,22 +406,18 @@ export default function Home() {
         </section>
       )}
 
-      {/* CTA */}
-      <section ref={refCta} className="reveal">
-        <div className="container py-12 md:py-24">
-          <div className="max-w-3xl mx-auto text-center glass-card-public p-8 md:p-16 relative overflow-hidden glass-glow-ring">
-            {/* Background glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px]" />
-            <div className="relative z-10">
-              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight">
-                {cta.title_line1 ?? "Let's build something"}<br />
-                <span className="text-primary">{cta.title_line2 ?? "remarkable."}</span>
-              </h2>
-              <p className="mt-4 md:mt-6 text-muted-foreground text-base md:text-lg">{cta.subtitle ?? "Every great building begins with a conversation."}</p>
-              <Button className="mt-6 md:mt-8 rounded-2xl px-8 md:px-10 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow h-12 md:h-13 text-sm md:text-base w-full sm:w-auto" size="lg" asChild>
-                <Link to="/contact">{t("home_begin_project")} <ArrowRight size={16} className="ml-2" /></Link>
-              </Button>
-            </div>
+      {/* ── CTA ── */}
+      <section ref={refCta} className="reveal border-t border-border/40">
+        <div className="container py-24 md:py-40">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="font-display text-4xl md:text-5xl lg:text-7xl text-foreground leading-tight">
+              {cta.title_line1 ?? "Let's build something"}<br />
+              <span className="text-primary">{cta.title_line2 ?? "remarkable."}</span>
+            </h2>
+            <p className="mt-6 text-muted-foreground text-lg">{cta.subtitle ?? "Every great building begins with a conversation."}</p>
+            <Button className="mt-10 rounded-sm px-10 h-13 tracking-wider text-sm" size="lg" asChild>
+              <Link to="/contact">{t("home_begin_project")} <ArrowRight size={14} className="ml-2" /></Link>
+            </Button>
           </div>
         </div>
       </section>

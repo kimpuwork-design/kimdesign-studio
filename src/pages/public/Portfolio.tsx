@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { Search, MapPin, Calendar, Grid3X3, Star, Loader2, ArrowRight, ArrowUpRight, Sparkles, LayoutGrid, Rows3 } from "lucide-react";
+import { Search, MapPin, Calendar, Grid3X3, Star, Loader2, ArrowRight, ArrowUpRight, LayoutGrid, Rows3 } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { FadeUp } from "@/components/motion/MotionWrappers";
 
@@ -193,51 +193,44 @@ export default function PublicPortfolio() {
     <div className="bg-background min-h-screen relative">
       <PublicNav />
 
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute top-1/4 -right-40 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[150px] animate-float" />
-        <div className="absolute bottom-1/3 -left-32 w-[400px] h-[400px] rounded-full bg-primary/[0.03] blur-[120px] animate-float-delayed" />
-      </div>
-
-      {/* ── Cinematic Hero ── */}
+      {/* ── Hero ── */}
       <div ref={heroRef} className="relative overflow-hidden">
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10">
           <section className="container pt-20 pb-10 md:pt-28 md:pb-16">
             <div className="max-w-3xl">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
-                className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-3 md:px-4 py-1.5 md:py-2 mb-5 md:mb-8">
-                <Sparkles size={11} className="text-primary shrink-0" />
-                <p className="text-[10px] md:text-xs font-semibold tracking-[0.12em] md:tracking-[0.15em] uppercase text-primary">{t("portfolio_selected_work")}</p>
-              </motion.div>
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.1 }}
+                className="text-xs tracking-[0.3em] uppercase text-primary mb-6 md:mb-8">
+                {t("portfolio_selected_work")}
+              </motion.p>
 
-              <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="font-display text-[clamp(2.5rem,8vw,6.5rem)] font-bold text-foreground leading-[0.95] tracking-tight">
+              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                className="font-display text-[clamp(2.5rem,7vw,6rem)] text-foreground leading-[1]">
                 {t("portfolio_our")}<br />
                 <span className="text-primary">{t("portfolio_title")}</span>
               </motion.h1>
 
-              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}
-                className="mt-4 md:mt-6 text-muted-foreground font-light max-w-lg leading-relaxed text-base md:text-lg">
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }}
+                className="mt-6 text-muted-foreground max-w-lg leading-relaxed text-base md:text-lg">
                 {t("portfolio_description")}
               </motion.p>
 
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.55 }}
-                className="mt-6 md:mt-10 flex items-center gap-5 md:gap-8 overflow-x-auto pb-2 scrollbar-none">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.5 }}
+                className="mt-8 flex items-center gap-8 overflow-x-auto pb-2 scrollbar-none">
                 {[
                   { n: items.length, label: t("portfolio_projects_stat") },
                   { n: items.filter(i => i.is_featured).length, label: t("portfolio_featured_stat") },
                   { n: new Set(items.map(i => i.category).filter(Boolean)).size, label: t("portfolio_categories_stat") },
                 ].map((stat) => (
                   <div key={stat.label} className="shrink-0">
-                    <p className="font-display text-2xl md:text-3xl font-bold text-foreground">{stat.n}</p>
-                    <p className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-muted-foreground mt-1">{stat.label}</p>
+                    <p className="font-display text-3xl md:text-4xl text-foreground">{stat.n}</p>
+                    <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mt-1">{stat.label}</p>
                   </div>
                 ))}
               </motion.div>
             </div>
           </section>
         </motion.div>
-        <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent origin-left" />
+        <div className="h-px bg-border/40" />
       </div>
 
       {/* ── Sticky Filters ── */}
@@ -333,23 +326,15 @@ export default function PublicPortfolio() {
       </div>
 
       {/* ── CTA ── */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.03] to-transparent pointer-events-none" />
-        <div className="border-t border-border/30 py-24 md:py-32 relative z-10">
+      <section className="border-t border-border/40">
+        <div className="container py-24 md:py-32">
           <FadeUp>
-            <div className="container text-center">
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 mb-8">
-                <Sparkles size={12} className="text-primary" />
-                <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary">{t("portfolio_start_project")}</p>
-              </div>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight leading-tight">
-                {t("portfolio_inspired")}
-              </h2>
-              <p className="mt-4 text-muted-foreground font-light max-w-md mx-auto leading-relaxed">
-                {t("portfolio_lets_create")}
-              </p>
+            <div className="text-center max-w-2xl mx-auto">
+              <p className="text-xs tracking-[0.3em] uppercase text-primary mb-6">{t("portfolio_start_project")}</p>
+              <h2 className="font-display text-4xl md:text-5xl text-foreground">{t("portfolio_inspired")}</h2>
+              <p className="mt-4 text-muted-foreground max-w-md mx-auto leading-relaxed">{t("portfolio_lets_create")}</p>
               <Link to="/contact"
-                className="inline-flex items-center gap-2 mt-10 rounded-2xl bg-primary px-10 py-4 text-sm tracking-wide font-medium text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:shadow-xl transition-all duration-300">
+                className="inline-flex items-center gap-2 mt-10 bg-primary px-8 py-3.5 text-sm tracking-wider text-primary-foreground hover:bg-primary/90 transition-colors rounded-sm">
                 {t("portfolio_begin_conversation")} <ArrowRight size={14} />
               </Link>
             </div>

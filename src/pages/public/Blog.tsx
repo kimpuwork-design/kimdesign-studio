@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
@@ -9,6 +9,7 @@ import { useTranslation } from "@/i18n/LanguageContext";
 import { Search, Calendar, ArrowRight, Tag } from "lucide-react";
 import { format } from "date-fns";
 import { FadeUp, StaggerContainer, StaggerItem, TextReveal } from "@/components/motion/MotionWrappers";
+import { SectionLabel } from "@/components/SectionLabel";
 import { motion } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
@@ -67,19 +68,20 @@ export default function PublicBlog() {
       {/* ── Hero ── */}
       <section className="container py-20 md:py-32 lg:py-40 relative z-10">
         <div className="max-w-4xl">
-          <motion.p
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
-            className="text-[10px] tracking-[0.35em] uppercase text-primary mb-8"
-          >
-            {t("blog_insights_badge")}
-          </motion.p>
-          <TextReveal>
-            <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
-              {t("blog_title")}
-            </h1>
-          </TextReveal>
+          <SectionLabel text={t("blog_insights_badge")} />
+          <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
+            {(t("blog_title") || "Journal").split(" ").map((word: string, i: number) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 + i * 0.08, ease: luxuryEase }}
+                className="inline-block mr-[0.3em]"
+              >
+                {word}
+              </motion.span>
+            ))}
+          </h1>
           <FadeUp delay={0.3}>
             <p className="mt-8 text-lg text-muted-foreground font-light max-w-lg leading-relaxed">
               {t("blog_description")}
@@ -151,10 +153,23 @@ export default function PublicBlog() {
             {/* Featured hero post */}
             {heroPost && (
               <FadeUp>
-                <Link to={`/blog/${heroPost.slug}`} className="group grid md:grid-cols-2 gap-6 md:gap-10 items-center" data-cursor-hover data-cursor-label="Read">
-                  <div className="overflow-hidden aspect-[16/10]">
+              <Link to={`/blog/${heroPost.slug}`} className="group grid md:grid-cols-2 gap-6 md:gap-10 items-center" data-cursor-hover data-cursor-label="Read">
+                  <div className="overflow-hidden aspect-[16/10]"
+                    onMouseMove={(e) => {
+                      const img = e.currentTarget.querySelector('img');
+                      if (!img) return;
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = (e.clientX - rect.left) / rect.width - 0.5;
+                      const y = (e.clientY - rect.top) / rect.height - 0.5;
+                      img.style.transform = `scale(1.08) translate(${-x * 14}px, ${-y * 14}px)`;
+                    }}
+                    onMouseLeave={(e) => {
+                      const img = e.currentTarget.querySelector('img');
+                      if (img) img.style.transform = 'scale(1) translate(0, 0)';
+                    }}
+                  >
                     {heroPost.cover_image_url ? (
-                      <img src={heroPost.cover_image_url} alt={heroPost.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-[1000ms]" />
+                      <img src={heroPost.cover_image_url} alt={heroPost.title} className="w-full h-full object-cover transition-transform duration-700 ease-out" />
                     ) : (
                       <div className="w-full h-full bg-muted/30" />
                     )}
@@ -187,9 +202,22 @@ export default function PublicBlog() {
                 {gridPosts.map((post) => (
                   <StaggerItem key={post.id}>
                     <Link to={`/blog/${post.slug}`} className="group block" data-cursor-hover data-cursor-label="Read">
-                      <div className="overflow-hidden aspect-[16/10] mb-5">
+                      <div className="overflow-hidden aspect-[16/10] mb-5"
+                        onMouseMove={(e) => {
+                          const img = e.currentTarget.querySelector('img');
+                          if (!img) return;
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const x = (e.clientX - rect.left) / rect.width - 0.5;
+                          const y = (e.clientY - rect.top) / rect.height - 0.5;
+                          img.style.transform = `scale(1.06) translate(${-x * 10}px, ${-y * 10}px)`;
+                        }}
+                        onMouseLeave={(e) => {
+                          const img = e.currentTarget.querySelector('img');
+                          if (img) img.style.transform = 'scale(1) translate(0, 0)';
+                        }}
+                      >
                         {post.cover_image_url ? (
-                          <img src={post.cover_image_url} alt={post.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[900ms]" />
+                          <img src={post.cover_image_url} alt={post.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 ease-out" />
                         ) : (
                           <div className="w-full h-full bg-muted/30" />
                         )}

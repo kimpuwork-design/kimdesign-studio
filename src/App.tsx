@@ -91,6 +91,7 @@ const App = () => (
       <CustomCursor />
       <InitialLoader />
       <ScrollProgress />
+      <BackToTop />
       <Toaster />
       <Sonner />
       <BrowserRouter>

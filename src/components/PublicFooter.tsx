@@ -32,40 +32,8 @@ export function PublicFooter() {
 
   return (
     <footer className="border-t border-border/50 bg-background">
-      {/* ── Giant typographic CTA ── */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/[0.03] rounded-full blur-[150px]" />
-        </div>
-        <div className="container py-28 md:py-44 relative z-10">
-          <TextReveal>
-            <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-6 md:mb-8 text-center">
-              {t("footer_cta_title") !== "footer_cta_title" ? t("footer_cta_title") : "Start a conversation"}
-            </p>
-          </TextReveal>
-          <TextReveal delay={0.15}>
-            <h2 className="font-display text-[clamp(3rem,10vw,9rem)] leading-[0.9] text-foreground text-center">
-              Let's build
-            </h2>
-          </TextReveal>
-          <TextReveal delay={0.3}>
-            <h2 className="font-display text-[clamp(3rem,10vw,9rem)] leading-[0.9] text-primary text-center">
-              together.
-            </h2>
-          </TextReveal>
-          <FadeUp delay={0.5}>
-            <div className="flex justify-center mt-12 md:mt-16">
-              <MagneticButton strength={0.2}>
-                <Link to="/contact"
-                  className="group inline-flex items-center gap-3 border border-foreground/20 px-10 md:px-14 py-4 md:py-5 text-sm tracking-[0.2em] uppercase text-foreground hover:bg-foreground hover:text-background transition-all duration-500">
-                  {t("footer_get_in_touch") !== "footer_get_in_touch" ? t("footer_get_in_touch") : "Get in Touch"}
-                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
-                </Link>
-              </MagneticButton>
-            </div>
-          </FadeUp>
-        </div>
-      </section>
+      {/* ── Giant typographic CTA with mouse-follow ── */}
+      <FooterCTA t={t} />
 
       {/* ── Main footer ── */}
       <div className="border-t border-border/30">

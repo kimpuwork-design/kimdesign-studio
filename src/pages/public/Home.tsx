@@ -21,6 +21,7 @@ import { Marquee } from "@/components/motion/Marquee";
 import { MagneticButton } from "@/components/MagneticButton";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, GraduationCap, Award, Globe, ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { SectionLabel } from "@/components/SectionLabel";
 import profileImg from "@/assets/profile-placeholder.jpg";
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, GraduationCap, Award, Globe };
@@ -470,10 +471,12 @@ export default function Home() {
         <section className="border-t border-border/30">
           <div className="container pt-24 md:pt-36 pb-8 md:pb-12">
             <div className="flex items-end justify-between mb-12 md:mb-16">
-              <FadeUp>
-                <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-4">{t("home_selected_work")}</p>
-                <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1]">{t("home_featured_work")}</h2>
-              </FadeUp>
+              <div>
+                <SectionLabel text={t("home_selected_work")} />
+                <FadeUp>
+                  <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1]">{t("home_featured_work")}</h2>
+                </FadeUp>
+              </div>
               <FadeUp delay={0.2}>
                 <Link to="/portfolio" className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group">
                   {t("home_view_all")}
@@ -493,6 +496,7 @@ export default function Home() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ duration: 0.8, delay: i * 0.1, ease: luxuryEase }}
+                  whileHover={{ y: -8, transition: { duration: 0.4, ease: luxuryEase } }}
                   className="flex-shrink-0 w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[35vw] group cursor-pointer"
                   onClick={() => item.cover_image_url && setLightboxIdx(i)}
                   data-cursor-hover
@@ -548,8 +552,8 @@ export default function Home() {
       {servicesHome.length > 0 && (
         <section className="border-t border-border/30 bg-muted/20">
           <div className="container py-24 md:py-36">
+            <SectionLabel text={t("home_disciplines")} />
             <FadeUp>
-              <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-4">{t("home_disciplines")}</p>
               <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1] mb-16 md:mb-20">{t("home_what_we_do")}</h2>
             </FadeUp>
 
@@ -558,7 +562,7 @@ export default function Home() {
                 const Icon = ICON_MAP[s.icon] ?? Building2;
                 return (
                   <StaggerItem key={s.title}>
-                    <div className="bg-background p-8 md:p-10 group hover:bg-card transition-colors duration-500 h-full border border-border/20">
+                    <div className="bg-background p-8 md:p-10 group hover:bg-card hover:-translate-y-1 transition-all duration-500 h-full border border-border/20">
                       <span className="font-display text-4xl text-border/40 group-hover:text-primary/30 transition-colors duration-500 block mb-6">
                         {String(i + 1).padStart(2, '0')}
                       </span>

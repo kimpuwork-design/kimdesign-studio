@@ -8,6 +8,8 @@ import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, StaggerContainer, StaggerItem, SlideIn, TextReveal, LineDraw, ImageReveal } from "@/components/motion/MotionWrappers";
+import { SectionLabel } from "@/components/SectionLabel";
+import { TextScramble } from "@/components/TextScramble";
 import { motion } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
@@ -29,21 +31,36 @@ export default function About() {
       {/* ── Hero ── */}
       <section className="container py-20 md:py-32 lg:py-40 relative z-10">
         <div className="max-w-4xl">
-          <motion.p
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
-            className="text-[10px] tracking-[0.35em] uppercase text-primary mb-8"
-          >
-            {page.hero_subtitle ?? t("about_the_studio")}
-          </motion.p>
-          <TextReveal>
-            <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
-              {page.hero_title_line1 ?? "Architecture as a"}
-              <br />
-              <span className="text-primary">{page.hero_title_line2 ?? "long conversation."}</span>
-            </h1>
-          </TextReveal>
+          <SectionLabel text={page.hero_subtitle ?? t("about_the_studio")} />
+          <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
+            {(page.hero_title_line1 ?? "Architecture as a").split("").map((char: string, i: number) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 + i * 0.025, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+                className="inline-block"
+                style={char === " " ? { width: "0.3em" } : {}}
+              >
+                {char === " " ? "\u00A0" : char}
+              </motion.span>
+            ))}
+            <br />
+            <span className="text-primary">
+              {(page.hero_title_line2 ?? "long conversation.").split("").map((char: string, i: number) => (
+                <motion.span
+                  key={`l2-${i}`}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.6 + i * 0.025, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+                  className="inline-block"
+                  style={char === " " ? { width: "0.3em" } : {}}
+                >
+                  {char === " " ? "\u00A0" : char}
+                </motion.span>
+              ))}
+            </span>
+          </h1>
         </div>
       </section>
 
@@ -78,12 +95,14 @@ export default function About() {
       {values.length > 0 && (
         <section className="border-t border-border/30 py-24 md:py-36 relative z-10">
           <div className="container">
-            <FadeUp>
-              <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-4">{t("about_principles")}</p>
-              <h2 className="font-display text-3xl md:text-5xl text-foreground leading-[1.1] mb-16 md:mb-20">
-                What guides us
-              </h2>
-            </FadeUp>
+            <div>
+              <SectionLabel text={t("about_principles")} />
+              <FadeUp>
+                <h2 className="font-display text-3xl md:text-5xl text-foreground leading-[1.1] mb-16 md:mb-20">
+                  What guides us
+                </h2>
+              </FadeUp>
+            </div>
             <StaggerContainer className="grid gap-px grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" staggerDelay={0.08}>
               {values.map((v: any, i: number) => (
                 <StaggerItem key={v.title}>
@@ -105,12 +124,14 @@ export default function About() {
       {team.length > 0 && (
         <section className="border-t border-border/30 py-24 md:py-36 relative z-10">
           <div className="container">
-            <FadeUp>
-              <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-4">{t("about_people")}</p>
-              <h2 className="font-display text-3xl md:text-5xl text-foreground leading-[1.1] mb-16 md:mb-20">
-                Our team
-              </h2>
-            </FadeUp>
+            <div>
+              <SectionLabel text={t("about_people")} />
+              <FadeUp>
+                <h2 className="font-display text-3xl md:text-5xl text-foreground leading-[1.1] mb-16 md:mb-20">
+                  Our team
+                </h2>
+              </FadeUp>
+            </div>
             <StaggerContainer className="grid gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3" staggerDelay={0.1}>
               {team.map((p: any) => (
                 <StaggerItem key={p.name}>

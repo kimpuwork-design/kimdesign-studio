@@ -5,6 +5,7 @@ import { KMonogramLogo } from "@/components/KMonogramLogo";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { motion } from "framer-motion";
 import { FadeUp, TextReveal } from "@/components/motion/MotionWrappers";
+import { MagneticButton } from "@/components/MagneticButton";
 
 const NAV_KEYS = [
   { key: "nav_projects", href: "/portfolio" },

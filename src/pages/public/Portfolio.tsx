@@ -30,10 +30,26 @@ interface ProjectPortfolioItem {
   updated_at: string;
 }
 
-/* ─── Grid Card — Sharp, editorial ─── */
+/* ─── Grid Card — Sharp, editorial with inner parallax ─── */
 function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioItem; size?: "hero" | "tall" | "wide" | "normal"; index: number; t: (k: string) => string }) {
   const linkTo = item.slug ? `/portfolio/${item.slug}` : `/projects/${item.id}`;
   const coverUrl = item.thumbnail_url;
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    if (imgRef.current) {
+      imgRef.current.style.transform = `scale(1.08) translate(${-x * 12}px, ${-y * 12}px)`;
+    }
+  };
+  const handleMouseLeave = () => {
+    if (imgRef.current) {
+      imgRef.current.style.transform = "scale(1) translate(0, 0)";
+    }
+  };
 
   const aspectMap = {
     hero: "aspect-[16/10] md:aspect-[16/9]",
@@ -50,10 +66,12 @@ function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioI
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.6, delay: index * 0.05, ease: luxuryEase }}
     >
-      <Link to={linkTo} className="group block relative overflow-hidden" data-cursor-hover data-cursor-label="View">
+      <Link to={linkTo} className="group block relative overflow-hidden" data-cursor-hover data-cursor-label="View"
+        onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
         <div className={`${aspectMap[size]} overflow-hidden relative`}>
           {coverUrl ? (
-            <img src={coverUrl} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[900ms] ease-out" />
+            <img ref={imgRef} src={coverUrl} alt={item.title} loading="lazy"
+              className="w-full h-full object-cover transition-transform duration-700 ease-out" />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-muted/30">
               <Grid3X3 size={40} className="text-muted-foreground/15" />

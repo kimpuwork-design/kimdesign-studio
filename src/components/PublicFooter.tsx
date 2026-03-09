@@ -3,10 +3,11 @@ import { Mail, Instagram, Phone, MapPin, ArrowRight, ArrowUpRight } from "lucide
 import { useSettings } from "@/hooks/useSettings";
 import { KMonogramLogo } from "@/components/KMonogramLogo";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { FadeUp, TextReveal } from "@/components/motion/MotionWrappers";
 import { MagneticButton } from "@/components/MagneticButton";
 import { SectionLabel } from "@/components/SectionLabel";
+import { useCallback, useRef } from "react";
 
 const NAV_KEYS = [
   { key: "nav_projects", href: "/portfolio" },

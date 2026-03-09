@@ -214,9 +214,18 @@ export default function Home() {
 
       {/* ══════════ HERO — Split screen ══════════ */}
       <div ref={heroRef} className="relative">
-        <motion.section style={{ opacity: heroOpacity, y: heroY }} className="min-h-[92vh] md:min-h-[95vh] flex items-center relative">
-          {/* Background image with parallax zoom */}
-          {heroImage && (
+        <motion.section
+          style={{ opacity: heroOpacity, y: heroY }}
+          onMouseMove={handleHeroMouse}
+          className="min-h-[92vh] md:min-h-[95vh] flex items-center relative"
+        >
+          {/* Mouse-following radial gradient */}
+          <div
+            className="absolute inset-0 z-[1] pointer-events-none opacity-30 transition-opacity duration-1000"
+            style={{
+              background: `radial-gradient(600px circle at ${mousePos.x * 100}% ${mousePos.y * 100}%, hsl(var(--primary) / 0.08), transparent 60%)`,
+            }}
+          />
             <motion.div style={{ scale: heroScale }} className="absolute inset-0 z-0">
               <img src={heroImage} alt="" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-background/85 dark:bg-background/90" />

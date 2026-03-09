@@ -5,10 +5,11 @@ import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ProjectFormModal } from "@/components/admin/ProjectFormModal";
 import { StaffAssignModal } from "@/components/admin/StaffAssignModal";
+import { ProjectKanban } from "@/components/admin/ProjectKanban";
 import { supabase } from "@/integrations/supabase/client";
 import { writeAuditLog } from "@/lib/audit";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus, Search, Pencil, Trash2, Users, ExternalLink, Star, Eye, EyeOff, LayoutGrid, List } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Users, ExternalLink, Star, Eye, EyeOff, LayoutGrid, List, Columns } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -52,7 +53,7 @@ export default function AdminProjects() {
   const [assignProject, setAssignProject] = useState<Project | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [toggling, setToggling] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const [viewMode, setViewMode] = useState<"table" | "grid" | "kanban">("table");
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -131,6 +132,10 @@ export default function AdminProjects() {
               className={cn("p-2 transition-colors", viewMode === "grid" ? "bg-portal-surface text-portal-text" : "text-portal-text-muted hover:text-portal-text")}>
               <LayoutGrid size={14} />
             </button>
+            <button onClick={() => setViewMode("kanban")}
+              className={cn("p-2 transition-colors", viewMode === "kanban" ? "bg-portal-surface text-portal-text" : "text-portal-text-muted hover:text-portal-text")}>
+              <Columns size={14} />
+            </button>
           </div>
         </div>
         <div className="flex gap-1 overflow-x-auto scrollbar-none pb-0.5">
@@ -162,6 +167,8 @@ export default function AdminProjects() {
             <Plus size={14} className="mr-1" /> New Project
           </Button>
         </div>
+      ) : viewMode === "kanban" ? (
+        <ProjectKanban projects={projects} onRefresh={fetchProjects} />
       ) : viewMode === "grid" ? (
         /* Grid View */
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

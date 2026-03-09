@@ -1,7 +1,7 @@
 import { 
   LayoutDashboard, FolderOpen, User, LogOut, ChevronLeft, 
   Briefcase, Users, FileArchive, Settings, Activity, UserCog, Shield, 
-  PackageOpen, Receipt, FileText, Newspaper, BarChart3, Globe, type LucideIcon 
+  PackageOpen, Receipt, FileText, Newspaper, BarChart3, Globe, type LucideIcon
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -55,6 +55,7 @@ const adminNav: NavGroup[] = [
     items: [
       { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
       { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+      { label: "Activity", href: "/admin/activity", icon: Activity },
     ],
   },
   {

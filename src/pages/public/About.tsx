@@ -31,21 +31,36 @@ export default function About() {
       {/* ── Hero ── */}
       <section className="container py-20 md:py-32 lg:py-40 relative z-10">
         <div className="max-w-4xl">
-          <motion.p
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
-            className="text-[10px] tracking-[0.35em] uppercase text-primary mb-8"
-          >
-            {page.hero_subtitle ?? t("about_the_studio")}
-          </motion.p>
-          <TextReveal>
-            <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
-              {page.hero_title_line1 ?? "Architecture as a"}
-              <br />
-              <span className="text-primary">{page.hero_title_line2 ?? "long conversation."}</span>
-            </h1>
-          </TextReveal>
+          <SectionLabel text={page.hero_subtitle ?? t("about_the_studio")} />
+          <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
+            {(page.hero_title_line1 ?? "Architecture as a").split("").map((char: string, i: number) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 + i * 0.025, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+                className="inline-block"
+                style={char === " " ? { width: "0.3em" } : {}}
+              >
+                {char === " " ? "\u00A0" : char}
+              </motion.span>
+            ))}
+            <br />
+            <span className="text-primary">
+              {(page.hero_title_line2 ?? "long conversation.").split("").map((char: string, i: number) => (
+                <motion.span
+                  key={`l2-${i}`}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.6 + i * 0.025, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+                  className="inline-block"
+                  style={char === " " ? { width: "0.3em" } : {}}
+                >
+                  {char === " " ? "\u00A0" : char}
+                </motion.span>
+              ))}
+            </span>
+          </h1>
         </div>
       </section>
 

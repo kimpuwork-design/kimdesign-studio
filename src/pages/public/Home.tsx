@@ -496,6 +496,7 @@ export default function Home() {
                   className="flex-shrink-0 w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[35vw] group cursor-pointer"
                   onClick={() => item.cover_image_url && setLightboxIdx(i)}
                   data-cursor-hover
+                  data-cursor-label="Explore"
                 >
                   <div className="relative overflow-hidden aspect-[3/4] md:aspect-[4/5]">
                     {item.cover_image_url && (

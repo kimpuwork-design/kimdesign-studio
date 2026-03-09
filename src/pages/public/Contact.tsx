@@ -14,6 +14,7 @@ import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, SlideIn, FadeIn, TextReveal } from "@/components/motion/MotionWrappers";
 import { MagneticButton } from "@/components/MagneticButton";
+import { SectionLabel } from "@/components/SectionLabel";
 import { motion } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;

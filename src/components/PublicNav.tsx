@@ -47,12 +47,12 @@ export function PublicNav() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-0 md:flex">
           {NAV_KEYS.map((l) => {
             const isActive = location.pathname === l.href || location.pathname.startsWith(l.href + "/");
             return (
               <Link key={l.href} to={l.href}
-                className={`px-4 py-2 text-sm transition-colors ${
+                className={`px-5 py-2 text-[13px] tracking-[0.04em] transition-colors duration-300 ${
                   isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}>
                 {t(l.key)}

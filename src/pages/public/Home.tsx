@@ -552,27 +552,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* ══════════ CTA ══════════ */}
-      <section className="border-t border-border/30 relative overflow-hidden">
-        {/* Ambient background */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/[0.03] rounded-full blur-[120px]" />
-        </div>
-        <div className="container py-32 md:py-48 relative z-10">
-          <FadeUp>
-            <div className="max-w-3xl mx-auto text-center">
-              <h2 className="font-display text-4xl md:text-6xl lg:text-8xl text-foreground leading-[1.05]">
-                {cta.title_line1 ?? "Let's build something"}<br />
-                <span className="text-primary">{cta.title_line2 ?? "remarkable."}</span>
-              </h2>
-              <p className="mt-8 text-muted-foreground text-lg font-light">{cta.subtitle ?? "Every great building begins with a conversation."}</p>
-              <Button className="mt-12 rounded-none px-12 h-14 tracking-[0.15em] text-sm uppercase" size="lg" asChild>
-                <Link to="/contact">{t("home_begin_project")} <ArrowRight size={14} className="ml-3" /></Link>
-              </Button>
-            </div>
-          </FadeUp>
-        </div>
-      </section>
+      {/* CTA is now part of the footer */}
 
       <PublicFooter />
       <FloatingChatButton />

@@ -50,7 +50,7 @@ function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioI
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.6, delay: index * 0.05, ease: luxuryEase }}
     >
-      <Link to={linkTo} className="group block relative overflow-hidden">
+      <Link to={linkTo} className="group block relative overflow-hidden" data-cursor-hover data-cursor-label="View">
         <div className={`${aspectMap[size]} overflow-hidden relative`}>
           {coverUrl ? (
             <img src={coverUrl} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[900ms] ease-out" />

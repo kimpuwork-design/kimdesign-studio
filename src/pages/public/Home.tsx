@@ -607,6 +607,7 @@ export default function Home() {
                         </p>
                       )}
                     </div>
+                  </div>
                   </TiltCard>
                 </motion.div>
               ))}

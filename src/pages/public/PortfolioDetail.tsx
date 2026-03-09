@@ -63,6 +63,56 @@ function ReadingProgress({ progress }: { progress: number }) {
   );
 }
 
+/* ─── Gallery Image with Inner Parallax ─── */
+function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: string; name: string }; idx: number; onClick: () => void }) {
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
+  
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const el = e.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    setMousePos({
+      x: (e.clientX - rect.left) / rect.width,
+      y: (e.clientY - rect.top) / rect.height,
+    });
+  }, []);
+  
+  const handleMouseLeave = useCallback(() => {
+    setMousePos({ x: 0.5, y: 0.5 });
+  }, []);
+  
+  return (
+    <StaggerItem>
+      <motion.button
+        whileHover={{ scale: 1.015 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={onClick}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="group relative w-full overflow-hidden break-inside-avoid"
+        data-cursor-hover
+      >
+        <motion.img 
+          src={img.url} 
+          alt={img.name || `Gallery ${idx + 1}`} 
+          loading="lazy"
+          className="w-full object-cover"
+          animate={{
+            scale: 1.08,
+            x: (mousePos.x - 0.5) * -14,
+            y: (mousePos.y - 0.5) * -14,
+          }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        />
+        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-colors duration-300 flex items-center justify-center">
+          <div className="h-10 w-10 bg-background/80 flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300">
+            <Maximize2 size={14} className="text-foreground" />
+          </div>
+        </div>
+      </motion.button>
+    </StaggerItem>
+  );
+}
+
 interface ProjectItem {
   id: string;
   title: string;

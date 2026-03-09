@@ -17,6 +17,7 @@ import {
   FadeUp, FadeIn, StaggerContainer, StaggerItem,
   SlideIn, TextReveal, LineDraw, ImageReveal, ParallaxSection
 } from "@/components/motion/MotionWrappers";
+import { Marquee } from "@/components/motion/Marquee";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, GraduationCap, Award, Globe, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import profileImg from "@/assets/profile-placeholder.jpg";
@@ -107,11 +108,11 @@ function TestimonialsCarousel({ testimonials, t }: { testimonials: any[]; t: (k:
           <FadeUp delay={0.2}>
             <div className="flex items-center gap-3">
               <button onClick={() => emblaApi?.scrollPrev()}
-                className="h-12 w-12 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all duration-300">
+                className="h-12 w-12 border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all duration-300">
                 <ChevronLeft size={18} />
               </button>
               <button onClick={() => emblaApi?.scrollNext()}
-                className="h-12 w-12 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all duration-300">
+                className="h-12 w-12 border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all duration-300">
                 <ChevronRight size={18} />
               </button>
             </div>
@@ -122,13 +123,13 @@ function TestimonialsCarousel({ testimonials, t }: { testimonials: any[]; t: (k:
           <div className="flex gap-6 md:gap-8">
             {testimonials.map((t: any, i: number) => (
               <div key={t.name} className="flex-[0_0_88%] min-w-0 sm:flex-[0_0_46%] lg:flex-[0_0_33.333%]">
-                <div className={`border border-border/40 rounded-sm p-7 md:p-9 h-full flex flex-col transition-all duration-600 ${
+                <div className={`border border-border/40 p-7 md:p-9 h-full flex flex-col transition-all duration-600 ${
                   selectedIndex === i ? "bg-card border-border" : "bg-transparent opacity-40"
                 }`}>
                   <Quote size={18} className="text-primary/25 mb-5 shrink-0" />
                   <p className="text-muted-foreground leading-[1.8] text-sm flex-1 italic font-light">{t.text}</p>
                   <div className="mt-8 pt-6 border-t border-border/30 flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-muted/60 flex items-center justify-center">
+                    <div className="h-10 w-10 bg-muted/60 flex items-center justify-center">
                       <span className="font-display text-base text-foreground">{t.name?.charAt(0)}</span>
                     </div>
                     <div>
@@ -145,7 +146,7 @@ function TestimonialsCarousel({ testimonials, t }: { testimonials: any[]; t: (k:
         <div className="flex items-center justify-center gap-2 mt-12">
           {testimonials.map((_: any, i: number) => (
             <button key={i} onClick={() => emblaApi?.scrollTo(i)}
-              className={`h-[3px] rounded-full transition-all duration-500 ${
+              className={`h-[2px] transition-all duration-500 ${
                 selectedIndex === i ? "w-10 bg-primary" : "w-2 bg-border"
               }`} />
           ))}
@@ -168,6 +169,7 @@ export default function Home() {
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 60]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.05]);
 
   useEffect(() => {
     supabase
@@ -194,58 +196,95 @@ export default function Home() {
   const aboutProfileImg = aboutMe.profile_image_url || profileImg;
   const credentials: any[] = aboutMe.credentials ?? [];
 
+  // Get first featured image for hero background
+  const heroImage = featured[0]?.cover_image_url;
+
   return (
     <div className="bg-background relative overflow-x-hidden">
       <ArchitectureBusinessJsonLd />
       <PublicNav />
 
-      {/* ══════════ HERO ══════════ */}
+      {/* ══════════ HERO — Split screen ══════════ */}
       <div ref={heroRef} className="relative">
-        <motion.section style={{ opacity: heroOpacity, y: heroY }} className="min-h-[85vh] md:min-h-[90vh] flex items-center">
-          <div className="container py-20 md:py-32">
-            <div className="max-w-4xl">
-              <motion.p
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
-                className="text-[11px] tracking-[0.35em] uppercase text-primary mb-8 md:mb-10"
-              >
-                {hero.badge ?? "Architecture · Interiors · Urbanism"}
-              </motion.p>
+        <motion.section style={{ opacity: heroOpacity, y: heroY }} className="min-h-[92vh] md:min-h-[95vh] flex items-center relative">
+          {/* Background image with parallax zoom */}
+          {heroImage && (
+            <motion.div style={{ scale: heroScale }} className="absolute inset-0 z-0">
+              <img src={heroImage} alt="" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-background/85 dark:bg-background/90" />
+            </motion.div>
+          )}
 
-              <motion.h1
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.9, delay: 0.3, ease: luxuryEase }}
-                className="font-display text-[clamp(3.2rem,9vw,8rem)] leading-[0.95] text-foreground"
-              >
-                {hero.title_line1 ?? "Building spaces"}
-                <br />
-                <span className="text-primary">{hero.title_line2 ?? "that endure."}</span>
-              </motion.h1>
+          <div className="container py-20 md:py-32 relative z-10">
+            <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+              {/* Left content */}
+              <div className="lg:col-span-7">
+                <motion.p
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
+                  className="text-[11px] tracking-[0.35em] uppercase text-primary mb-8 md:mb-10"
+                >
+                  {hero.badge ?? "Architecture · Interiors · Urbanism"}
+                </motion.p>
 
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.7, delay: 0.6, ease: luxuryEase }}
-                className="mt-8 md:mt-10 text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed font-light"
-              >
-                {hero.description ?? ""}
-              </motion.p>
+                <motion.h1
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.9, delay: 0.3, ease: luxuryEase }}
+                  className="font-display text-[clamp(3rem,8vw,7.5rem)] leading-[0.92] text-foreground"
+                >
+                  {hero.title_line1 ?? "Building spaces"}
+                  <br />
+                  <span className="text-primary">{hero.title_line2 ?? "that endure."}</span>
+                </motion.h1>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.8, ease: luxuryEase }}
-                className="mt-10 md:mt-14 flex flex-col sm:flex-row gap-4"
-              >
-                <Button size="lg" asChild className="rounded-none px-10 h-14 tracking-[0.15em] text-sm uppercase">
-                  <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={14} className="ml-3" /></Link>
-                </Button>
-                <Button variant="outline" size="lg" asChild className="rounded-none px-10 h-14 tracking-[0.15em] text-sm uppercase border-foreground/20 hover:bg-foreground hover:text-background transition-all duration-500">
-                  <Link to="/contact">{t("home_work_with_us")}</Link>
-                </Button>
-              </motion.div>
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.7, delay: 0.6, ease: luxuryEase }}
+                  className="mt-8 md:mt-10 text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed font-light"
+                >
+                  {hero.description ?? ""}
+                </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.8, ease: luxuryEase }}
+                  className="mt-10 md:mt-14 flex flex-col sm:flex-row gap-4"
+                >
+                  <Button size="lg" asChild className="rounded-none px-10 h-14 tracking-[0.15em] text-sm uppercase">
+                    <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={14} className="ml-3" /></Link>
+                  </Button>
+                  <Button variant="outline" size="lg" asChild className="rounded-none px-10 h-14 tracking-[0.15em] text-sm uppercase border-foreground/20 hover:bg-foreground hover:text-background transition-all duration-500">
+                    <Link to="/contact">{t("home_work_with_us")}</Link>
+                  </Button>
+                </motion.div>
+              </div>
+
+              {/* Right — Feature image card */}
+              <div className="lg:col-span-5 hidden lg:block">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ duration: 1, delay: 0.5, ease: luxuryEase }}
+                >
+                  {heroImage && (
+                    <div className="relative group">
+                      <div className="aspect-[3/4] overflow-hidden">
+                        <img src={heroImage} alt="Featured project" className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-[1200ms]" />
+                      </div>
+                      {featured[0] && (
+                        <Link to={`/portfolio/${featured[0].slug}`} className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-foreground/80 to-transparent">
+                          <p className="text-[10px] tracking-[0.2em] uppercase text-background/60 mb-1">{featured[0].category}</p>
+                          <p className="font-display text-xl text-background">{featured[0].title}</p>
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                </motion.div>
+              </div>
             </div>
           </div>
         </motion.section>
@@ -266,11 +305,20 @@ export default function Home() {
         </motion.div>
       </div>
 
+      {/* ══════════ MARQUEE TICKER ══════════ */}
+      <div className="border-t border-b border-border/30 py-5 md:py-6 overflow-hidden">
+        <Marquee
+          items={["Architecture", "Interior Design", "Urban Planning", "Landscape", "Sustainability", "Heritage", "Residential", "Commercial"]}
+          separator="—"
+          speed={40}
+          className="font-display text-xl md:text-2xl lg:text-3xl text-muted-foreground/25 select-none"
+        />
+      </div>
+
       {/* ══════════ ABOUT / INTRO ══════════ */}
       <section className="border-t border-border/30">
         <div className="container py-24 md:py-36">
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-            {/* Image with reveal */}
             <SlideIn direction="left">
               <div className="relative">
                 <ImageReveal>
@@ -300,7 +348,6 @@ export default function Home() {
               </div>
             </SlideIn>
 
-            {/* Content */}
             <div className="lg:pt-12">
               <FadeUp>
                 <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-8">{aboutMe.title_prefix ?? "Principal Architect"}</p>
@@ -362,7 +409,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* ══════════ FEATURED PROJECTS — Cinematic ══════════ */}
+      {/* ══════════ FEATURED PROJECTS — Editorial with hover image ══════════ */}
       {featured.length > 0 && (
         <section className="border-t border-border/30">
           <div className="container py-24 md:py-36">
@@ -379,8 +426,7 @@ export default function Home() {
               </FadeUp>
             </div>
 
-            {/* Large editorial grid */}
-            <div className="space-y-2">
+            <div className="space-y-0">
               {featured.map((item, i) => (
                 <motion.div
                   key={item.id}
@@ -393,13 +439,11 @@ export default function Home() {
                   className="group cursor-pointer"
                   onClick={() => item.cover_image_url && setLightboxIdx(i)}
                 >
-                  <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 py-6 md:py-8 border-b border-border/30 hover:border-primary/20 transition-colors duration-500">
-                    {/* Number */}
-                    <span className="font-display text-5xl md:text-7xl text-border/60 group-hover:text-primary/40 transition-colors duration-500 tabular-nums w-[80px] shrink-0">
+                  <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 py-8 md:py-10 border-b border-border/30 hover:border-primary/20 transition-colors duration-500">
+                    <span className="font-display text-5xl md:text-7xl text-border/50 group-hover:text-primary/30 transition-colors duration-500 tabular-nums w-[80px] shrink-0">
                       {String(i + 1).padStart(2, '0')}
                     </span>
 
-                    {/* Image — reveals on hover */}
                     <div className="relative w-full md:w-[280px] shrink-0 overflow-hidden">
                       <motion.div
                         animate={{ height: hoveredProject === i ? 200 : 0, opacity: hoveredProject === i ? 1 : 0 }}
@@ -410,7 +454,6 @@ export default function Home() {
                           <img src={item.cover_image_url} alt={item.title} className="w-full h-[200px] object-cover" />
                         )}
                       </motion.div>
-                      {/* Mobile: always show image */}
                       <div className="md:hidden aspect-[16/9] overflow-hidden">
                         {item.cover_image_url && (
                           <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" />
@@ -418,7 +461,6 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* Info */}
                     <div className="flex-1 min-w-0">
                       <Link to={`/portfolio/${item.slug}`} onClick={(e) => e.stopPropagation()}
                         className="font-display text-2xl md:text-3xl lg:text-4xl text-foreground group-hover:text-primary transition-colors duration-500 block">
@@ -431,7 +473,6 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* Arrow */}
                     <motion.div
                       animate={{ x: hoveredProject === i ? 0 : -10, opacity: hoveredProject === i ? 1 : 0 }}
                       transition={{ duration: 0.3, ease: luxuryEase }}
@@ -521,8 +562,12 @@ export default function Home() {
       )}
 
       {/* ══════════ CTA ══════════ */}
-      <section className="border-t border-border/30">
-        <div className="container py-32 md:py-48">
+      <section className="border-t border-border/30 relative overflow-hidden">
+        {/* Ambient background */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/[0.03] rounded-full blur-[120px]" />
+        </div>
+        <div className="container py-32 md:py-48 relative z-10">
           <FadeUp>
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="font-display text-4xl md:text-6xl lg:text-8xl text-foreground leading-[1.05]">

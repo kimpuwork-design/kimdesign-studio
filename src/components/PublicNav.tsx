@@ -52,10 +52,18 @@ export function PublicNav() {
             const isActive = location.pathname === l.href || location.pathname.startsWith(l.href + "/");
             return (
               <Link key={l.href} to={l.href}
-                className={`px-5 py-2 text-[13px] tracking-[0.04em] transition-colors duration-300 ${
+                className={`relative px-5 py-2 text-[13px] tracking-[0.04em] transition-colors duration-300 ${
                   isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}>
                 {t(l.key)}
+                {/* Active indicator line */}
+                {isActive && (
+                  <motion.div
+                    layoutId="nav-indicator"
+                    className="absolute bottom-0 left-2 right-2 h-[1.5px] bg-primary"
+                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                  />
+                )}
               </Link>
             );
           })}
@@ -71,11 +79,11 @@ export function PublicNav() {
             onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
             <AnimatePresence mode="wait" initial={false}>
               {mobileOpen ? (
-                <motion.div key="close" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+                <motion.div key="close" initial={{ opacity: 0, rotate: -90 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
                   <X size={20} />
                 </motion.div>
               ) : (
-                <motion.div key="menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+                <motion.div key="menu" initial={{ opacity: 0, rotate: 90 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: -90 }} transition={{ duration: 0.2 }}>
                   <Menu size={20} />
                 </motion.div>
               )}
@@ -88,10 +96,10 @@ export function PublicNav() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-x-0 top-16 bottom-0 z-40 bg-background md:hidden overflow-y-auto"
           >
             <div className="container py-8 flex flex-col h-full">
@@ -100,16 +108,16 @@ export function PublicNav() {
                   const isActive = location.pathname === l.href || location.pathname.startsWith(l.href + "/");
                   return (
                     <motion.div key={l.href}
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05, duration: 0.3 }}>
+                      transition={{ delay: i * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
                       <Link to={l.href}
-                        className={`flex items-center justify-between py-4 px-2 border-b border-border/30 text-base transition-colors ${
+                        className={`flex items-center justify-between py-5 px-2 border-b border-border/30 transition-colors ${
                           isActive ? "text-foreground" : "text-muted-foreground"
                         }`}
                         onClick={() => setMobileOpen(false)}>
-                        <span>{t(l.key)}</span>
-                        <ArrowRight size={14} className="text-muted-foreground/30" />
+                        <span className="font-display text-2xl">{t(l.key)}</span>
+                        <ArrowRight size={16} className={`transition-colors ${isActive ? "text-primary" : "text-muted-foreground/30"}`} />
                       </Link>
                     </motion.div>
                   );
@@ -119,10 +127,10 @@ export function PublicNav() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.3 }}
+                transition={{ delay: 0.35, duration: 0.3 }}
                 className="pt-6 pb-safe mt-auto">
                 <Link to="/contact" onClick={() => setMobileOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full py-3.5 bg-primary text-primary-foreground text-sm tracking-wider rounded-sm">
+                  className="flex items-center justify-center gap-2 w-full py-4 bg-primary text-primary-foreground text-sm tracking-[0.15em] uppercase">
                   {t("nav_contact")} <ArrowRight size={14} />
                 </Link>
               </motion.div>

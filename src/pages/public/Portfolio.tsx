@@ -11,6 +11,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import { FadeUp } from "@/components/motion/MotionWrappers";
 
 const CATEGORIES = ["All", "Residential", "Cultural", "Commercial", "Interior", "Landscape", "Civic", "Mixed-Use"];
+const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
 interface ProjectPortfolioItem {
   id: string;
@@ -29,8 +30,8 @@ interface ProjectPortfolioItem {
   updated_at: string;
 }
 
-/* ─── Bento Card ─── */
-function BentoCard({ item, size = "normal", index, t }: { item: ProjectPortfolioItem; size?: "hero" | "tall" | "wide" | "normal"; index: number; t: (k: string) => string }) {
+/* ─── Grid Card — Sharp, editorial ─── */
+function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioItem; size?: "hero" | "tall" | "wide" | "normal"; index: number; t: (k: string) => string }) {
   const linkTo = item.slug ? `/portfolio/${item.slug}` : `/projects/${item.id}`;
   const coverUrl = item.thumbnail_url;
 
@@ -46,50 +47,50 @@ function BentoCard({ item, size = "normal", index, t }: { item: ProjectPortfolio
       layout
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.5, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
+      exit={{ opacity: 0, scale: 0.97 }}
+      transition={{ duration: 0.6, delay: index * 0.05, ease: luxuryEase }}
     >
-      <Link to={linkTo} className="group block relative overflow-hidden rounded-2xl">
+      <Link to={linkTo} className="group block relative overflow-hidden">
         <div className={`${aspectMap[size]} overflow-hidden relative`}>
           {coverUrl ? (
-            <img src={coverUrl} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-[800ms] ease-out" />
+            <img src={coverUrl} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[900ms] ease-out" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted/50">
-              <Grid3X3 size={40} className="text-muted-foreground/20" />
+            <div className="w-full h-full flex items-center justify-center bg-muted/30">
+              <Grid3X3 size={40} className="text-muted-foreground/15" />
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-500" />
+          {/* Minimal gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
           {item.is_featured && (
-            <div className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full bg-primary/90 backdrop-blur-md px-3 py-1.5 text-[10px] font-semibold text-primary-foreground tracking-[0.1em] uppercase">
-              <Star size={10} className="fill-current" /> {t("portfolio_featured_badge")}
+            <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-primary px-3 py-1.5 text-[9px] font-medium text-primary-foreground tracking-[0.15em] uppercase">
+              <Star size={9} className="fill-current" /> {t("portfolio_featured_badge")}
             </div>
           )}
-          <div className="absolute top-4 right-4 h-9 w-9 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-            <ArrowUpRight size={14} className="text-white" />
+
+          {/* Hover reveal arrow */}
+          <div className="absolute top-4 right-4 h-9 w-9 bg-background/90 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+            <ArrowUpRight size={14} className="text-foreground" />
           </div>
-          <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-            {item.category && (
-              <span className="inline-block rounded-full bg-white/10 backdrop-blur-md border border-white/10 px-3 py-1 text-[10px] tracking-[0.15em] uppercase font-medium text-white/80 mb-3">
-                {item.category}
-              </span>
-            )}
-            <h3 className={`font-display font-bold text-white drop-shadow-lg leading-tight ${size === "hero" ? "text-2xl md:text-4xl" : size === "tall" || size === "wide" ? "text-xl md:text-2xl" : "text-lg md:text-xl"}`}>
-              {item.title}
-            </h3>
-            <div className="mt-2 flex items-center gap-3 text-xs text-white/60">
-              {item.location && <span className="flex items-center gap-1"><MapPin size={10} />{item.location}</span>}
-              {item.year && <span className="flex items-center gap-1"><Calendar size={10} />{item.year}</span>}
-            </div>
-            <p className="mt-3 text-white/60 text-sm leading-relaxed line-clamp-2 max-h-0 group-hover:max-h-16 overflow-hidden transition-all duration-500">
-              {item.summary || item.description}
-            </p>
-            {item.tags && item.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-                {item.tags.slice(0, 3).map((tag) => (
-                  <span key={tag} className="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-[10px] tracking-wide text-white/50">{tag}</span>
-                ))}
+
+          {/* Bottom info — always visible */}
+          <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6">
+            <div className="translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+              {item.category && (
+                <span className="inline-block text-[9px] tracking-[0.2em] uppercase font-medium text-background/70 mb-2">
+                  {item.category}
+                </span>
+              )}
+              <h3 className={`font-display text-background drop-shadow-lg leading-tight ${
+                size === "hero" ? "text-2xl md:text-4xl" : size === "tall" || size === "wide" ? "text-xl md:text-2xl" : "text-lg md:text-xl"
+              }`}>
+                {item.title}
+              </h3>
+              <div className="mt-2 flex items-center gap-3 text-[11px] text-background/50">
+                {item.location && <span className="flex items-center gap-1"><MapPin size={10} />{item.location}</span>}
+                {item.year && <span className="flex items-center gap-1"><Calendar size={10} />{item.year}</span>}
               </div>
-            )}
+            </div>
           </div>
         </div>
       </Link>
@@ -97,30 +98,34 @@ function BentoCard({ item, size = "normal", index, t }: { item: ProjectPortfolio
   );
 }
 
-/* ─── List Card ─── */
+/* ─── List Card — Editorial row ─── */
 function ListCard({ item, index }: { item: ProjectPortfolioItem; index: number }) {
   const linkTo = item.slug ? `/portfolio/${item.slug}` : `/projects/${item.id}`;
 
   return (
-    <motion.div layout initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.4, delay: index * 0.04 }}>
-      <Link to={linkTo} className="group flex items-center gap-6 py-5 px-2 border-b border-border/30 hover:bg-muted/30 rounded-xl transition-all duration-200 -mx-2">
+    <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, delay: index * 0.04, ease: luxuryEase }}>
+      <Link to={linkTo} className="group flex items-center gap-6 py-6 px-0 border-b border-border/30 hover:border-primary/20 transition-all duration-300">
+        {/* Number */}
+        <span className="font-display text-3xl text-border/50 group-hover:text-primary/30 transition-colors duration-500 tabular-nums w-[50px] shrink-0 hidden sm:block">
+          {String(index + 1).padStart(2, '0')}
+        </span>
         {item.thumbnail_url && (
-          <div className="shrink-0 w-28 h-20 rounded-xl overflow-hidden">
-            <img src={item.thumbnail_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          <div className="shrink-0 w-24 h-16 overflow-hidden">
+            <img src={item.thumbnail_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
           </div>
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             {item.is_featured && <Star size={10} className="text-primary fill-primary shrink-0" />}
-            {item.category && <span className="text-[10px] tracking-[0.15em] uppercase font-medium text-primary">{item.category}</span>}
+            {item.category && <span className="text-[9px] tracking-[0.15em] uppercase font-medium text-primary">{item.category}</span>}
           </div>
-          <h3 className="font-display text-lg font-bold text-foreground group-hover:text-primary transition-colors truncate">{item.title}</h3>
+          <h3 className="font-display text-lg text-foreground group-hover:text-primary transition-colors truncate">{item.title}</h3>
           <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
             {item.location && <span className="flex items-center gap-1"><MapPin size={10} />{item.location}</span>}
             {item.year && <span className="flex items-center gap-1"><Calendar size={10} />{item.year}</span>}
           </div>
         </div>
-        <ArrowRight size={16} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
+        <ArrowRight size={16} className="text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
       </Link>
     </motion.div>
   );
@@ -199,23 +204,23 @@ export default function PublicPortfolio() {
           <section className="container pt-20 pb-10 md:pt-28 md:pb-16">
             <div className="max-w-3xl">
               <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.1 }}
-                className="text-xs tracking-[0.3em] uppercase text-primary mb-6 md:mb-8">
+                className="text-[10px] tracking-[0.35em] uppercase text-primary mb-6 md:mb-8">
                 {t("portfolio_selected_work")}
               </motion.p>
 
-              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="font-display text-[clamp(2.5rem,7vw,6rem)] text-foreground leading-[1]">
+              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: luxuryEase }}
+                className="font-display text-[clamp(2.5rem,7vw,6rem)] text-foreground leading-[0.95]">
                 {t("portfolio_our")}<br />
                 <span className="text-primary">{t("portfolio_title")}</span>
               </motion.h1>
 
               <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }}
-                className="mt-6 text-muted-foreground max-w-lg leading-relaxed text-base md:text-lg">
+                className="mt-6 text-muted-foreground max-w-lg leading-relaxed text-base md:text-lg font-light">
                 {t("portfolio_description")}
               </motion.p>
 
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.5 }}
-                className="mt-8 flex items-center gap-8 overflow-x-auto pb-2 scrollbar-none">
+                className="mt-10 flex items-center gap-10 overflow-x-auto pb-2 scrollbar-none">
                 {[
                   { n: items.length, label: t("portfolio_projects_stat") },
                   { n: items.filter(i => i.is_featured).length, label: t("portfolio_featured_stat") },
@@ -223,40 +228,41 @@ export default function PublicPortfolio() {
                 ].map((stat) => (
                   <div key={stat.label} className="shrink-0">
                     <p className="font-display text-3xl md:text-4xl text-foreground">{stat.n}</p>
-                    <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground mt-1">{stat.label}</p>
+                    <p className="text-[9px] tracking-[0.25em] uppercase text-muted-foreground mt-1">{stat.label}</p>
                   </div>
                 ))}
               </motion.div>
             </div>
           </section>
         </motion.div>
-        <div className="h-px bg-border/40" />
       </div>
 
       {/* ── Sticky Filters ── */}
-      <section className="sticky top-16 z-30 bg-background/80 backdrop-blur-xl border-b border-border/30">
-        <div className="container py-2.5 md:py-3 flex flex-col gap-2.5 md:flex-row md:gap-3 md:items-center">
+      <section className="sticky top-16 z-30 bg-background/80 backdrop-blur-xl border-t border-b border-border/30">
+        <div className="container py-3 md:py-3.5 flex flex-col gap-2.5 md:flex-row md:gap-4 md:items-center">
           <div className="relative flex-1 max-w-full md:max-w-xs">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               placeholder={t("portfolio_search")}
-              className="w-full pl-9 pr-3 py-2 rounded-xl border border-border/50 bg-background/60 backdrop-blur-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all" />
+              className="w-full pl-9 pr-3 py-2 border border-border/50 bg-background/60 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-colors" />
           </div>
           <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-0.5 md:pb-0 items-center flex-1">
             {CATEGORIES.map((c) => (
               <button key={c} onClick={() => { setCategory(c); setPage(1); }}
-                className={`px-3 md:px-3.5 py-1.5 rounded-full text-[10px] tracking-[0.1em] uppercase font-medium transition-all duration-200 whitespace-nowrap shrink-0 ${
-                  category === c ? "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(var(--primary),0.3)]" : "bg-secondary/30 text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                className={`px-3 md:px-3.5 py-1.5 text-[10px] tracking-[0.12em] uppercase font-medium transition-all duration-300 whitespace-nowrap shrink-0 ${
+                  category === c
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}>
                 {c === "All" ? t("portfolio_all") : c}
               </button>
             ))}
           </div>
-          <div className="hidden md:flex items-center gap-1 rounded-xl border border-border/40 bg-background/40 p-1">
-            <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-lg transition-all ${viewMode === "grid" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+          <div className="hidden md:flex items-center gap-0 border border-border/40 bg-background/40">
+            <button onClick={() => setViewMode("grid")} className={`p-2 transition-all ${viewMode === "grid" ? "bg-foreground/5 text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
               <LayoutGrid size={15} />
             </button>
-            <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-lg transition-all ${viewMode === "list" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+            <button onClick={() => setViewMode("list")} className={`p-2 transition-all ${viewMode === "list" ? "bg-foreground/5 text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
               <Rows3 size={15} />
             </button>
           </div>
@@ -267,27 +273,32 @@ export default function PublicPortfolio() {
       <div className="container py-12 md:py-16 relative z-10 min-h-[60vh]">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <Loader2 size={28} className="animate-spin text-muted-foreground" />
-            <p className="text-xs text-muted-foreground tracking-wide">{t("portfolio_loading")}</p>
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            >
+              <Loader2 size={24} className="text-muted-foreground" />
+            </motion.div>
+            <p className="text-xs text-muted-foreground tracking-[0.15em] uppercase">{t("portfolio_loading")}</p>
           </div>
         ) : filtered.length === 0 ? (
           <FadeUp>
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="h-20 w-20 rounded-2xl bg-muted/50 flex items-center justify-center mb-6">
-                <Grid3X3 size={32} className="text-muted-foreground/30" />
+              <div className="h-20 w-20 bg-muted/30 flex items-center justify-center mb-6">
+                <Grid3X3 size={32} className="text-muted-foreground/20" />
               </div>
-              <h3 className="font-display text-2xl font-bold text-foreground">{t("portfolio_no_projects")}</h3>
+              <h3 className="font-display text-2xl text-foreground">{t("portfolio_no_projects")}</h3>
               <p className="mt-2 text-muted-foreground text-sm max-w-xs">{t("portfolio_no_found_hint")}</p>
               <button onClick={() => { setSearch(""); setCategory("All"); }}
-                className="mt-6 text-xs text-primary hover:underline tracking-wide uppercase font-medium">
+                className="mt-6 text-xs text-primary hover:underline tracking-[0.15em] uppercase font-medium">
                 {t("portfolio_clear_filters")}
               </button>
             </div>
           </FadeUp>
         ) : (
           <>
-            <div className="flex items-center justify-between mb-8">
-              <p className="text-xs text-muted-foreground tracking-wide">
+            <div className="flex items-center justify-between mb-10">
+              <p className="text-xs text-muted-foreground tracking-[0.1em]">
                 {t("portfolio_showing")} <span className="text-foreground font-medium">{paginated.length}</span> {t("portfolio_of")}{" "}
                 <span className="text-foreground font-medium">{allForDisplay.length}</span> {t("portfolio_projects_label")}
               </p>
@@ -296,10 +307,10 @@ export default function PublicPortfolio() {
             <AnimatePresence mode="wait">
               {viewMode === "grid" ? (
                 <motion.div key="grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
-                  className="grid gap-4 md:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                  className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                   {paginated.map((item, i) => (
                     <div key={item.id} className={getBentoSpan(i)}>
-                      <BentoCard item={item} size={getBentoSize(i)} index={i} t={t} />
+                      <GridCard item={item} size={getBentoSize(i)} index={i} t={t} />
                     </div>
                   ))}
                 </motion.div>
@@ -313,9 +324,9 @@ export default function PublicPortfolio() {
             </AnimatePresence>
 
             {hasMore && (
-              <div className="flex justify-center mt-14">
+              <div className="flex justify-center mt-16">
                 <button onClick={() => setPage((p) => p + 1)}
-                  className="group rounded-2xl border border-border/40 bg-background/60 backdrop-blur-sm px-10 py-3.5 text-xs tracking-[0.15em] uppercase font-medium text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-[0_0_30px_rgba(var(--primary),0.2)] transition-all duration-300">
+                  className="group border border-border/40 bg-background px-10 py-3.5 text-xs tracking-[0.15em] uppercase font-medium text-foreground hover:bg-foreground hover:text-background hover:border-foreground transition-all duration-500">
                   {t("portfolio_load_more")}
                   <ArrowRight size={12} className="inline ml-2 group-hover:translate-x-1 transition-transform" />
                 </button>
@@ -326,16 +337,16 @@ export default function PublicPortfolio() {
       </div>
 
       {/* ── CTA ── */}
-      <section className="border-t border-border/40">
-        <div className="container py-24 md:py-32">
+      <section className="border-t border-border/30">
+        <div className="container py-24 md:py-36">
           <FadeUp>
             <div className="text-center max-w-2xl mx-auto">
-              <p className="text-xs tracking-[0.3em] uppercase text-primary mb-6">{t("portfolio_start_project")}</p>
-              <h2 className="font-display text-4xl md:text-5xl text-foreground">{t("portfolio_inspired")}</h2>
-              <p className="mt-4 text-muted-foreground max-w-md mx-auto leading-relaxed">{t("portfolio_lets_create")}</p>
+              <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-6">{t("portfolio_start_project")}</p>
+              <h2 className="font-display text-4xl md:text-6xl text-foreground leading-[1.05]">{t("portfolio_inspired")}</h2>
+              <p className="mt-4 text-muted-foreground max-w-md mx-auto leading-relaxed font-light">{t("portfolio_lets_create")}</p>
               <Link to="/contact"
-                className="inline-flex items-center gap-2 mt-10 bg-primary px-8 py-3.5 text-sm tracking-wider text-primary-foreground hover:bg-primary/90 transition-colors rounded-sm">
-                {t("portfolio_begin_conversation")} <ArrowRight size={14} />
+                className="inline-flex items-center gap-2 mt-10 bg-primary px-10 py-4 text-sm tracking-[0.15em] uppercase text-primary-foreground hover:bg-primary/90 transition-colors">
+                {t("portfolio_start_project")} <ArrowRight size={14} />
               </Link>
             </div>
           </FadeUp>

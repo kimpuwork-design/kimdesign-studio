@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { CinematicLightbox, LightboxImage } from "@/components/media/CinematicLightbox";
+import { CinematicLightbox } from "@/components/media/CinematicLightbox";
 import useEmblaCarousel from "embla-carousel-react";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
@@ -9,63 +9,72 @@ import { supabase } from "@/integrations/supabase/client";
 import { PortfolioItem } from "@/lib/portfolio";
 import { useSettings } from "@/hooks/useSettings";
 import { useSiteContent } from "@/hooks/useSiteContent";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { ArchitectureBusinessJsonLd } from "@/components/JsonLd";
-import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, Calendar, GraduationCap, Award, Globe, ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import {
+  FadeUp, FadeIn, StaggerContainer, StaggerItem,
+  SlideIn, TextReveal, LineDraw, ImageReveal, ParallaxSection
+} from "@/components/motion/MotionWrappers";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, GraduationCap, Award, Globe, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import profileImg from "@/assets/profile-placeholder.jpg";
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, GraduationCap, Award, Globe };
+const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
-function useCountUp(target: number, duration = 2000) {
+/* ─── Animated Counter ─── */
+function useCountUp(target: number, duration = 2200) {
   const [count, setCount] = useState(0);
   const started = useRef(false);
   const start = useCallback(() => {
     if (started.current) return;
     started.current = true;
-    const startTime = performance.now();
+    const t0 = performance.now();
     const tick = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const ease = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(ease * target));
-      if (progress < 1) requestAnimationFrame(tick);
+      const p = Math.min((now - t0) / duration, 1);
+      setCount(Math.round((1 - Math.pow(1 - p, 4)) * target));
+      if (p < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
   }, [target, duration]);
   return { count, start };
 }
 
-function AnimatedStat({ value, suffix, label }: { value: number; suffix: string; label: string }) {
+function AnimatedStat({ value, suffix, label, index }: { value: number; suffix: string; label: string; index: number }) {
   const { count, start } = useCountUp(value);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { start(); observer.unobserve(el); } },
-      { threshold: 0.4 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { start(); obs.unobserve(el); } }, { threshold: 0.3 });
+    obs.observe(el);
+    return () => obs.disconnect();
   }, [start]);
 
   return (
-    <div ref={ref} className="text-center py-8 md:py-12">
-      <p className="font-display text-5xl md:text-6xl lg:text-7xl font-light text-foreground tracking-tight leading-none">
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.7, delay: index * 0.1, ease: luxuryEase }}
+      className="text-center py-10 md:py-16"
+    >
+      <p className="font-display text-5xl md:text-7xl lg:text-8xl text-foreground leading-none">
         {count}<span className="text-primary">{suffix}</span>
       </p>
-      <p className="mt-3 text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium">
+      <p className="mt-4 text-[10px] tracking-[0.25em] uppercase text-muted-foreground">
         {label}
       </p>
-    </div>
+    </motion.div>
   );
 }
 
-function TestimonialsCarousel({ testimonials, sectionRef, t }: { testimonials: any[]; sectionRef: React.RefObject<HTMLElement>; t: (k: string) => string }) {
+/* ─── Testimonials ─── */
+function TestimonialsCarousel({ testimonials, t }: { testimonials: any[]; t: (k: string) => string }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -88,40 +97,42 @@ function TestimonialsCarousel({ testimonials, sectionRef, t }: { testimonials: a
   }, [emblaApi]);
 
   return (
-    <section ref={sectionRef} className="reveal py-20 md:py-32">
+    <section className="py-24 md:py-36 border-t border-border/30">
       <div className="container">
-        <div className="mb-12 md:mb-20 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-          <div>
-            <p className="text-xs tracking-[0.25em] uppercase text-primary mb-4">{t("home_recognition")}</p>
-            <h2 className="font-display text-3xl md:text-5xl lg:text-6xl text-foreground">{t("home_client_voices")}</h2>
-          </div>
-          <div className="flex items-center gap-3">
-            <button onClick={() => emblaApi?.scrollPrev()}
-              className="h-11 w-11 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all">
-              <ChevronLeft size={18} />
-            </button>
-            <button onClick={() => emblaApi?.scrollNext()}
-              className="h-11 w-11 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all">
-              <ChevronRight size={18} />
-            </button>
-          </div>
+        <div className="mb-14 md:mb-20 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <FadeUp>
+            <p className="text-[10px] tracking-[0.3em] uppercase text-primary mb-4">{t("home_recognition")}</p>
+            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1]">{t("home_client_voices")}</h2>
+          </FadeUp>
+          <FadeUp delay={0.2}>
+            <div className="flex items-center gap-3">
+              <button onClick={() => emblaApi?.scrollPrev()}
+                className="h-12 w-12 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all duration-300">
+                <ChevronLeft size={18} />
+              </button>
+              <button onClick={() => emblaApi?.scrollNext()}
+                className="h-12 w-12 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all duration-300">
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          </FadeUp>
         </div>
 
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex gap-6 md:gap-8">
             {testimonials.map((t: any, i: number) => (
-              <div key={t.name} className="flex-[0_0_85%] min-w-0 sm:flex-[0_0_48%] lg:flex-[0_0_33.333%]">
-                <div className={`border border-border/50 rounded-lg p-6 md:p-8 h-full flex flex-col transition-all duration-500 ${
-                  selectedIndex === i ? "bg-card" : "bg-transparent opacity-50"
+              <div key={t.name} className="flex-[0_0_88%] min-w-0 sm:flex-[0_0_46%] lg:flex-[0_0_33.333%]">
+                <div className={`border border-border/40 rounded-sm p-7 md:p-9 h-full flex flex-col transition-all duration-600 ${
+                  selectedIndex === i ? "bg-card border-border" : "bg-transparent opacity-40"
                 }`}>
-                  <Quote size={20} className="text-primary/30 mb-4 shrink-0" />
-                  <p className="text-muted-foreground leading-relaxed text-sm flex-1 italic">{t.text}</p>
-                  <div className="mt-6 pt-6 border-t border-border/30 flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                  <Quote size={18} className="text-primary/25 mb-5 shrink-0" />
+                  <p className="text-muted-foreground leading-[1.8] text-sm flex-1 italic font-light">{t.text}</p>
+                  <div className="mt-8 pt-6 border-t border-border/30 flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-muted/60 flex items-center justify-center">
                       <span className="font-display text-base text-foreground">{t.name?.charAt(0)}</span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-foreground">{t.name}</p>
+                      <p className="text-sm text-foreground">{t.name}</p>
                       <p className="text-xs text-muted-foreground">{t.role}</p>
                     </div>
                   </div>
@@ -131,11 +142,11 @@ function TestimonialsCarousel({ testimonials, sectionRef, t }: { testimonials: a
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-2 mt-10">
+        <div className="flex items-center justify-center gap-2 mt-12">
           {testimonials.map((_: any, i: number) => (
             <button key={i} onClick={() => emblaApi?.scrollTo(i)}
-              className={`h-1.5 rounded-full transition-all duration-400 ${
-                selectedIndex === i ? "w-8 bg-primary" : "w-1.5 bg-border"
+              className={`h-[3px] rounded-full transition-all duration-500 ${
+                selectedIndex === i ? "w-10 bg-primary" : "w-2 bg-border"
               }`} />
           ))}
         </div>
@@ -144,23 +155,19 @@ function TestimonialsCarousel({ testimonials, sectionRef, t }: { testimonials: a
   );
 }
 
+/* ─── Main Component ─── */
 export default function Home() {
   const { settings } = useSettings();
   const { t } = useTranslation();
-  const { content, loading: contentLoading } = useSiteContent(
-    "about_me", "hero", "stats", "services_home", "testimonials", "awards", "cta"
-  );
+  const { content } = useSiteContent("about_me", "hero", "stats", "services_home", "testimonials", "awards", "cta");
   const [featured, setFeatured] = useState<PortfolioItem[]>([]);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [hoveredProject, setHoveredProject] = useState<number | null>(null);
 
-  const refAbout = useScrollReveal();
-  const refHero = useScrollReveal();
-  const refStats = useScrollReveal();
-  const refFeatured = useScrollReveal();
-  const refServices = useScrollReveal();
-  const refTestimonials = useScrollReveal();
-  const refAwards = useScrollReveal();
-  const refCta = useScrollReveal();
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 60]);
 
   useEffect(() => {
     supabase
@@ -169,7 +176,7 @@ export default function Home() {
       .eq("is_published", true)
       .eq("is_featured", true)
       .order("created_at", { ascending: false })
-      .limit(3)
+      .limit(4)
       .then(({ data }) => setFeatured((data as unknown as PortfolioItem[]) ?? []));
   }, []);
 
@@ -192,233 +199,342 @@ export default function Home() {
       <ArchitectureBusinessJsonLd />
       <PublicNav />
 
-      {/* ── ABOUT / INTRO ── */}
-      <section ref={refAbout} className="reveal">
-        <div className="container py-16 md:py-28">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            {/* Image */}
-            <div className="relative">
-              <div className="aspect-[3/4] overflow-hidden rounded-sm">
-                <img src={aboutProfileImg} alt={aboutMe.title_prefix ?? "Principal Architect"} 
-                  className="h-full w-full object-cover object-center" />
-              </div>
-              {/* Credentials overlay */}
-              {credentials.length > 0 && (
-                <div className="absolute bottom-6 left-6 right-6 bg-background/90 backdrop-blur-sm border border-border/50 rounded-sm p-5">
-                  <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-3">{t("home_credentials")}</p>
-                  <div className="space-y-2">
-                    {credentials.map((c: any) => {
-                      const Icon = ICON_MAP[c.icon] ?? Award;
-                      return (
-                        <div key={c.text} className="flex items-center gap-2.5">
-                          <Icon size={11} className="text-primary shrink-0" />
-                          <span className="text-xs text-foreground/70">{c.text}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+      {/* ══════════ HERO ══════════ */}
+      <div ref={heroRef} className="relative">
+        <motion.section style={{ opacity: heroOpacity, y: heroY }} className="min-h-[85vh] md:min-h-[90vh] flex items-center">
+          <div className="container py-20 md:py-32">
+            <div className="max-w-4xl">
+              <motion.p
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
+                className="text-[11px] tracking-[0.35em] uppercase text-primary mb-8 md:mb-10"
+              >
+                {hero.badge ?? "Architecture · Interiors · Urbanism"}
+              </motion.p>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: 0.3, ease: luxuryEase }}
+                className="font-display text-[clamp(3.2rem,9vw,8rem)] leading-[0.95] text-foreground"
+              >
+                {hero.title_line1 ?? "Building spaces"}
+                <br />
+                <span className="text-primary">{hero.title_line2 ?? "that endure."}</span>
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.6, ease: luxuryEase }}
+                className="mt-8 md:mt-10 text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed font-light"
+              >
+                {hero.description ?? ""}
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.8, ease: luxuryEase }}
+                className="mt-10 md:mt-14 flex flex-col sm:flex-row gap-4"
+              >
+                <Button size="lg" asChild className="rounded-none px-10 h-14 tracking-[0.15em] text-sm uppercase">
+                  <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={14} className="ml-3" /></Link>
+                </Button>
+                <Button variant="outline" size="lg" asChild className="rounded-none px-10 h-14 tracking-[0.15em] text-sm uppercase border-foreground/20 hover:bg-foreground hover:text-background transition-all duration-500">
+                  <Link to="/contact">{t("home_work_with_us")}</Link>
+                </Button>
+              </motion.div>
             </div>
+          </div>
+        </motion.section>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.5 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        >
+          <span className="text-[9px] tracking-[0.3em] uppercase text-muted-foreground/50">Scroll</span>
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            className="w-px h-8 bg-gradient-to-b from-muted-foreground/40 to-transparent"
+          />
+        </motion.div>
+      </div>
+
+      {/* ══════════ ABOUT / INTRO ══════════ */}
+      <section className="border-t border-border/30">
+        <div className="container py-24 md:py-36">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+            {/* Image with reveal */}
+            <SlideIn direction="left">
+              <div className="relative">
+                <ImageReveal>
+                  <div className="aspect-[3/4] overflow-hidden">
+                    <img src={aboutProfileImg} alt={aboutMe.title_prefix ?? "Principal Architect"}
+                      className="h-full w-full object-cover object-center hover:scale-[1.02] transition-transform duration-[1200ms]" />
+                  </div>
+                </ImageReveal>
+                {credentials.length > 0 && (
+                  <FadeUp delay={0.4}>
+                    <div className="mt-6 border-t border-border/40 pt-6">
+                      <p className="text-[9px] tracking-[0.35em] uppercase text-muted-foreground mb-4">{t("home_credentials")}</p>
+                      <div className="space-y-2.5">
+                        {credentials.map((c: any) => {
+                          const Icon = ICON_MAP[c.icon] ?? Award;
+                          return (
+                            <div key={c.text} className="flex items-center gap-3">
+                              <Icon size={11} className="text-primary shrink-0" />
+                              <span className="text-xs text-muted-foreground">{c.text}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </FadeUp>
+                )}
+              </div>
+            </SlideIn>
 
             {/* Content */}
-            <div className="lg:pl-4">
-              <p className="text-xs tracking-[0.3em] uppercase text-primary mb-6">{aboutMe.title_prefix ?? "Principal Architect"}</p>
-              <h2 className="font-display text-[clamp(2.5rem,5vw,5rem)] leading-[1.05] text-foreground">
-                {aboutMe.name_first ?? "Elena"}<br />
-                <span className="text-primary">{aboutMe.name_last ?? "Markov"}</span>
-              </h2>
-              <div className="flex items-center gap-4 my-10">
-                <div className="h-px w-12 bg-primary/40" />
-                <span className="text-xs tracking-[0.2em] text-muted-foreground">Est. {aboutMe.est_year ?? "2008"}</span>
-              </div>
-              <div className="space-y-5 max-w-lg">
-                <p className="text-base leading-relaxed text-foreground/80">{aboutMe.bio_main ?? ""}</p>
-                <p className="text-sm leading-relaxed text-muted-foreground">{aboutMe.bio_secondary ?? ""}</p>
-              </div>
-              <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
-                <Button asChild className="rounded-sm px-8 h-12 tracking-wider text-sm">
-                  <Link to="/about">{t("home_full_profile")} <ArrowRight size={14} className="ml-2" /></Link>
-                </Button>
-                <Button variant="ghost" asChild className="rounded-sm px-8 h-12 tracking-wider text-sm text-muted-foreground hover:text-foreground">
-                  <Link to="/contact">{t("home_work_together")}</Link>
-                </Button>
-              </div>
+            <div className="lg:pt-12">
+              <FadeUp>
+                <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-8">{aboutMe.title_prefix ?? "Principal Architect"}</p>
+              </FadeUp>
+              <TextReveal>
+                <h2 className="font-display text-[clamp(2.8rem,5vw,5.5rem)] leading-[1] text-foreground">
+                  {aboutMe.name_first ?? "Elena"}<br />
+                  <span className="text-primary">{aboutMe.name_last ?? "Markov"}</span>
+                </h2>
+              </TextReveal>
+              <FadeUp delay={0.3}>
+                <div className="flex items-center gap-5 my-10 md:my-14">
+                  <LineDraw className="h-px w-16 bg-primary/30" delay={0.5} />
+                  <span className="text-xs tracking-[0.25em] text-muted-foreground">Est. {aboutMe.est_year ?? "2008"}</span>
+                </div>
+              </FadeUp>
+              <FadeUp delay={0.4}>
+                <div className="space-y-6 max-w-md">
+                  <p className="text-base leading-[1.9] text-foreground/75">{aboutMe.bio_main ?? ""}</p>
+                  <p className="text-sm leading-[1.85] text-muted-foreground">{aboutMe.bio_secondary ?? ""}</p>
+                </div>
+              </FadeUp>
+              <FadeUp delay={0.5}>
+                <div className="mt-12 flex flex-col sm:flex-row items-start gap-4">
+                  <Button asChild className="rounded-none px-8 h-12 tracking-[0.15em] text-sm uppercase">
+                    <Link to="/about">{t("home_full_profile")} <ArrowRight size={14} className="ml-2" /></Link>
+                  </Button>
+                  <Button variant="ghost" asChild className="rounded-none px-8 h-12 tracking-[0.12em] text-sm text-muted-foreground hover:text-foreground">
+                    <Link to="/contact">{t("home_work_together")}</Link>
+                  </Button>
+                </div>
+              </FadeUp>
               {aboutMe.quote && (
-                <blockquote className="mt-16 pt-8 border-t border-border/50">
-                  <p className="font-display text-xl md:text-2xl text-muted-foreground leading-relaxed italic">
-                    "{aboutMe.quote}"
-                  </p>
-                </blockquote>
+                <FadeUp delay={0.6}>
+                  <blockquote className="mt-20 pt-10 border-t border-border/30">
+                    <p className="font-display text-2xl md:text-3xl text-muted-foreground leading-[1.4] italic">
+                      "{aboutMe.quote}"
+                    </p>
+                  </blockquote>
+                </FadeUp>
               )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── HERO STATEMENT ── */}
-      <section ref={refHero} className="reveal border-t border-border/40">
-        <div className="container py-20 md:py-36">
-          <div className="max-w-4xl">
-            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-8">
-              {hero.badge ?? "Architecture · Interiors · Urbanism"}
-            </p>
-            <h1 className="font-display text-[clamp(3rem,8vw,7rem)] leading-[1.02] text-foreground">
-              {hero.title_line1 ?? "Building spaces"}<br />
-              <span className="text-primary">{hero.title_line2 ?? "that endure."}</span>
-            </h1>
-            <p className="mt-8 text-lg text-muted-foreground max-w-lg leading-relaxed">
-              {hero.description ?? ""}
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4">
-              <Button size="lg" asChild className="rounded-sm px-8 h-13 tracking-wider text-sm">
-                <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={14} className="ml-2" /></Link>
-              </Button>
-              <Button variant="outline" size="lg" asChild className="rounded-sm px-8 h-13 tracking-wider text-sm border-border hover:bg-muted">
-                <Link to="/contact">{t("home_work_with_us")}</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── STATS ── */}
+      {/* ══════════ STATS ══════════ */}
       {stats.length > 0 && (
-        <section ref={refStats} className="reveal border-t border-border/40">
+        <section className="border-t border-border/30">
           <div className="container">
-            <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border/40">
-              {stats.map((s: any) => (
-                <AnimatedStat key={s.label} value={s.value} suffix={s.suffix} label={s.label} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── FEATURED PROJECTS ── */}
-      {featured.length > 0 && (
-        <section ref={refFeatured} className="reveal border-t border-border/40">
-          <div className="container py-20 md:py-32">
-            <div className="flex items-end justify-between mb-12 md:mb-16">
-              <div>
-                <p className="text-xs tracking-[0.3em] uppercase text-primary mb-4">{t("home_selected_work")}</p>
-                <h2 className="font-display text-3xl md:text-5xl lg:text-6xl text-foreground">{t("home_featured_work")}</h2>
-              </div>
-              <Link to="/portfolio" className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                {t("home_view_all")} <ArrowRight size={14} />
-              </Link>
-            </div>
-
-            <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3">
-              {featured.map((item, i) => (
-                <div key={item.id} className="group relative overflow-hidden cursor-pointer rounded-sm"
-                  onClick={() => item.cover_image_url && setLightboxIdx(i)}>
-                  <div className={`overflow-hidden ${i === 0 ? "aspect-[3/4]" : "aspect-[4/5]"}`}>
-                    {item.cover_image_url ? (
-                      <img src={item.cover_image_url} alt={item.title} loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-[1000ms]" />
-                    ) : (
-                      <div className="w-full h-full bg-muted flex items-center justify-center">
-                        <Building2 size={32} className="text-muted-foreground/20" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                    <Link to={`/portfolio/${item.slug}`} onClick={(e) => e.stopPropagation()}
-                      className="font-display text-2xl text-white hover:underline underline-offset-4">
-                      {item.title}
-                    </Link>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-white/60">
-                      {item.category && <span>{item.category}</span>}
-                      {item.location && <span className="flex items-center gap-1"><MapPin size={10} />{item.location}</span>}
-                      {item.year && <span>{item.year}</span>}
-                    </div>
-                  </div>
-                  {/* Always-visible minimal info */}
-                  <div className="mt-4">
-                    <h3 className="font-display text-lg text-foreground">{item.title}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">{item.category}{item.year ? ` · ${item.year}` : ''}</p>
-                  </div>
+            <div className="grid grid-cols-2 md:grid-cols-4">
+              {stats.map((s: any, i: number) => (
+                <div key={s.label} className={i < stats.length - 1 ? "border-r border-border/30" : ""}>
+                  <AnimatedStat value={s.value} suffix={s.suffix} label={s.label} index={i} />
                 </div>
               ))}
             </div>
-
-            <div className="mt-10 text-center md:hidden">
-              <Button variant="outline" asChild className="rounded-sm">
-                <Link to="/portfolio">{t("home_all_projects")}</Link>
-              </Button>
-            </div>
           </div>
         </section>
       )}
 
-      {/* ── SERVICES ── */}
-      {servicesHome.length > 0 && (
-        <section ref={refServices} className="reveal border-t border-border/40">
-          <div className="container py-20 md:py-32">
-            <div className="mb-12 md:mb-16">
-              <p className="text-xs tracking-[0.3em] uppercase text-primary mb-4">{t("home_disciplines")}</p>
-              <h2 className="font-display text-3xl md:text-5xl lg:text-6xl text-foreground">{t("home_what_we_do")}</h2>
+      {/* ══════════ FEATURED PROJECTS — Cinematic ══════════ */}
+      {featured.length > 0 && (
+        <section className="border-t border-border/30">
+          <div className="container py-24 md:py-36">
+            <div className="flex items-end justify-between mb-16 md:mb-20">
+              <FadeUp>
+                <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-4">{t("home_selected_work")}</p>
+                <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1]">{t("home_featured_work")}</h2>
+              </FadeUp>
+              <FadeUp delay={0.2}>
+                <Link to="/portfolio" className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group">
+                  {t("home_view_all")}
+                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </FadeUp>
             </div>
-            <div className="grid gap-px bg-border/40 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border border-border/40">
-              {servicesHome.map((s: any) => {
+
+            {/* Large editorial grid */}
+            <div className="space-y-2">
+              {featured.map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.8, delay: i * 0.1, ease: luxuryEase }}
+                  onMouseEnter={() => setHoveredProject(i)}
+                  onMouseLeave={() => setHoveredProject(null)}
+                  className="group cursor-pointer"
+                  onClick={() => item.cover_image_url && setLightboxIdx(i)}
+                >
+                  <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 py-6 md:py-8 border-b border-border/30 hover:border-primary/20 transition-colors duration-500">
+                    {/* Number */}
+                    <span className="font-display text-5xl md:text-7xl text-border/60 group-hover:text-primary/40 transition-colors duration-500 tabular-nums w-[80px] shrink-0">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+
+                    {/* Image — reveals on hover */}
+                    <div className="relative w-full md:w-[280px] shrink-0 overflow-hidden">
+                      <motion.div
+                        animate={{ height: hoveredProject === i ? 200 : 0, opacity: hoveredProject === i ? 1 : 0 }}
+                        transition={{ duration: 0.5, ease: luxuryEase }}
+                        className="overflow-hidden md:block hidden"
+                      >
+                        {item.cover_image_url && (
+                          <img src={item.cover_image_url} alt={item.title} className="w-full h-[200px] object-cover" />
+                        )}
+                      </motion.div>
+                      {/* Mobile: always show image */}
+                      <div className="md:hidden aspect-[16/9] overflow-hidden">
+                        {item.cover_image_url && (
+                          <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" />
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <Link to={`/portfolio/${item.slug}`} onClick={(e) => e.stopPropagation()}
+                        className="font-display text-2xl md:text-3xl lg:text-4xl text-foreground group-hover:text-primary transition-colors duration-500 block">
+                        {item.title}
+                      </Link>
+                      <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                        {item.category && <span className="tracking-[0.1em] uppercase">{item.category}</span>}
+                        {item.location && <span className="flex items-center gap-1"><MapPin size={10} />{item.location}</span>}
+                        {item.year && <span>{item.year}</span>}
+                      </div>
+                    </div>
+
+                    {/* Arrow */}
+                    <motion.div
+                      animate={{ x: hoveredProject === i ? 0 : -10, opacity: hoveredProject === i ? 1 : 0 }}
+                      transition={{ duration: 0.3, ease: luxuryEase }}
+                      className="hidden md:block shrink-0"
+                    >
+                      <ArrowRight size={20} className="text-primary" />
+                    </motion.div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <FadeUp delay={0.2}>
+              <div className="mt-12 text-center md:hidden">
+                <Button variant="outline" asChild className="rounded-none tracking-[0.1em] uppercase text-xs">
+                  <Link to="/portfolio">{t("home_all_projects")}</Link>
+                </Button>
+              </div>
+            </FadeUp>
+          </div>
+        </section>
+      )}
+
+      {/* ══════════ SERVICES ══════════ */}
+      {servicesHome.length > 0 && (
+        <section className="border-t border-border/30 bg-muted/20">
+          <div className="container py-24 md:py-36">
+            <FadeUp>
+              <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-4">{t("home_disciplines")}</p>
+              <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1] mb-16 md:mb-20">{t("home_what_we_do")}</h2>
+            </FadeUp>
+
+            <StaggerContainer className="grid gap-px grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" staggerDelay={0.08}>
+              {servicesHome.map((s: any, i: number) => {
                 const Icon = ICON_MAP[s.icon] ?? Building2;
                 return (
-                  <div key={s.title} className="bg-background p-6 md:p-8 group hover:bg-muted/30 transition-colors duration-300">
-                    <Icon size={20} className="text-primary mb-5" />
-                    <h3 className="font-display text-xl text-foreground mb-3">{s.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-                  </div>
+                  <StaggerItem key={s.title}>
+                    <div className="bg-background p-8 md:p-10 group hover:bg-card transition-colors duration-500 h-full border border-border/20">
+                      <span className="font-display text-4xl text-border/40 group-hover:text-primary/30 transition-colors duration-500 block mb-6">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <Icon size={20} className="text-primary mb-6" />
+                      <h3 className="font-display text-xl md:text-2xl text-foreground mb-4 leading-tight">{s.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-[1.8]">{s.desc}</p>
+                    </div>
+                  </StaggerItem>
                 );
               })}
-            </div>
+            </StaggerContainer>
           </div>
         </section>
       )}
 
-      {/* ── TESTIMONIALS ── */}
+      {/* ══════════ TESTIMONIALS ══════════ */}
       {testimonials.length > 0 && (
-        <TestimonialsCarousel testimonials={testimonials} sectionRef={refTestimonials} t={t} />
+        <TestimonialsCarousel testimonials={testimonials} t={t} />
       )}
 
-      {/* ── AWARDS ── */}
+      {/* ══════════ AWARDS ══════════ */}
       {awards.length > 0 && (
-        <section ref={refAwards} className="reveal border-t border-border/40">
-          <div className="container py-20 md:py-32">
-            <div className="mb-12 md:mb-16 text-center">
-              <p className="text-xs tracking-[0.3em] uppercase text-primary mb-4">{t("home_awards_recognition")}</p>
-              <h2 className="font-display text-3xl md:text-5xl lg:text-6xl text-foreground">{t("home_honored_work")}</h2>
-            </div>
+        <section className="border-t border-border/30">
+          <div className="container py-24 md:py-36">
+            <FadeUp>
+              <div className="text-center mb-16 md:mb-20">
+                <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-4">{t("home_awards_recognition")}</p>
+                <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1]">{t("home_honored_work")}</h2>
+              </div>
+            </FadeUp>
 
-            <div className="grid gap-px bg-border/40 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 border border-border/40">
+            <StaggerContainer className="divide-y divide-border/30 max-w-3xl mx-auto" staggerDelay={0.06}>
               {awards.map((a: any) => (
-                <div key={a.year + a.title} className="bg-background p-6 md:p-8 group hover:bg-muted/30 transition-colors duration-300">
-                  <span className="font-display text-3xl text-primary/60 mb-4 block">{a.year}</span>
-                  <h3 className="font-display text-lg text-foreground leading-snug mb-3 group-hover:text-primary transition-colors duration-300">
-                    {a.title}
-                  </h3>
-                  <p className="text-xs tracking-[0.15em] text-muted-foreground uppercase">{a.org}</p>
-                </div>
+                <StaggerItem key={a.year + a.title}>
+                  <div className="flex items-start gap-6 md:gap-10 py-7 md:py-9 group">
+                    <span className="font-display text-3xl md:text-4xl text-primary/40 shrink-0 w-[80px]">{a.year}</span>
+                    <div className="flex-1">
+                      <h3 className="font-display text-lg md:text-xl text-foreground leading-snug group-hover:text-primary transition-colors duration-300">
+                        {a.title}
+                      </h3>
+                      <p className="text-xs tracking-[0.15em] text-muted-foreground uppercase mt-2">{a.org}</p>
+                    </div>
+                  </div>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerContainer>
           </div>
         </section>
       )}
 
-      {/* ── CTA ── */}
-      <section ref={refCta} className="reveal border-t border-border/40">
-        <div className="container py-24 md:py-40">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="font-display text-4xl md:text-5xl lg:text-7xl text-foreground leading-tight">
-              {cta.title_line1 ?? "Let's build something"}<br />
-              <span className="text-primary">{cta.title_line2 ?? "remarkable."}</span>
-            </h2>
-            <p className="mt-6 text-muted-foreground text-lg">{cta.subtitle ?? "Every great building begins with a conversation."}</p>
-            <Button className="mt-10 rounded-sm px-10 h-13 tracking-wider text-sm" size="lg" asChild>
-              <Link to="/contact">{t("home_begin_project")} <ArrowRight size={14} className="ml-2" /></Link>
-            </Button>
-          </div>
+      {/* ══════════ CTA ══════════ */}
+      <section className="border-t border-border/30">
+        <div className="container py-32 md:py-48">
+          <FadeUp>
+            <div className="max-w-3xl mx-auto text-center">
+              <h2 className="font-display text-4xl md:text-6xl lg:text-8xl text-foreground leading-[1.05]">
+                {cta.title_line1 ?? "Let's build something"}<br />
+                <span className="text-primary">{cta.title_line2 ?? "remarkable."}</span>
+              </h2>
+              <p className="mt-8 text-muted-foreground text-lg font-light">{cta.subtitle ?? "Every great building begins with a conversation."}</p>
+              <Button className="mt-12 rounded-none px-12 h-14 tracking-[0.15em] text-sm uppercase" size="lg" asChild>
+                <Link to="/contact">{t("home_begin_project")} <ArrowRight size={14} className="ml-3" /></Link>
+              </Button>
+            </div>
+          </FadeUp>
         </div>
       </section>
 

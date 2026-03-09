@@ -1,7 +1,7 @@
 import { 
   LayoutDashboard, FolderOpen, User, LogOut, ChevronLeft, 
   Briefcase, Users, FileArchive, Settings, Activity, UserCog, Shield, 
-  PackageOpen, Receipt, FileText, Newspaper, BarChart3, Globe, type LucideIcon 
+  PackageOpen, Receipt, FileText, Newspaper, BarChart3, Globe, type LucideIcon
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";

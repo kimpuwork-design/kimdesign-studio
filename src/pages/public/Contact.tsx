@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Mail, Phone, MapPin, ArrowRight, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
@@ -15,7 +15,7 @@ import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, SlideIn, FadeIn, TextReveal } from "@/components/motion/MotionWrappers";
 import { MagneticButton } from "@/components/MagneticButton";
 import { SectionLabel } from "@/components/SectionLabel";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 

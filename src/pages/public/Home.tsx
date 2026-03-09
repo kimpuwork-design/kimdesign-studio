@@ -163,7 +163,15 @@ export default function Home() {
   const { content } = useSiteContent("about_me", "hero", "stats", "services_home", "testimonials", "awards", "cta");
   const [featured, setFeatured] = useState<PortfolioItem[]>([]);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
-  const [hoveredProject, setHoveredProject] = useState<number | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
+
+  const handleHeroMouse = useCallback((e: ReactMouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePos({
+      x: (e.clientX - rect.left) / rect.width,
+      y: (e.clientY - rect.top) / rect.height,
+    });
+  }, []);
 
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });

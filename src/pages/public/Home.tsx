@@ -337,7 +337,7 @@ export default function Home() {
                         initial={{ opacity: 0, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7, delay: 0.5 + i * 0.08, ease: luxuryEase }}
-                        className="inline-block mr-[0.3em] text-primary"
+                        className="inline-block mr-[0.3em] hero-shimmer-text"
                       >
                         {word}
                       </motion.span>

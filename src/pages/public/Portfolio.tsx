@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { Search, MapPin, Calendar, Grid3X3, Star, Loader2, ArrowRight, ArrowUpRight, Sparkles, LayoutGrid, Rows3 } from "lucide-react";
+import { Search, MapPin, Calendar, Grid3X3, Star, Loader2, ArrowRight, ArrowUpRight, LayoutGrid, Rows3 } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { FadeUp } from "@/components/motion/MotionWrappers";
 

@@ -103,20 +103,29 @@ function TestimonialsCarousel({ testimonials, t }: { testimonials: any[]; t: (k:
     <section className="py-24 md:py-36 border-t border-border/30">
       <div className="container">
         <div className="mb-14 md:mb-20 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-          <FadeUp>
-            <p className="text-[10px] tracking-[0.3em] uppercase text-primary mb-4">{t("home_recognition")}</p>
-            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1]">{t("home_client_voices")}</h2>
-          </FadeUp>
+          <div>
+            <SectionLabel text={t("home_recognition")} />
+            <FadeUp>
+              <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1]">{t("home_client_voices")}</h2>
+            </FadeUp>
+          </div>
           <FadeUp delay={0.2}>
-            <div className="flex items-center gap-3">
-              <button onClick={() => emblaApi?.scrollPrev()}
-                className="h-12 w-12 border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all duration-300">
-                <ChevronLeft size={18} />
-              </button>
-              <button onClick={() => emblaApi?.scrollNext()}
-                className="h-12 w-12 border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all duration-300">
-                <ChevronRight size={18} />
-              </button>
+            <div className="flex items-center gap-4">
+              <span className="font-display text-2xl text-foreground tabular-nums">
+                {String(selectedIndex + 1).padStart(2, '0')}
+                <span className="text-muted-foreground/30 mx-1">/</span>
+                <span className="text-muted-foreground/40 text-lg">{String(testimonials.length).padStart(2, '0')}</span>
+              </span>
+              <div className="flex items-center gap-2">
+                <button onClick={() => emblaApi?.scrollPrev()}
+                  className="h-11 w-11 border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all duration-300">
+                  <ChevronLeft size={16} />
+                </button>
+                <button onClick={() => emblaApi?.scrollNext()}
+                  className="h-11 w-11 border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all duration-300">
+                  <ChevronRight size={16} />
+                </button>
+              </div>
             </div>
           </FadeUp>
         </div>

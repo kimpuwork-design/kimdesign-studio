@@ -14,6 +14,7 @@ import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, SlideIn, FadeIn, TextReveal } from "@/components/motion/MotionWrappers";
 import { MagneticButton } from "@/components/MagneticButton";
+import { SectionLabel } from "@/components/SectionLabel";
 import { motion } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
@@ -95,14 +96,7 @@ export default function Contact() {
         
         <div className="container py-20 md:py-32 lg:py-40 relative z-10">
           <div className="max-w-4xl">
-            <motion.p
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
-              className="text-[10px] tracking-[0.35em] uppercase text-primary mb-8"
-            >
-              {t("contact_title")}
-            </motion.p>
+            <SectionLabel text={t("contact_title")} />
             <TextReveal>
               <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
                 {t("contact_lets_start")}
@@ -172,43 +166,58 @@ export default function Contact() {
               ) : (
                 <form onSubmit={handleSubmit} className="border border-border/30 p-6 md:p-10 space-y-6" noValidate>
                   <div className="grid gap-6 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">{t("contact_full_name")}</Label>
-                      <Input id="name" placeholder="Your name" value={form.name} onChange={(e) => set("name", e.target.value)}
-                        className="rounded-none border-border/40 bg-transparent focus:border-primary/40 h-11" />
-                      {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                    <div className="space-y-2 group/field">
+                      <Label htmlFor="name" className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-focus-within/field:text-primary transition-colors duration-300">{t("contact_full_name")}</Label>
+                      <div className="relative">
+                        <Input id="name" placeholder="Your name" value={form.name} onChange={(e) => set("name", e.target.value)}
+                          className="rounded-none border-border/40 bg-transparent focus:border-transparent h-11 peer" />
+                        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" />
+                      </div>
+                      {errors.name && <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-destructive">{errors.name}</motion.p>}
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">{t("contact_email")}</Label>
-                      <Input id="email" type="email" placeholder="you@example.com" value={form.email} onChange={(e) => set("email", e.target.value)}
-                        className="rounded-none border-border/40 bg-transparent focus:border-primary/40 h-11" />
-                      {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                    <div className="space-y-2 group/field">
+                      <Label htmlFor="email" className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-focus-within/field:text-primary transition-colors duration-300">{t("contact_email")}</Label>
+                      <div className="relative">
+                        <Input id="email" type="email" placeholder="you@example.com" value={form.email} onChange={(e) => set("email", e.target.value)}
+                          className="rounded-none border-border/40 bg-transparent focus:border-transparent h-11 peer" />
+                        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" />
+                      </div>
+                      {errors.email && <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-destructive">{errors.email}</motion.p>}
                     </div>
                   </div>
                   <div className="grid gap-6 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">{t("contact_phone")} <span className="normal-case text-muted-foreground/50">{t("contact_phone_optional")}</span></Label>
-                      <Input id="phone" placeholder="+95 000 000 0000" value={form.phone} onChange={(e) => set("phone", e.target.value)}
-                        className="rounded-none border-border/40 bg-transparent focus:border-primary/40 h-11" />
+                    <div className="space-y-2 group/field">
+                      <Label htmlFor="phone" className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-focus-within/field:text-primary transition-colors duration-300">{t("contact_phone")} <span className="normal-case text-muted-foreground/50">{t("contact_phone_optional")}</span></Label>
+                      <div className="relative">
+                        <Input id="phone" placeholder="+95 000 000 0000" value={form.phone} onChange={(e) => set("phone", e.target.value)}
+                          className="rounded-none border-border/40 bg-transparent focus:border-transparent h-11 peer" />
+                        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">{t("contact_project_type")}</Label>
-                      <select
-                        value={form.projectType} onChange={(e) => set("projectType", e.target.value)}
-                        className="w-full border border-border/40 bg-transparent px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary/40 h-11"
-                      >
-                        <option value="">{t("contact_select_type")}</option>
-                        {projectTypes.map((t) => <option key={t} value={t}>{t}</option>)}
-                      </select>
+                    <div className="space-y-2 group/field">
+                      <Label className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-focus-within/field:text-primary transition-colors duration-300">{t("contact_project_type")}</Label>
+                      <div className="relative">
+                        <select
+                          value={form.projectType} onChange={(e) => set("projectType", e.target.value)}
+                          className="w-full border border-border/40 bg-transparent px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-transparent h-11 peer"
+                        >
+                          <option value="">{t("contact_select_type")}</option>
+                          {projectTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" />
+                      </div>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="message" className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">{t("contact_tell_us")}</Label>
-                    <Textarea id="message" placeholder="Describe your project…" rows={7} value={form.message}
-                      onChange={(e) => set("message", e.target.value)} className="rounded-none resize-none border-border/40 bg-transparent focus:border-primary/40" />
-                    {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
+                  <div className="space-y-2 group/field">
+                    <Label htmlFor="message" className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-focus-within/field:text-primary transition-colors duration-300">{t("contact_tell_us")}</Label>
+                    <div className="relative">
+                      <Textarea id="message" placeholder="Describe your project…" rows={7} value={form.message}
+                        onChange={(e) => set("message", e.target.value)} className="rounded-none resize-none border-border/40 bg-transparent focus:border-transparent peer" />
+                      <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" />
+                    </div>
+                    {errors.message && <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-destructive">{errors.message}</motion.p>}
                   </div>
-                  {serverError && <p className="bg-destructive/10 px-4 py-3 text-sm text-destructive">{serverError}</p>}
+                  {serverError && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-destructive/10 px-4 py-3 text-sm text-destructive">{serverError}</motion.p>}
                   <MagneticButton strength={0.2}>
                     <Button type="submit" className="rounded-none px-10 h-12 tracking-[0.15em] text-sm uppercase" disabled={submitting}>
                       {submitting ? t("contact_sending") : t("contact_submit")}

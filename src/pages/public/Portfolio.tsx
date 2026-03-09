@@ -272,14 +272,17 @@ export default function PublicPortfolio() {
       {/* ── Content ── */}
       <div className="container py-12 md:py-16 relative z-10 min-h-[60vh]">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            >
-              <Loader2 size={24} className="text-muted-foreground" />
-            </motion.div>
-            <p className="text-xs text-muted-foreground tracking-[0.15em] uppercase">{t("portfolio_loading")}</p>
+          <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className={i === 0 ? "md:col-span-2" : ""}>
+                <div className={`${i === 0 ? "aspect-[16/9]" : i <= 2 ? "aspect-[3/4]" : "aspect-[4/3]"} shimmer`} />
+                <div className="mt-3 space-y-2">
+                  <div className="h-3 w-16 shimmer" />
+                  <div className="h-5 w-48 shimmer" />
+                  <div className="h-3 w-24 shimmer" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : filtered.length === 0 ? (
           <FadeUp>

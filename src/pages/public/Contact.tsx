@@ -35,6 +35,11 @@ export default function Contact() {
   const locations: any[] = info.locations ?? [];
   const projectTypes: string[] = info.project_types ?? [];
 
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 60]);
+
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "", projectType: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);

@@ -8,6 +8,8 @@ import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, StaggerContainer, StaggerItem, SlideIn, TextReveal, LineDraw, ImageReveal } from "@/components/motion/MotionWrappers";
+import { SectionLabel } from "@/components/SectionLabel";
+import { TextScramble } from "@/components/TextScramble";
 import { motion } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;

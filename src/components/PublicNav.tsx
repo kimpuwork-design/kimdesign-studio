@@ -63,7 +63,7 @@ export function PublicNav() {
               <img src={logoUrl} alt={studioName} className="h-full w-full object-contain" />
             </div>
           ) : (
-            <KMonogramLogo size={30} className="rounded-sm" />
+            <KMonogramLogo size={30} className="rounded-sm" animated />
           )}
           <span className="font-display text-base md:text-lg text-foreground tracking-tight">{studioName}</span>
         </Link>

@@ -371,9 +371,16 @@ export default function Home() {
             <SlideIn direction="left">
               <div className="relative">
                 <ImageReveal>
-                  <div className="aspect-[3/4] overflow-hidden">
-                    <img src={aboutProfileImg} alt={aboutMe.title_prefix ?? "Principal Architect"}
-                      className="h-full w-full object-cover object-center hover:scale-[1.02] transition-transform duration-[1200ms]" />
+                  <div className="aspect-[3/4] overflow-hidden relative">
+                    <motion.img
+                      src={aboutProfileImg}
+                      alt={aboutMe.title_prefix ?? "Principal Architect"}
+                      className="h-full w-full object-cover object-center"
+                      initial={{ scale: 1.1 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1.4, ease: luxuryEase }}
+                    />
                   </div>
                 </ImageReveal>
                 {credentials.length > 0 && (
@@ -489,6 +496,7 @@ export default function Home() {
                   className="flex-shrink-0 w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[35vw] group cursor-pointer"
                   onClick={() => item.cover_image_url && setLightboxIdx(i)}
                   data-cursor-hover
+                  data-cursor-label="Explore"
                 >
                   <div className="relative overflow-hidden aspect-[3/4] md:aspect-[4/5]">
                     {item.cover_image_url && (

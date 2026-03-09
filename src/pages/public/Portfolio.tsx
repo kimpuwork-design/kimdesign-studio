@@ -50,7 +50,7 @@ function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioI
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.6, delay: index * 0.05, ease: luxuryEase }}
     >
-      <Link to={linkTo} className="group block relative overflow-hidden">
+      <Link to={linkTo} className="group block relative overflow-hidden" data-cursor-hover data-cursor-label="View">
         <div className={`${aspectMap[size]} overflow-hidden relative`}>
           {coverUrl ? (
             <img src={coverUrl} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[900ms] ease-out" />
@@ -104,7 +104,7 @@ function ListCard({ item, index }: { item: ProjectPortfolioItem; index: number }
 
   return (
     <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, delay: index * 0.04, ease: luxuryEase }}>
-      <Link to={linkTo} className="group flex items-center gap-6 py-6 px-0 border-b border-border/30 hover:border-primary/20 transition-all duration-300">
+      <Link to={linkTo} className="group flex items-center gap-6 py-6 px-0 border-b border-border/30 hover:border-primary/20 transition-all duration-300" data-cursor-hover data-cursor-label="View">
         {/* Number */}
         <span className="font-display text-3xl text-border/50 group-hover:text-primary/30 transition-colors duration-500 tabular-nums w-[50px] shrink-0 hidden sm:block">
           {String(index + 1).padStart(2, '0')}
@@ -272,14 +272,17 @@ export default function PublicPortfolio() {
       {/* ── Content ── */}
       <div className="container py-12 md:py-16 relative z-10 min-h-[60vh]">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            >
-              <Loader2 size={24} className="text-muted-foreground" />
-            </motion.div>
-            <p className="text-xs text-muted-foreground tracking-[0.15em] uppercase">{t("portfolio_loading")}</p>
+          <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className={i === 0 ? "md:col-span-2" : ""}>
+                <div className={`${i === 0 ? "aspect-[16/9]" : i <= 2 ? "aspect-[3/4]" : "aspect-[4/3]"} shimmer`} />
+                <div className="mt-3 space-y-2">
+                  <div className="h-3 w-16 shimmer" />
+                  <div className="h-5 w-48 shimmer" />
+                  <div className="h-3 w-24 shimmer" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : filtered.length === 0 ? (
           <FadeUp>

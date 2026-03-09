@@ -562,7 +562,7 @@ export default function Home() {
                 const Icon = ICON_MAP[s.icon] ?? Building2;
                 return (
                   <StaggerItem key={s.title}>
-                    <div className="bg-background p-8 md:p-10 group hover:bg-card transition-colors duration-500 h-full border border-border/20">
+                    <div className="bg-background p-8 md:p-10 group hover:bg-card hover:-translate-y-1 transition-all duration-500 h-full border border-border/20">
                       <span className="font-display text-4xl text-border/40 group-hover:text-primary/30 transition-colors duration-500 block mb-6">
                         {String(i + 1).padStart(2, '0')}
                       </span>

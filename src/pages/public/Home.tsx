@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, MouseEvent as ReactMouseEvent } from "react";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";
 import useEmblaCarousel from "embla-carousel-react";
 import { PublicNav } from "@/components/PublicNav";
@@ -163,7 +163,15 @@ export default function Home() {
   const { content } = useSiteContent("about_me", "hero", "stats", "services_home", "testimonials", "awards", "cta");
   const [featured, setFeatured] = useState<PortfolioItem[]>([]);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
-  const [hoveredProject, setHoveredProject] = useState<number | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
+
+  const handleHeroMouse = useCallback((e: ReactMouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePos({
+      x: (e.clientX - rect.left) / rect.width,
+      y: (e.clientY - rect.top) / rect.height,
+    });
+  }, []);
 
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
@@ -206,7 +214,18 @@ export default function Home() {
 
       {/* ══════════ HERO — Split screen ══════════ */}
       <div ref={heroRef} className="relative">
-        <motion.section style={{ opacity: heroOpacity, y: heroY }} className="min-h-[92vh] md:min-h-[95vh] flex items-center relative">
+        <motion.section
+          style={{ opacity: heroOpacity, y: heroY }}
+          onMouseMove={handleHeroMouse}
+          className="min-h-[92vh] md:min-h-[95vh] flex items-center relative"
+        >
+          {/* Mouse-following radial gradient */}
+          <div
+            className="absolute inset-0 z-[1] pointer-events-none opacity-30 transition-opacity duration-1000"
+            style={{
+              background: `radial-gradient(600px circle at ${mousePos.x * 100}% ${mousePos.y * 100}%, hsl(var(--primary) / 0.08), transparent 60%)`,
+            }}
+          />
           {/* Background image with parallax zoom */}
           {heroImage && (
             <motion.div style={{ scale: heroScale }} className="absolute inset-0 z-0">

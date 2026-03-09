@@ -236,6 +236,7 @@ export default function Home() {
     <div className="bg-background relative overflow-x-hidden">
       <ArchitectureBusinessJsonLd />
       <PublicNav />
+      <SectionIndicator sections={HOME_SECTIONS} />
 
       {/* ══════════ HERO — Split screen ══════════ */}
       <div ref={heroRef} className="relative">

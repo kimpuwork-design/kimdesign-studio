@@ -21,6 +21,7 @@ import { Marquee } from "@/components/motion/Marquee";
 import { MagneticButton } from "@/components/MagneticButton";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, GraduationCap, Award, Globe, ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { SectionLabel } from "@/components/SectionLabel";
 import profileImg from "@/assets/profile-placeholder.jpg";
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, GraduationCap, Award, Globe };

@@ -124,12 +124,14 @@ export default function About() {
       {team.length > 0 && (
         <section className="border-t border-border/30 py-24 md:py-36 relative z-10">
           <div className="container">
-            <FadeUp>
-              <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-4">{t("about_people")}</p>
-              <h2 className="font-display text-3xl md:text-5xl text-foreground leading-[1.1] mb-16 md:mb-20">
-                Our team
-              </h2>
-            </FadeUp>
+            <div>
+              <SectionLabel text={t("about_people")} />
+              <FadeUp>
+                <h2 className="font-display text-3xl md:text-5xl text-foreground leading-[1.1] mb-16 md:mb-20">
+                  Our team
+                </h2>
+              </FadeUp>
+            </div>
             <StaggerContainer className="grid gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3" staggerDelay={0.1}>
               {team.map((p: any) => (
                 <StaggerItem key={p.name}>

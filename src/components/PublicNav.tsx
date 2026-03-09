@@ -92,9 +92,23 @@ export function PublicNav() {
 
         <div className="flex items-center gap-1">
           <LanguageToggle />
-          <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          <button onClick={() => {
+              document.documentElement.classList.add("theme-transitioning");
+              setTheme(theme === "dark" ? "light" : "dark");
+              setTimeout(() => document.documentElement.classList.remove("theme-transitioning"), 600);
+            }}
             className="p-2.5 text-muted-foreground hover:text-foreground transition-colors" aria-label="Toggle theme">
-            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+            <AnimatePresence mode="wait" initial={false}>
+              {theme === "dark" ? (
+                <motion.div key="sun" initial={{ opacity: 0, rotate: -90, scale: 0.5 }} animate={{ opacity: 1, rotate: 0, scale: 1 }} exit={{ opacity: 0, rotate: 90, scale: 0.5 }} transition={{ duration: 0.25 }}>
+                  <Sun size={16} />
+                </motion.div>
+              ) : (
+                <motion.div key="moon" initial={{ opacity: 0, rotate: 90, scale: 0.5 }} animate={{ opacity: 1, rotate: 0, scale: 1 }} exit={{ opacity: 0, rotate: -90, scale: 0.5 }} transition={{ duration: 0.25 }}>
+                  <Moon size={16} />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </button>
           <button className="p-2 md:hidden text-muted-foreground hover:text-foreground transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">

@@ -239,7 +239,7 @@ export default function Home() {
       <SectionIndicator sections={HOME_SECTIONS} />
 
       {/* ══════════ HERO — Split screen ══════════ */}
-      <div ref={heroRef} className="relative">
+      <div ref={heroRef} className="relative" id="hero">
         <motion.section
           style={{ opacity: heroOpacity, y: heroY }}
           onMouseMove={handleHeroMouse}

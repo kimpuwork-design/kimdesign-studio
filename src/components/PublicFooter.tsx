@@ -53,11 +53,13 @@ export function PublicFooter() {
           </TextReveal>
           <FadeUp delay={0.5}>
             <div className="flex justify-center mt-12 md:mt-16">
-              <Link to="/contact"
-                className="group inline-flex items-center gap-3 border border-foreground/20 px-10 md:px-14 py-4 md:py-5 text-sm tracking-[0.2em] uppercase text-foreground hover:bg-foreground hover:text-background transition-all duration-500">
-                {t("footer_get_in_touch") !== "footer_get_in_touch" ? t("footer_get_in_touch") : "Get in Touch"}
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
-              </Link>
+              <MagneticButton strength={0.2}>
+                <Link to="/contact"
+                  className="group inline-flex items-center gap-3 border border-foreground/20 px-10 md:px-14 py-4 md:py-5 text-sm tracking-[0.2em] uppercase text-foreground hover:bg-foreground hover:text-background transition-all duration-500">
+                  {t("footer_get_in_touch") !== "footer_get_in_touch" ? t("footer_get_in_touch") : "Get in Touch"}
+                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
+                </Link>
+              </MagneticButton>
             </div>
           </FadeUp>
         </div>

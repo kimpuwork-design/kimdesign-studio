@@ -281,19 +281,15 @@ export default function PublicPortfolio() {
                 {t("portfolio_description")}
               </motion.p>
 
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.5 }}
-                className="mt-10 flex items-center gap-10 overflow-x-auto pb-2 scrollbar-none">
+              <div className="mt-10 flex items-center gap-10 overflow-x-auto pb-2 scrollbar-none">
                 {[
                   { n: items.length, label: t("portfolio_projects_stat") },
                   { n: items.filter(i => i.is_featured).length, label: t("portfolio_featured_stat") },
                   { n: new Set(items.map(i => i.category).filter(Boolean)).size, label: t("portfolio_categories_stat") },
-                ].map((stat) => (
-                  <div key={stat.label} className="shrink-0">
-                    <p className="font-display text-3xl md:text-4xl text-foreground">{stat.n}</p>
-                    <p className="text-[9px] tracking-[0.25em] uppercase text-muted-foreground mt-1">{stat.label}</p>
-                  </div>
+                ].map((stat, i) => (
+                  <AnimatedPortfolioStat key={stat.label} value={stat.n} label={stat.label} delay={0.5 + i * 0.1} />
                 ))}
-              </motion.div>
+              </div>
             </div>
           </section>
         </motion.div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
@@ -9,6 +9,7 @@ import { useTranslation } from "@/i18n/LanguageContext";
 import { Search, Calendar, ArrowRight, Tag } from "lucide-react";
 import { format } from "date-fns";
 import { FadeUp, StaggerContainer, StaggerItem, TextReveal } from "@/components/motion/MotionWrappers";
+import { SectionLabel } from "@/components/SectionLabel";
 import { motion } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;

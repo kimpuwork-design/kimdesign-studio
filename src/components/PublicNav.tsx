@@ -19,6 +19,7 @@ const NAV_KEYS = [
 export function PublicNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { theme, setTheme } = useTheme();
   const { settings } = useSettings();
   const { t } = useTranslation();
@@ -30,6 +31,7 @@ export function PublicNav() {
   const lastScrollY = useRef(0);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
+    setScrolled(latest > 50);
     const diff = latest - lastScrollY.current;
     if (latest < 100) {
       setNavHidden(false);

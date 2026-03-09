@@ -12,7 +12,7 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { PageTransition } from "@/components/PageTransition";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { CustomCursor } from "@/components/CustomCursor";
-import { PageLoader } from "@/components/PageLoader";
+import { PageLoader as InitialLoader } from "@/components/PageLoader";
 import { ScrollProgress } from "@/components/ScrollProgress";
 
 // Lazy-loaded pages for code splitting

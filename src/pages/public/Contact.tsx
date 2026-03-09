@@ -209,10 +209,12 @@ export default function Contact() {
                     {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
                   </div>
                   {serverError && <p className="bg-destructive/10 px-4 py-3 text-sm text-destructive">{serverError}</p>}
-                  <Button type="submit" className="rounded-none px-10 h-12 tracking-[0.15em] text-sm uppercase" disabled={submitting}>
-                    {submitting ? t("contact_sending") : t("contact_submit")}
-                    {!submitting && <ArrowRight size={14} className="ml-3" />}
-                  </Button>
+                  <MagneticButton strength={0.2}>
+                    <Button type="submit" className="rounded-none px-10 h-12 tracking-[0.15em] text-sm uppercase" disabled={submitting}>
+                      {submitting ? t("contact_sending") : t("contact_submit")}
+                      {!submitting && <ArrowRight size={14} className="ml-3" />}
+                    </Button>
+                  </MagneticButton>
                 </form>
               )}
             </div>

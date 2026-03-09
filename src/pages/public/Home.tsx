@@ -250,15 +250,31 @@ export default function Home() {
                   {hero.badge ?? "Architecture · Interiors · Urbanism"}
                 </motion.p>
 
-                <motion.h1
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.9, delay: 0.3, ease: luxuryEase }}
-                  className="font-display text-[clamp(3rem,8vw,7.5rem)] leading-[0.92] text-foreground"
-                >
-                  {hero.title_line1 ?? "Building spaces"}
+                <div className="overflow-hidden">
+                  {(hero.title_line1 ?? "Building spaces").split(" ").map((word: string, i: number) => (
+                    <motion.span
+                      key={i}
+                      initial={{ opacity: 0, y: 50 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.7, delay: 0.3 + i * 0.08, ease: luxuryEase }}
+                      className="inline-block mr-[0.3em]"
+                    >
+                      {word}
+                    </motion.span>
+                  ))}
                   <br />
-                  <span className="text-primary">{hero.title_line2 ?? "that endure."}</span>
+                  {(hero.title_line2 ?? "that endure.").split(" ").map((word: string, i: number) => (
+                    <motion.span
+                      key={`l2-${i}`}
+                      initial={{ opacity: 0, y: 50 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.7, delay: 0.5 + i * 0.08, ease: luxuryEase }}
+                      className="inline-block mr-[0.3em] text-primary"
+                    >
+                      {word}
+                    </motion.span>
+                  ))}
+                </div>
                 </motion.h1>
 
                 <motion.p
@@ -276,12 +292,16 @@ export default function Home() {
                   transition={{ duration: 0.6, delay: 0.8, ease: luxuryEase }}
                   className="mt-10 md:mt-14 flex flex-col sm:flex-row gap-4"
                 >
-                  <Button size="lg" asChild className="rounded-none px-10 h-14 tracking-[0.15em] text-sm uppercase">
-                    <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={14} className="ml-3" /></Link>
-                  </Button>
-                  <Button variant="outline" size="lg" asChild className="rounded-none px-10 h-14 tracking-[0.15em] text-sm uppercase border-foreground/20 hover:bg-foreground hover:text-background transition-all duration-500">
-                    <Link to="/contact">{t("home_work_with_us")}</Link>
-                  </Button>
+                  <MagneticButton strength={0.25}>
+                    <Button size="lg" asChild className="rounded-none px-10 h-14 tracking-[0.15em] text-sm uppercase">
+                      <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={14} className="ml-3" /></Link>
+                    </Button>
+                  </MagneticButton>
+                  <MagneticButton strength={0.25}>
+                    <Button variant="outline" size="lg" asChild className="rounded-none px-10 h-14 tracking-[0.15em] text-sm uppercase border-foreground/20 hover:bg-foreground hover:text-background transition-all duration-500">
+                      <Link to="/contact">{t("home_work_with_us")}</Link>
+                    </Button>
+                  </MagneticButton>
                 </motion.div>
               </div>
 

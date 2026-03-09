@@ -349,20 +349,31 @@ export default function Home() {
           </div>
         </motion.section>
 
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 0.5 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-        >
-          <span className="text-[9px] tracking-[0.3em] uppercase text-muted-foreground/50">Scroll</span>
+        {/* Scroll indicator + Live clock */}
+        <div className="absolute bottom-8 left-0 right-0 px-6 md:px-10 flex items-end justify-between">
+          <LiveClock className="hidden md:flex" />
           <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            className="w-px h-8 bg-gradient-to-b from-muted-foreground/40 to-transparent"
-          />
-        </motion.div>
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.5 }}
+            className="flex flex-col items-center gap-2 absolute left-1/2 -translate-x-1/2 bottom-0"
+          >
+            <span className="text-[9px] tracking-[0.3em] uppercase text-muted-foreground/50">Scroll</span>
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              className="w-px h-8 bg-gradient-to-b from-muted-foreground/40 to-transparent"
+            />
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.4, duration: 0.5 }}
+            className="hidden md:block text-[10px] tracking-[0.2em] uppercase text-muted-foreground/40"
+          >
+            Est. {aboutMe.est_year ?? "2008"}
+          </motion.p>
+        </div>
       </div>
 
       {/* ══════════ MARQUEE TICKER ══════════ */}

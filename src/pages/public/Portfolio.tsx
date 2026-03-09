@@ -36,8 +36,8 @@ function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioI
   const coverUrl = item.thumbnail_url;
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const el = e.currentTarget as HTMLElement;
     const rect = el.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;

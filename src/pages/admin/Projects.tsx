@@ -53,7 +53,7 @@ export default function AdminProjects() {
   const [assignProject, setAssignProject] = useState<Project | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [toggling, setToggling] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const [viewMode, setViewMode] = useState<"table" | "grid" | "kanban">("table");
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);

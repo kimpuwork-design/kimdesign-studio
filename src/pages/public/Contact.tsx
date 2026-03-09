@@ -13,6 +13,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, SlideIn, FadeIn, TextReveal } from "@/components/motion/MotionWrappers";
+import { MagneticButton } from "@/components/MagneticButton";
 import { motion } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
@@ -82,29 +83,39 @@ export default function Contact() {
     <div className="bg-background relative overflow-x-hidden">
       <PublicNav />
 
-      {/* ── Hero ── */}
-      <section className="container py-20 md:py-32 lg:py-40 relative z-10">
-        <div className="max-w-4xl">
-          <motion.p
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
-            className="text-[10px] tracking-[0.35em] uppercase text-primary mb-8"
-          >
-            {t("contact_title")}
-          </motion.p>
-          <TextReveal>
-            <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
-              {t("contact_lets_start")}
-              <br />
-              <span className="text-primary">{t("contact_conversation")}</span>
-            </h1>
-          </TextReveal>
-          <FadeUp delay={0.3}>
-            <p className="mt-8 text-lg text-muted-foreground font-light leading-relaxed max-w-lg">
-              {info.hero_description ?? "We welcome enquiries from private clients, developers, institutions, and fellow collaborators."}
-            </p>
-          </FadeUp>
+      {/* ── Hero with architectural texture ── */}
+      <section className="relative overflow-hidden">
+        {/* Geometric decorative elements */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-20 right-[10%] w-[300px] h-[300px] md:w-[500px] md:h-[500px] border border-border/10" />
+          <div className="absolute top-32 right-[12%] w-[260px] h-[260px] md:w-[440px] md:h-[440px] border border-border/8 rotate-12" />
+          <div className="absolute bottom-10 left-[5%] w-px h-32 bg-gradient-to-b from-primary/20 to-transparent" />
+        </div>
+        <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
+        
+        <div className="container py-20 md:py-32 lg:py-40 relative z-10">
+          <div className="max-w-4xl">
+            <motion.p
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
+              className="text-[10px] tracking-[0.35em] uppercase text-primary mb-8"
+            >
+              {t("contact_title")}
+            </motion.p>
+            <TextReveal>
+              <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
+                {t("contact_lets_start")}
+                <br />
+                <span className="text-primary">{t("contact_conversation")}</span>
+              </h1>
+            </TextReveal>
+            <FadeUp delay={0.3}>
+              <p className="mt-8 text-lg text-muted-foreground font-light leading-relaxed max-w-lg">
+                {info.hero_description ?? "We welcome enquiries from private clients, developers, institutions, and fellow collaborators."}
+              </p>
+            </FadeUp>
+          </div>
         </div>
       </section>
 
@@ -198,10 +209,12 @@ export default function Contact() {
                     {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
                   </div>
                   {serverError && <p className="bg-destructive/10 px-4 py-3 text-sm text-destructive">{serverError}</p>}
-                  <Button type="submit" className="rounded-none px-10 h-12 tracking-[0.15em] text-sm uppercase" disabled={submitting}>
-                    {submitting ? t("contact_sending") : t("contact_submit")}
-                    {!submitting && <ArrowRight size={14} className="ml-3" />}
-                  </Button>
+                  <MagneticButton strength={0.2}>
+                    <Button type="submit" className="rounded-none px-10 h-12 tracking-[0.15em] text-sm uppercase" disabled={submitting}>
+                      {submitting ? t("contact_sending") : t("contact_submit")}
+                      {!submitting && <ArrowRight size={14} className="ml-3" />}
+                    </Button>
+                  </MagneticButton>
                 </form>
               )}
             </div>

@@ -22,6 +22,7 @@ import { MagneticButton } from "@/components/MagneticButton";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, GraduationCap, Award, Globe, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { SectionLabel } from "@/components/SectionLabel";
+import { LiveClock } from "@/components/LiveClock";
 import profileImg from "@/assets/profile-placeholder.jpg";
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, GraduationCap, Award, Globe };
@@ -348,20 +349,31 @@ export default function Home() {
           </div>
         </motion.section>
 
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 0.5 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-        >
-          <span className="text-[9px] tracking-[0.3em] uppercase text-muted-foreground/50">Scroll</span>
+        {/* Scroll indicator + Live clock */}
+        <div className="absolute bottom-8 left-0 right-0 px-6 md:px-10 flex items-end justify-between">
+          <LiveClock className="hidden md:flex" />
           <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            className="w-px h-8 bg-gradient-to-b from-muted-foreground/40 to-transparent"
-          />
-        </motion.div>
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.5 }}
+            className="flex flex-col items-center gap-2 absolute left-1/2 -translate-x-1/2 bottom-0"
+          >
+            <span className="text-[9px] tracking-[0.3em] uppercase text-muted-foreground/50">Scroll</span>
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              className="w-px h-8 bg-gradient-to-b from-muted-foreground/40 to-transparent"
+            />
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.4, duration: 0.5 }}
+            className="hidden md:block text-[10px] tracking-[0.2em] uppercase text-muted-foreground/40"
+          >
+            Est. {aboutMe.est_year ?? "2008"}
+          </motion.p>
+        </div>
       </div>
 
       {/* ══════════ MARQUEE TICKER ══════════ */}
@@ -466,7 +478,12 @@ export default function Home() {
           <div className="container">
             <div className="grid grid-cols-2 md:grid-cols-4">
               {stats.map((s: any, i: number) => (
-                <div key={s.label} className={i < stats.length - 1 ? "border-r border-border/30" : ""}>
+                <div
+                  key={s.label}
+                  className={`group relative ${i < stats.length - 1 ? "border-r border-border/30" : ""} hover:bg-card/50 transition-colors duration-500`}
+                >
+                  {/* Top hover accent line */}
+                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
                   <AnimatedStat value={s.value} suffix={s.suffix} label={s.label} index={i} />
                 </div>
               ))}

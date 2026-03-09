@@ -17,6 +17,8 @@ import {
   Camera, FileText, Layers, Clock,
 } from "lucide-react";
 
+const luxuryEase = [0.22, 1, 0.36, 1] as const;
+
 interface ProjectItem {
   id: string;
   title: string;
@@ -104,7 +106,7 @@ export default function PortfolioDetail() {
       <PublicNav />
       <div className="flex flex-col items-center justify-center py-32 gap-3">
         <Loader2 size={28} className="animate-spin text-primary" />
-        <p className="text-xs text-muted-foreground tracking-widest uppercase">Loading project</p>
+        <p className="text-xs text-muted-foreground tracking-[0.2em] uppercase">Loading project</p>
       </div>
     </div>
   );
@@ -113,16 +115,18 @@ export default function PortfolioDetail() {
     <div className="bg-background min-h-screen">
       <PublicNav />
       <div className="container py-32 text-center">
-        <h1 className="font-display text-4xl font-bold text-foreground">Project not found</h1>
-        <p className="mt-3 text-muted-foreground">This project doesn't exist or has been unpublished.</p>
-        <Link to="/portfolio" className="inline-flex items-center gap-2 mt-6 text-primary hover:underline"><ArrowLeft size={16} />Back to Portfolio</Link>
+        <h1 className="font-display text-4xl text-foreground">Project not found</h1>
+        <p className="mt-3 text-muted-foreground text-sm">This project doesn't exist or has been unpublished.</p>
+        <Link to="/portfolio" className="inline-flex items-center gap-2 mt-6 text-primary hover:underline text-sm">
+          <ArrowLeft size={14} /> Back to Portfolio
+        </Link>
       </div>
     </div>
   );
 
   const coverUrl = item.thumbnail_url;
   const displaySummary = item.summary || item.description || "";
-  const pageTitle = `${item.title} — FORMA`;
+  const pageTitle = `${item.title} — KIM DESIGN STUDIO`;
   const allGalleryItems = gallery.length > 0
     ? gallery.map((g) => ({ id: g.id, url: g.image_url, name: "" }))
     : galleryImages.map((g, i) => ({ id: `img-${i}`, url: g.url, name: g.name }));
@@ -141,7 +145,7 @@ export default function PortfolioDetail() {
     "name": item.title, "description": displaySummary, "image": coverUrl,
     "locationCreated": item.location, "dateCreated": item.year?.toString(),
     "url": `${window.location.origin}/portfolio/${item.slug}`,
-    "author": { "@type": "Organization", "name": "FORMA" },
+    "author": { "@type": "Organization", "name": "KIM DESIGN STUDIO" },
   };
 
   const stats = [
@@ -158,75 +162,70 @@ export default function PortfolioDetail() {
       {/* ── Parallax Hero ── */}
       <div ref={heroRef} className="relative overflow-hidden">
         {coverUrl ? (
-          <section className="relative h-[55vh] md:h-[70vh] min-h-[400px] max-h-[800px]">
+          <section className="relative h-[60vh] md:h-[75vh] min-h-[400px] max-h-[900px]">
             <motion.div style={{ scale: heroScale }} className="absolute inset-0">
               <img src={coverUrl} alt={item.title} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-background" />
+              <div className="absolute inset-0 bg-gradient-to-b from-foreground/20 via-foreground/10 to-background" />
             </motion.div>
-            <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative h-full container flex flex-col justify-end pb-8 md:pb-16 z-10">
+            {/* Film grain overlay */}
+            <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
+            <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative h-full container flex flex-col justify-end pb-10 md:pb-20 z-10">
               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-                <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm mb-8 transition-colors">
-                  <ArrowLeft size={14} />Back
+                <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-background/60 hover:text-background text-sm mb-8 transition-colors">
+                  <ArrowLeft size={14} /> Back
                 </Link>
               </motion.div>
               <div className="max-w-3xl">
                 {item.category && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                    className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 px-4 py-1.5 mb-4">
-                    <Layers size={11} className="text-primary" />
-                    <span className="text-xs font-semibold uppercase tracking-[0.15em] text-white/90">{item.category}</span>
-                  </motion.div>
+                  <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+                    className="text-[10px] tracking-[0.3em] uppercase text-background/50 mb-4">
+                    {item.category}
+                  </motion.p>
                 )}
-                <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="font-display text-2xl md:text-5xl lg:text-7xl font-bold text-white leading-[0.95] tracking-tight">
+                <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: luxuryEase }}
+                  className="font-display text-3xl md:text-6xl lg:text-8xl text-background leading-[0.92]">
                   {item.title}
                 </motion.h1>
                 <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-                  className="mt-3 md:mt-4 text-white/75 text-sm md:text-lg max-w-xl font-light leading-relaxed">
+                  className="mt-4 md:mt-6 text-background/60 text-sm md:text-lg max-w-xl font-light leading-relaxed">
                   {displaySummary}
                 </motion.p>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-                  className="flex flex-wrap items-center gap-2 md:gap-3 mt-4 md:mt-6">
+                  className="flex flex-wrap items-center gap-4 mt-6 md:mt-8 text-[11px] tracking-[0.15em] uppercase text-background/40">
                   {item.location && (
-                    <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs md:text-sm text-white/80">
-                      <MapPin size={12} />{item.location}
-                    </span>
+                    <span className="flex items-center gap-1.5"><MapPin size={11} />{item.location}</span>
                   )}
                   {item.year && (
-                    <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs md:text-sm text-white/80">
-                      <Calendar size={12} />{item.year}
-                    </span>
+                    <span className="flex items-center gap-1.5"><Calendar size={11} />{item.year}</span>
                   )}
                   {stats.map((s) => (
-                    <span key={s.label} className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs md:text-sm text-white/80">
-                      <s.icon size={12} />{s.n} {s.label}
-                    </span>
+                    <span key={s.label} className="flex items-center gap-1.5"><s.icon size={11} />{s.n} {s.label}</span>
                   ))}
                 </motion.div>
               </div>
             </motion.div>
           </section>
         ) : (
-          <section className="container pt-16 pb-10">
-            <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors">
-              <ArrowLeft size={14} />Back to Portfolio
+          <section className="container pt-20 pb-10">
+            <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-sm mb-8 transition-colors">
+              <ArrowLeft size={14} /> Back to Portfolio
             </Link>
-            {item.category && <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">{item.category}</p>}
-            <h1 className="font-display text-5xl font-bold text-foreground">{item.title}</h1>
-            <p className="mt-4 text-muted-foreground text-lg">{displaySummary}</p>
+            {item.category && <p className="text-[10px] tracking-[0.3em] uppercase text-primary mb-4">{item.category}</p>}
+            <h1 className="font-display text-5xl md:text-7xl text-foreground leading-[0.92]">{item.title}</h1>
+            <p className="mt-4 text-muted-foreground text-lg font-light">{displaySummary}</p>
           </section>
         )}
       </div>
 
       {/* ── Content ── */}
-      <div className="container py-10 md:py-16">
-        <div className="grid gap-8 md:gap-12 grid-cols-1 lg:grid-cols-[1fr_300px]">
-          <div className="space-y-10 md:space-y-14">
+      <div className="container py-16 md:py-24">
+        <div className="grid gap-12 md:gap-16 grid-cols-1 lg:grid-cols-[1fr_280px]">
+          <div className="space-y-16 md:space-y-20">
             {/* Written content */}
             {item.content && (
               <FadeUp>
-                <div className="prose prose-lg max-w-none">
-                  <div className="text-foreground leading-relaxed whitespace-pre-wrap text-base">{item.content}</div>
+                <div className="prose-professional max-w-none">
+                  <div className="text-foreground/80 leading-[1.9] whitespace-pre-wrap text-base">{item.content}</div>
                 </div>
               </FadeUp>
             )}
@@ -235,24 +234,22 @@ export default function PortfolioDetail() {
             {allGalleryItems.length > 0 && (
               <FadeUp>
                 <SectionHeader icon={Camera} label="Gallery" count={allGalleryItems.length} />
-                <StaggerContainer className="columns-2 md:columns-3 gap-3 space-y-3" staggerDelay={0.06}>
+                <StaggerContainer className="columns-2 md:columns-3 gap-3 md:gap-4 space-y-3 md:space-y-4" staggerDelay={0.06}>
                   {allGalleryItems.map((img, idx) => (
                     <StaggerItem key={img.id}>
                       <motion.button
-                        whileHover={{ scale: 1.02 }}
+                        whileHover={{ scale: 1.015 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setLightbox(idx)}
-                        className="group relative w-full overflow-hidden rounded-xl break-inside-avoid"
+                        className="group relative w-full overflow-hidden break-inside-avoid"
+                        data-cursor-hover
                       >
                         <img src={img.url} alt={img.name || `Gallery ${idx + 1}`} loading="lazy"
-                          className="w-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
-                          <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300">
-                            <Maximize2 size={16} className="text-white" />
+                          className="w-full object-cover group-hover:scale-[1.04] transition-transform duration-[900ms]" />
+                        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-colors duration-300 flex items-center justify-center">
+                          <div className="h-10 w-10 bg-background/80 flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300">
+                            <Maximize2 size={14} className="text-foreground" />
                           </div>
-                        </div>
-                        <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <p className="text-white text-xs font-medium truncate">{img.name || `Photo ${idx + 1}`}</p>
                         </div>
                       </motion.button>
                     </StaggerItem>
@@ -265,30 +262,30 @@ export default function PortfolioDetail() {
             {nonImageFiles.length > 0 && (
               <FadeUp>
                 <SectionHeader icon={FolderOpen} label="Project Files" count={nonImageFiles.length} />
-                <div className="space-y-6">
+                <div className="space-y-8">
                   {orderedCategories.map((cat) => {
                     const catLabel = FILE_CATEGORIES.find((c) => c.value === cat)?.label ?? cat;
                     return (
                       <div key={cat}>
-                        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{catLabel}</h3>
+                        <h3 className="mb-4 text-[10px] tracking-[0.25em] uppercase text-muted-foreground">{catLabel}</h3>
                         <StaggerContainer className="space-y-2" staggerDelay={0.05}>
                           {grouped[cat].map((file) => (
                             <StaggerItem key={file.id}>
                               <motion.div
                                 whileHover={{ x: 4 }}
-                                className="flex items-center gap-3 rounded-2xl border border-border/30 bg-card/60 backdrop-blur-sm px-5 py-3.5 hover:border-primary/30 hover:shadow-[0_0_20px_hsl(var(--primary)/0.08)] transition-all cursor-pointer"
+                                className="flex items-center gap-3 border border-border/30 bg-card/40 px-5 py-3.5 hover:border-primary/20 transition-all cursor-pointer"
                                 onClick={() => setPreview(file)}
                               >
                                 <FileIcon ext={file.extension ?? ""} size={18} className="text-muted-foreground shrink-0" />
                                 <div className="flex-1 min-w-0">
-                                  <p className="truncate text-sm font-medium text-foreground">{file.original_name}</p>
+                                  <p className="truncate text-sm text-foreground">{file.original_name}</p>
                                   <p className="text-xs text-muted-foreground">
                                     {formatBytes(file.size_bytes)}
-                                    {file.version > 1 && <span className="ml-2 rounded-full bg-primary/15 px-1.5 py-0.5 text-primary text-[10px] font-semibold">v{file.version}</span>}
+                                    {file.version > 1 && <span className="ml-2 text-primary text-[10px]">v{file.version}</span>}
                                     {" · "}{new Date(file.created_at).toLocaleDateString()}
                                   </p>
                                 </div>
-                                <Eye size={15} className="text-muted-foreground shrink-0" />
+                                <Eye size={14} className="text-muted-foreground/40 shrink-0" />
                               </motion.div>
                             </StaggerItem>
                           ))}
@@ -302,30 +299,22 @@ export default function PortfolioDetail() {
           </div>
 
           {/* ── Sidebar ── */}
-          <div className="space-y-6">
+          <div className="space-y-8">
             <SlideIn direction="right" delay={0.3}>
-              <div className="rounded-2xl border border-border bg-card p-6 space-y-5 sticky top-24">
-                <h3 className="font-semibold text-foreground text-sm uppercase tracking-wider flex items-center gap-2">
-                  <Layers size={14} className="text-primary" /> Project Details
+              <div className="border border-border/30 p-6 space-y-5 sticky top-24">
+                <h3 className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground flex items-center gap-2">
+                  <Layers size={12} className="text-primary" /> Project Details
                 </h3>
-                {item.category && (
-                  <DetailRow label="Category" value={item.category} />
-                )}
-                {item.location && (
-                  <DetailRow label="Location" value={item.location} icon={<MapPin size={13} />} />
-                )}
-                {item.year && (
-                  <DetailRow label="Year" value={String(item.year)} icon={<Calendar size={13} />} />
-                )}
-                {item.created_at && (
-                  <DetailRow label="Published" value={new Date(item.created_at).toLocaleDateString()} icon={<Clock size={13} />} />
-                )}
+                {item.category && <DetailRow label="Category" value={item.category} />}
+                {item.location && <DetailRow label="Location" value={item.location} icon={<MapPin size={12} />} />}
+                {item.year && <DetailRow label="Year" value={String(item.year)} icon={<Calendar size={12} />} />}
+                {item.created_at && <DetailRow label="Published" value={new Date(item.created_at).toLocaleDateString()} icon={<Clock size={12} />} />}
                 {item.tags && item.tags.length > 0 && (
                   <div>
-                    <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1"><Tag size={11} />Tags</p>
+                    <p className="text-[10px] tracking-[0.15em] uppercase text-muted-foreground mb-2 flex items-center gap-1"><Tag size={10} />Tags</p>
                     <div className="flex flex-wrap gap-1.5">
                       {item.tags.map((t) => (
-                        <span key={t} className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors cursor-default">{t}</span>
+                        <span key={t} className="border border-border/40 px-2.5 py-1 text-xs text-muted-foreground">{t}</span>
                       ))}
                     </div>
                   </div>
@@ -334,14 +323,14 @@ export default function PortfolioDetail() {
             </SlideIn>
 
             <SlideIn direction="right" delay={0.4}>
-              <div className="rounded-2xl bg-foreground p-6 text-center overflow-hidden relative group">
+              <div className="bg-foreground p-8 text-center overflow-hidden relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
-                  <h3 className="font-display text-lg font-bold text-background">Like what you see?</h3>
-                  <p className="mt-1.5 text-background/70 text-sm">Let's talk about your project.</p>
+                  <h3 className="font-display text-xl text-background">Like what you see?</h3>
+                  <p className="mt-2 text-background/50 text-sm font-light">Let's talk about your project.</p>
                   <Link to="/contact"
-                    className="inline-flex items-center gap-2 mt-4 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30">
-                    Request a Consultation <ExternalLink size={13} />
+                    className="inline-flex items-center gap-2 mt-6 border border-background/20 px-6 py-3 text-xs tracking-[0.15em] uppercase text-background hover:bg-background hover:text-foreground transition-all duration-500">
+                    Start a Conversation <ArrowRight size={12} />
                   </Link>
                 </div>
               </div>
@@ -351,35 +340,34 @@ export default function PortfolioDetail() {
 
         {/* ── Related Projects ── */}
         {related.length > 0 && (
-          <FadeUp className="mt-20 pt-12 border-t border-border/40">
-            <div className="flex items-center gap-3 mb-10">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-              <h2 className="font-display text-2xl font-bold text-foreground tracking-tight">Related Projects</h2>
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+          <FadeUp className="mt-24 md:mt-32 pt-16 border-t border-border/30">
+            <div className="mb-12 md:mb-16">
+              <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-4">More Work</p>
+              <h2 className="font-display text-3xl md:text-5xl text-foreground leading-[1.1]">Related Projects</h2>
             </div>
 
-            <StaggerContainer className="grid gap-6 sm:grid-cols-3" staggerDelay={0.1}>
+            <StaggerContainer className="grid gap-4 md:gap-6 sm:grid-cols-3" staggerDelay={0.1}>
               {related.map((r) => {
                 const rLink = r.slug ? `/portfolio/${r.slug}` : `/projects/${r.id}`;
                 return (
                   <StaggerItem key={r.id}>
-                    <Link to={rLink} className="group block relative rounded-2xl overflow-hidden glass-card-hover transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/10">
-                      <div className="aspect-[4/3] overflow-hidden bg-secondary/30 relative">
+                    <Link to={rLink} className="group block relative overflow-hidden" data-cursor-hover>
+                      <div className="aspect-[4/3] overflow-hidden relative">
                         {r.thumbnail_url ? (
                           <img src={r.thumbnail_url} alt={r.title} loading="lazy"
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[900ms]" />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-muted to-secondary" />
+                          <div className="w-full h-full bg-muted/30" />
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
-                        <div className="absolute bottom-0 left-0 right-0 p-5">
+                        <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-50 group-hover:opacity-80 transition-opacity duration-500" />
+                        <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6">
                           {r.category && (
-                            <span className="inline-block rounded-full bg-white/10 backdrop-blur-sm border border-white/10 px-2.5 py-0.5 text-[10px] tracking-[0.15em] uppercase font-medium text-white/80 mb-2">
+                            <span className="text-[9px] tracking-[0.2em] uppercase text-background/50 block mb-2">
                               {r.category}
                             </span>
                           )}
-                          <h3 className="font-display font-bold text-white text-base leading-tight">{r.title}</h3>
-                          {r.location && <p className="text-xs text-white/60 mt-1.5 flex items-center gap-1"><MapPin size={11} />{r.location}</p>}
+                          <h3 className="font-display text-lg md:text-xl text-background leading-tight">{r.title}</h3>
+                          {r.location && <p className="text-xs text-background/40 mt-1.5 flex items-center gap-1"><MapPin size={10} />{r.location}</p>}
                         </div>
                       </div>
                     </Link>
@@ -390,23 +378,6 @@ export default function PortfolioDetail() {
           </FadeUp>
         )}
       </div>
-
-      {/* CTA */}
-      <FadeUp>
-        <section className="border-t border-border py-20 text-center relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full bg-primary/5 blur-[120px]" />
-          </div>
-          <div className="container relative z-10">
-            <h2 className="font-display text-4xl font-bold text-foreground tracking-tight">Ready to start your project?</h2>
-            <p className="mt-3 text-muted-foreground">We'd love to hear about your vision.</p>
-            <Link to="/contact"
-              className="inline-flex items-center gap-2 mt-8 rounded-2xl bg-primary px-10 py-3.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">
-              Request a Consultation
-            </Link>
-          </div>
-        </section>
-      </FadeUp>
 
       <PublicFooter />
 
@@ -425,15 +396,13 @@ export default function PortfolioDetail() {
 /* ── Helpers ── */
 function SectionHeader({ icon: Icon, label, count }: { icon: typeof Camera; label: string; count?: number }) {
   return (
-    <div className="flex items-center gap-3 mb-6">
-      <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
-        <Icon size={16} className="text-primary" />
-      </div>
-      <h2 className="font-display text-2xl font-semibold text-foreground">{label}</h2>
+    <div className="flex items-center gap-4 mb-8">
+      <Icon size={16} className="text-primary" />
+      <h2 className="font-display text-2xl text-foreground">{label}</h2>
       {count != null && (
-        <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-muted-foreground">{count}</span>
+        <span className="text-xs text-muted-foreground">{count}</span>
       )}
-      <div className="h-px flex-1 bg-border/50" />
+      <div className="h-px flex-1 bg-border/30" />
     </div>
   );
 }
@@ -441,8 +410,8 @@ function SectionHeader({ icon: Icon, label, count }: { icon: typeof Camera; labe
 function DetailRow({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
   return (
     <div>
-      <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
-      <p className="font-medium text-foreground flex items-center gap-1.5">{icon}{value}</p>
+      <p className="text-[10px] tracking-[0.15em] uppercase text-muted-foreground mb-0.5">{label}</p>
+      <p className="text-sm text-foreground flex items-center gap-1.5">{icon}{value}</p>
     </div>
   );
 }

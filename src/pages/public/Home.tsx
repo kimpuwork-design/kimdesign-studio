@@ -233,6 +233,8 @@ export default function Home() {
               <div className="absolute inset-0 bg-background/85 dark:bg-background/90" />
             </motion.div>
           )}
+          {/* Film grain overlay */}
+          <div className="absolute inset-0 noise-overlay pointer-events-none z-[2]" />
 
           <div className="container py-20 md:py-32 relative z-10">
             <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">

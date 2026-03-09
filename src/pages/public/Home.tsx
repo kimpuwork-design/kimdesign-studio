@@ -478,7 +478,12 @@ export default function Home() {
           <div className="container">
             <div className="grid grid-cols-2 md:grid-cols-4">
               {stats.map((s: any, i: number) => (
-                <div key={s.label} className={i < stats.length - 1 ? "border-r border-border/30" : ""}>
+                <div
+                  key={s.label}
+                  className={`group relative ${i < stats.length - 1 ? "border-r border-border/30" : ""} hover:bg-card/50 transition-colors duration-500`}
+                >
+                  {/* Top hover accent line */}
+                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
                   <AnimatedStat value={s.value} suffix={s.suffix} label={s.label} index={i} />
                 </div>
               ))}

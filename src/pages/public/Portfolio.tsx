@@ -13,6 +13,50 @@ import { FadeUp } from "@/components/motion/MotionWrappers";
 const CATEGORIES = ["All", "Residential", "Cultural", "Commercial", "Interior", "Landscape", "Civic", "Mixed-Use"];
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
+/* ─── Animated Counter ─── */
+function useCountUp(target: number, duration = 1800) {
+  const [count, setCount] = useState(0);
+  const started = useRef(false);
+  const start = useCallback(() => {
+    if (started.current) return;
+    started.current = true;
+    const t0 = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - t0) / duration, 1);
+      setCount(Math.round((1 - Math.pow(1 - p, 4)) * target));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [target, duration]);
+  return { count, start };
+}
+
+function AnimatedPortfolioStat({ value, label, delay }: { value: number; label: string; delay: number }) {
+  const { count, start } = useCountUp(value);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { start(); obs.unobserve(el); } }, { threshold: 0.3 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [start]);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 15 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay, ease: luxuryEase }}
+      className="shrink-0"
+    >
+      <p className="font-display text-3xl md:text-4xl text-foreground">{count}</p>
+      <p className="text-[9px] tracking-[0.25em] uppercase text-muted-foreground mt-1">{label}</p>
+    </motion.div>
+  );
+}
+
 interface ProjectPortfolioItem {
   id: string;
   title: string;

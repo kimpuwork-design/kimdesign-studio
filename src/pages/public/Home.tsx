@@ -438,7 +438,7 @@ export default function Home() {
       </div>
 
       {/* ══════════ ABOUT / INTRO ══════════ */}
-      <section className="border-t border-border/30">
+      <section id="about" className="border-t border-border/30">
         <div className="container py-24 md:py-36">
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
             <SlideIn direction="left">

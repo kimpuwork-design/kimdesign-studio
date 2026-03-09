@@ -202,9 +202,22 @@ export default function PublicBlog() {
                 {gridPosts.map((post) => (
                   <StaggerItem key={post.id}>
                     <Link to={`/blog/${post.slug}`} className="group block" data-cursor-hover data-cursor-label="Read">
-                      <div className="overflow-hidden aspect-[16/10] mb-5">
+                      <div className="overflow-hidden aspect-[16/10] mb-5"
+                        onMouseMove={(e) => {
+                          const img = e.currentTarget.querySelector('img');
+                          if (!img) return;
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const x = (e.clientX - rect.left) / rect.width - 0.5;
+                          const y = (e.clientY - rect.top) / rect.height - 0.5;
+                          img.style.transform = `scale(1.06) translate(${-x * 10}px, ${-y * 10}px)`;
+                        }}
+                        onMouseLeave={(e) => {
+                          const img = e.currentTarget.querySelector('img');
+                          if (img) img.style.transform = 'scale(1) translate(0, 0)';
+                        }}
+                      >
                         {post.cover_image_url ? (
-                          <img src={post.cover_image_url} alt={post.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[900ms]" />
+                          <img src={post.cover_image_url} alt={post.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 ease-out" />
                         ) : (
                           <div className="w-full h-full bg-muted/30" />
                         )}

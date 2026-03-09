@@ -96,14 +96,7 @@ export default function Contact() {
         
         <div className="container py-20 md:py-32 lg:py-40 relative z-10">
           <div className="max-w-4xl">
-            <motion.p
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
-              className="text-[10px] tracking-[0.35em] uppercase text-primary mb-8"
-            >
-              {t("contact_title")}
-            </motion.p>
+            <SectionLabel text={t("contact_title")} />
             <TextReveal>
               <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
                 {t("contact_lets_start")}

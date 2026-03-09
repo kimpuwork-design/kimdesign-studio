@@ -24,7 +24,19 @@ import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, GraduationCap, Awa
 import { SectionLabel } from "@/components/SectionLabel";
 import { LiveClock } from "@/components/LiveClock";
 import { AnimatedDivider } from "@/components/AnimatedDivider";
+import { SectionIndicator } from "@/components/SectionIndicator";
+import { TiltCard } from "@/components/TiltCard";
 import profileImg from "@/assets/profile-placeholder.jpg";
+
+const HOME_SECTIONS = [
+  { id: "hero", label: "Home" },
+  { id: "about", label: "About" },
+  { id: "stats", label: "Numbers" },
+  { id: "projects", label: "Projects" },
+  { id: "services", label: "Services" },
+  { id: "testimonials", label: "Voices" },
+  { id: "awards", label: "Awards" },
+];
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, GraduationCap, Award, Globe };
 const luxuryEase = [0.22, 1, 0.36, 1] as const;

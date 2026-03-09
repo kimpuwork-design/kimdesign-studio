@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { useRef, useEffect } from "react";
+import { motion, useScroll, useSpring, useMotionValue } from "framer-motion";
 
 interface MarqueeProps {
   items: string[];
@@ -13,33 +13,33 @@ export function Marquee({ items, separator = "·", speed = 30, className = "" }:
   const text = items.join(` ${separator} `) + ` ${separator} `;
   const content = `${text}${text}`;
 
-  const { scrollY } = useScroll();
-  // Map scroll velocity to skew for a dynamic feel
-  const scrollVelocity = useTransform(scrollY, (latest) => latest);
-  const skewX = useSpring(
-    useTransform(scrollVelocity, [0, 1], [0, 0]),
-    { stiffness: 100, damping: 30 }
-  );
+  const rawSkew = useMotionValue(0);
+  const skewX = useSpring(rawSkew, { stiffness: 120, damping: 25 });
 
-  // Track scroll direction for velocity effect
-  const lastScroll = useRef(0);
-  const skewRef = useRef(0);
+  const lastScrollY = useRef(0);
+  const rafId = useRef(0);
 
-  // Use a simpler approach: CSS animation + scroll-driven skew
+  useEffect(() => {
+    const onScroll = () => {
+      const current = window.scrollY;
+      const delta = current - lastScrollY.current;
+      // Clamp skew between -4 and 4 degrees based on scroll velocity
+      const target = Math.max(-4, Math.min(4, delta * 0.2));
+      rawSkew.set(target);
+      lastScrollY.current = current;
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [rawSkew]);
+
   return (
     <div ref={ref} className={`overflow-hidden whitespace-nowrap ${className}`}>
       <motion.div
         animate={{ x: ["0%", "-50%"] }}
         transition={{ duration: items.length * speed / 10, repeat: Infinity, ease: "linear" }}
         style={{ skewX }}
-        className="inline-block"
-        onUpdate={() => {
-          const current = window.scrollY;
-          const diff = current - lastScroll.current;
-          skewRef.current = Math.max(-3, Math.min(3, diff * 0.15));
-          skewX.set(skewRef.current);
-          lastScroll.current = current;
-        }}
+        className="inline-block will-change-transform"
       >
         <span className="inline-block">{content}</span>
       </motion.div>

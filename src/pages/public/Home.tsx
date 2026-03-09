@@ -640,13 +640,30 @@ export default function Home() {
                 const Icon = ICON_MAP[s.icon] ?? Building2;
                 return (
                   <StaggerItem key={s.title}>
-                    <div className="bg-background p-8 md:p-10 group hover:bg-card hover:-translate-y-1 transition-all duration-500 h-full border border-border/20">
-                      <span className="font-display text-4xl text-border/40 group-hover:text-primary/30 transition-colors duration-500 block mb-6">
+                    <div className="relative bg-background p-8 md:p-10 group hover:bg-card transition-all duration-500 h-full border border-border/20 overflow-hidden">
+                      {/* Animated gradient border on hover */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+                      </div>
+                      {/* Large background number */}
+                      <span className="absolute -right-2 -top-4 font-display text-[120px] leading-none text-border/[0.06] group-hover:text-primary/[0.06] transition-colors duration-700 select-none pointer-events-none">
                         {String(i + 1).padStart(2, '0')}
                       </span>
-                      <Icon size={20} className="text-primary mb-6" />
-                      <h3 className="font-display text-xl md:text-2xl text-foreground mb-4 leading-tight">{s.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-[1.8]">{s.desc}</p>
+                      <div className="relative z-10">
+                        <motion.div
+                          whileHover={{ scale: 1.15, rotate: -5 }}
+                          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                          className="inline-block mb-6"
+                        >
+                          <Icon size={22} className="text-primary" />
+                        </motion.div>
+                        <h3 className="font-display text-xl md:text-2xl text-foreground mb-4 leading-tight group-hover:text-primary transition-colors duration-300">{s.title}</h3>
+                        <p className="text-sm text-muted-foreground leading-[1.8]">{s.desc}</p>
+                        <div className="mt-6 flex items-center gap-2 text-xs text-primary/0 group-hover:text-primary transition-all duration-500 translate-y-2 group-hover:translate-y-0">
+                          <span className="tracking-[0.15em] uppercase">Learn more</span>
+                          <ArrowRight size={12} />
+                        </div>
+                      </div>
                     </div>
                   </StaggerItem>
                 );

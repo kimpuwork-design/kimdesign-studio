@@ -158,9 +158,7 @@ export default function AdminProjects() {
         <div className="glass-card flex items-center justify-center py-20">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-portal-accent border-t-transparent" />
         </div>
-      ) : viewMode === "kanban" ? (
-        <ProjectKanban projects={projects} onRefresh={fetchProjects} />
-      ) : viewMode === "grid" ? (
+      ) : projects.length === 0 ? (
         <div className="glass-card py-20 text-center">
           <p className="font-medium text-portal-text">No projects found</p>
           <p className="mt-1 text-sm text-portal-text-muted">Create your first project to get started.</p>
@@ -169,6 +167,8 @@ export default function AdminProjects() {
             <Plus size={14} className="mr-1" /> New Project
           </Button>
         </div>
+      ) : viewMode === "kanban" ? (
+        <ProjectKanban projects={projects} onRefresh={fetchProjects} />
       ) : viewMode === "grid" ? (
         /* Grid View */
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

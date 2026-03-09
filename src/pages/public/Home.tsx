@@ -371,9 +371,16 @@ export default function Home() {
             <SlideIn direction="left">
               <div className="relative">
                 <ImageReveal>
-                  <div className="aspect-[3/4] overflow-hidden">
-                    <img src={aboutProfileImg} alt={aboutMe.title_prefix ?? "Principal Architect"}
-                      className="h-full w-full object-cover object-center hover:scale-[1.02] transition-transform duration-[1200ms]" />
+                  <div className="aspect-[3/4] overflow-hidden relative">
+                    <motion.img
+                      src={aboutProfileImg}
+                      alt={aboutMe.title_prefix ?? "Principal Architect"}
+                      className="h-full w-full object-cover object-center"
+                      initial={{ scale: 1.1 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1.4, ease: luxuryEase }}
+                    />
                   </div>
                 </ImageReveal>
                 {credentials.length > 0 && (

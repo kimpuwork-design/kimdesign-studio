@@ -656,6 +656,7 @@ export default function Home() {
       )}
 
       {/* ══════════ TESTIMONIALS ══════════ */}
+      <div id="testimonials" />
       {testimonials.length > 0 && (
         <TestimonialsCarousel testimonials={testimonials} t={t} />
       )}

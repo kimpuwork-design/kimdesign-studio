@@ -95,12 +95,14 @@ export default function About() {
       {values.length > 0 && (
         <section className="border-t border-border/30 py-24 md:py-36 relative z-10">
           <div className="container">
-            <FadeUp>
-              <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-4">{t("about_principles")}</p>
-              <h2 className="font-display text-3xl md:text-5xl text-foreground leading-[1.1] mb-16 md:mb-20">
-                What guides us
-              </h2>
-            </FadeUp>
+            <div>
+              <SectionLabel text={t("about_principles")} />
+              <FadeUp>
+                <h2 className="font-display text-3xl md:text-5xl text-foreground leading-[1.1] mb-16 md:mb-20">
+                  What guides us
+                </h2>
+              </FadeUp>
+            </div>
             <StaggerContainer className="grid gap-px grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" staggerDelay={0.08}>
               {values.map((v: any, i: number) => (
                 <StaggerItem key={v.title}>

@@ -1,12 +1,13 @@
 import { PortalLayout } from "@/components/PortalLayout";
 import { UpcomingDeadlines } from "@/components/admin/UpcomingDeadlines";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Sparkles, Zap } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Zap, RefreshCw } from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
+import { PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { format, subDays, startOfMonth } from "date-fns";
+import { motion } from "framer-motion";
 
 interface Stats {
   totalClients: number;
@@ -41,6 +42,32 @@ const STATUS_COLORS: Record<string, string> = {
   archived: "#9ca3af",
 };
 
+// Animated counter component
+function AnimatedCounter({ value, prefix = "", suffix = "" }: { value: number; prefix?: string; suffix?: string }) {
+  const [display, setDisplay] = useState(0);
+  const ref = useRef<number | null>(null);
+
+  useEffect(() => {
+    const start = ref.current ?? 0;
+    const diff = value - start;
+    if (diff === 0) return;
+    const duration = 600;
+    const startTime = performance.now();
+    
+    function animate(now: number) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.round(start + diff * eased));
+      if (progress < 1) requestAnimationFrame(animate);
+      else ref.current = value;
+    }
+    requestAnimationFrame(animate);
+  }, [value]);
+
+  return <>{prefix}{display.toLocaleString()}{suffix}</>;
+}
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { profile } = useAuth();
@@ -49,6 +76,7 @@ export default function AdminDashboard() {
   const [projectStatuses, setProjectStatuses] = useState<ProjectStatus[]>([]);
   const [recentInvoices, setRecentInvoices] = useState<{ month: string; total: number }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLive, setIsLive] = useState(false);
 
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
@@ -114,12 +142,37 @@ export default function AdminDashboard() {
 
   useEffect(() => { fetchDashboardData(); }, [fetchDashboardData]);
 
+  // Real-time subscriptions
+  useEffect(() => {
+    const channel = supabase
+      .channel('admin-dashboard-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => {
+        fetchDashboardData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => {
+        fetchDashboardData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'invoices' }, () => {
+        fetchDashboardData();
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_logs' }, () => {
+        fetchDashboardData();
+      })
+      .subscribe((status) => {
+        setIsLive(status === 'SUBSCRIBED');
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchDashboardData]);
+
   const statCards = [
-    { icon: Users, label: "Clients", value: stats.totalClients.toString(), color: "from-blue-500 to-blue-600", href: "/admin/clients" },
-    { icon: Briefcase, label: "Active Projects", value: stats.activeProjects.toString(), color: "from-violet-500 to-violet-600", href: "/admin/projects" },
-    { icon: TrendingUp, label: "New Leads", value: stats.newLeads.toString(), color: "from-emerald-500 to-emerald-600", href: "/admin/leads" },
-    { icon: DollarSign, label: "Revenue (mo)", value: `$${stats.revenue.toLocaleString()}`, color: "from-amber-500 to-amber-600", href: "/admin/invoices" },
-    { icon: AlertCircle, label: "Outstanding", value: `$${stats.outstanding.toLocaleString()}`, color: "from-rose-500 to-rose-600", href: "/admin/invoices" },
+    { icon: Users, label: "Clients", value: stats.totalClients, format: "number" as const, color: "from-blue-500 to-blue-600", href: "/admin/clients" },
+    { icon: Briefcase, label: "Active Projects", value: stats.activeProjects, format: "number" as const, color: "from-violet-500 to-violet-600", href: "/admin/projects" },
+    { icon: TrendingUp, label: "New Leads", value: stats.newLeads, format: "number" as const, color: "from-emerald-500 to-emerald-600", href: "/admin/leads" },
+    { icon: DollarSign, label: "Revenue (mo)", value: stats.revenue, format: "currency" as const, color: "from-amber-500 to-amber-600", href: "/admin/invoices" },
+    { icon: AlertCircle, label: "Outstanding", value: stats.outstanding, format: "currency" as const, color: "from-rose-500 to-rose-600", href: "/admin/invoices" },
   ];
 
   const quickActions = [
@@ -160,15 +213,34 @@ export default function AdminDashboard() {
             <p className="text-xs md:text-sm text-portal-text-muted mt-0.5 hidden sm:block">Here's your studio overview for today.</p>
           </div>
         </div>
+        <div className="flex items-center gap-2">
+          {/* Live indicator */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-portal-surface/50 border border-portal-border/30">
+            <span className={`h-1.5 w-1.5 rounded-full ${isLive ? 'bg-emerald-400 animate-pulse' : 'bg-portal-text-muted/40'}`} />
+            <span className="text-[10px] font-medium text-portal-text-muted uppercase tracking-wider">
+              {isLive ? 'Live' : 'Offline'}
+            </span>
+          </div>
+          <button
+            onClick={fetchDashboardData}
+            className="rounded-lg p-2 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all"
+            aria-label="Refresh"
+          >
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+          </button>
+        </div>
       </div>
 
-      {/* Stat Cards — horizontal scroll on mobile, grid on desktop */}
+      {/* Stat Cards with animated counters */}
       <div className="flex gap-2.5 overflow-x-auto scrollbar-none pb-1 mb-5 md:mb-8 md:grid md:grid-cols-5 md:overflow-visible md:pb-0">
-        {statCards.map((s) => {
+        {statCards.map((s, idx) => {
           const Icon = s.icon;
           return (
-            <button
+            <motion.button
               key={s.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05, duration: 0.3 }}
               onClick={() => navigate(s.href)}
               className="group glass-card glass-card-hover p-3 md:p-4 text-left min-w-[130px] md:min-w-0 shrink-0 md:shrink"
             >
@@ -179,18 +251,30 @@ export default function AdminDashboard() {
                 <ArrowUpRight size={10} className="text-portal-text-muted opacity-0 group-hover:opacity-100 transition-all hidden md:block" />
               </div>
               <p className="font-display text-lg md:text-2xl font-bold text-portal-text tracking-tight">
-                {loading ? <span className="inline-block h-5 md:h-7 w-12 md:w-16 shimmer rounded-lg" /> : s.value}
+                {loading ? (
+                  <span className="inline-block h-5 md:h-7 w-12 md:w-16 shimmer rounded-lg" />
+                ) : (
+                  <AnimatedCounter 
+                    value={s.value} 
+                    prefix={s.format === "currency" ? "$" : ""} 
+                  />
+                )}
               </p>
               <p className="text-[9px] md:text-[11px] text-portal-text-muted mt-0.5 md:mt-1 font-medium uppercase tracking-wider">{s.label}</p>
-            </button>
+            </motion.button>
           );
         })}
       </div>
 
       {/* Charts Row */}
       <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-3 mb-5 md:mb-8">
-        {/* Revenue Chart — wider */}
-        <div className="glass-card p-5 md:col-span-2">
+        {/* Revenue Chart */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.2 }}
+          className="glass-card p-5 md:col-span-2"
+        >
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display text-sm font-semibold text-portal-text">Revenue Trend</h2>
             <span className="text-[10px] text-portal-text-muted uppercase tracking-wider">Last 6 months</span>
@@ -216,10 +300,15 @@ export default function AdminDashboard() {
           ) : (
             <div className="flex h-[200px] items-center justify-center text-sm text-portal-text-muted">No revenue data yet.</div>
           )}
-        </div>
+        </motion.div>
 
-        {/* Project Status — pie */}
-        <div className="glass-card p-5">
+        {/* Project Status */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.3 }}
+          className="glass-card p-5"
+        >
           <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Project Status</h2>
           {projectStatuses.length > 0 ? (
             <div className="flex flex-col items-center">
@@ -246,13 +335,18 @@ export default function AdminDashboard() {
           ) : (
             <div className="flex h-[200px] items-center justify-center text-sm text-portal-text-muted">No projects yet.</div>
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* Lead Pipeline + Deadlines */}
       <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2 mb-5 md:mb-8">
         {stats.leadConversion.length > 0 && (
-          <div className="glass-card p-5">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: 0.35 }}
+            className="glass-card p-5"
+          >
             <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Lead Pipeline</h2>
             <div className="space-y-3">
               {stats.leadConversion.map((l) => {
@@ -265,30 +359,55 @@ export default function AdminDashboard() {
                       <span className="font-display font-bold text-portal-text text-sm">{l.count}</span>
                     </div>
                     <div className="h-1.5 rounded-full bg-portal-surface overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500"
-                        style={{ width: `${pct}%` }}
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        transition={{ duration: 0.8, delay: 0.5 }}
+                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400"
                       />
                     </div>
                   </div>
                 );
               })}
             </div>
-          </div>
+          </motion.div>
         )}
-        <div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
           <UpcomingDeadlines />
-        </div>
+        </motion.div>
       </div>
 
       {/* Activity & Quick Actions */}
       <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
-        <div className="glass-card p-5">
-          <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Recent Activity</h2>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.45 }}
+          className="glass-card p-5"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-sm font-semibold text-portal-text">Recent Activity</h2>
+            {isLive && (
+              <span className="flex items-center gap-1 text-[9px] text-emerald-400 font-medium">
+                <span className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" />
+                Live
+              </span>
+            )}
+          </div>
           {activity.length > 0 ? (
             <div className="space-y-0.5">
-              {activity.map((a) => (
-                <div key={a.id} className="flex items-start gap-2.5 rounded-lg px-2.5 py-2 hover:bg-portal-surface-hover/40 transition-all">
+              {activity.map((a, idx) => (
+                <motion.div
+                  key={a.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.03 }}
+                  className="flex items-start gap-2.5 rounded-lg px-2.5 py-2 hover:bg-portal-surface-hover/40 transition-all"
+                >
                   <div className="mt-0.5 rounded-md bg-portal-surface p-1.5">{getActionIcon(a.action)}</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-portal-text">
@@ -297,15 +416,20 @@ export default function AdminDashboard() {
                     </p>
                     <p className="text-[10px] text-portal-text-muted mt-0.5">{format(new Date(a.created_at), "MMM d, h:mm a")}</p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           ) : (
             <p className="text-xs text-portal-text-muted py-4 text-center">No activity yet.</p>
           )}
-        </div>
+        </motion.div>
 
-        <div className="glass-card p-5">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.5 }}
+          className="glass-card p-5"
+        >
           <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 gap-1.5 md:gap-2">
             {quickActions.map((action) => {
@@ -324,7 +448,7 @@ export default function AdminDashboard() {
               );
             })}
           </div>
-        </div>
+        </motion.div>
       </div>
     </PortalLayout>
   );

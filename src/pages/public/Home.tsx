@@ -246,6 +246,42 @@ export default function Home() {
               <div className="absolute inset-0 bg-background/85 dark:bg-background/90" />
             </motion.div>
           )}
+
+          {/* Floating architectural wireframes */}
+          <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden hidden md:block">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5, duration: 1 }}
+            >
+              {/* Grid square */}
+              <motion.div
+                animate={{ y: [0, -15, 0], rotate: [0, 3, 0] }}
+                transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-[15%] right-[8%] w-[180px] h-[180px] border border-primary/[0.06]"
+              />
+              {/* Rotated rectangle */}
+              <motion.div
+                animate={{ y: [0, 12, 0], rotate: [12, 15, 12] }}
+                transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-[25%] right-[12%] w-[140px] h-[140px] border border-primary/[0.04] rotate-12"
+              />
+              {/* Circle */}
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute bottom-[20%] right-[15%] w-[100px] h-[100px] border border-primary/[0.05] rounded-full"
+              />
+              {/* Vertical line */}
+              <motion.div
+                animate={{ scaleY: [0.6, 1, 0.6] }}
+                transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-[10%] left-[5%] w-px h-[200px] bg-gradient-to-b from-transparent via-primary/[0.06] to-transparent"
+                style={{ transformOrigin: "top" }}
+              />
+            </motion.div>
+          </div>
+
           {/* Film grain overlay */}
           <div className="absolute inset-0 noise-overlay pointer-events-none z-[2]" />
 

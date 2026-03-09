@@ -454,6 +454,29 @@ export default function Home() {
                       viewport={{ once: true }}
                       transition={{ duration: 1.4, ease: luxuryEase }}
                     />
+                    {/* Floating info badges */}
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.7, delay: 0.8, ease: luxuryEase }}
+                      className="absolute top-6 right-6 backdrop-blur-md bg-foreground/70 text-background px-4 py-2.5 hidden md:block"
+                    >
+                      <p className="text-[9px] tracking-[0.25em] uppercase text-background/50">{t("home_credentials")}</p>
+                      <p className="font-display text-lg leading-tight mt-0.5">{aboutMe.est_year ? `Since ${aboutMe.est_year}` : "Since 2008"}</p>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.7, delay: 1, ease: luxuryEase }}
+                      className="absolute bottom-6 left-6 backdrop-blur-md bg-foreground/70 text-background px-4 py-2.5 hidden md:block"
+                    >
+                      <p className="text-[9px] tracking-[0.25em] uppercase text-background/50">Location</p>
+                      <p className="font-display text-base leading-tight mt-0.5 flex items-center gap-1.5">
+                        <MapPin size={10} /> Yangon, Myanmar
+                      </p>
+                    </motion.div>
                   </div>
                 </ImageReveal>
                 {credentials.length > 0 && (

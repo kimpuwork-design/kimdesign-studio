@@ -627,7 +627,7 @@ export default function Home() {
 
       {/* ══════════ SERVICES ══════════ */}
       {servicesHome.length > 0 && (
-        <section className="border-t border-border/30 bg-muted/20">
+        <section id="services" className="border-t border-border/30 bg-muted/20">
           <div className="container py-24 md:py-36">
             <SectionLabel text={t("home_disciplines")} />
             <FadeUp>

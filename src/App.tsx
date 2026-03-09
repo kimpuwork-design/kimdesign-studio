@@ -56,6 +56,7 @@ const AdminAuditLogs = lazyRetry(() => import("./pages/admin/AuditLogs"));
 const AdminBlog = lazyRetry(() => import("./pages/admin/Blog"));
 const AdminBlogEditor = lazyRetry(() => import("./pages/admin/BlogEditor"));
 const AdminAnalytics = lazyRetry(() => import("./pages/admin/Analytics"));
+const AdminActivityTimeline = lazyRetry(() => import("./pages/admin/ActivityTimeline"));
 
 const StaffDashboard = lazyRetry(() => import("./pages/staff/Dashboard"));
 const StaffProjects = lazyRetry(() => import("./pages/staff/Projects"));

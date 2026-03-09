@@ -68,19 +68,20 @@ export default function PublicBlog() {
       {/* ── Hero ── */}
       <section className="container py-20 md:py-32 lg:py-40 relative z-10">
         <div className="max-w-4xl">
-          <motion.p
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
-            className="text-[10px] tracking-[0.35em] uppercase text-primary mb-8"
-          >
-            {t("blog_insights_badge")}
-          </motion.p>
-          <TextReveal>
-            <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
-              {t("blog_title")}
-            </h1>
-          </TextReveal>
+          <SectionLabel text={t("blog_insights_badge")} />
+          <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
+            {(t("blog_title") || "Journal").split(" ").map((word: string, i: number) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 + i * 0.08, ease: luxuryEase }}
+                className="inline-block mr-[0.3em]"
+              >
+                {word}
+              </motion.span>
+            ))}
+          </h1>
           <FadeUp delay={0.3}>
             <p className="mt-8 text-lg text-muted-foreground font-light max-w-lg leading-relaxed">
               {t("blog_description")}

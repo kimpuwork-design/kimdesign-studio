@@ -545,7 +545,7 @@ export default function Home() {
 
       {/* ══════════ FEATURED PROJECTS — Horizontal scroll cinematic ══════════ */}
       {featured.length > 0 && (
-        <section className="border-t border-border/30">
+        <section id="projects" className="border-t border-border/30">
           <div className="container pt-24 md:pt-36 pb-8 md:pb-12">
             <div className="flex items-end justify-between mb-12 md:mb-16">
               <div>

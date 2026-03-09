@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform, type Variants } from "framer-motion";
-import { ReactNode, useRef } from "react";
+import { ReactNode, useRef, forwardRef } from "react";
 
 // Shared luxury easing curves
 const luxuryEase = [0.22, 1, 0.36, 1] as const;

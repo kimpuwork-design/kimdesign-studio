@@ -177,7 +177,69 @@ function AnimatedStat({ value, suffix, label, index }: { value: number; suffix: 
   );
 }
 
-/* ─── Testimonials ─── */
+/* ─── Testimonials with 3D Perspective Tilt ─── */
+function Testimonial3DCard({ testimonial, isActive }: { testimonial: any; isActive: boolean }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+  const [glarePos, setGlarePos] = useState({ x: 50, y: 50 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    
+    setRotateX((y - 0.5) * -15);
+    setRotateY((x - 0.5) * 15);
+    setGlarePos({ x: x * 100, y: y * 100 });
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setRotateX(0);
+    setRotateY(0);
+    setGlarePos({ x: 50, y: 50 });
+  }, []);
+
+  return (
+    <motion.div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      animate={{
+        rotateX,
+        rotateY,
+      }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      style={{ transformStyle: "preserve-3d", perspective: 1000 }}
+      className={`border border-border/40 p-7 md:p-9 h-full flex flex-col transition-all duration-600 relative overflow-hidden ${
+        isActive ? "bg-card border-border" : "bg-transparent opacity-40"
+      }`}
+    >
+      {/* Glare effect */}
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        style={{
+          background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, hsl(var(--primary) / 0.08) 0%, transparent 50%)`,
+        }}
+      />
+      <Quote size={18} className="text-primary/25 mb-5 shrink-0" style={{ transform: "translateZ(20px)" }} />
+      <p className="text-muted-foreground leading-[1.8] text-sm flex-1 italic font-light" style={{ transform: "translateZ(10px)" }}>
+        {testimonial.text}
+      </p>
+      <div className="mt-8 pt-6 border-t border-border/30 flex items-center gap-3" style={{ transform: "translateZ(15px)" }}>
+        <div className="h-10 w-10 bg-muted/60 flex items-center justify-center">
+          <span className="font-display text-base text-foreground">{testimonial.name?.charAt(0)}</span>
+        </div>
+        <div>
+          <p className="text-sm text-foreground">{testimonial.name}</p>
+          <p className="text-xs text-muted-foreground">{testimonial.role}</p>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 function TestimonialsCarousel({ testimonials, t }: { testimonials: any[]; t: (k: string) => string }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -231,25 +293,11 @@ function TestimonialsCarousel({ testimonials, t }: { testimonials: any[]; t: (k:
           </FadeUp>
         </div>
 
-        <div className="overflow-hidden" ref={emblaRef}>
+        <div className="overflow-hidden" ref={emblaRef} style={{ perspective: "1000px" }}>
           <div className="flex gap-6 md:gap-8">
-            {testimonials.map((t: any, i: number) => (
-              <div key={t.name} className="flex-[0_0_88%] min-w-0 sm:flex-[0_0_46%] lg:flex-[0_0_33.333%]">
-                <div className={`border border-border/40 p-7 md:p-9 h-full flex flex-col transition-all duration-600 ${
-                  selectedIndex === i ? "bg-card border-border" : "bg-transparent opacity-40"
-                }`}>
-                  <Quote size={18} className="text-primary/25 mb-5 shrink-0" />
-                  <p className="text-muted-foreground leading-[1.8] text-sm flex-1 italic font-light">{t.text}</p>
-                  <div className="mt-8 pt-6 border-t border-border/30 flex items-center gap-3">
-                    <div className="h-10 w-10 bg-muted/60 flex items-center justify-center">
-                      <span className="font-display text-base text-foreground">{t.name?.charAt(0)}</span>
-                    </div>
-                    <div>
-                      <p className="text-sm text-foreground">{t.name}</p>
-                      <p className="text-xs text-muted-foreground">{t.role}</p>
-                    </div>
-                  </div>
-                </div>
+            {testimonials.map((testimonial: any, i: number) => (
+              <div key={testimonial.name} className="flex-[0_0_88%] min-w-0 sm:flex-[0_0_46%] lg:flex-[0_0_33.333%] group">
+                <Testimonial3DCard testimonial={testimonial} isActive={selectedIndex === i} />
               </div>
             ))}
           </div>
@@ -267,41 +315,6 @@ function TestimonialsCarousel({ testimonials, t }: { testimonials: any[]; t: (k:
     </section>
   );
 }
-/* ─── Kinetic Floating Element ─── */
-function KineticShape({ 
-  className, 
-  mousePos, 
-  baseX, 
-  baseY, 
-  repelStrength = 30,
-  children 
-}: { 
-  className?: string; 
-  mousePos: { x: number; y: number }; 
-  baseX: number; 
-  baseY: number; 
-  repelStrength?: number;
-  children: React.ReactNode;
-}) {
-  const dx = mousePos.x - baseX;
-  const dy = mousePos.y - baseY;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  const maxDist = 0.4;
-  const factor = Math.max(0, 1 - dist / maxDist);
-  const offsetX = -dx * factor * repelStrength;
-  const offsetY = -dy * factor * repelStrength;
-  
-  return (
-    <motion.div
-      className={className}
-      animate={{ x: offsetX, y: offsetY }}
-      transition={{ type: "spring", stiffness: 150, damping: 15 }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
 /* ─── Main Component ─── */
 export default function Home() {
   const { settings } = useSettings();

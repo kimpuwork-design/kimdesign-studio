@@ -8,6 +8,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, StaggerContainer, StaggerItem, TextReveal, LineDraw } from "@/components/motion/MotionWrappers";
+import { TextScramble } from "@/components/TextScramble";
 import { motion } from "framer-motion";
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, FileText, Lightbulb };
@@ -35,7 +36,7 @@ export default function Services() {
             transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
             className="text-[10px] tracking-[0.35em] uppercase text-primary mb-8"
           >
-            {page.hero_subtitle ?? "Services"}
+            <TextScramble text={page.hero_subtitle ?? "Services"} delay={0.3} />
           </motion.p>
           <TextReveal>
             <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">

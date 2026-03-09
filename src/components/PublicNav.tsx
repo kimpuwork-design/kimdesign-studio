@@ -19,6 +19,7 @@ const NAV_KEYS = [
 export function PublicNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { theme, setTheme } = useTheme();
   const { settings } = useSettings();
   const { t } = useTranslation();
@@ -30,6 +31,7 @@ export function PublicNav() {
   const lastScrollY = useRef(0);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
+    setScrolled(latest > 50);
     const diff = latest - lastScrollY.current;
     if (latest < 100) {
       setNavHidden(false);
@@ -52,9 +54,9 @@ export function PublicNav() {
     <motion.header
       animate={{ y: navHidden && !mobileOpen ? "-100%" : "0%" }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="sticky top-0 z-50 glass-nav"
+      className={`sticky top-0 z-50 transition-all duration-500 ${scrolled ? "glass-nav shadow-sm" : "bg-transparent"}`}
     >
-      <div className="container flex h-16 md:h-[72px] items-center justify-between">
+      <div className={`container flex items-center justify-between transition-all duration-500 ${scrolled ? "h-14 md:h-14" : "h-16 md:h-[72px]"}`}>
         <Link to="/" className="flex items-center gap-2.5 group shrink-0">
           {logoUrl && logoUrl !== "/logo-placeholder.png" ? (
             <div className="h-8 w-8 overflow-hidden flex items-center justify-center">

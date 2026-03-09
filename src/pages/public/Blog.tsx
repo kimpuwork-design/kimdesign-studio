@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { Search, Calendar, ArrowRight, Loader2, Tag } from "lucide-react";
+import { Search, Calendar, ArrowRight, Tag } from "lucide-react";
 import { format } from "date-fns";
 import { FadeUp, StaggerContainer, StaggerItem, TextReveal } from "@/components/motion/MotionWrappers";
 import { motion } from "framer-motion";
@@ -56,6 +56,9 @@ export default function PublicBlog() {
     }
     return true;
   });
+
+  const heroPost = filtered[0];
+  const gridPosts = filtered.slice(1);
 
   return (
     <div className="bg-background min-h-screen relative overflow-x-hidden">
@@ -112,11 +115,28 @@ export default function PublicBlog() {
       {/* ── Posts ── */}
       <div className="container py-12 md:py-16 relative z-10">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}>
-              <Loader2 size={24} className="text-muted-foreground" />
-            </motion.div>
-            <p className="text-xs text-muted-foreground tracking-[0.15em] uppercase">Loading</p>
+          /* Skeleton loading */
+          <div className="space-y-12">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="aspect-[16/10] shimmer" />
+              <div className="flex flex-col justify-center space-y-4 py-4">
+                <div className="h-3 w-20 shimmer" />
+                <div className="h-8 w-3/4 shimmer" />
+                <div className="h-4 w-full shimmer" />
+                <div className="h-4 w-2/3 shimmer" />
+                <div className="h-3 w-24 shimmer mt-4" />
+              </div>
+            </div>
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="space-y-4">
+                  <div className="aspect-[16/10] shimmer" />
+                  <div className="h-3 w-16 shimmer" />
+                  <div className="h-5 w-48 shimmer" />
+                  <div className="h-3 w-full shimmer" />
+                </div>
+              ))}
+            </div>
           </div>
         ) : filtered.length === 0 ? (
           <FadeUp>
@@ -127,44 +147,75 @@ export default function PublicBlog() {
             </div>
           </FadeUp>
         ) : (
-          <StaggerContainer className="grid gap-8 md:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" staggerDelay={0.08}>
-            {filtered.map((post) => (
-              <StaggerItem key={post.id}>
-                <Link to={`/blog/${post.slug}`} className="group block">
-                  {/* Image */}
-                  <div className="overflow-hidden aspect-[16/10] mb-5">
-                    {post.cover_image_url ? (
-                      <img src={post.cover_image_url} alt={post.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[900ms]" />
+          <div className="space-y-16 md:space-y-20">
+            {/* Featured hero post */}
+            {heroPost && (
+              <FadeUp>
+                <Link to={`/blog/${heroPost.slug}`} className="group grid md:grid-cols-2 gap-6 md:gap-10 items-center" data-cursor-hover data-cursor-label="Read">
+                  <div className="overflow-hidden aspect-[16/10]">
+                    {heroPost.cover_image_url ? (
+                      <img src={heroPost.cover_image_url} alt={heroPost.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-[1000ms]" />
                     ) : (
                       <div className="w-full h-full bg-muted/30" />
                     )}
                   </div>
-
-                  {/* Meta */}
-                  <div className="flex items-center gap-3 mb-3">
-                    {post.category && (
-                      <span className="text-[9px] tracking-[0.2em] uppercase font-medium text-primary">{post.category}</span>
-                    )}
-                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                      <Calendar size={10} />
-                      {format(new Date(post.published_at || post.created_at), "MMM d, yyyy")}
+                  <div className="py-2 md:py-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      {heroPost.category && (
+                        <span className="text-[9px] tracking-[0.2em] uppercase font-medium text-primary">{heroPost.category}</span>
+                      )}
+                      <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                        <Calendar size={10} />
+                        {format(new Date(heroPost.published_at || heroPost.created_at), "MMM d, yyyy")}
+                      </span>
+                    </div>
+                    <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-foreground group-hover:text-primary transition-colors duration-300 leading-[1.05] mb-4">
+                      {heroPost.title}
+                    </h2>
+                    <p className="text-muted-foreground leading-[1.8] line-clamp-3 mb-6">{heroPost.excerpt}</p>
+                    <span className="inline-flex items-center gap-2 text-xs text-primary tracking-[0.15em] uppercase group-hover:gap-3 transition-all duration-300">
+                      {t("common_read_more")} <ArrowRight size={12} />
                     </span>
                   </div>
-
-                  {/* Title & excerpt */}
-                  <h3 className="font-display text-xl md:text-2xl text-foreground group-hover:text-primary transition-colors duration-300 leading-tight line-clamp-2 mb-3">
-                    {post.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-[1.7] line-clamp-3">{post.excerpt}</p>
-
-                  {/* Read more */}
-                  <div className="mt-4 flex items-center gap-1.5 text-xs text-primary tracking-[0.1em] uppercase group-hover:gap-2.5 transition-all duration-300">
-                    {t("common_read_more")} <ArrowRight size={12} />
-                  </div>
                 </Link>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
+              </FadeUp>
+            )}
+
+            {/* Grid posts */}
+            {gridPosts.length > 0 && (
+              <StaggerContainer className="grid gap-8 md:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" staggerDelay={0.08}>
+                {gridPosts.map((post) => (
+                  <StaggerItem key={post.id}>
+                    <Link to={`/blog/${post.slug}`} className="group block" data-cursor-hover data-cursor-label="Read">
+                      <div className="overflow-hidden aspect-[16/10] mb-5">
+                        {post.cover_image_url ? (
+                          <img src={post.cover_image_url} alt={post.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[900ms]" />
+                        ) : (
+                          <div className="w-full h-full bg-muted/30" />
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 mb-3">
+                        {post.category && (
+                          <span className="text-[9px] tracking-[0.2em] uppercase font-medium text-primary">{post.category}</span>
+                        )}
+                        <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                          <Calendar size={10} />
+                          {format(new Date(post.published_at || post.created_at), "MMM d, yyyy")}
+                        </span>
+                      </div>
+                      <h3 className="font-display text-xl md:text-2xl text-foreground group-hover:text-primary transition-colors duration-300 leading-tight line-clamp-2 mb-3">
+                        {post.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground leading-[1.7] line-clamp-3">{post.excerpt}</p>
+                      <div className="mt-4 flex items-center gap-1.5 text-xs text-primary tracking-[0.1em] uppercase group-hover:gap-2.5 transition-all duration-300">
+                        {t("common_read_more")} <ArrowRight size={12} />
+                      </div>
+                    </Link>
+                  </StaggerItem>
+                ))}
+              </StaggerContainer>
+            )}
+          </div>
         )}
       </div>
 

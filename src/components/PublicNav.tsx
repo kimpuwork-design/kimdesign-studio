@@ -56,7 +56,7 @@ export function PublicNav() {
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       className="sticky top-0 z-50 glass-nav"
     >
-      <div className="container flex h-16 md:h-[72px] items-center justify-between">
+      <div className={`container flex items-center justify-between transition-all duration-500 ${scrolled ? "h-14 md:h-14" : "h-16 md:h-[72px]"}`}>
         <Link to="/" className="flex items-center gap-2.5 group shrink-0">
           {logoUrl && logoUrl !== "/logo-placeholder.png" ? (
             <div className="h-8 w-8 overflow-hidden flex items-center justify-center">

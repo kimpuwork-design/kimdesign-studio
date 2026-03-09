@@ -250,31 +250,38 @@ export default function Home() {
                   {hero.badge ?? "Architecture · Interiors · Urbanism"}
                 </motion.p>
 
-                <div className="overflow-hidden">
-                  {(hero.title_line1 ?? "Building spaces").split(" ").map((word: string, i: number) => (
-                    <motion.span
-                      key={i}
-                      initial={{ opacity: 0, y: 50 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.7, delay: 0.3 + i * 0.08, ease: luxuryEase }}
-                      className="inline-block mr-[0.3em]"
-                    >
-                      {word}
-                    </motion.span>
-                  ))}
+                <motion.h1
+                  initial={{ opacity: 1 }}
+                  animate={{ opacity: 1 }}
+                  className="font-display text-[clamp(3rem,8vw,7.5rem)] leading-[0.92] text-foreground"
+                >
+                  <span className="overflow-hidden inline-block">
+                    {(hero.title_line1 ?? "Building spaces").split(" ").map((word: string, i: number) => (
+                      <motion.span
+                        key={i}
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.7, delay: 0.3 + i * 0.08, ease: luxuryEase }}
+                        className="inline-block mr-[0.3em]"
+                      >
+                        {word}
+                      </motion.span>
+                    ))}
+                  </span>
                   <br />
-                  {(hero.title_line2 ?? "that endure.").split(" ").map((word: string, i: number) => (
-                    <motion.span
-                      key={`l2-${i}`}
-                      initial={{ opacity: 0, y: 50 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.7, delay: 0.5 + i * 0.08, ease: luxuryEase }}
-                      className="inline-block mr-[0.3em] text-primary"
-                    >
-                      {word}
-                    </motion.span>
-                  ))}
-                </div>
+                  <span className="overflow-hidden inline-block">
+                    {(hero.title_line2 ?? "that endure.").split(" ").map((word: string, i: number) => (
+                      <motion.span
+                        key={`l2-${i}`}
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.7, delay: 0.5 + i * 0.08, ease: luxuryEase }}
+                        className="inline-block mr-[0.3em] text-primary"
+                      >
+                        {word}
+                      </motion.span>
+                    ))}
+                  </span>
                 </motion.h1>
 
                 <motion.p

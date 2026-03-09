@@ -10,7 +10,8 @@ import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, StaggerContainer, StaggerItem, SlideIn, TextReveal, LineDraw, ImageReveal } from "@/components/motion/MotionWrappers";
 import { SectionLabel } from "@/components/SectionLabel";
 import { TextScramble } from "@/components/TextScramble";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
@@ -18,6 +19,10 @@ export default function About() {
   useSEO({ title: "About", description: "Learn about our architecture studio, values, and team" });
   const { content } = useSiteContent("about_page", "values", "team");
   const { t } = useTranslation();
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 80]);
 
   const page = content.about_page ?? {};
   const values: any[] = content.values ?? [];
@@ -28,41 +33,72 @@ export default function About() {
     <div className="bg-background relative overflow-x-hidden">
       <PublicNav />
 
-      {/* ── Hero ── */}
-      <section className="container py-20 md:py-32 lg:py-40 relative z-10">
-        <div className="max-w-4xl">
-          <SectionLabel text={page.hero_subtitle ?? t("about_the_studio")} />
-          <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
-            {(page.hero_title_line1 ?? "Architecture as a").split("").map((char: string, i: number) => (
-              <motion.span
-                key={i}
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 + i * 0.025, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
-                className="inline-block"
-                style={char === " " ? { width: "0.3em" } : {}}
-              >
-                {char === " " ? "\u00A0" : char}
-              </motion.span>
-            ))}
-            <br />
-            <span className="text-primary">
-              {(page.hero_title_line2 ?? "long conversation.").split("").map((char: string, i: number) => (
-                <motion.span
-                  key={`l2-${i}`}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.6 + i * 0.025, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
-                  className="inline-block"
-                  style={char === " " ? { width: "0.3em" } : {}}
-                >
-                  {char === " " ? "\u00A0" : char}
-                </motion.span>
-              ))}
-            </span>
-          </h1>
+      {/* ── Hero with parallax + floating geometry ── */}
+      <div ref={heroRef} className="relative overflow-hidden">
+        {/* Floating architectural wireframes */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }}>
+            <motion.div
+              animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-[12%] right-[6%] w-[200px] h-[200px] border border-primary/[0.05]"
+            />
+            <motion.div
+              animate={{ y: [0, 15, 0], rotate: [15, 20, 15] }}
+              transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-[30%] right-[10%] w-[120px] h-[120px] border border-primary/[0.04] rotate-[15deg]"
+            />
+            <motion.div
+              animate={{ y: [0, -12, 0] }}
+              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute bottom-[15%] left-[4%] w-[90px] h-[90px] border border-primary/[0.04] rounded-full"
+            />
+            <motion.div
+              animate={{ scaleY: [0.5, 1, 0.5] }}
+              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-[8%] left-[8%] w-px h-[180px] bg-gradient-to-b from-transparent via-primary/[0.06] to-transparent"
+              style={{ transformOrigin: "top" }}
+            />
+          </motion.div>
         </div>
-      </section>
+
+        <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
+
+        <motion.div style={{ opacity: heroOpacity, y: heroY }} className="relative z-10">
+          <section className="container py-20 md:py-32 lg:py-40">
+            <div className="max-w-4xl">
+              <SectionLabel text={page.hero_subtitle ?? t("about_the_studio")} />
+              <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
+                {(page.hero_title_line1 ?? "Architecture as a").split(" ").map((word: string, i: number) => (
+                  <motion.span
+                    key={i}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.3 + i * 0.08, ease: luxuryEase }}
+                    className="inline-block mr-[0.3em]"
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+                <br />
+                <span className="text-primary">
+                  {(page.hero_title_line2 ?? "long conversation.").split(" ").map((word: string, i: number) => (
+                    <motion.span
+                      key={`l2-${i}`}
+                      initial={{ opacity: 0, y: 50 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.7, delay: 0.6 + i * 0.08, ease: luxuryEase }}
+                      className="inline-block mr-[0.3em] hero-shimmer-text"
+                    >
+                      {word}
+                    </motion.span>
+                  ))}
+                </span>
+              </h1>
+            </div>
+          </section>
+        </motion.div>
+      </div>
 
       {/* ── Story ── */}
       {storyParagraphs.length > 0 && (

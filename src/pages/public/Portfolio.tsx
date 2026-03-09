@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
@@ -12,6 +12,50 @@ import { FadeUp } from "@/components/motion/MotionWrappers";
 
 const CATEGORIES = ["All", "Residential", "Cultural", "Commercial", "Interior", "Landscape", "Civic", "Mixed-Use"];
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
+
+/* ─── Animated Counter ─── */
+function useCountUp(target: number, duration = 1800) {
+  const [count, setCount] = useState(0);
+  const started = useRef(false);
+  const start = useCallback(() => {
+    if (started.current) return;
+    started.current = true;
+    const t0 = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - t0) / duration, 1);
+      setCount(Math.round((1 - Math.pow(1 - p, 4)) * target));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [target, duration]);
+  return { count, start };
+}
+
+function AnimatedPortfolioStat({ value, label, delay }: { value: number; label: string; delay: number }) {
+  const { count, start } = useCountUp(value);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { start(); obs.unobserve(el); } }, { threshold: 0.3 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [start]);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 15 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay, ease: luxuryEase }}
+      className="shrink-0"
+    >
+      <p className="font-display text-3xl md:text-4xl text-foreground">{count}</p>
+      <p className="text-[9px] tracking-[0.25em] uppercase text-muted-foreground mt-1">{label}</p>
+    </motion.div>
+  );
+}
 
 interface ProjectPortfolioItem {
   id: string;
@@ -237,19 +281,15 @@ export default function PublicPortfolio() {
                 {t("portfolio_description")}
               </motion.p>
 
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.5 }}
-                className="mt-10 flex items-center gap-10 overflow-x-auto pb-2 scrollbar-none">
+              <div className="mt-10 flex items-center gap-10 overflow-x-auto pb-2 scrollbar-none">
                 {[
                   { n: items.length, label: t("portfolio_projects_stat") },
                   { n: items.filter(i => i.is_featured).length, label: t("portfolio_featured_stat") },
                   { n: new Set(items.map(i => i.category).filter(Boolean)).size, label: t("portfolio_categories_stat") },
-                ].map((stat) => (
-                  <div key={stat.label} className="shrink-0">
-                    <p className="font-display text-3xl md:text-4xl text-foreground">{stat.n}</p>
-                    <p className="text-[9px] tracking-[0.25em] uppercase text-muted-foreground mt-1">{stat.label}</p>
-                  </div>
+                ].map((stat, i) => (
+                  <AnimatedPortfolioStat key={stat.label} value={stat.n} label={stat.label} delay={0.5 + i * 0.1} />
                 ))}
-              </motion.div>
+              </div>
             </div>
           </section>
         </motion.div>

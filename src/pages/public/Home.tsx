@@ -409,11 +409,11 @@ export default function Home() {
         </section>
       )}
 
-      {/* ══════════ FEATURED PROJECTS — Editorial with hover image ══════════ */}
+      {/* ══════════ FEATURED PROJECTS — Horizontal scroll cinematic ══════════ */}
       {featured.length > 0 && (
         <section className="border-t border-border/30">
-          <div className="container py-24 md:py-36">
-            <div className="flex items-end justify-between mb-16 md:mb-20">
+          <div className="container pt-24 md:pt-36 pb-8 md:pb-12">
+            <div className="flex items-end justify-between mb-12 md:mb-16">
               <FadeUp>
                 <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-4">{t("home_selected_work")}</p>
                 <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1]">{t("home_featured_work")}</h2>
@@ -425,68 +425,59 @@ export default function Home() {
                 </Link>
               </FadeUp>
             </div>
+          </div>
 
-            <div className="space-y-0">
+          {/* Horizontal scroll container */}
+          <div className="overflow-x-auto scrollbar-none pb-16 md:pb-24">
+            <div className="flex gap-5 md:gap-6 px-[max(1.25rem,calc((100vw-1280px)/2+2rem))]">
               {featured.map((item, i) => (
                 <motion.div
                   key={item.id}
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true, margin: "-100px" }}
+                  initial={{ opacity: 0, x: 60 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
                   transition={{ duration: 0.8, delay: i * 0.1, ease: luxuryEase }}
-                  onMouseEnter={() => setHoveredProject(i)}
-                  onMouseLeave={() => setHoveredProject(null)}
-                  className="group cursor-pointer"
+                  className="flex-shrink-0 w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[35vw] group cursor-pointer"
                   onClick={() => item.cover_image_url && setLightboxIdx(i)}
+                  data-cursor-hover
                 >
-                  <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 py-8 md:py-10 border-b border-border/30 hover:border-primary/20 transition-colors duration-500">
-                    <span className="font-display text-5xl md:text-7xl text-border/50 group-hover:text-primary/30 transition-colors duration-500 tabular-nums w-[80px] shrink-0">
+                  <div className="relative overflow-hidden aspect-[3/4] md:aspect-[4/5]">
+                    {item.cover_image_url && (
+                      <img src={item.cover_image_url} alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[1200ms] ease-out" />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+
+                    {/* Index number */}
+                    <span className="absolute top-6 left-6 font-display text-6xl md:text-7xl text-background/20 leading-none select-none">
                       {String(i + 1).padStart(2, '0')}
                     </span>
 
-                    <div className="relative w-full md:w-[280px] shrink-0 overflow-hidden">
-                      <motion.div
-                        animate={{ height: hoveredProject === i ? 200 : 0, opacity: hoveredProject === i ? 1 : 0 }}
-                        transition={{ duration: 0.5, ease: luxuryEase }}
-                        className="overflow-hidden md:block hidden"
-                      >
-                        {item.cover_image_url && (
-                          <img src={item.cover_image_url} alt={item.title} className="w-full h-[200px] object-cover" />
-                        )}
-                      </motion.div>
-                      <div className="md:hidden aspect-[16/9] overflow-hidden">
-                        {item.cover_image_url && (
-                          <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" />
-                        )}
+                    {/* Bottom info */}
+                    <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                      <div className="flex items-center gap-3 mb-3 text-[10px] text-background/50 tracking-[0.15em] uppercase">
+                        {item.category && <span>{item.category}</span>}
+                        {item.year && <span>— {item.year}</span>}
                       </div>
-                    </div>
-
-                    <div className="flex-1 min-w-0">
                       <Link to={`/portfolio/${item.slug}`} onClick={(e) => e.stopPropagation()}
-                        className="font-display text-2xl md:text-3xl lg:text-4xl text-foreground group-hover:text-primary transition-colors duration-500 block">
+                        className="font-display text-2xl md:text-3xl lg:text-4xl text-background leading-tight block group-hover:translate-y-0 translate-y-1 transition-transform duration-500">
                         {item.title}
                       </Link>
-                      <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-                        {item.category && <span className="tracking-[0.1em] uppercase">{item.category}</span>}
-                        {item.location && <span className="flex items-center gap-1"><MapPin size={10} />{item.location}</span>}
-                        {item.year && <span>{item.year}</span>}
-                      </div>
+                      {item.location && (
+                        <p className="flex items-center gap-1.5 mt-3 text-xs text-background/40">
+                          <MapPin size={10} />{item.location}
+                        </p>
+                      )}
                     </div>
-
-                    <motion.div
-                      animate={{ x: hoveredProject === i ? 0 : -10, opacity: hoveredProject === i ? 1 : 0 }}
-                      transition={{ duration: 0.3, ease: luxuryEase }}
-                      className="hidden md:block shrink-0"
-                    >
-                      <ArrowRight size={20} className="text-primary" />
-                    </motion.div>
                   </div>
                 </motion.div>
               ))}
             </div>
+          </div>
 
+          <div className="container pb-12 md:hidden">
             <FadeUp delay={0.2}>
-              <div className="mt-12 text-center md:hidden">
+              <div className="text-center">
                 <Button variant="outline" asChild className="rounded-none tracking-[0.1em] uppercase text-xs">
                   <Link to="/portfolio">{t("home_all_projects")}</Link>
                 </Button>
@@ -561,27 +552,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* ══════════ CTA ══════════ */}
-      <section className="border-t border-border/30 relative overflow-hidden">
-        {/* Ambient background */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/[0.03] rounded-full blur-[120px]" />
-        </div>
-        <div className="container py-32 md:py-48 relative z-10">
-          <FadeUp>
-            <div className="max-w-3xl mx-auto text-center">
-              <h2 className="font-display text-4xl md:text-6xl lg:text-8xl text-foreground leading-[1.05]">
-                {cta.title_line1 ?? "Let's build something"}<br />
-                <span className="text-primary">{cta.title_line2 ?? "remarkable."}</span>
-              </h2>
-              <p className="mt-8 text-muted-foreground text-lg font-light">{cta.subtitle ?? "Every great building begins with a conversation."}</p>
-              <Button className="mt-12 rounded-none px-12 h-14 tracking-[0.15em] text-sm uppercase" size="lg" asChild>
-                <Link to="/contact">{t("home_begin_project")} <ArrowRight size={14} className="ml-3" /></Link>
-              </Button>
-            </div>
-          </FadeUp>
-        </div>
-      </section>
+      {/* CTA is now part of the footer */}
 
       <PublicFooter />
       <FloatingChatButton />

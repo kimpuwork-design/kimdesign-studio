@@ -1,12 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Sun, Moon, ArrowRight } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 import { useSettings } from "@/hooks/useSettings";
 import { KMonogramLogo } from "@/components/KMonogramLogo";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
 
 const NAV_KEYS = [
   { key: "nav_projects", href: "/portfolio" },
@@ -18,12 +18,28 @@ const NAV_KEYS = [
 
 export function PublicNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
   const { theme, setTheme } = useTheme();
   const { settings } = useSettings();
   const { t } = useTranslation();
   const location = useLocation();
   const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
   const logoUrl = settings?.logo_url || "/logo-placeholder.png";
+
+  const { scrollY } = useScroll();
+  const lastScrollY = useRef(0);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const diff = latest - lastScrollY.current;
+    if (latest < 100) {
+      setNavHidden(false);
+    } else if (diff > 5) {
+      setNavHidden(true);
+    } else if (diff < -5) {
+      setNavHidden(false);
+    }
+    lastScrollY.current = latest;
+  });
 
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
@@ -33,7 +49,11 @@ export function PublicNav() {
   }, [mobileOpen]);
 
   return (
-    <header className="sticky top-0 z-50 glass-nav">
+    <motion.header
+      animate={{ y: navHidden && !mobileOpen ? "-100%" : "0%" }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="sticky top-0 z-50 glass-nav"
+    >
       <div className="container flex h-16 md:h-[72px] items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5 group shrink-0">
           {logoUrl && logoUrl !== "/logo-placeholder.png" ? (
@@ -56,7 +76,6 @@ export function PublicNav() {
                   isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}>
                 {t(l.key)}
-                {/* Active indicator line */}
                 {isActive && (
                   <motion.div
                     layoutId="nav-indicator"
@@ -138,6 +157,6 @@ export function PublicNav() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   );
 }

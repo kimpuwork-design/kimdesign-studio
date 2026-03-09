@@ -3,6 +3,8 @@ import { Mail, Instagram, Phone, MapPin, ArrowRight, ArrowUpRight } from "lucide
 import { useSettings } from "@/hooks/useSettings";
 import { KMonogramLogo } from "@/components/KMonogramLogo";
 import { useTranslation } from "@/i18n/LanguageContext";
+import { motion } from "framer-motion";
+import { FadeUp, TextReveal } from "@/components/motion/MotionWrappers";
 
 const NAV_KEYS = [
   { key: "nav_projects", href: "/portfolio" },
@@ -27,101 +29,117 @@ export function PublicFooter() {
 
   return (
     <footer className="border-t border-border/50 bg-background">
-      {/* CTA band */}
-      <div className="border-b border-border/30">
-        <div className="container py-12 md:py-16 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="max-w-md">
-            <h3 className="font-display text-2xl md:text-3xl text-foreground">
-              {t("footer_cta_title") !== "footer_cta_title" ? t("footer_cta_title") : "Ready to start your project?"}
-            </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t("footer_cta_desc") !== "footer_cta_desc" ? t("footer_cta_desc") : "Let's discuss how we can bring your vision to life."}
-            </p>
-          </div>
-          <Link to="/contact"
-            className="inline-flex items-center gap-2 bg-primary px-6 py-3 text-sm tracking-wider text-primary-foreground hover:bg-primary/90 transition-colors shrink-0 w-fit rounded-sm">
-            {t("footer_get_in_touch") !== "footer_get_in_touch" ? t("footer_get_in_touch") : "Get in Touch"}
-            <ArrowRight size={14} />
-          </Link>
+      {/* ── Giant typographic CTA ── */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/[0.03] rounded-full blur-[150px]" />
         </div>
-      </div>
-
-      {/* Main footer */}
-      <div className="container py-12 md:py-16">
-        <div className="grid gap-10 grid-cols-2 md:grid-cols-4">
-          {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2.5 mb-4">
-              {logoUrl && logoUrl !== "/logo-placeholder.png" ? (
-                <div className="h-7 w-7 overflow-hidden flex-shrink-0">
-                  <img src={logoUrl} alt={studioName} className="h-full w-full object-contain" />
-                </div>
-              ) : (
-                <KMonogramLogo size={28} className="rounded-sm flex-shrink-0" />
-              )}
-              <span className="font-display text-base text-foreground">{studioName}</span>
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed max-w-[240px]">{tagline}</p>
-            <div className="flex items-center gap-3 mt-6">
-              {email && (
-                <a href={`mailto:${email}`} className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Email">
-                  <Mail size={16} />
-                </a>
-              )}
-              {instagram && (
-                <a href={instagram} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Instagram">
-                  <Instagram size={16} />
-                </a>
-              )}
-              {facebook && (
-                <a href={facebook} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Facebook">
-                  <ArrowUpRight size={16} />
-                </a>
-              )}
-              {behance && (
-                <a href={behance} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Behance">
-                  <ArrowUpRight size={16} />
-                </a>
-              )}
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <div>
-            <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground/60 mb-5">{t("footer_navigate")}</p>
-            <nav className="flex flex-col gap-3">
-              {NAV_KEYS.map((l) => (
-                <Link key={l.href} to={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors w-fit">
-                  {t(l.key)}
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground/60 mb-5">
-              {t("footer_contact") !== "footer_contact" ? t("footer_contact") : "Contact"}
+        <div className="container py-28 md:py-44 relative z-10">
+          <TextReveal>
+            <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-6 md:mb-8 text-center">
+              {t("footer_cta_title") !== "footer_cta_title" ? t("footer_cta_title") : "Start a conversation"}
             </p>
-            <div className="space-y-3">
-              {email && (
-                <a href={`mailto:${email}`} className="flex items-start gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  <Mail size={13} className="mt-0.5 shrink-0" />
-                  <span className="break-all">{email}</span>
-                </a>
-              )}
-              {phone && (
-                <a href={`tel:${phone}`} className="flex items-start gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  <Phone size={13} className="mt-0.5 shrink-0" />
-                  <span>{phone}</span>
-                </a>
-              )}
-              {address && (
-                <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <MapPin size={13} className="mt-0.5 shrink-0" />
-                  <span>{address}</span>
-                </div>
-              )}
+          </TextReveal>
+          <TextReveal delay={0.15}>
+            <h2 className="font-display text-[clamp(3rem,10vw,9rem)] leading-[0.9] text-foreground text-center">
+              Let's build
+            </h2>
+          </TextReveal>
+          <TextReveal delay={0.3}>
+            <h2 className="font-display text-[clamp(3rem,10vw,9rem)] leading-[0.9] text-primary text-center">
+              together.
+            </h2>
+          </TextReveal>
+          <FadeUp delay={0.5}>
+            <div className="flex justify-center mt-12 md:mt-16">
+              <Link to="/contact"
+                className="group inline-flex items-center gap-3 border border-foreground/20 px-10 md:px-14 py-4 md:py-5 text-sm tracking-[0.2em] uppercase text-foreground hover:bg-foreground hover:text-background transition-all duration-500">
+                {t("footer_get_in_touch") !== "footer_get_in_touch" ? t("footer_get_in_touch") : "Get in Touch"}
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
+              </Link>
+            </div>
+          </FadeUp>
+        </div>
+      </section>
+
+      {/* ── Main footer ── */}
+      <div className="border-t border-border/30">
+        <div className="container py-14 md:py-20">
+          <div className="grid gap-10 grid-cols-2 md:grid-cols-4">
+            {/* Brand */}
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-2.5 mb-4">
+                {logoUrl && logoUrl !== "/logo-placeholder.png" ? (
+                  <div className="h-7 w-7 overflow-hidden flex-shrink-0">
+                    <img src={logoUrl} alt={studioName} className="h-full w-full object-contain" />
+                  </div>
+                ) : (
+                  <KMonogramLogo size={28} className="rounded-sm flex-shrink-0" />
+                )}
+                <span className="font-display text-base text-foreground">{studioName}</span>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-[240px]">{tagline}</p>
+              <div className="flex items-center gap-3 mt-6">
+                {email && (
+                  <a href={`mailto:${email}`} className="h-9 w-9 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all" aria-label="Email">
+                    <Mail size={14} />
+                  </a>
+                )}
+                {instagram && (
+                  <a href={instagram} target="_blank" rel="noreferrer" className="h-9 w-9 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all" aria-label="Instagram">
+                    <Instagram size={14} />
+                  </a>
+                )}
+                {facebook && (
+                  <a href={facebook} target="_blank" rel="noreferrer" className="h-9 w-9 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all" aria-label="Facebook">
+                    <ArrowUpRight size={14} />
+                  </a>
+                )}
+                {behance && (
+                  <a href={behance} target="_blank" rel="noreferrer" className="h-9 w-9 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all" aria-label="Behance">
+                    <ArrowUpRight size={14} />
+                  </a>
+                )}
+              </div>
+            </div>
+
+            {/* Navigation */}
+            <div>
+              <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground/60 mb-5">{t("footer_navigate")}</p>
+              <nav className="flex flex-col gap-3">
+                {NAV_KEYS.map((l) => (
+                  <Link key={l.href} to={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors w-fit">
+                    {t(l.key)}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground/60 mb-5">
+                {t("footer_contact") !== "footer_contact" ? t("footer_contact") : "Contact"}
+              </p>
+              <div className="space-y-3">
+                {email && (
+                  <a href={`mailto:${email}`} className="flex items-start gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    <Mail size={13} className="mt-0.5 shrink-0" />
+                    <span className="break-all">{email}</span>
+                  </a>
+                )}
+                {phone && (
+                  <a href={`tel:${phone}`} className="flex items-start gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    <Phone size={13} className="mt-0.5 shrink-0" />
+                    <span>{phone}</span>
+                  </a>
+                )}
+                {address && (
+                  <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <MapPin size={13} className="mt-0.5 shrink-0" />
+                    <span>{address}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

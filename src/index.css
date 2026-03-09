@@ -139,6 +139,23 @@
     transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease;
   }
 
+  /* Smooth anchor scrolling with offset */
+  html {
+    scroll-padding-top: 5rem;
+  }
+
+  /* Elegant text underline for links */
+  .link-underline {
+    background-image: linear-gradient(hsl(var(--primary)), hsl(var(--primary)));
+    background-size: 0% 1px;
+    background-position: left bottom;
+    background-repeat: no-repeat;
+    transition: background-size 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .link-underline:hover {
+    background-size: 100% 1px;
+  }
+
   /* Professional prose / article typography */
   .prose-professional p {
     font-size: 1.0625rem;

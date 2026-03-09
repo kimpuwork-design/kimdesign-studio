@@ -41,6 +41,93 @@ const HOME_SECTIONS = [
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, GraduationCap, Award, Globe };
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
+/* ─── Featured Projects Scroll with Progress ─── */
+function FeaturedScrollSection({ featured, setLightboxIdx }: { featured: PortfolioItem[]; setLightboxIdx: (i: number) => void }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    setScrollProgress(maxScroll > 0 ? el.scrollLeft / maxScroll : 0);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  return (
+    <>
+      <div ref={scrollRef} className="overflow-x-auto scrollbar-none pb-16 md:pb-24" onScroll={handleScroll}>
+        <div className="flex gap-5 md:gap-6 px-[max(1.25rem,calc((100vw-1280px)/2+2rem))]">
+          {featured.map((item, i) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, x: 60 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.8, delay: i * 0.1, ease: luxuryEase }}
+              className="flex-shrink-0 w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[35vw] group cursor-pointer"
+              onClick={() => item.cover_image_url && setLightboxIdx(i)}
+              data-cursor-hover
+              data-cursor-label="Explore"
+            >
+              <TiltCard tiltStrength={6} className="relative">
+                <div className="relative overflow-hidden aspect-[3/4] md:aspect-[4/5]">
+                  {item.cover_image_url && (
+                    <img src={item.cover_image_url} alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[1200ms] ease-out" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+                  <span className="absolute top-6 left-6 font-display text-6xl md:text-7xl text-background/20 leading-none select-none">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                    <div className="flex items-center gap-3 mb-3 text-[10px] text-background/50 tracking-[0.15em] uppercase">
+                      {item.category && <span>{item.category}</span>}
+                      {item.year && <span>— {item.year}</span>}
+                    </div>
+                    <Link to={`/portfolio/${item.slug}`} onClick={(e) => e.stopPropagation()}
+                      className="font-display text-2xl md:text-3xl lg:text-4xl text-background leading-tight block group-hover:translate-y-0 translate-y-1 transition-transform duration-500">
+                      {item.title}
+                    </Link>
+                    {item.location && (
+                      <p className="flex items-center gap-1.5 mt-3 text-xs text-background/40">
+                        <MapPin size={10} />{item.location}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </TiltCard>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+      {/* Scroll progress bar */}
+      <div className="container pb-6">
+        <div className="flex items-center gap-4">
+          <span className="text-[9px] tracking-[0.25em] uppercase text-muted-foreground/40 shrink-0">
+            {String(Math.round(scrollProgress * (featured.length - 1)) + 1).padStart(2, '0')}
+            <span className="mx-1 text-border">/</span>
+            {String(featured.length).padStart(2, '0')}
+          </span>
+          <div className="flex-1 h-px bg-border/30 relative overflow-hidden">
+            <motion.div
+              className="absolute top-0 left-0 h-full bg-primary"
+              style={{ width: `${Math.max(5, scrollProgress * 100)}%` }}
+              transition={{ duration: 0.1 }}
+            />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 /* ─── Animated Counter ─── */
 function useCountUp(target: number, duration = 2200) {
   const [count, setCount] = useState(0);

@@ -267,6 +267,40 @@ function TestimonialsCarousel({ testimonials, t }: { testimonials: any[]; t: (k:
     </section>
   );
 }
+/* ─── Kinetic Floating Element ─── */
+function KineticShape({ 
+  className, 
+  mousePos, 
+  baseX, 
+  baseY, 
+  repelStrength = 30,
+  children 
+}: { 
+  className?: string; 
+  mousePos: { x: number; y: number }; 
+  baseX: number; 
+  baseY: number; 
+  repelStrength?: number;
+  children: React.ReactNode;
+}) {
+  const dx = mousePos.x - baseX;
+  const dy = mousePos.y - baseY;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const maxDist = 0.4;
+  const factor = Math.max(0, 1 - dist / maxDist);
+  const offsetX = -dx * factor * repelStrength;
+  const offsetY = -dy * factor * repelStrength;
+  
+  return (
+    <motion.div
+      className={className}
+      animate={{ x: offsetX, y: offsetY }}
+      transition={{ type: "spring", stiffness: 150, damping: 15 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 /* ─── Main Component ─── */
 export default function Home() {
@@ -347,31 +381,49 @@ export default function Home() {
             </motion.div>
           )}
 
-          {/* Floating architectural wireframes */}
+          {/* Kinetic floating architectural wireframes */}
           <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden hidden md:block">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.5, duration: 1 }}
             >
-              {/* Grid square */}
-              <motion.div
-                animate={{ y: [0, -15, 0], rotate: [0, 3, 0] }}
-                transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-[15%] right-[8%] w-[180px] h-[180px] border border-primary/[0.06]"
-              />
-              {/* Rotated rectangle */}
-              <motion.div
-                animate={{ y: [0, 12, 0], rotate: [12, 15, 12] }}
-                transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-[25%] right-[12%] w-[140px] h-[140px] border border-primary/[0.04] rotate-12"
-              />
-              {/* Circle */}
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute bottom-[20%] right-[15%] w-[100px] h-[100px] border border-primary/[0.05] rounded-full"
-              />
+              {/* Repelling grid square */}
+              <KineticShape mousePos={mousePos} baseX={0.92} baseY={0.15} repelStrength={40} className="absolute top-[15%] right-[8%]">
+                <motion.div
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+                  className="w-[180px] h-[180px] border border-primary/[0.08]"
+                />
+              </KineticShape>
+              
+              {/* Repelling rotated rectangle */}
+              <KineticShape mousePos={mousePos} baseX={0.88} baseY={0.25} repelStrength={35} className="absolute top-[25%] right-[12%]">
+                <motion.div
+                  animate={{ rotate: [12, 24, 12] }}
+                  transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-[140px] h-[140px] border border-primary/[0.06]"
+                />
+              </KineticShape>
+              
+              {/* Repelling circle */}
+              <KineticShape mousePos={mousePos} baseX={0.85} baseY={0.8} repelStrength={50} className="absolute bottom-[20%] right-[15%]">
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-[100px] h-[100px] border border-primary/[0.07] rounded-full"
+                />
+              </KineticShape>
+              
+              {/* Left side floating element */}
+              <KineticShape mousePos={mousePos} baseX={0.05} baseY={0.5} repelStrength={30} className="absolute top-[40%] left-[3%]">
+                <motion.div
+                  animate={{ y: [0, -20, 0] }}
+                  transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-[60px] h-[60px] border border-primary/[0.05] rotate-45"
+                />
+              </KineticShape>
+
               {/* Vertical line */}
               <motion.div
                 animate={{ scaleY: [0.6, 1, 0.6] }}
@@ -379,6 +431,14 @@ export default function Home() {
                 className="absolute top-[10%] left-[5%] w-px h-[200px] bg-gradient-to-b from-transparent via-primary/[0.06] to-transparent"
                 style={{ transformOrigin: "top" }}
               />
+              
+              {/* Cross decoration */}
+              <KineticShape mousePos={mousePos} baseX={0.12} baseY={0.75} repelStrength={25} className="absolute bottom-[25%] left-[10%]">
+                <div className="relative w-12 h-12">
+                  <div className="absolute top-1/2 left-0 w-full h-px bg-primary/[0.06] -translate-y-1/2" />
+                  <div className="absolute left-1/2 top-0 h-full w-px bg-primary/[0.06] -translate-x-1/2" />
+                </div>
+              </KineticShape>
             </motion.div>
           </div>
 

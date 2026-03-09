@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
@@ -9,7 +9,7 @@ import { FileIcon } from "@/components/files/FileIcon";
 import { FilePreviewModal } from "@/components/files/FilePreviewModal";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";
 import { FadeUp, StaggerContainer, StaggerItem, SlideIn } from "@/components/motion/MotionWrappers";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring, useMotionValueEvent } from "framer-motion";
 
 import {
   MapPin, Calendar, Tag, ArrowLeft, ArrowRight,
@@ -18,6 +18,50 @@ import {
 } from "lucide-react";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
+
+/* ─── Floating Reading Progress Indicator ─── */
+function ReadingProgress({ progress }: { progress: number }) {
+  const circumference = 2 * Math.PI * 18;
+  const strokeDashoffset = circumference * (1 - progress);
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 1, duration: 0.5 }}
+      className="fixed bottom-8 right-8 z-50 hidden lg:flex items-center justify-center"
+    >
+      <div className="relative w-14 h-14">
+        {/* Background circle */}
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 40 40">
+          <circle
+            cx="20" cy="20" r="18"
+            fill="none"
+            stroke="hsl(var(--border))"
+            strokeWidth="1.5"
+            opacity="0.3"
+          />
+          <motion.circle
+            cx="20" cy="20" r="18"
+            fill="none"
+            stroke="hsl(var(--primary))"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            className="transition-all duration-150"
+          />
+        </svg>
+        {/* Percentage text */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-[10px] font-medium text-foreground/70 tracking-wider">
+            {Math.round(progress * 100)}%
+          </span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 interface ProjectItem {
   id: string;
@@ -48,13 +92,22 @@ export default function PortfolioDetail() {
   const [notFound, setNotFound] = useState(false);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [preview, setPreview] = useState<FileAsset | null>(null);
+  const [readingProgress, setReadingProgress] = useState(0);
 
   const heroRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 80]);
-
+  
+  // Reading progress tracking
+  const { scrollYProgress: pageProgress } = useScroll();
+  const smoothProgress = useSpring(pageProgress, { stiffness: 100, damping: 30 });
+  
+  useMotionValueEvent(smoothProgress, "change", (latest) => {
+    setReadingProgress(latest);
+  });
   useEffect(() => {
     if (!slug) return;
     const fetchData = async () => {

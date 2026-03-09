@@ -3,11 +3,11 @@ import { Mail, Instagram, Phone, MapPin, ArrowRight, ArrowUpRight } from "lucide
 import { useSettings } from "@/hooks/useSettings";
 import { KMonogramLogo } from "@/components/KMonogramLogo";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, useScroll, MotionValue } from "framer-motion";
 import { FadeUp, TextReveal } from "@/components/motion/MotionWrappers";
 import { MagneticButton } from "@/components/MagneticButton";
 import { SectionLabel } from "@/components/SectionLabel";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useEffect, useState } from "react";
 
 const NAV_KEYS = [
   { key: "nav_projects", href: "/portfolio" },
@@ -19,12 +19,73 @@ const NAV_KEYS = [
 
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
+/* ─── Orbiting Element ─── */
+function OrbitingElement({ 
+  radius, 
+  duration, 
+  delay = 0,
+  mouseX,
+  mouseY,
+  children 
+}: { 
+  radius: number; 
+  duration: number; 
+  delay?: number;
+  mouseX: MotionValue<number>;
+  mouseY: MotionValue<number>;
+  children: React.ReactNode;
+}) {
+  const [angle, setAngle] = useState(delay * Math.PI * 2);
+  
+  useEffect(() => {
+    let animationId: number;
+    const startTime = Date.now();
+    
+    const animate = () => {
+      const elapsed = (Date.now() - startTime) / 1000;
+      setAngle((delay * Math.PI * 2) + (elapsed * Math.PI * 2) / duration);
+      animationId = requestAnimationFrame(animate);
+    };
+    
+    animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, [duration, delay]);
+  
+  const x = Math.cos(angle) * radius;
+  const y = Math.sin(angle) * radius;
+  
+  // Add subtle magnetic attraction toward mouse
+  const mx = useSpring(useTransform(mouseX, [0, 1], [-10, 10]), { stiffness: 50, damping: 20 });
+  const my = useSpring(useTransform(mouseY, [0, 1], [-10, 10]), { stiffness: 50, damping: 20 });
+  
+  return (
+    <motion.div
+      className="absolute"
+      style={{ 
+        x: x + (mx.get() || 0), 
+        y: y + (my.get() || 0),
+        left: "50%",
+        top: "50%",
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 function FooterCTA({ t }: { t: (k: string) => string }) {
   const ref = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0.5);
   const mouseY = useMotionValue(0.5);
   const spotX = useSpring(useTransform(mouseX, [0, 1], [0, 100]), { stiffness: 80, damping: 20 });
   const spotY = useSpring(useTransform(mouseY, [0, 1], [0, 100]), { stiffness: 80, damping: 20 });
+  
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "center center"]
+  });
+  const clipPath = useTransform(scrollYProgress, [0, 1], ["inset(50% 50% 50% 50%)", "inset(0% 0% 0% 0%)"]);
+  const textScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 0.95, 1]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const rect = ref.current?.getBoundingClientRect();
@@ -37,22 +98,49 @@ function FooterCTA({ t }: { t: (k: string) => string }) {
     <section
       ref={ref}
       onMouseMove={handleMouseMove}
-      className="relative overflow-hidden cursor-none"
+      className="relative overflow-hidden cursor-none min-h-[70vh] flex items-center justify-center"
     >
+      {/* Expanding clip-path reveal background */}
+      <motion.div
+        className="absolute inset-0 bg-foreground/[0.02]"
+        style={{ clipPath }}
+      />
+      
       {/* Mouse-following radial glow */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
         style={{
           background: useTransform(
             [spotX, spotY],
-            ([x, y]) => `radial-gradient(600px circle at ${x}% ${y}%, hsl(var(--primary) / 0.06), transparent 60%)`
+            ([x, y]) => `radial-gradient(800px circle at ${x}% ${y}%, hsl(var(--primary) / 0.08), transparent 50%)`
           ),
         }}
       />
+      
+      {/* Ambient glow orbs */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/[0.03] rounded-full blur-[150px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/[0.02] rounded-full blur-[200px]" />
       </div>
-      <div className="container py-28 md:py-44 relative z-10">
+      
+      {/* Orbiting decorative elements */}
+      <div className="absolute inset-0 pointer-events-none hidden md:block">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <OrbitingElement radius={280} duration={40} delay={0} mouseX={mouseX} mouseY={mouseY}>
+            <div className="w-2 h-2 bg-primary/20 rounded-full" />
+          </OrbitingElement>
+          <OrbitingElement radius={320} duration={50} delay={0.33} mouseX={mouseX} mouseY={mouseY}>
+            <div className="w-3 h-3 border border-primary/15 rotate-45" />
+          </OrbitingElement>
+          <OrbitingElement radius={250} duration={35} delay={0.66} mouseX={mouseX} mouseY={mouseY}>
+            <div className="w-1.5 h-1.5 bg-primary/15 rounded-full" />
+          </OrbitingElement>
+          <OrbitingElement radius={350} duration={60} delay={0.5} mouseX={mouseX} mouseY={mouseY}>
+            <div className="w-4 h-4 border border-primary/10 rounded-full" />
+          </OrbitingElement>
+        </div>
+      </div>
+      
+      <motion.div style={{ scale: textScale }} className="container py-28 md:py-44 relative z-10">
         <TextReveal>
           <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-6 md:mb-8 text-center">
             {t("footer_cta_title") !== "footer_cta_title" ? t("footer_cta_title") : "Start a conversation"}
@@ -79,7 +167,7 @@ function FooterCTA({ t }: { t: (k: string) => string }) {
             </MagneticButton>
           </div>
         </FadeUp>
-      </div>
+      </motion.div>
     </section>
   );
 }

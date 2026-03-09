@@ -226,6 +226,8 @@ export default function Home() {
               background: `radial-gradient(600px circle at ${mousePos.x * 100}% ${mousePos.y * 100}%, hsl(var(--primary) / 0.08), transparent 60%)`,
             }}
           />
+          {/* Background image with parallax zoom */}
+          {heroImage && (
             <motion.div style={{ scale: heroScale }} className="absolute inset-0 z-0">
               <img src={heroImage} alt="" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-background/85 dark:bg-background/90" />

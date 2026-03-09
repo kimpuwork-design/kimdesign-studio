@@ -111,10 +111,18 @@ export function PublicFooter() {
             <div>
               <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground/60 mb-5">{t("footer_navigate")}</p>
               <nav className="flex flex-col gap-3">
-                {NAV_KEYS.map((l) => (
-                  <Link key={l.href} to={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors w-fit">
-                    {t(l.key)}
-                  </Link>
+                {NAV_KEYS.map((l, i) => (
+                  <motion.div
+                    key={l.href}
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+                  >
+                    <Link to={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors w-fit link-underline inline-block">
+                      {t(l.key)}
+                    </Link>
+                  </motion.div>
                 ))}
               </nav>
             </div>

@@ -51,9 +51,19 @@ export default function Contact() {
     setErrors((e) => ({ ...e, [field]: "" }));
   };
 
+  const lastSubmitRef = useRef<number>(0);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError(null);
+
+    // Rate limit: 1 submission per 30 seconds
+    const now = Date.now();
+    if (now - lastSubmitRef.current < 30_000) {
+      setServerError("Please wait before submitting again.");
+      return;
+    }
+
     const result = contactSchema.safeParse(form);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
@@ -64,6 +74,7 @@ export default function Contact() {
       setErrors(fieldErrors);
       return;
     }
+    lastSubmitRef.current = now;
     setSubmitting(true);
     const messageWithType = form.projectType
       ? `[Project Type: ${form.projectType}]\n\n${result.data.message}`

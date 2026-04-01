@@ -170,11 +170,11 @@ export default function AdminDashboard() {
   }, [fetchDashboardData]);
 
   const statCards = [
-    { icon: Users, label: "Clients", value: stats.totalClients, format: "number" as const, color: "from-blue-500 to-blue-600", href: "/admin/clients" },
-    { icon: Briefcase, label: "Active Projects", value: stats.activeProjects, format: "number" as const, color: "from-violet-500 to-violet-600", href: "/admin/projects" },
-    { icon: TrendingUp, label: "New Leads", value: stats.newLeads, format: "number" as const, color: "from-emerald-500 to-emerald-600", href: "/admin/leads" },
-    { icon: DollarSign, label: "Revenue (mo)", value: stats.revenue, format: "currency" as const, color: "from-amber-500 to-amber-600", href: "/admin/invoices" },
-    { icon: AlertCircle, label: "Outstanding", value: stats.outstanding, format: "currency" as const, color: "from-rose-500 to-rose-600", href: "/admin/invoices" },
+    { icon: Users, label: "Clients", value: stats.totalClients, format: "number" as const, color: "from-blue-500 to-blue-600", href: "/admin/clients", sparkData: [2, 4, 3, 6, 5, 8, stats.totalClients] },
+    { icon: Briefcase, label: "Active Projects", value: stats.activeProjects, format: "number" as const, color: "from-violet-500 to-violet-600", href: "/admin/projects", sparkData: [1, 3, 2, 4, 3, 5, stats.activeProjects] },
+    { icon: TrendingUp, label: "New Leads", value: stats.newLeads, format: "number" as const, color: "from-emerald-500 to-emerald-600", href: "/admin/leads", sparkData: [0, 2, 1, 3, 2, 4, stats.newLeads] },
+    { icon: DollarSign, label: "Revenue (mo)", value: stats.revenue, format: "currency" as const, color: "from-amber-500 to-amber-600", href: "/admin/invoices", sparkData: recentInvoices.map(r => r.total) },
+    { icon: AlertCircle, label: "Outstanding", value: stats.outstanding, format: "currency" as const, color: "from-rose-500 to-rose-600", href: "/admin/invoices", sparkData: [stats.outstanding, stats.outstanding * 0.8, stats.outstanding] },
   ];
 
   const quickActions = [

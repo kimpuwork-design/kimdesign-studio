@@ -116,7 +116,10 @@ function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioI
         <div className={`${aspectMap[size]} overflow-hidden relative`}>
           {coverUrl ? (
             <img ref={imgRef} src={coverUrl} alt={item.title} loading="lazy"
-              className="w-full h-full object-cover transition-transform duration-700 ease-out" />
+              draggable={false}
+              onContextMenu={(e) => e.preventDefault()}
+              className="w-full h-full object-cover transition-transform duration-700 ease-out"
+              style={{ userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties} />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-muted/30">
               <Grid3X3 size={40} className="text-muted-foreground/15" />

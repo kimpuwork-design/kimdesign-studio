@@ -96,7 +96,10 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
           src={img.url} 
           alt={img.name || `Gallery ${idx + 1}`} 
           loading="lazy"
+          draggable={false}
+          onContextMenu={(e: React.MouseEvent) => e.preventDefault()}
           className="w-full object-cover"
+          style={{ userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties}
           animate={{
             scale: 1.08,
             x: (mousePos.x - 0.5) * -14,

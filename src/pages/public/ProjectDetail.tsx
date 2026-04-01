@@ -110,7 +110,7 @@ export default function PublicProjectDetail() {
   const heroImage = galleryImages[0]?.url;
 
   return (
-    <div className="bg-background min-h-screen relative">
+    <div className="bg-background min-h-screen relative content-protected">
       <PublicNav />
 
       <div className="pointer-events-none fixed inset-0 z-0">

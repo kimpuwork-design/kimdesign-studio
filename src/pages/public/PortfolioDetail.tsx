@@ -260,7 +260,7 @@ export default function PortfolioDetail() {
   ].filter(Boolean) as { icon: typeof Camera; n: number; label: string }[];
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-background min-h-screen content-protected">
       <MetaTags title={pageTitle} description={displaySummary} image={coverUrl || ""} jsonLd={jsonLd} />
       <PublicNav />
       <ReadingProgress progress={readingProgress} />

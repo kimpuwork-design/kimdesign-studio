@@ -512,3 +512,51 @@
   mask-composite: exclude;
   pointer-events: none;
 }
+
+/* ============================================================
+   Content Protection — prevent download / screenshot / recording
+   ============================================================ */
+
+/* Prevent image selection & dragging globally on public pages */
+.content-protected img,
+.content-protected video,
+.content-protected canvas {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  pointer-events: none;
+}
+
+/* Protected media wrapper */
+.protected-media-container {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.protected-media-container img {
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+/* When printing, hide all protected media */
+@media print {
+  .content-protected img,
+  .content-protected video,
+  .protected-media-container,
+  .protected-media-container img {
+    display: none !important;
+  }
+  body::before {
+    content: "Content is protected and cannot be printed.";
+    display: block;
+    text-align: center;
+    padding: 40px;
+    font-size: 24px;
+    color: #999;
+  }
+}

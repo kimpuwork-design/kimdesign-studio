@@ -408,12 +408,12 @@ export default function Home() {
       <PublicNav />
       <SectionIndicator sections={HOME_SECTIONS} />
 
-      {/* ══════════ HERO — Split screen ══════════ */}
+      {/* ══════════ HERO — Split screen with parallax ══════════ */}
       <div ref={heroRef} className="relative" id="hero">
         <motion.section
           style={{ opacity: heroOpacity, y: heroY }}
           onMouseMove={handleHeroMouse}
-          className="min-h-[92vh] md:min-h-[95vh] flex items-center relative"
+          className="min-h-[92vh] md:min-h-[95vh] flex items-center relative overflow-hidden"
         >
           {/* Mouse-following radial gradient */}
           <div

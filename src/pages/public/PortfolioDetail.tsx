@@ -134,6 +134,7 @@ interface ProjectItem {
 
 export default function PortfolioDetail() {
   const { slug } = useParams<{ slug: string }>();
+  useContentProtection();
   const [item, setItem] = useState<ProjectItem | null>(null);
   const [gallery, setGallery] = useState<GalleryImage[]>([]);
   const [files, setFiles] = useState<FileAsset[]>([]);

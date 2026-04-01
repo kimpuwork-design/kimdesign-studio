@@ -27,6 +27,7 @@ interface Project {
 export default function PublicProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
+  useContentProtection();
   const [project, setProject] = useState<Project | null>(null);
   const [files, setFiles] = useState<FileAsset[]>([]);
   const [loading, setLoading] = useState(true);

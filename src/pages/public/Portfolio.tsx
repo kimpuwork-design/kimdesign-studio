@@ -259,7 +259,7 @@ export default function PublicPortfolio() {
   };
 
   return (
-    <div className="bg-background min-h-screen relative">
+    <div className="bg-background min-h-screen relative content-protected">
       <PublicNav />
 
       {/* ── Hero ── */}

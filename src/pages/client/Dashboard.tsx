@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { PortalLayout } from "@/components/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { FolderOpen, Clock, CheckCircle, PackageOpen, FileText, ArrowRight, Bell, MessageSquare, Zap } from "lucide-react";
+import { FolderOpen, Clock, CheckCircle, PackageOpen, FileText, ArrowRight, Bell, MessageSquare, Zap, Activity, Upload, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { format, formatDistanceToNow } from "date-fns";
+import { ClientDashboardSkeleton } from "@/components/SkeletonScreens";
 
 interface Project {
   id: string;

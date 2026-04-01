@@ -92,17 +92,38 @@ export default function ClientDashboard() {
 
   return (
     <PortalLayout variant="client">
+      {loading ? (
+        <ClientDashboardSkeleton />
+      ) : (
+      <>
       {/* Welcome Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-portal-accent to-portal-accent/60 flex items-center justify-center shadow-lg shadow-portal-accent/20">
+          <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className="h-11 w-11 rounded-2xl bg-gradient-to-br from-portal-accent to-portal-accent/60 flex items-center justify-center shadow-lg shadow-portal-accent/20"
+          >
             <Zap size={18} className="text-portal-accent-foreground" />
-          </div>
+          </motion.div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-portal-text">
+            <motion.h1 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+              className="font-display text-2xl font-bold text-portal-text"
+            >
               {greeting()}, <span className="gradient-text">{profile?.full_name?.split(" ")[0] ?? "there"}</span>
-            </h1>
-            <p className="text-sm text-portal-text-muted mt-0.5">Here's what's happening with your projects.</p>
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+              className="text-sm text-portal-text-muted mt-0.5"
+            >
+              Here's what's happening with your projects.
+            </motion.p>
           </div>
         </div>
       </div>

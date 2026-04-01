@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useContentProtection } from "@/hooks/useContentProtection";
 import { useParams, Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";

@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useContentProtection } from "@/hooks/useContentProtection";
 import { useParams, Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
@@ -26,6 +27,7 @@ interface Project {
 export default function PublicProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
+  useContentProtection();
   const [project, setProject] = useState<Project | null>(null);
   const [files, setFiles] = useState<FileAsset[]>([]);
   const [loading, setLoading] = useState(true);
@@ -108,7 +110,7 @@ export default function PublicProjectDetail() {
   const heroImage = galleryImages[0]?.url;
 
   return (
-    <div className="bg-background min-h-screen relative">
+    <div className="bg-background min-h-screen relative content-protected">
       <PublicNav />
 
       <div className="pointer-events-none fixed inset-0 z-0">

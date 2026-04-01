@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { X, ChevronLeft, ChevronRight, Download, ImageOff } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 
 export interface LightboxImage {
   id: string;
@@ -62,6 +62,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
 
   const content = (
     <div
+      onContextMenu={(e) => e.preventDefault()}
       onTouchStart={(e) => { touchStartX.current = e.touches[0]?.clientX ?? null; }}
       onTouchEnd={(e) => {
         if (touchStartX.current === null) return;
@@ -93,16 +94,6 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
         </span>
         <div style={{ display: "flex", gap: 4 }}>
           <button
-            onClick={() => {
-              if (!currentUrl) return;
-              const a = document.createElement("a");
-              a.href = currentUrl; a.download = `image-${idx + 1}`; a.target = "_blank"; a.click();
-            }}
-            style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            <Download size={14} color="rgba(255,255,255,0.7)" />
-          </button>
-          <button
             onClick={(e) => { e.stopPropagation(); onClose(); }}
             style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
           >
@@ -123,14 +114,18 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
             <a href={currentUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", fontSize: 13, textDecoration: "underline" }}>Open directly</a>
           </div>
         ) : (
-          <img
-            key={current.id}
-            src={currentUrl}
-            alt={current.caption || `Image ${idx + 1}`}
-            draggable={false}
-            onError={() => setErrorIds((p) => new Set(p).add(current.id))}
-            style={{ display: "block", maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 4, transition: "none", opacity: 1, transform: "none" }}
-          />
+          <div style={{ position: "relative" }} onContextMenu={(e) => e.preventDefault()}>
+            <img
+              key={current.id}
+              src={currentUrl}
+              alt={current.caption || `Image ${idx + 1}`}
+              draggable={false}
+              onError={() => setErrorIds((p) => new Set(p).add(current.id))}
+              style={{ display: "block", maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 4, transition: "none", opacity: 1, transform: "none", userSelect: "none", WebkitUserDrag: "none", pointerEvents: "none" } as React.CSSProperties}
+            />
+            {/* Shield overlay */}
+            <div style={{ position: "absolute", inset: 0, zIndex: 2 }} />
+          </div>
         )}
       </div>
 

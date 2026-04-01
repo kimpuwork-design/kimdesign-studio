@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useContentProtection } from "@/hooks/useContentProtection";
 import { useParams, Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
@@ -95,7 +96,10 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
           src={img.url} 
           alt={img.name || `Gallery ${idx + 1}`} 
           loading="lazy"
+          draggable={false}
+          onContextMenu={(e: React.MouseEvent) => e.preventDefault()}
           className="w-full object-cover"
+          style={{ userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties}
           animate={{
             scale: 1.08,
             x: (mousePos.x - 0.5) * -14,
@@ -133,6 +137,7 @@ interface ProjectItem {
 
 export default function PortfolioDetail() {
   const { slug } = useParams<{ slug: string }>();
+  useContentProtection();
   const [item, setItem] = useState<ProjectItem | null>(null);
   const [gallery, setGallery] = useState<GalleryImage[]>([]);
   const [files, setFiles] = useState<FileAsset[]>([]);
@@ -258,7 +263,7 @@ export default function PortfolioDetail() {
   ].filter(Boolean) as { icon: typeof Camera; n: number; label: string }[];
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-background min-h-screen content-protected">
       <MetaTags title={pageTitle} description={displaySummary} image={coverUrl || ""} jsonLd={jsonLd} />
       <PublicNav />
       <ReadingProgress progress={readingProgress} />
@@ -268,7 +273,7 @@ export default function PortfolioDetail() {
         {coverUrl ? (
           <section className="relative h-[60vh] md:h-[75vh] min-h-[400px] max-h-[900px]">
             <motion.div style={{ scale: heroScale }} className="absolute inset-0">
-              <img src={coverUrl} alt={item.title} className="w-full h-full object-cover" />
+              <img src={coverUrl} alt={item.title} draggable={false} onContextMenu={(e) => e.preventDefault()} className="w-full h-full object-cover" style={{ userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties} />
               <div className="absolute inset-0 bg-gradient-to-b from-foreground/20 via-foreground/10 to-background" />
             </motion.div>
             {/* Film grain overlay */}

@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useContentProtection } from "@/hooks/useContentProtection";
 import { Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
@@ -115,7 +116,10 @@ function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioI
         <div className={`${aspectMap[size]} overflow-hidden relative`}>
           {coverUrl ? (
             <img ref={imgRef} src={coverUrl} alt={item.title} loading="lazy"
-              className="w-full h-full object-cover transition-transform duration-700 ease-out" />
+              draggable={false}
+              onContextMenu={(e) => e.preventDefault()}
+              className="w-full h-full object-cover transition-transform duration-700 ease-out"
+              style={{ userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties} />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-muted/30">
               <Grid3X3 size={40} className="text-muted-foreground/15" />
@@ -195,6 +199,7 @@ function ListCard({ item, index }: { item: ProjectPortfolioItem; index: number }
 
 export default function PublicPortfolio() {
   const { t } = useTranslation();
+  useContentProtection();
   useSEO({ title: t("portfolio_title"), description: t("portfolio_description") });
   const [items, setItems] = useState<ProjectPortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -257,7 +262,7 @@ export default function PublicPortfolio() {
   };
 
   return (
-    <div className="bg-background min-h-screen relative">
+    <div className="bg-background min-h-screen relative content-protected">
       <PublicNav />
 
       {/* ── Hero ── */}

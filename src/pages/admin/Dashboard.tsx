@@ -253,16 +253,17 @@ export default function AdminDashboard() {
                 <ArrowUpRight size={10} className="text-portal-text-muted opacity-0 group-hover:opacity-100 transition-all hidden md:block" />
               </div>
               <p className="font-display text-lg md:text-2xl font-bold text-portal-text tracking-tight">
-                {loading ? (
-                  <span className="inline-block h-5 md:h-7 w-12 md:w-16 shimmer rounded-lg" />
-                ) : (
-                  <AnimatedCounter 
-                    value={s.value} 
-                    prefix={s.format === "currency" ? "$" : ""} 
-                  />
-                )}
+                <AnimatedCounter 
+                  value={s.value} 
+                  prefix={s.format === "currency" ? "$" : ""} 
+                />
               </p>
-              <p className="text-[9px] md:text-[11px] text-portal-text-muted mt-0.5 md:mt-1 font-medium uppercase tracking-wider">{s.label}</p>
+              <div className="flex items-center justify-between mt-1">
+                <p className="text-[9px] md:text-[11px] text-portal-text-muted font-medium uppercase tracking-wider">{s.label}</p>
+                {s.sparkData.length > 1 && (
+                  <Sparkline data={s.sparkData} height={20} width={50} />
+                )}
+              </div>
             </motion.button>
           );
         })}

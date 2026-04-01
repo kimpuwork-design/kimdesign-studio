@@ -93,16 +93,6 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
         </span>
         <div style={{ display: "flex", gap: 4 }}>
           <button
-            onClick={() => {
-              if (!currentUrl) return;
-              const a = document.createElement("a");
-              a.href = currentUrl; a.download = `image-${idx + 1}`; a.target = "_blank"; a.click();
-            }}
-            style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            <Download size={14} color="rgba(255,255,255,0.7)" />
-          </button>
-          <button
             onClick={(e) => { e.stopPropagation(); onClose(); }}
             style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
           >

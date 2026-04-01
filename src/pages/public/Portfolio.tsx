@@ -196,6 +196,7 @@ function ListCard({ item, index }: { item: ProjectPortfolioItem; index: number }
 
 export default function PublicPortfolio() {
   const { t } = useTranslation();
+  useContentProtection();
   useSEO({ title: t("portfolio_title"), description: t("portfolio_description") });
   const [items, setItems] = useState<ProjectPortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);

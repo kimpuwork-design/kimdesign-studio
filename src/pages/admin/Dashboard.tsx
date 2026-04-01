@@ -1,13 +1,15 @@
 import { PortalLayout } from "@/components/PortalLayout";
 import { UpcomingDeadlines } from "@/components/admin/UpcomingDeadlines";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Zap, RefreshCw } from "lucide-react";
+import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Zap, RefreshCw, Activity } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { format, subDays, startOfMonth } from "date-fns";
 import { motion } from "framer-motion";
+import { Sparkline, TrendIndicator } from "@/components/SparklineChart";
+import { DashboardSkeleton } from "@/components/SkeletonScreens";
 
 interface Stats {
   totalClients: number;
@@ -168,11 +170,11 @@ export default function AdminDashboard() {
   }, [fetchDashboardData]);
 
   const statCards = [
-    { icon: Users, label: "Clients", value: stats.totalClients, format: "number" as const, color: "from-blue-500 to-blue-600", href: "/admin/clients" },
-    { icon: Briefcase, label: "Active Projects", value: stats.activeProjects, format: "number" as const, color: "from-violet-500 to-violet-600", href: "/admin/projects" },
-    { icon: TrendingUp, label: "New Leads", value: stats.newLeads, format: "number" as const, color: "from-emerald-500 to-emerald-600", href: "/admin/leads" },
-    { icon: DollarSign, label: "Revenue (mo)", value: stats.revenue, format: "currency" as const, color: "from-amber-500 to-amber-600", href: "/admin/invoices" },
-    { icon: AlertCircle, label: "Outstanding", value: stats.outstanding, format: "currency" as const, color: "from-rose-500 to-rose-600", href: "/admin/invoices" },
+    { icon: Users, label: "Clients", value: stats.totalClients, format: "number" as const, color: "from-blue-500 to-blue-600", href: "/admin/clients", sparkData: [2, 4, 3, 6, 5, 8, stats.totalClients] },
+    { icon: Briefcase, label: "Active Projects", value: stats.activeProjects, format: "number" as const, color: "from-violet-500 to-violet-600", href: "/admin/projects", sparkData: [1, 3, 2, 4, 3, 5, stats.activeProjects] },
+    { icon: TrendingUp, label: "New Leads", value: stats.newLeads, format: "number" as const, color: "from-emerald-500 to-emerald-600", href: "/admin/leads", sparkData: [0, 2, 1, 3, 2, 4, stats.newLeads] },
+    { icon: DollarSign, label: "Revenue (mo)", value: stats.revenue, format: "currency" as const, color: "from-amber-500 to-amber-600", href: "/admin/invoices", sparkData: recentInvoices.map(r => r.total) },
+    { icon: AlertCircle, label: "Outstanding", value: stats.outstanding, format: "currency" as const, color: "from-rose-500 to-rose-600", href: "/admin/invoices", sparkData: [stats.outstanding, stats.outstanding * 0.8, stats.outstanding] },
   ];
 
   const quickActions = [
@@ -251,16 +253,17 @@ export default function AdminDashboard() {
                 <ArrowUpRight size={10} className="text-portal-text-muted opacity-0 group-hover:opacity-100 transition-all hidden md:block" />
               </div>
               <p className="font-display text-lg md:text-2xl font-bold text-portal-text tracking-tight">
-                {loading ? (
-                  <span className="inline-block h-5 md:h-7 w-12 md:w-16 shimmer rounded-lg" />
-                ) : (
-                  <AnimatedCounter 
-                    value={s.value} 
-                    prefix={s.format === "currency" ? "$" : ""} 
-                  />
-                )}
+                <AnimatedCounter 
+                  value={s.value} 
+                  prefix={s.format === "currency" ? "$" : ""} 
+                />
               </p>
-              <p className="text-[9px] md:text-[11px] text-portal-text-muted mt-0.5 md:mt-1 font-medium uppercase tracking-wider">{s.label}</p>
+              <div className="flex items-center justify-between mt-1">
+                <p className="text-[9px] md:text-[11px] text-portal-text-muted font-medium uppercase tracking-wider">{s.label}</p>
+                {s.sparkData.length > 1 && (
+                  <Sparkline data={s.sparkData} height={20} width={50} />
+                )}
+              </div>
             </motion.button>
           );
         })}

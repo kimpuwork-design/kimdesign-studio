@@ -337,14 +337,20 @@ export default function PublicPortfolio() {
         {loading ? (
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className={i === 0 ? "md:col-span-2" : ""}>
-                <div className={`${i === 0 ? "aspect-[16/9]" : i <= 2 ? "aspect-[3/4]" : "aspect-[4/3]"} shimmer`} />
+              <motion.div 
+                key={i} 
+                className={i === 0 ? "md:col-span-2" : ""}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.08 }}
+              >
+                <div className={`${i === 0 ? "aspect-[16/9]" : i <= 2 ? "aspect-[3/4]" : "aspect-[4/3]"} bg-muted/50 animate-pulse rounded-sm`} />
                 <div className="mt-3 space-y-2">
-                  <div className="h-3 w-16 shimmer" />
-                  <div className="h-5 w-48 shimmer" />
-                  <div className="h-3 w-24 shimmer" />
+                  <div className="h-3 w-16 bg-muted/40 animate-pulse rounded" />
+                  <div className="h-5 w-48 bg-muted/40 animate-pulse rounded" />
+                  <div className="h-3 w-24 bg-muted/40 animate-pulse rounded" />
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         ) : filtered.length === 0 ? (

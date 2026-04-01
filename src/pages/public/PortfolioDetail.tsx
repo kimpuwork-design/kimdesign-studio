@@ -273,7 +273,7 @@ export default function PortfolioDetail() {
         {coverUrl ? (
           <section className="relative h-[60vh] md:h-[75vh] min-h-[400px] max-h-[900px]">
             <motion.div style={{ scale: heroScale }} className="absolute inset-0">
-              <img src={coverUrl} alt={item.title} className="w-full h-full object-cover" />
+              <img src={coverUrl} alt={item.title} draggable={false} onContextMenu={(e) => e.preventDefault()} className="w-full h-full object-cover" style={{ userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties} />
               <div className="absolute inset-0 bg-gradient-to-b from-foreground/20 via-foreground/10 to-background" />
             </motion.div>
             {/* Film grain overlay */}

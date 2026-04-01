@@ -62,6 +62,7 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
 
   const content = (
     <div
+      onContextMenu={(e) => e.preventDefault()}
       onTouchStart={(e) => { touchStartX.current = e.touches[0]?.clientX ?? null; }}
       onTouchEnd={(e) => {
         if (touchStartX.current === null) return;

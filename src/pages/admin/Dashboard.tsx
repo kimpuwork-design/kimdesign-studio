@@ -1,13 +1,15 @@
 import { PortalLayout } from "@/components/PortalLayout";
 import { UpcomingDeadlines } from "@/components/admin/UpcomingDeadlines";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Zap, RefreshCw } from "lucide-react";
+import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Zap, RefreshCw, Activity } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { format, subDays, startOfMonth } from "date-fns";
 import { motion } from "framer-motion";
+import { Sparkline, TrendIndicator } from "@/components/SparklineChart";
+import { DashboardSkeleton } from "@/components/SkeletonScreens";
 
 interface Stats {
   totalClients: number;

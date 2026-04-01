@@ -114,14 +114,18 @@ export function CinematicLightbox({ images, startIndex, onClose }: Props) {
             <a href={currentUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", fontSize: 13, textDecoration: "underline" }}>Open directly</a>
           </div>
         ) : (
-          <img
-            key={current.id}
-            src={currentUrl}
-            alt={current.caption || `Image ${idx + 1}`}
-            draggable={false}
-            onError={() => setErrorIds((p) => new Set(p).add(current.id))}
-            style={{ display: "block", maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 4, transition: "none", opacity: 1, transform: "none" }}
-          />
+          <div style={{ position: "relative" }} onContextMenu={(e) => e.preventDefault()}>
+            <img
+              key={current.id}
+              src={currentUrl}
+              alt={current.caption || `Image ${idx + 1}`}
+              draggable={false}
+              onError={() => setErrorIds((p) => new Set(p).add(current.id))}
+              style={{ display: "block", maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 4, transition: "none", opacity: 1, transform: "none", userSelect: "none", WebkitUserDrag: "none", pointerEvents: "none" } as React.CSSProperties}
+            />
+            {/* Shield overlay */}
+            <div style={{ position: "absolute", inset: 0, zIndex: 2 }} />
+          </div>
         )}
       </div>
 

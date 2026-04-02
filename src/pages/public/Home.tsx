@@ -15,7 +15,7 @@ import { useTranslation } from "@/i18n/LanguageContext";
 import { ArchitectureBusinessJsonLd } from "@/components/JsonLd";
 import {
   FadeUp, FadeIn, StaggerContainer, StaggerItem,
-  SlideIn, TextReveal, LineDraw, ImageReveal, ParallaxSection
+  SlideIn, TextReveal, LineDraw, ImageReveal
 } from "@/components/motion/MotionWrappers";
 import { Marquee } from "@/components/motion/Marquee";
 import { MagneticButton } from "@/components/MagneticButton";
@@ -24,24 +24,13 @@ import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, GraduationCap, Awa
 import { SectionLabel } from "@/components/SectionLabel";
 import { LiveClock } from "@/components/LiveClock";
 import { AnimatedDivider } from "@/components/AnimatedDivider";
-import { SectionIndicator } from "@/components/SectionIndicator";
 import { TiltCard } from "@/components/TiltCard";
 import profileImg from "@/assets/profile-placeholder.jpg";
-
-const HOME_SECTIONS = [
-  { id: "hero", label: "Home" },
-  { id: "about", label: "About" },
-  { id: "stats", label: "Numbers" },
-  { id: "projects", label: "Projects" },
-  { id: "services", label: "Services" },
-  { id: "testimonials", label: "Voices" },
-  { id: "awards", label: "Awards" },
-];
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, GraduationCap, Award, Globe };
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
-/* ─── Featured Projects Scroll with Progress ─── */
+/* ─── Featured Projects Scroll ─── */
 function FeaturedScrollSection({ featured, setLightboxIdx }: { featured: PortfolioItem[]; setLightboxIdx: (i: number) => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -62,42 +51,42 @@ function FeaturedScrollSection({ featured, setLightboxIdx }: { featured: Portfol
 
   return (
     <>
-      <div ref={scrollRef} className="overflow-x-auto scrollbar-none pb-16 md:pb-24" onScroll={handleScroll}>
-        <div className="flex gap-5 md:gap-6 px-[max(1.25rem,calc((100vw-1280px)/2+2rem))]">
+      <div ref={scrollRef} className="overflow-x-auto scrollbar-none pb-14 md:pb-20" onScroll={handleScroll}>
+        <div className="flex gap-4 md:gap-5 px-[max(1.25rem,calc((100vw-1280px)/2+2rem))]">
           {featured.map((item, i) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, x: 60 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.8, delay: i * 0.1, ease: luxuryEase }}
-              className="flex-shrink-0 w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[35vw] group cursor-pointer"
+              transition={{ duration: 0.8, delay: i * 0.08, ease: luxuryEase }}
+              className="flex-shrink-0 w-[82vw] sm:w-[58vw] md:w-[42vw] lg:w-[33vw] group cursor-pointer"
               onClick={() => item.cover_image_url && setLightboxIdx(i)}
               data-cursor-hover
               data-cursor-label="Explore"
             >
-              <TiltCard tiltStrength={6} className="relative">
+              <TiltCard tiltStrength={5} className="relative">
                 <div className="relative overflow-hidden aspect-[3/4] md:aspect-[4/5]">
                   {item.cover_image_url && (
                     <img src={item.cover_image_url} alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[1200ms] ease-out" />
+                      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-[1200ms] ease-out" />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-                  <span className="absolute top-6 left-6 font-display text-6xl md:text-7xl text-background/20 leading-none select-none">
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-foreground/5 to-transparent opacity-70 group-hover:opacity-85 transition-opacity duration-500" />
+                  <span className="absolute top-5 left-5 font-mono-label text-[10px] tracking-[0.2em] text-background/30 select-none">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                    <div className="flex items-center gap-3 mb-3 text-[10px] text-background/50 tracking-[0.15em] uppercase">
+                  <div className="absolute bottom-0 left-0 right-0 p-5 md:p-7">
+                    <div className="flex items-center gap-2 mb-2 text-[9px] text-background/45 tracking-[0.15em] uppercase font-mono-label">
                       {item.category && <span>{item.category}</span>}
                       {item.year && <span>— {item.year}</span>}
                     </div>
                     <Link to={`/portfolio/${item.slug}`} onClick={(e) => e.stopPropagation()}
-                      className="font-display text-2xl md:text-3xl lg:text-4xl text-background leading-tight block group-hover:translate-y-0 translate-y-1 transition-transform duration-500">
+                      className="font-display text-xl md:text-2xl lg:text-3xl text-background leading-tight block group-hover:translate-y-0 translate-y-0.5 transition-transform duration-500">
                       {item.title}
                     </Link>
                     {item.location && (
-                      <p className="flex items-center gap-1.5 mt-3 text-xs text-background/40">
-                        <MapPin size={10} />{item.location}
+                      <p className="flex items-center gap-1 mt-2 text-[11px] text-background/35">
+                        <MapPin size={9} />{item.location}
                       </p>
                     )}
                   </div>
@@ -107,17 +96,17 @@ function FeaturedScrollSection({ featured, setLightboxIdx }: { featured: Portfol
           ))}
         </div>
       </div>
-      {/* Scroll progress bar */}
-      <div className="container pb-6">
+      {/* Progress */}
+      <div className="container pb-4">
         <div className="flex items-center gap-4">
-          <span className="text-[9px] tracking-[0.25em] uppercase text-muted-foreground/40 shrink-0">
+          <span className="text-[9px] tracking-[0.3em] uppercase text-muted-foreground/35 shrink-0 font-mono-label tabular-nums">
             {String(Math.round(scrollProgress * (featured.length - 1)) + 1).padStart(2, '0')}
-            <span className="mx-1 text-border">/</span>
+            <span className="mx-1 text-border/40">/</span>
             {String(featured.length).padStart(2, '0')}
           </span>
-          <div className="flex-1 h-px bg-border/30 relative overflow-hidden">
+          <div className="flex-1 h-px bg-border/25 relative overflow-hidden">
             <motion.div
-              className="absolute top-0 left-0 h-full bg-primary"
+              className="absolute top-0 left-0 h-full bg-primary/60"
               style={{ width: `${Math.max(5, scrollProgress * 100)}%` }}
               transition={{ duration: 0.1 }}
             />
@@ -161,85 +150,23 @@ function AnimatedStat({ value, suffix, label, index }: { value: number; suffix: 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 25 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.7, delay: index * 0.1, ease: luxuryEase }}
-      className="text-center py-10 md:py-16"
+      transition={{ duration: 0.7, delay: index * 0.08, ease: luxuryEase }}
+      className="text-center py-10 md:py-14"
     >
-      <p className="font-display text-5xl md:text-7xl lg:text-8xl text-foreground leading-none">
-        {count}<span className="text-primary">{suffix}</span>
+      <p className="font-display text-5xl md:text-6xl lg:text-7xl text-foreground leading-none">
+        {count}<span className="text-primary/70">{suffix}</span>
       </p>
-      <p className="mt-4 text-[10px] tracking-[0.25em] uppercase text-muted-foreground">
+      <p className="mt-3 text-[9px] tracking-[0.3em] uppercase text-muted-foreground/60 font-mono-label">
         {label}
       </p>
     </motion.div>
   );
 }
 
-/* ─── Testimonials with 3D Perspective Tilt ─── */
-function Testimonial3DCard({ testimonial, isActive }: { testimonial: any; isActive: boolean }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
-  const [glarePos, setGlarePos] = useState({ x: 50, y: 50 });
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    
-    setRotateX((y - 0.5) * -15);
-    setRotateY((x - 0.5) * 15);
-    setGlarePos({ x: x * 100, y: y * 100 });
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setRotateX(0);
-    setRotateY(0);
-    setGlarePos({ x: 50, y: 50 });
-  }, []);
-
-  return (
-    <motion.div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      animate={{
-        rotateX,
-        rotateY,
-      }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      style={{ transformStyle: "preserve-3d", perspective: 1000 }}
-      className={`border border-border/40 p-7 md:p-9 h-full flex flex-col transition-all duration-600 relative overflow-hidden ${
-        isActive ? "bg-card border-border" : "bg-transparent opacity-40"
-      }`}
-    >
-      {/* Glare effect */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        style={{
-          background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, hsl(var(--primary) / 0.08) 0%, transparent 50%)`,
-        }}
-      />
-      <Quote size={18} className="text-primary/25 mb-5 shrink-0" style={{ transform: "translateZ(20px)" }} />
-      <p className="text-muted-foreground leading-[1.8] text-sm flex-1 italic font-light" style={{ transform: "translateZ(10px)" }}>
-        {testimonial.text}
-      </p>
-      <div className="mt-8 pt-6 border-t border-border/30 flex items-center gap-3" style={{ transform: "translateZ(15px)" }}>
-        <div className="h-10 w-10 bg-muted/60 flex items-center justify-center">
-          <span className="font-display text-base text-foreground">{testimonial.name?.charAt(0)}</span>
-        </div>
-        <div>
-          <p className="text-sm text-foreground">{testimonial.name}</p>
-          <p className="text-xs text-muted-foreground">{testimonial.role}</p>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
+/* ─── Testimonials Carousel ─── */
 function TestimonialsCarousel({ testimonials, t }: { testimonials: any[]; t: (k: string) => string }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -258,96 +185,77 @@ function TestimonialsCarousel({ testimonials, t }: { testimonials: any[]; t: (k:
 
   useEffect(() => {
     if (!emblaApi) return;
-    const interval = setInterval(() => emblaApi.scrollNext(), 6000);
+    const interval = setInterval(() => emblaApi.scrollNext(), 7000);
     return () => clearInterval(interval);
   }, [emblaApi]);
 
   return (
-    <section className="py-24 md:py-36 border-t border-border/30">
+    <section className="py-24 md:py-32 border-t border-border/25">
       <div className="container">
-        <div className="mb-14 md:mb-20 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div className="mb-12 md:mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-5">
           <div>
             <SectionLabel text={t("home_recognition")} />
             <FadeUp>
-              <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1]">{t("home_client_voices")}</h2>
+              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-foreground leading-[1.1]">{t("home_client_voices")}</h2>
             </FadeUp>
           </div>
           <FadeUp delay={0.2}>
-            <div className="flex items-center gap-4">
-              <span className="font-display text-2xl text-foreground tabular-nums">
+            <div className="flex items-center gap-3">
+              <span className="font-mono-label text-sm text-muted-foreground/50 tabular-nums">
                 {String(selectedIndex + 1).padStart(2, '0')}
-                <span className="text-muted-foreground/30 mx-1">/</span>
-                <span className="text-muted-foreground/40 text-lg">{String(testimonials.length).padStart(2, '0')}</span>
+                <span className="mx-1 text-border/30">/</span>
+                <span className="text-muted-foreground/30">{String(testimonials.length).padStart(2, '0')}</span>
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <button onClick={() => emblaApi?.scrollPrev()}
-                  className="h-11 w-11 border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all duration-300">
-                  <ChevronLeft size={16} />
+                  className="h-10 w-10 border border-border/40 bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/20 transition-all duration-300">
+                  <ChevronLeft size={15} />
                 </button>
                 <button onClick={() => emblaApi?.scrollNext()}
-                  className="h-11 w-11 border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all duration-300">
-                  <ChevronRight size={16} />
+                  className="h-10 w-10 border border-border/40 bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/20 transition-all duration-300">
+                  <ChevronRight size={15} />
                 </button>
               </div>
             </div>
           </FadeUp>
         </div>
 
-        <div className="overflow-hidden" ref={emblaRef} style={{ perspective: "1000px" }}>
-          <div className="flex gap-6 md:gap-8">
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex gap-5 md:gap-6">
             {testimonials.map((testimonial: any, i: number) => (
-              <div key={testimonial.name} className="flex-[0_0_88%] min-w-0 sm:flex-[0_0_46%] lg:flex-[0_0_33.333%] group">
-                <Testimonial3DCard testimonial={testimonial} isActive={selectedIndex === i} />
+              <div key={testimonial.name} className="flex-[0_0_88%] min-w-0 sm:flex-[0_0_46%] lg:flex-[0_0_33.333%]">
+                <div className={`border border-border/30 p-6 md:p-8 h-full flex flex-col transition-all duration-500 ${
+                  selectedIndex === i ? "bg-card" : "bg-transparent opacity-40"
+                }`}>
+                  <Quote size={16} className="text-primary/20 mb-4 shrink-0" />
+                  <p className="text-muted-foreground leading-[1.85] text-[13px] flex-1 italic font-light">
+                    {testimonial.text}
+                  </p>
+                  <div className="mt-6 pt-5 border-t border-border/20 flex items-center gap-3">
+                    <div className="h-9 w-9 bg-muted/50 flex items-center justify-center">
+                      <span className="font-display text-sm text-foreground">{testimonial.name?.charAt(0)}</span>
+                    </div>
+                    <div>
+                      <p className="text-[13px] text-foreground font-medium">{testimonial.name}</p>
+                      <p className="text-[11px] text-muted-foreground">{testimonial.role}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-2 mt-12">
+        <div className="flex items-center justify-center gap-1.5 mt-10">
           {testimonials.map((_: any, i: number) => (
             <button key={i} onClick={() => emblaApi?.scrollTo(i)}
-              className={`h-[2px] transition-all duration-500 ${
-                selectedIndex === i ? "w-10 bg-primary" : "w-2 bg-border"
+              className={`h-[1.5px] transition-all duration-500 ${
+                selectedIndex === i ? "w-8 bg-primary" : "w-1.5 bg-border/60"
               }`} />
           ))}
         </div>
       </div>
     </section>
-  );
-}
-
-/* ─── Kinetic Floating Element ─── */
-function KineticShape({ 
-  className, 
-  mousePos, 
-  baseX, 
-  baseY, 
-  repelStrength = 30,
-  children 
-}: { 
-  className?: string; 
-  mousePos: { x: number; y: number }; 
-  baseX: number; 
-  baseY: number; 
-  repelStrength?: number;
-  children: React.ReactNode;
-}) {
-  const dx = mousePos.x - baseX;
-  const dy = mousePos.y - baseY;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  const maxDist = 0.4;
-  const factor = Math.max(0, 1 - dist / maxDist);
-  const offsetX = -dx * factor * repelStrength;
-  const offsetY = -dy * factor * repelStrength;
-  
-  return (
-    <motion.div
-      className={className}
-      animate={{ x: offsetX, y: offsetY }}
-      transition={{ type: "spring", stiffness: 150, damping: 15 }}
-    >
-      {children}
-    </motion.div>
   );
 }
 
@@ -358,21 +266,11 @@ export default function Home() {
   const { content } = useSiteContent("about_me", "hero", "stats", "services_home", "testimonials", "awards", "cta");
   const [featured, setFeatured] = useState<PortfolioItem[]>([]);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
-  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
-
-  const handleHeroMouse = useCallback((e: ReactMouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMousePos({
-      x: (e.clientX - rect.left) / rect.width,
-      y: (e.clientY - rect.top) / rect.height,
-    });
-  }, []);
 
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 60]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.05]);
+  const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 50]);
 
   useEffect(() => {
     supabase
@@ -394,132 +292,76 @@ export default function Home() {
   const servicesHome: any[] = content.services_home ?? [];
   const testimonials: any[] = content.testimonials ?? [];
   const awards: any[] = content.awards ?? [];
-  const cta = content.cta ?? {};
 
   const aboutProfileImg = aboutMe.profile_image_url || profileImg;
   const credentials: any[] = aboutMe.credentials ?? [];
-
-  // Get first featured image for hero background
   const heroImage = featured[0]?.cover_image_url;
 
   return (
     <div className="bg-background relative overflow-x-hidden">
       <ArchitectureBusinessJsonLd />
       <PublicNav />
-      <SectionIndicator sections={HOME_SECTIONS} />
 
-      {/* ══════════ HERO — Split screen with parallax ══════════ */}
+      {/* ══════════ HERO ══════════ */}
       <div ref={heroRef} className="relative" id="hero">
         <motion.section
           style={{ opacity: heroOpacity, y: heroY }}
-          onMouseMove={handleHeroMouse}
-          className="min-h-[92vh] md:min-h-[95vh] flex items-center relative overflow-hidden"
+          className="min-h-[88vh] md:min-h-[92vh] flex items-center relative overflow-hidden"
         >
-          {/* Mouse-following radial gradient */}
-          <div
-            className="absolute inset-0 z-[1] pointer-events-none opacity-30 transition-opacity duration-1000"
-            style={{
-              background: `radial-gradient(600px circle at ${mousePos.x * 100}% ${mousePos.y * 100}%, hsl(var(--primary) / 0.08), transparent 60%)`,
-            }}
-          />
-          {/* Background image with parallax zoom */}
+          {/* Subtle background image */}
           {heroImage && (
-            <motion.div style={{ scale: heroScale }} className="absolute inset-0 z-0">
+            <div className="absolute inset-0 z-0">
               <img src={heroImage} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-background/85 dark:bg-background/90" />
-            </motion.div>
+              <div className="absolute inset-0 bg-background/88 dark:bg-background/92" />
+            </div>
           )}
 
-          {/* Kinetic floating architectural wireframes */}
+          {/* Minimal geometric accents */}
           <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden hidden md:block">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5, duration: 1 }}
-            >
-              {/* Repelling grid square */}
-              <KineticShape mousePos={mousePos} baseX={0.92} baseY={0.15} repelStrength={40} className="absolute top-[15%] right-[8%]">
-                <motion.div
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-                  className="w-[180px] h-[180px] border border-primary/[0.08]"
-                />
-              </KineticShape>
-              
-              {/* Repelling rotated rectangle */}
-              <KineticShape mousePos={mousePos} baseX={0.88} baseY={0.25} repelStrength={35} className="absolute top-[25%] right-[12%]">
-                <motion.div
-                  animate={{ rotate: [12, 24, 12] }}
-                  transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-[140px] h-[140px] border border-primary/[0.06]"
-                />
-              </KineticShape>
-              
-              {/* Repelling circle */}
-              <KineticShape mousePos={mousePos} baseX={0.85} baseY={0.8} repelStrength={50} className="absolute bottom-[20%] right-[15%]">
-                <motion.div
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-[100px] h-[100px] border border-primary/[0.07] rounded-full"
-                />
-              </KineticShape>
-              
-              {/* Left side floating element */}
-              <KineticShape mousePos={mousePos} baseX={0.05} baseY={0.5} repelStrength={30} className="absolute top-[40%] left-[3%]">
-                <motion.div
-                  animate={{ y: [0, -20, 0] }}
-                  transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-[60px] h-[60px] border border-primary/[0.05] rotate-45"
-                />
-              </KineticShape>
-
-              {/* Vertical line */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2, duration: 1.5 }}>
               <motion.div
-                animate={{ scaleY: [0.6, 1, 0.6] }}
-                transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-[10%] left-[5%] w-px h-[200px] bg-gradient-to-b from-transparent via-primary/[0.06] to-transparent"
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
+                className="absolute top-[12%] right-[6%] w-[160px] h-[160px] border border-primary/[0.06]"
+              />
+              <motion.div
+                animate={{ y: [0, -15, 0] }}
+                transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute bottom-[25%] right-[12%] w-[80px] h-[80px] border border-primary/[0.04] rounded-full"
+              />
+              <motion.div
+                animate={{ scaleY: [0.5, 1, 0.5] }}
+                transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-[8%] left-[4%] w-px h-[160px] bg-gradient-to-b from-transparent via-primary/[0.05] to-transparent"
                 style={{ transformOrigin: "top" }}
               />
-              
-              {/* Cross decoration */}
-              <KineticShape mousePos={mousePos} baseX={0.12} baseY={0.75} repelStrength={25} className="absolute bottom-[25%] left-[10%]">
-                <div className="relative w-12 h-12">
-                  <div className="absolute top-1/2 left-0 w-full h-px bg-primary/[0.06] -translate-y-1/2" />
-                  <div className="absolute left-1/2 top-0 h-full w-px bg-primary/[0.06] -translate-x-1/2" />
-                </div>
-              </KineticShape>
             </motion.div>
           </div>
 
-          {/* Film grain overlay */}
           <div className="absolute inset-0 noise-overlay pointer-events-none z-[2]" />
 
-          <div className="container py-20 md:py-32 relative z-10">
+          <div className="container py-20 md:py-28 relative z-10">
             <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
               {/* Left content */}
               <div className="lg:col-span-7">
                 <motion.p
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -15 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
-                  className="text-[11px] tracking-[0.35em] uppercase text-primary mb-8 md:mb-10"
+                  className="text-[10px] tracking-[0.4em] uppercase text-primary mb-7 md:mb-9 font-mono-label"
                 >
                   {hero.badge ?? "Architecture · Interiors · Urbanism"}
                 </motion.p>
 
-                <motion.h1
-                  initial={{ opacity: 1 }}
-                  animate={{ opacity: 1 }}
-                  className="font-display text-[clamp(3rem,8vw,7.5rem)] leading-[0.92] text-foreground"
-                >
+                <motion.h1 className="font-display text-[clamp(2.8rem,7.5vw,7rem)] leading-[0.92] text-foreground">
                   <span className="overflow-hidden inline-block">
                     {(hero.title_line1 ?? "Building spaces").split(" ").map((word: string, i: number) => (
                       <motion.span
                         key={i}
-                        initial={{ opacity: 0, y: 50 }}
+                        initial={{ opacity: 0, y: 45 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.7, delay: 0.3 + i * 0.08, ease: luxuryEase }}
-                        className="inline-block mr-[0.3em]"
+                        transition={{ duration: 0.7, delay: 0.3 + i * 0.07, ease: luxuryEase }}
+                        className="inline-block mr-[0.28em]"
                       >
                         {word}
                       </motion.span>
@@ -530,10 +372,10 @@ export default function Home() {
                     {(hero.title_line2 ?? "that endure.").split(" ").map((word: string, i: number) => (
                       <motion.span
                         key={`l2-${i}`}
-                        initial={{ opacity: 0, y: 50 }}
+                        initial={{ opacity: 0, y: 45 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.7, delay: 0.5 + i * 0.08, ease: luxuryEase }}
-                        className="inline-block mr-[0.3em] hero-shimmer-text"
+                        transition={{ duration: 0.7, delay: 0.45 + i * 0.07, ease: luxuryEase }}
+                        className="inline-block mr-[0.28em] hero-shimmer-text"
                       >
                         {word}
                       </motion.span>
@@ -545,46 +387,46 @@ export default function Home() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.7, delay: 0.6, ease: luxuryEase }}
-                  className="mt-8 md:mt-10 text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed font-light"
+                  className="mt-7 md:mt-9 text-base md:text-lg text-muted-foreground max-w-md leading-[1.8] font-light"
                 >
                   {hero.description ?? ""}
                 </motion.p>
 
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 18 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.8, ease: luxuryEase }}
-                  className="mt-10 md:mt-14 flex flex-col sm:flex-row gap-4"
+                  className="mt-9 md:mt-12 flex flex-col sm:flex-row gap-3"
                 >
-                  <MagneticButton strength={0.25}>
-                    <Button size="lg" asChild className="rounded-none px-10 h-14 tracking-[0.15em] text-sm uppercase">
-                      <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={14} className="ml-3" /></Link>
+                  <MagneticButton strength={0.2}>
+                    <Button size="lg" asChild className="rounded-none px-9 h-13 tracking-[0.15em] text-[11px] uppercase font-medium">
+                      <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={13} className="ml-2.5" /></Link>
                     </Button>
                   </MagneticButton>
-                  <MagneticButton strength={0.25}>
-                    <Button variant="outline" size="lg" asChild className="rounded-none px-10 h-14 tracking-[0.15em] text-sm uppercase border-foreground/20 hover:bg-foreground hover:text-background transition-all duration-500">
+                  <MagneticButton strength={0.2}>
+                    <Button variant="outline" size="lg" asChild className="rounded-none px-9 h-13 tracking-[0.15em] text-[11px] uppercase font-medium border-foreground/15 hover:bg-foreground hover:text-background transition-all duration-500">
                       <Link to="/contact">{t("home_work_with_us")}</Link>
                     </Button>
                   </MagneticButton>
                 </motion.div>
               </div>
 
-              {/* Right — Feature image card */}
+              {/* Right — Feature image */}
               <div className="lg:col-span-5 hidden lg:block">
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  initial={{ opacity: 0, scale: 0.96, y: 15 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   transition={{ duration: 1, delay: 0.5, ease: luxuryEase }}
                 >
                   {heroImage && (
                     <div className="relative group">
                       <div className="aspect-[3/4] overflow-hidden">
-                        <img src={heroImage} alt="Featured project" className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-[1200ms]" />
+                        <img src={heroImage} alt="Featured project" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-[1200ms]" />
                       </div>
                       {featured[0] && (
-                        <Link to={`/portfolio/${featured[0].slug}`} className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-foreground/80 to-transparent">
-                          <p className="text-[10px] tracking-[0.2em] uppercase text-background/60 mb-1">{featured[0].category}</p>
-                          <p className="font-display text-xl text-background">{featured[0].title}</p>
+                        <Link to={`/portfolio/${featured[0].slug}`} className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-foreground/75 to-transparent">
+                          <p className="text-[9px] tracking-[0.2em] uppercase text-background/50 mb-0.5 font-mono-label">{featured[0].category}</p>
+                          <p className="font-display text-lg text-background">{featured[0].title}</p>
                         </Link>
                       )}
                     </div>
@@ -595,8 +437,8 @@ export default function Home() {
           </div>
         </motion.section>
 
-        {/* Scroll indicator + Live clock */}
-        <div className="absolute bottom-8 left-0 right-0 px-6 md:px-10 flex items-end justify-between">
+        {/* Scroll indicator */}
+        <div className="absolute bottom-6 left-0 right-0 px-6 md:px-10 flex items-end justify-between">
           <LiveClock className="hidden md:flex" />
           <motion.div
             initial={{ opacity: 0 }}
@@ -604,39 +446,39 @@ export default function Home() {
             transition={{ delay: 1.2, duration: 0.5 }}
             className="flex flex-col items-center gap-2 absolute left-1/2 -translate-x-1/2 bottom-0"
           >
-            <span className="text-[9px] tracking-[0.3em] uppercase text-muted-foreground/50">Scroll</span>
+            <span className="text-[8px] tracking-[0.35em] uppercase text-muted-foreground/40 font-mono-label">Scroll</span>
             <motion.div
-              animate={{ y: [0, 8, 0] }}
+              animate={{ y: [0, 7, 0] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className="w-px h-8 bg-gradient-to-b from-muted-foreground/40 to-transparent"
+              className="w-px h-7 bg-gradient-to-b from-muted-foreground/30 to-transparent"
             />
           </motion.div>
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.4, duration: 0.5 }}
-            className="hidden md:block text-[10px] tracking-[0.2em] uppercase text-muted-foreground/40"
+            className="hidden md:block text-[9px] tracking-[0.25em] uppercase text-muted-foreground/30 font-mono-label"
           >
             Est. {aboutMe.est_year ?? "2008"}
           </motion.p>
         </div>
       </div>
 
-      {/* ══════════ MARQUEE TICKER ══════════ */}
+      {/* ══════════ MARQUEE ══════════ */}
       <AnimatedDivider />
-      <div className="border-b border-border/30 py-5 md:py-6 overflow-hidden">
+      <div className="border-b border-border/25 py-4 md:py-5 overflow-hidden">
         <Marquee
           items={["Architecture", "Interior Design", "Urban Planning", "Landscape", "Sustainability", "Heritage", "Residential", "Commercial"]}
           separator="—"
           speed={40}
-          className="font-display text-xl md:text-2xl lg:text-3xl text-muted-foreground/25 select-none"
+          className="font-display text-lg md:text-xl lg:text-2xl text-muted-foreground/20 select-none"
         />
       </div>
 
-      {/* ══════════ ABOUT / INTRO ══════════ */}
-      <section id="about" className="border-t border-border/30">
-        <div className="container py-24 md:py-36">
-          <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+      {/* ══════════ ABOUT ══════════ */}
+      <section id="about" className="border-t border-border/25">
+        <div className="container py-20 md:py-32">
+          <div className="grid lg:grid-cols-2 gap-14 lg:gap-20 items-start">
             <SlideIn direction="left">
               <div className="relative">
                 <ImageReveal>
@@ -645,47 +487,34 @@ export default function Home() {
                       src={aboutProfileImg}
                       alt={aboutMe.title_prefix ?? "Principal Architect"}
                       className="h-full w-full object-cover object-center"
-                      initial={{ scale: 1.1 }}
+                      initial={{ scale: 1.08 }}
                       whileInView={{ scale: 1 }}
                       viewport={{ once: true }}
                       transition={{ duration: 1.4, ease: luxuryEase }}
                     />
-                    {/* Floating info badges */}
                     <motion.div
-                      initial={{ opacity: 0, x: 20 }}
+                      initial={{ opacity: 0, x: 15 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.7, delay: 0.8, ease: luxuryEase }}
-                      className="absolute top-6 right-6 backdrop-blur-md bg-foreground/70 text-background px-4 py-2.5 hidden md:block"
+                      className="absolute top-5 right-5 backdrop-blur-md bg-foreground/70 text-background px-3.5 py-2 hidden md:block"
                     >
-                      <p className="text-[9px] tracking-[0.25em] uppercase text-background/50">{t("home_credentials")}</p>
-                      <p className="font-display text-lg leading-tight mt-0.5">{aboutMe.est_year ? `Since ${aboutMe.est_year}` : "Since 2008"}</p>
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.7, delay: 1, ease: luxuryEase }}
-                      className="absolute bottom-6 left-6 backdrop-blur-md bg-foreground/70 text-background px-4 py-2.5 hidden md:block"
-                    >
-                      <p className="text-[9px] tracking-[0.25em] uppercase text-background/50">Location</p>
-                      <p className="font-display text-base leading-tight mt-0.5 flex items-center gap-1.5">
-                        <MapPin size={10} /> Yangon, Myanmar
-                      </p>
+                      <p className="text-[8px] tracking-[0.3em] uppercase text-background/45 font-mono-label">{t("home_credentials")}</p>
+                      <p className="font-display text-base leading-tight mt-0.5">{aboutMe.est_year ? `Since ${aboutMe.est_year}` : "Since 2008"}</p>
                     </motion.div>
                   </div>
                 </ImageReveal>
                 {credentials.length > 0 && (
                   <FadeUp delay={0.4}>
-                    <div className="mt-6 border-t border-border/40 pt-6">
-                      <p className="text-[9px] tracking-[0.35em] uppercase text-muted-foreground mb-4">{t("home_credentials")}</p>
-                      <div className="space-y-2.5">
+                    <div className="mt-5 border-t border-border/30 pt-5">
+                      <p className="text-[8px] tracking-[0.4em] uppercase text-muted-foreground/60 mb-3 font-mono-label">{t("home_credentials")}</p>
+                      <div className="space-y-2">
                         {credentials.map((c: any) => {
                           const Icon = ICON_MAP[c.icon] ?? Award;
                           return (
-                            <div key={c.text} className="flex items-center gap-3">
-                              <Icon size={11} className="text-primary shrink-0" />
-                              <span className="text-xs text-muted-foreground">{c.text}</span>
+                            <div key={c.text} className="flex items-center gap-2.5">
+                              <Icon size={10} className="text-primary/70 shrink-0" />
+                              <span className="text-[12px] text-muted-foreground">{c.text}</span>
                             </div>
                           );
                         })}
@@ -696,42 +525,42 @@ export default function Home() {
               </div>
             </SlideIn>
 
-            <div className="lg:pt-12">
+            <div className="lg:pt-8">
               <FadeUp>
-                <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-8">{aboutMe.title_prefix ?? "Principal Architect"}</p>
+                <p className="text-[9px] tracking-[0.4em] uppercase text-primary mb-6 font-mono-label">{aboutMe.title_prefix ?? "Principal Architect"}</p>
               </FadeUp>
               <TextReveal>
-                <h2 className="font-display text-[clamp(2.8rem,5vw,5.5rem)] leading-[1] text-foreground">
+                <h2 className="font-display text-[clamp(2.5rem,4.5vw,5rem)] leading-[1] text-foreground">
                   {aboutMe.name_first ?? "Elena"}<br />
                   <span className="text-primary">{aboutMe.name_last ?? "Markov"}</span>
                 </h2>
               </TextReveal>
               <FadeUp delay={0.3}>
-                <div className="flex items-center gap-5 my-10 md:my-14">
-                  <LineDraw className="h-px w-16 bg-primary/30" delay={0.5} />
-                  <span className="text-xs tracking-[0.25em] text-muted-foreground">Est. {aboutMe.est_year ?? "2008"}</span>
+                <div className="flex items-center gap-4 my-8 md:my-12">
+                  <LineDraw className="h-px w-14 bg-primary/25" delay={0.5} />
+                  <span className="text-[11px] tracking-[0.2em] text-muted-foreground/50 font-mono-label">Est. {aboutMe.est_year ?? "2008"}</span>
                 </div>
               </FadeUp>
               <FadeUp delay={0.4}>
-                <div className="space-y-6 max-w-md">
-                  <p className="text-base leading-[1.9] text-foreground/75">{aboutMe.bio_main ?? ""}</p>
-                  <p className="text-sm leading-[1.85] text-muted-foreground">{aboutMe.bio_secondary ?? ""}</p>
+                <div className="space-y-5 max-w-md">
+                  <p className="text-[15px] leading-[1.9] text-foreground/70">{aboutMe.bio_main ?? ""}</p>
+                  <p className="text-[13px] leading-[1.85] text-muted-foreground">{aboutMe.bio_secondary ?? ""}</p>
                 </div>
               </FadeUp>
               <FadeUp delay={0.5}>
-                <div className="mt-12 flex flex-col sm:flex-row items-start gap-4">
-                  <Button asChild className="rounded-none px-8 h-12 tracking-[0.15em] text-sm uppercase">
-                    <Link to="/about">{t("home_full_profile")} <ArrowRight size={14} className="ml-2" /></Link>
+                <div className="mt-10 flex flex-col sm:flex-row items-start gap-3">
+                  <Button asChild className="rounded-none px-7 h-11 tracking-[0.15em] text-[11px] uppercase font-medium">
+                    <Link to="/about">{t("home_full_profile")} <ArrowRight size={12} className="ml-2" /></Link>
                   </Button>
-                  <Button variant="ghost" asChild className="rounded-none px-8 h-12 tracking-[0.12em] text-sm text-muted-foreground hover:text-foreground">
+                  <Button variant="ghost" asChild className="rounded-none px-7 h-11 tracking-[0.12em] text-[11px] text-muted-foreground hover:text-foreground">
                     <Link to="/contact">{t("home_work_together")}</Link>
                   </Button>
                 </div>
               </FadeUp>
               {aboutMe.quote && (
                 <FadeUp delay={0.6}>
-                  <blockquote className="mt-20 pt-10 border-t border-border/30">
-                    <p className="font-display text-2xl md:text-3xl text-muted-foreground leading-[1.4] italic">
+                  <blockquote className="mt-16 pt-8 border-t border-border/25">
+                    <p className="font-display text-xl md:text-2xl text-muted-foreground/70 leading-[1.4] italic">
                       "{aboutMe.quote}"
                     </p>
                   </blockquote>
@@ -744,16 +573,15 @@ export default function Home() {
 
       {/* ══════════ STATS ══════════ */}
       {stats.length > 0 && (
-        <section id="stats" className="border-t border-border/30">
+        <section id="stats" className="border-t border-border/25">
           <div className="container">
             <div className="grid grid-cols-2 md:grid-cols-4">
               {stats.map((s: any, i: number) => (
                 <div
                   key={s.label}
-                  className={`group relative ${i < stats.length - 1 ? "border-r border-border/30" : ""} hover:bg-card/50 transition-colors duration-500`}
+                  className={`group relative ${i < stats.length - 1 ? "border-r border-border/20" : ""} hover:bg-card/40 transition-colors duration-500`}
                 >
-                  {/* Top hover accent line */}
-                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
+                  <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
                   <AnimatedStat value={s.value} suffix={s.suffix} label={s.label} index={i} />
                 </div>
               ))}
@@ -762,33 +590,32 @@ export default function Home() {
         </section>
       )}
 
-      {/* ══════════ FEATURED PROJECTS — Horizontal scroll cinematic ══════════ */}
+      {/* ══════════ FEATURED PROJECTS ══════════ */}
       {featured.length > 0 && (
-        <section id="projects" className="border-t border-border/30">
-          <div className="container pt-24 md:pt-36 pb-8 md:pb-12">
-            <div className="flex items-end justify-between mb-12 md:mb-16">
+        <section id="projects" className="border-t border-border/25">
+          <div className="container pt-20 md:pt-32 pb-6 md:pb-10">
+            <div className="flex items-end justify-between mb-10 md:mb-14">
               <div>
                 <SectionLabel text={t("home_selected_work")} />
                 <FadeUp>
-                  <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1]">{t("home_featured_work")}</h2>
+                  <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-foreground leading-[1.1]">{t("home_featured_work")}</h2>
                 </FadeUp>
               </div>
               <FadeUp delay={0.2}>
-                <Link to="/portfolio" className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group">
+                <Link to="/portfolio" className="hidden md:flex items-center gap-2 text-[12px] text-muted-foreground hover:text-foreground transition-colors group tracking-[0.05em]">
                   {t("home_view_all")}
-                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
               </FadeUp>
             </div>
           </div>
 
-          {/* Horizontal scroll container */}
           <FeaturedScrollSection featured={featured} setLightboxIdx={setLightboxIdx} />
 
-          <div className="container pb-12 md:hidden">
+          <div className="container pb-10 md:hidden">
             <FadeUp delay={0.2}>
               <div className="text-center">
-                <Button variant="outline" asChild className="rounded-none tracking-[0.1em] uppercase text-xs">
+                <Button variant="outline" asChild className="rounded-none tracking-[0.12em] uppercase text-[10px] font-medium">
                   <Link to="/portfolio">{t("home_all_projects")}</Link>
                 </Button>
               </div>
@@ -799,40 +626,38 @@ export default function Home() {
 
       {/* ══════════ SERVICES ══════════ */}
       {servicesHome.length > 0 && (
-        <section id="services" className="border-t border-border/30 bg-muted/20">
-          <div className="container py-24 md:py-36">
+        <section id="services" className="border-t border-border/25 bg-muted/15">
+          <div className="container py-20 md:py-32">
             <SectionLabel text={t("home_disciplines")} />
             <FadeUp>
-              <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1] mb-16 md:mb-20">{t("home_what_we_do")}</h2>
+              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-foreground leading-[1.1] mb-14 md:mb-18">{t("home_what_we_do")}</h2>
             </FadeUp>
 
-            <StaggerContainer className="grid gap-px grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" staggerDelay={0.08}>
+            <StaggerContainer className="grid gap-px grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" staggerDelay={0.06}>
               {servicesHome.map((s: any, i: number) => {
                 const Icon = ICON_MAP[s.icon] ?? Building2;
                 return (
                   <StaggerItem key={s.title}>
-                    <div className="relative bg-background p-8 md:p-10 group hover:bg-card transition-all duration-500 h-full border border-border/20 overflow-hidden">
-                      {/* Animated gradient border on hover */}
+                    <div className="relative bg-background p-7 md:p-8 group hover:bg-card transition-all duration-500 h-full border border-border/15 overflow-hidden">
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
-                        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+                        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
                       </div>
-                      {/* Large background number */}
-                      <span className="absolute -right-2 -top-4 font-display text-[120px] leading-none text-border/[0.06] group-hover:text-primary/[0.06] transition-colors duration-700 select-none pointer-events-none">
+                      <span className="absolute -right-2 -top-4 font-display text-[100px] leading-none text-border/[0.04] group-hover:text-primary/[0.05] transition-colors duration-700 select-none pointer-events-none">
                         {String(i + 1).padStart(2, '0')}
                       </span>
                       <div className="relative z-10">
                         <motion.div
-                          whileHover={{ scale: 1.15, rotate: -5 }}
+                          whileHover={{ scale: 1.1, rotate: -3 }}
                           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                          className="inline-block mb-6"
+                          className="inline-block mb-5"
                         >
-                          <Icon size={22} className="text-primary" />
+                          <Icon size={20} className="text-primary" />
                         </motion.div>
-                        <h3 className="font-display text-xl md:text-2xl text-foreground mb-4 leading-tight group-hover:text-primary transition-colors duration-300">{s.title}</h3>
-                        <p className="text-sm text-muted-foreground leading-[1.8]">{s.desc}</p>
-                        <div className="mt-6 flex items-center gap-2 text-xs text-primary/0 group-hover:text-primary transition-all duration-500 translate-y-2 group-hover:translate-y-0">
-                          <span className="tracking-[0.15em] uppercase">Learn more</span>
-                          <ArrowRight size={12} />
+                        <h3 className="font-display text-lg md:text-xl text-foreground mb-3 leading-tight group-hover:text-primary transition-colors duration-300">{s.title}</h3>
+                        <p className="text-[13px] text-muted-foreground leading-[1.8]">{s.desc}</p>
+                        <div className="mt-5 flex items-center gap-2 text-[10px] text-primary/0 group-hover:text-primary transition-all duration-500 translate-y-2 group-hover:translate-y-0 tracking-[0.15em] uppercase font-mono-label">
+                          <span>Learn more</span>
+                          <ArrowRight size={10} />
                         </div>
                       </div>
                     </div>
@@ -852,27 +677,27 @@ export default function Home() {
 
       {/* ══════════ AWARDS ══════════ */}
       {awards.length > 0 && (
-        <section id="awards" className="border-t border-border/30">
-          <div className="container py-24 md:py-36">
-            <div className="text-center mb-16 md:mb-20">
+        <section id="awards" className="border-t border-border/25">
+          <div className="container py-20 md:py-32">
+            <div className="text-center mb-14 md:mb-18">
               <SectionLabel text={t("home_awards_recognition")} className="justify-center" />
               <FadeUp>
-                <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1]">{t("home_honored_work")}</h2>
+                <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-foreground leading-[1.1]">{t("home_honored_work")}</h2>
               </FadeUp>
             </div>
 
-            <StaggerContainer className="max-w-3xl mx-auto" staggerDelay={0.06}>
+            <StaggerContainer className="max-w-3xl mx-auto" staggerDelay={0.05}>
               {awards.map((a: any) => (
                 <StaggerItem key={a.year + a.title}>
-                  <div className="flex items-start gap-6 md:gap-10 py-7 md:py-9 group border-b border-border/30 last:border-b-0 cursor-default">
-                    <span className="font-display text-3xl md:text-4xl text-primary/40 group-hover:text-primary/70 transition-colors duration-500 shrink-0 w-[80px]">{a.year}</span>
+                  <div className="flex items-start gap-5 md:gap-8 py-6 md:py-7 group border-b border-border/25 last:border-b-0 cursor-default">
+                    <span className="font-mono-label text-sm text-primary/35 group-hover:text-primary/60 transition-colors duration-500 shrink-0 w-[60px] tabular-nums">{a.year}</span>
                     <div className="flex-1">
-                      <h3 className="font-display text-lg md:text-xl text-foreground leading-snug group-hover:text-primary transition-colors duration-300">
+                      <h3 className="font-display text-base md:text-lg text-foreground leading-snug group-hover:text-primary transition-colors duration-300">
                         {a.title}
                       </h3>
-                      <p className="text-xs tracking-[0.15em] text-muted-foreground uppercase mt-2">{a.org}</p>
+                      <p className="text-[10px] tracking-[0.15em] text-muted-foreground/60 uppercase mt-1.5 font-mono-label">{a.org}</p>
                     </div>
-                    <ArrowRight size={16} className="text-transparent group-hover:text-primary transition-all duration-500 group-hover:translate-x-1 mt-1 shrink-0" />
+                    <ArrowRight size={14} className="text-transparent group-hover:text-primary transition-all duration-500 group-hover:translate-x-1 mt-0.5 shrink-0" />
                   </div>
                 </StaggerItem>
               ))}
@@ -880,8 +705,6 @@ export default function Home() {
           </div>
         </section>
       )}
-
-      {/* CTA is now part of the footer */}
 
       <PublicFooter />
       <FloatingChatButton />

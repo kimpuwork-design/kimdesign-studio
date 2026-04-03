@@ -12,7 +12,7 @@ import { useSiteContent } from "@/hooks/useSiteContent";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { FadeUp, SlideIn, FadeIn, TextReveal } from "@/components/motion/MotionWrappers";
+import { FadeUp, SlideIn, FadeIn } from "@/components/motion/MotionWrappers";
 import { MagneticButton } from "@/components/MagneticButton";
 import { SectionLabel } from "@/components/SectionLabel";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -56,34 +56,21 @@ export default function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError(null);
-
-    // Rate limit: 1 submission per 30 seconds
     const now = Date.now();
-    if (now - lastSubmitRef.current < 30_000) {
-      setServerError("Please wait before submitting again.");
-      return;
-    }
+    if (now - lastSubmitRef.current < 30_000) { setServerError("Please wait before submitting again."); return; }
 
     const result = contactSchema.safeParse(form);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
-      result.error.errors.forEach((err) => {
-        const field = err.path[0] as string;
-        fieldErrors[field] = err.message;
-      });
+      result.error.errors.forEach((err) => { fieldErrors[err.path[0] as string] = err.message; });
       setErrors(fieldErrors);
       return;
     }
     lastSubmitRef.current = now;
     setSubmitting(true);
-    const messageWithType = form.projectType
-      ? `[Project Type: ${form.projectType}]\n\n${result.data.message}`
-      : result.data.message;
+    const messageWithType = form.projectType ? `[Project Type: ${form.projectType}]\n\n${result.data.message}` : result.data.message;
     const { error } = await supabase.from("leads").insert([{
-      name: result.data.name,
-      email: result.data.email,
-      phone: result.data.phone || null,
-      message: messageWithType,
+      name: result.data.name, email: result.data.email, phone: result.data.phone || null, message: messageWithType,
     }]);
     setSubmitting(false);
     if (error) { setServerError("Something went wrong. Please try again."); return; }
@@ -100,34 +87,23 @@ export default function Contact() {
     <div className="bg-background relative overflow-x-hidden">
       <PublicNav />
 
-      {/* ── Hero with architectural texture + parallax ── */}
+      {/* ── Cinematic Hero ── */}
       <div ref={heroRef} className="relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8, duration: 1 }}>
-            <motion.div
-              animate={{ y: [0, -18, 0], rotate: [0, 4, 0] }}
-              transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[10%] right-[8%] w-[220px] h-[220px] border border-primary/[0.05]"
-            />
-            <motion.div
-              animate={{ y: [0, 14, 0], rotate: [12, 18, 12] }}
-              transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[25%] right-[12%] w-[160px] h-[160px] border border-primary/[0.04] rotate-12"
-            />
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute bottom-[20%] left-[5%] w-[80px] h-[80px] border border-primary/[0.04] rounded-full"
-            />
-            <motion.div
-              animate={{ scaleY: [0.4, 1, 0.4] }}
-              transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+            <motion.div animate={{ y: [0, -18, 0], rotate: [0, 4, 0] }} transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-[10%] right-[8%] w-[220px] h-[220px] border border-primary/[0.05]" />
+            <motion.div animate={{ y: [0, 14, 0], rotate: [12, 18, 12] }} transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-[25%] right-[12%] w-[160px] h-[160px] border border-primary/[0.04] rotate-12" />
+            <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute bottom-[20%] left-[5%] w-[80px] h-[80px] border border-primary/[0.04] rounded-full" />
+            <motion.div animate={{ scaleY: [0.4, 1, 0.4] }} transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
               className="absolute bottom-[10%] left-[6%] w-px h-[140px] bg-gradient-to-b from-transparent via-primary/[0.06] to-transparent"
-              style={{ transformOrigin: "bottom" }}
-            />
+              style={{ transformOrigin: "bottom" }} />
           </motion.div>
         </div>
         <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
+
         <motion.div style={{ opacity: heroOpacity, y: heroY }} className="relative z-10">
           <div className="container py-20 md:py-32 lg:py-40">
             <div className="max-w-4xl">
@@ -157,7 +133,7 @@ export default function Contact() {
         </motion.div>
       </div>
 
-      {/* ── Contact content ── */}
+      {/* ── Contact Content ── */}
       <section className="border-t border-border/30 relative z-10">
         <div className="container py-24 md:py-36 grid gap-16 md:gap-24 grid-cols-1 md:grid-cols-[1fr_2fr]">
           {/* Info sidebar */}
@@ -196,13 +172,14 @@ export default function Contact() {
               {submitted ? (
                 <FadeIn>
                   <div className="border border-border/30 p-12 md:p-16 text-center">
-                    <CheckCircle2 size={32} className="text-primary mx-auto mb-6" />
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, damping: 15 }}>
+                      <CheckCircle2 size={40} className="text-primary mx-auto mb-6" />
+                    </motion.div>
                     <h3 className="font-display text-3xl text-foreground">{t("contact_thank_you")}</h3>
                     <p className="mt-3 text-muted-foreground text-sm font-light">{t("contact_in_touch")}</p>
-                    <Button
-                      variant="outline" className="mt-8 rounded-none tracking-[0.12em] text-xs uppercase px-8 h-11 border-foreground/20 hover:bg-foreground hover:text-background transition-all duration-500"
-                      onClick={() => { setSubmitted(false); setForm({ name: "", email: "", phone: "", message: "", projectType: "" }); }}
-                    >
+                    <Button variant="outline"
+                      className="mt-8 rounded-none tracking-[0.12em] text-xs uppercase px-8 h-11 border-foreground/20 hover:bg-foreground hover:text-background transition-all duration-500"
+                      onClick={() => { setSubmitted(false); setForm({ name: "", email: "", phone: "", message: "", projectType: "" }); }}>
                       {t("contact_send_another")}
                     </Button>
                   </div>
@@ -241,12 +218,10 @@ export default function Contact() {
                     <div className="space-y-2 group/field">
                       <Label className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-focus-within/field:text-primary transition-colors duration-300">{t("contact_project_type")}</Label>
                       <div className="relative">
-                        <select
-                          value={form.projectType} onChange={(e) => set("projectType", e.target.value)}
-                          className="w-full border border-border/40 bg-transparent px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-transparent h-11 peer"
-                        >
+                        <select value={form.projectType} onChange={(e) => set("projectType", e.target.value)}
+                          className="w-full border border-border/40 bg-transparent px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-transparent h-11 peer">
                           <option value="">{t("contact_select_type")}</option>
-                          {projectTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+                          {projectTypes.map((pt) => <option key={pt} value={pt}>{pt}</option>)}
                         </select>
                         <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" />
                       </div>

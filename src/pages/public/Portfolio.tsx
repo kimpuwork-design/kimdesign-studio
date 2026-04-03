@@ -7,9 +7,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { Search, MapPin, Calendar, Grid3X3, Star, Loader2, ArrowRight, ArrowUpRight, LayoutGrid, Rows3 } from "lucide-react";
+import { Search, MapPin, Calendar, Grid3X3, Star, ArrowRight, ArrowUpRight, LayoutGrid, Rows3 } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { FadeUp } from "@/components/motion/MotionWrappers";
+import { SectionLabel } from "@/components/SectionLabel";
 
 const CATEGORIES = ["All", "Residential", "Cultural", "Commercial", "Interior", "Landscape", "Civic", "Mixed-Use"];
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
@@ -75,10 +76,9 @@ interface ProjectPortfolioItem {
   updated_at: string;
 }
 
-/* ─── Grid Card — Sharp, editorial with inner parallax ─── */
+/* ─── Grid Card ─── */
 function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioItem; size?: "hero" | "tall" | "wide" | "normal"; index: number; t: (k: string) => string }) {
   const linkTo = item.slug ? `/portfolio/${item.slug}` : `/projects/${item.id}`;
-  const coverUrl = item.thumbnail_url;
   const imgRef = useRef<HTMLImageElement>(null);
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -86,37 +86,22 @@ function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioI
     const rect = el.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    if (imgRef.current) {
-      imgRef.current.style.transform = `scale(1.08) translate(${-x * 12}px, ${-y * 12}px)`;
-    }
+    if (imgRef.current) imgRef.current.style.transform = `scale(1.08) translate(${-x * 12}px, ${-y * 12}px)`;
   };
   const handleMouseLeave = () => {
-    if (imgRef.current) {
-      imgRef.current.style.transform = "scale(1) translate(0, 0)";
-    }
+    if (imgRef.current) imgRef.current.style.transform = "scale(1) translate(0, 0)";
   };
 
-  const aspectMap = {
-    hero: "aspect-[16/10] md:aspect-[16/9]",
-    tall: "aspect-[3/4]",
-    wide: "aspect-[16/9]",
-    normal: "aspect-[4/3]",
-  };
+  const aspectMap = { hero: "aspect-[16/10] md:aspect-[16/9]", tall: "aspect-[3/4]", wide: "aspect-[16/9]", normal: "aspect-[4/3]" };
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.97 }}
-      transition={{ duration: 0.6, delay: index * 0.05, ease: luxuryEase }}
-    >
+    <motion.div layout initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.97 }}
+      transition={{ duration: 0.6, delay: index * 0.05, ease: luxuryEase }}>
       <Link to={linkTo} className="group block relative overflow-hidden" data-cursor-hover data-cursor-label="View"
         onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
         <div className={`${aspectMap[size]} overflow-hidden relative`}>
-          {coverUrl ? (
-            <img ref={imgRef} src={coverUrl} alt={item.title} loading="lazy"
-              draggable={false}
+          {item.thumbnail_url ? (
+            <img ref={imgRef} src={item.thumbnail_url} alt={item.title} loading="lazy" draggable={false}
               onContextMenu={(e) => e.preventDefault()}
               className="w-full h-full object-cover transition-transform duration-700 ease-out"
               style={{ userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties} />
@@ -125,8 +110,7 @@ function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioI
               <Grid3X3 size={40} className="text-muted-foreground/15" />
             </div>
           )}
-          {/* Minimal gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
 
           {item.is_featured && (
             <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-primary px-3 py-1.5 text-[9px] font-medium text-primary-foreground tracking-[0.15em] uppercase">
@@ -134,25 +118,19 @@ function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioI
             </div>
           )}
 
-          {/* Hover reveal arrow */}
-          <div className="absolute top-4 right-4 h-9 w-9 bg-background/90 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+          <motion.div className="absolute top-4 right-4 h-9 w-9 bg-background/90 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
             <ArrowUpRight size={14} className="text-foreground" />
-          </div>
+          </motion.div>
 
-          {/* Bottom info — always visible */}
           <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6">
-            <div className="translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+            <div className="translate-y-1 group-hover:translate-y-0 transition-transform duration-500">
               {item.category && (
-                <span className="inline-block text-[9px] tracking-[0.2em] uppercase font-medium text-background/70 mb-2">
-                  {item.category}
-                </span>
+                <span className="inline-block text-[9px] tracking-[0.2em] uppercase font-medium text-background/70 mb-2">{item.category}</span>
               )}
               <h3 className={`font-display text-background drop-shadow-lg leading-tight ${
                 size === "hero" ? "text-2xl md:text-4xl" : size === "tall" || size === "wide" ? "text-xl md:text-2xl" : "text-lg md:text-xl"
-              }`}>
-                {item.title}
-              </h3>
-              <div className="mt-2 flex items-center gap-3 text-[11px] text-background/50">
+              }`}>{item.title}</h3>
+              <div className="mt-2 flex items-center gap-3 text-[11px] text-background/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                 {item.location && <span className="flex items-center gap-1"><MapPin size={10} />{item.location}</span>}
                 {item.year && <span className="flex items-center gap-1"><Calendar size={10} />{item.year}</span>}
               </div>
@@ -164,14 +142,12 @@ function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioI
   );
 }
 
-/* ─── List Card — Editorial row ─── */
+/* ─── List Card ─── */
 function ListCard({ item, index }: { item: ProjectPortfolioItem; index: number }) {
   const linkTo = item.slug ? `/portfolio/${item.slug}` : `/projects/${item.id}`;
-
   return (
     <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, delay: index * 0.04, ease: luxuryEase }}>
       <Link to={linkTo} className="group flex items-center gap-6 py-6 px-0 border-b border-border/30 hover:border-primary/20 transition-all duration-300" data-cursor-hover data-cursor-label="View">
-        {/* Number */}
         <span className="font-display text-3xl text-border/50 group-hover:text-primary/30 transition-colors duration-500 tabular-nums w-[50px] shrink-0 hidden sm:block">
           {String(index + 1).padStart(2, '0')}
         </span>
@@ -232,12 +208,8 @@ export default function PublicPortfolio() {
     if (category !== "All" && item.category !== category) return false;
     if (search.trim()) {
       const q = search.toLowerCase();
-      return (
-        item.title.toLowerCase().includes(q) ||
-        (item.summary ?? "").toLowerCase().includes(q) ||
-        item.location?.toLowerCase().includes(q) ||
-        item.tags?.some((tg) => tg.toLowerCase().includes(q))
-      );
+      return item.title.toLowerCase().includes(q) || (item.summary ?? "").toLowerCase().includes(q) ||
+        item.location?.toLowerCase().includes(q) || item.tags?.some((tg) => tg.toLowerCase().includes(q));
     }
     return true;
   });
@@ -254,7 +226,6 @@ export default function PublicPortfolio() {
     if (index === 5 || index === 9) return "wide";
     return "normal";
   };
-
   const getBentoSpan = (index: number): string => {
     if (index === 0) return "md:col-span-2 md:row-span-1";
     if (index === 5 || index === 9) return "md:col-span-2";
@@ -265,24 +236,47 @@ export default function PublicPortfolio() {
     <div className="bg-background min-h-screen relative content-protected">
       <PublicNav />
 
-      {/* ── Hero ── */}
+      {/* ── Cinematic Hero ── */}
       <div ref={heroRef} className="relative overflow-hidden">
+        {/* Floating wireframes */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }}>
+            <motion.div animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-[12%] right-[6%] w-[200px] h-[200px] border border-primary/[0.05]" />
+            <motion.div animate={{ y: [0, 15, 0], rotate: [15, 20, 15] }} transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-[30%] right-[10%] w-[120px] h-[120px] border border-primary/[0.04] rotate-[15deg]" />
+            <motion.div animate={{ y: [0, -12, 0] }} transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute bottom-[15%] left-[4%] w-[90px] h-[90px] border border-primary/[0.04] rounded-full" />
+            <motion.div animate={{ scaleY: [0.5, 1, 0.5] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-[8%] left-[8%] w-px h-[180px] bg-gradient-to-b from-transparent via-primary/[0.06] to-transparent"
+              style={{ transformOrigin: "top" }} />
+          </motion.div>
+        </div>
+        <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
+
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10">
-          <section className="container pt-20 pb-10 md:pt-28 md:pb-16">
-            <div className="max-w-3xl">
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.1 }}
-                className="text-[10px] tracking-[0.35em] uppercase text-primary mb-6 md:mb-8">
-                {t("portfolio_selected_work")}
-              </motion.p>
+          <section className="container pt-20 pb-10 md:pt-32 md:pb-16">
+            <div className="max-w-4xl">
+              <SectionLabel text={t("portfolio_selected_work")} />
 
-              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: luxuryEase }}
-                className="font-display text-[clamp(2.5rem,7vw,6rem)] text-foreground leading-[0.95]">
-                {t("portfolio_our")}<br />
-                <span className="text-primary">{t("portfolio_title")}</span>
-              </motion.h1>
+              <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] text-foreground leading-[0.95]">
+                {(t("portfolio_our") || "Our").split(" ").map((word: string, i: number) => (
+                  <motion.span key={i} initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.3 + i * 0.08, ease: luxuryEase }}
+                    className="inline-block mr-[0.3em]">{word}</motion.span>
+                ))}
+                <br />
+                <span className="text-primary hero-shimmer-text">
+                  {(t("portfolio_title") || "Portfolio").split(" ").map((word: string, i: number) => (
+                    <motion.span key={`l2-${i}`} initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.7, delay: 0.6 + i * 0.08, ease: luxuryEase }}
+                      className="inline-block mr-[0.3em]">{word}</motion.span>
+                  ))}
+                </span>
+              </h1>
 
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }}
-                className="mt-6 text-muted-foreground max-w-lg leading-relaxed text-base md:text-lg font-light">
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.8 }}
+                className="mt-8 text-muted-foreground max-w-lg leading-relaxed text-base md:text-lg font-light">
                 {t("portfolio_description")}
               </motion.p>
 
@@ -292,7 +286,7 @@ export default function PublicPortfolio() {
                   { n: items.filter(i => i.is_featured).length, label: t("portfolio_featured_stat") },
                   { n: new Set(items.map(i => i.category).filter(Boolean)).size, label: t("portfolio_categories_stat") },
                 ].map((stat, i) => (
-                  <AnimatedPortfolioStat key={stat.label} value={stat.n} label={stat.label} delay={0.5 + i * 0.1} />
+                  <AnimatedPortfolioStat key={stat.label} value={stat.n} label={stat.label} delay={0.9 + i * 0.1} />
                 ))}
               </div>
             </div>
@@ -313,9 +307,7 @@ export default function PublicPortfolio() {
             {CATEGORIES.map((c) => (
               <button key={c} onClick={() => { setCategory(c); setPage(1); }}
                 className={`px-3 md:px-3.5 py-1.5 text-[10px] tracking-[0.12em] uppercase font-medium transition-all duration-300 whitespace-nowrap shrink-0 ${
-                  category === c
-                    ? "bg-foreground text-background"
-                    : "text-muted-foreground hover:text-foreground"
+                  category === c ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
                 }`}>
                 {c === "All" ? t("portfolio_all") : c}
               </button>
@@ -337,18 +329,11 @@ export default function PublicPortfolio() {
         {loading ? (
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <motion.div 
-                key={i} 
-                className={i === 0 ? "md:col-span-2" : ""}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: i * 0.08 }}
-              >
-                <div className={`${i === 0 ? "aspect-[16/9]" : i <= 2 ? "aspect-[3/4]" : "aspect-[4/3]"} bg-muted/50 animate-pulse rounded-sm`} />
+              <motion.div key={i} className={i === 0 ? "md:col-span-2" : ""} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.08 }}>
+                <div className={`${i === 0 ? "aspect-[16/9]" : i <= 2 ? "aspect-[3/4]" : "aspect-[4/3]"} bg-muted/50 animate-pulse`} />
                 <div className="mt-3 space-y-2">
-                  <div className="h-3 w-16 bg-muted/40 animate-pulse rounded" />
-                  <div className="h-5 w-48 bg-muted/40 animate-pulse rounded" />
-                  <div className="h-3 w-24 bg-muted/40 animate-pulse rounded" />
+                  <div className="h-3 w-16 bg-muted/40 animate-pulse" />
+                  <div className="h-5 w-48 bg-muted/40 animate-pulse" />
                 </div>
               </motion.div>
             ))}
@@ -410,14 +395,14 @@ export default function PublicPortfolio() {
 
       {/* ── CTA ── */}
       <section className="border-t border-border/30">
-        <div className="container py-24 md:py-36">
+        <div className="container py-32 md:py-48">
           <FadeUp>
-            <div className="text-center max-w-2xl mx-auto">
-              <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-6">{t("portfolio_start_project")}</p>
-              <h2 className="font-display text-4xl md:text-6xl text-foreground leading-[1.05]">{t("portfolio_inspired")}</h2>
-              <p className="mt-4 text-muted-foreground max-w-md mx-auto leading-relaxed font-light">{t("portfolio_lets_create")}</p>
+            <div className="text-center max-w-3xl mx-auto">
+              <SectionLabel text={t("portfolio_start_project")} className="justify-center" />
+              <h2 className="font-display text-4xl md:text-6xl lg:text-7xl text-foreground leading-[1.05]">{t("portfolio_inspired")}</h2>
+              <p className="mt-6 text-muted-foreground max-w-md mx-auto leading-relaxed font-light text-lg">{t("portfolio_lets_create")}</p>
               <Link to="/contact"
-                className="inline-flex items-center gap-2 mt-10 bg-primary px-10 py-4 text-sm tracking-[0.15em] uppercase text-primary-foreground hover:bg-primary/90 transition-colors">
+                className="inline-flex items-center gap-3 mt-10 bg-primary px-12 py-4 text-sm tracking-[0.15em] uppercase text-primary-foreground hover:bg-primary/90 transition-colors duration-500">
                 {t("portfolio_start_project")} <ArrowRight size={14} />
               </Link>
             </div>

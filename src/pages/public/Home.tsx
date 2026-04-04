@@ -303,143 +303,91 @@ export default function Home() {
       <ArchitectureBusinessJsonLd />
       <PublicNav />
 
-      {/* ══════════ HERO ══════════ */}
+      {/* ══════════ 3D HERO ══════════ */}
       <div ref={heroRef} className="relative" id="hero">
         <motion.section
           style={{ opacity: heroOpacity, y: heroY }}
-          className="min-h-[88vh] md:min-h-[92vh] flex items-center relative overflow-hidden"
+          className="min-h-[92vh] md:min-h-screen flex items-center relative overflow-hidden"
         >
-          {/* Subtle background image */}
-          {heroImage && (
-            <div className="absolute inset-0 z-0">
-              <img src={heroImage} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-background/88 dark:bg-background/92" />
-            </div>
-          )}
-
-          {/* Minimal geometric accents */}
-          <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden hidden md:block">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2, duration: 1.5 }}>
-              <motion.div
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
-                className="absolute top-[12%] right-[6%] w-[160px] h-[160px] border border-primary/[0.06]"
-              />
-              <motion.div
-                animate={{ y: [0, -15, 0] }}
-                transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute bottom-[25%] right-[12%] w-[80px] h-[80px] border border-primary/[0.04] rounded-full"
-              />
-              <motion.div
-                animate={{ scaleY: [0.5, 1, 0.5] }}
-                transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-[8%] left-[4%] w-px h-[160px] bg-gradient-to-b from-transparent via-primary/[0.05] to-transparent"
-                style={{ transformOrigin: "top" }}
-              />
-            </motion.div>
-          </div>
+          {/* 3D Canvas background */}
+          <Hero3D />
 
           <div className="absolute inset-0 noise-overlay pointer-events-none z-[2]" />
 
-          <div className="container py-20 md:py-28 relative z-10">
-            <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-              {/* Left content */}
-              <div className="lg:col-span-7">
-                <motion.p
-                  initial={{ opacity: 0, x: -15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
-                  className="text-[10px] tracking-[0.4em] uppercase text-primary mb-7 md:mb-9 font-mono-label"
-                >
-                  {hero.badge ?? "Architecture · Interiors · Urbanism"}
-                </motion.p>
+          {/* Content overlay */}
+          <div className="container relative z-10 py-20 md:py-28">
+            <div className="max-w-3xl">
+              <motion.p
+                initial={{ opacity: 0, x: -15 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
+                className="text-[10px] tracking-[0.4em] uppercase text-primary mb-7 md:mb-9 font-mono-label"
+              >
+                {hero.badge ?? "Architecture · Interiors · Urbanism"}
+              </motion.p>
 
-                <motion.h1 className="font-display text-[clamp(2.8rem,7.5vw,7rem)] leading-[0.92] text-foreground">
-                  <span className="overflow-hidden inline-block">
-                    {(hero.title_line1 ?? "Building spaces").split(" ").map((word: string, i: number) => (
-                      <motion.span
-                        key={i}
-                        initial={{ opacity: 0, y: 45 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.7, delay: 0.3 + i * 0.07, ease: luxuryEase }}
-                        className="inline-block mr-[0.28em]"
-                      >
-                        {word}
-                      </motion.span>
-                    ))}
-                  </span>
-                  <br />
-                  <span className="overflow-hidden inline-block">
-                    {(hero.title_line2 ?? "that endure.").split(" ").map((word: string, i: number) => (
-                      <motion.span
-                        key={`l2-${i}`}
-                        initial={{ opacity: 0, y: 45 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.7, delay: 0.45 + i * 0.07, ease: luxuryEase }}
-                        className="inline-block mr-[0.28em] hero-shimmer-text"
-                      >
-                        {word}
-                      </motion.span>
-                    ))}
-                  </span>
-                </motion.h1>
+              <motion.h1 className="font-display text-[clamp(2.8rem,7.5vw,7rem)] leading-[0.92] text-foreground">
+                <span className="overflow-hidden inline-block">
+                  {(hero.title_line1 ?? "Building spaces").split(" ").map((word: string, i: number) => (
+                    <motion.span
+                      key={i}
+                      initial={{ opacity: 0, y: 45 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.7, delay: 0.3 + i * 0.07, ease: luxuryEase }}
+                      className="inline-block mr-[0.28em]"
+                    >
+                      {word}
+                    </motion.span>
+                  ))}
+                </span>
+                <br />
+                <span className="overflow-hidden inline-block">
+                  {(hero.title_line2 ?? "that endure.").split(" ").map((word: string, i: number) => (
+                    <motion.span
+                      key={`l2-${i}`}
+                      initial={{ opacity: 0, y: 45 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.7, delay: 0.45 + i * 0.07, ease: luxuryEase }}
+                      className="inline-block mr-[0.28em] hero-shimmer-text"
+                    >
+                      {word}
+                    </motion.span>
+                  ))}
+                </span>
+              </motion.h1>
 
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.7, delay: 0.6, ease: luxuryEase }}
-                  className="mt-7 md:mt-9 text-base md:text-lg text-muted-foreground max-w-md leading-[1.8] font-light"
-                >
-                  {hero.description ?? ""}
-                </motion.p>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.6, ease: luxuryEase }}
+                className="mt-7 md:mt-9 text-base md:text-lg text-muted-foreground max-w-md leading-[1.8] font-light"
+              >
+                {hero.description ?? ""}
+              </motion.p>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.8, ease: luxuryEase }}
-                  className="mt-9 md:mt-12 flex flex-col sm:flex-row gap-3"
-                >
-                  <MagneticButton strength={0.2}>
-                    <Button size="lg" asChild className="rounded-none px-9 h-13 tracking-[0.15em] text-[11px] uppercase font-medium">
-                      <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={13} className="ml-2.5" /></Link>
-                    </Button>
-                  </MagneticButton>
-                  <MagneticButton strength={0.2}>
-                    <Button variant="outline" size="lg" asChild className="rounded-none px-9 h-13 tracking-[0.15em] text-[11px] uppercase font-medium border-foreground/15 hover:bg-foreground hover:text-background transition-all duration-500">
-                      <Link to="/contact">{t("home_work_with_us")}</Link>
-                    </Button>
-                  </MagneticButton>
-                </motion.div>
-              </div>
-
-              {/* Right — Feature image */}
-              <div className="lg:col-span-5 hidden lg:block">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.96, y: 15 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ duration: 1, delay: 0.5, ease: luxuryEase }}
-                >
-                  {heroImage && (
-                    <div className="relative group">
-                      <div className="aspect-[3/4] overflow-hidden">
-                        <img src={heroImage} alt="Featured project" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-[1200ms]" />
-                      </div>
-                      {featured[0] && (
-                        <Link to={`/portfolio/${featured[0].slug}`} className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-foreground/75 to-transparent">
-                          <p className="text-[9px] tracking-[0.2em] uppercase text-background/50 mb-0.5 font-mono-label">{featured[0].category}</p>
-                          <p className="font-display text-lg text-background">{featured[0].title}</p>
-                        </Link>
-                      )}
-                    </div>
-                  )}
-                </motion.div>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.8, ease: luxuryEase }}
+                className="mt-9 md:mt-12 flex flex-col sm:flex-row gap-3"
+              >
+                <MagneticButton strength={0.2}>
+                  <Button size="lg" asChild className="rounded-none px-9 h-13 tracking-[0.15em] text-[11px] uppercase font-medium">
+                    <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={13} className="ml-2.5" /></Link>
+                  </Button>
+                </MagneticButton>
+                <MagneticButton strength={0.2}>
+                  <Button variant="outline" size="lg" asChild className="rounded-none px-9 h-13 tracking-[0.15em] text-[11px] uppercase font-medium border-foreground/15 hover:bg-foreground hover:text-background transition-all duration-500">
+                    <Link to="/contact">{t("home_work_with_us")}</Link>
+                  </Button>
+                </MagneticButton>
+              </motion.div>
             </div>
           </div>
         </motion.section>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-6 left-0 right-0 px-6 md:px-10 flex items-end justify-between">
+        <div className="absolute bottom-6 left-0 right-0 px-6 md:px-10 flex items-end justify-between z-10">
           <LiveClock className="hidden md:flex" />
           <motion.div
             initial={{ opacity: 0 }}

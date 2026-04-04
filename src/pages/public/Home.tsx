@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback, MouseEvent as ReactMouseEvent } from "react";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";
+import { Hero3D } from "@/components/Hero3D";
 import useEmblaCarousel from "embla-carousel-react";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";

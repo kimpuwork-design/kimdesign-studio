@@ -1,57 +1,70 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Text3D, Center, Float, Environment, MeshTransmissionMaterial } from "@react-three/drei";
-import { Suspense, useRef, useMemo, useState, useEffect } from "react";
+import { Text3D, Center, Float, Environment } from "@react-three/drei";
+import { Suspense, useRef, useMemo, useState, useEffect, useCallback } from "react";
 import * as THREE from "three";
-import { useTheme } from "next-themes";
+
+/* ── Theme hook (reads document class) ── */
+function useIsDark() {
+  const [isDark, setIsDark] = useState(() =>
+    typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+  );
+  useEffect(() => {
+    const el = document.documentElement;
+    const obs = new MutationObserver(() => setIsDark(el.classList.contains("dark")));
+    obs.observe(el, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+  return isDark;
+}
 
 /* ── Animated 3D Studio Name ── */
-function StudioText({ text = "KIM", mousePos }: { text?: string; mousePos: React.MutableRefObject<{ x: number; y: number }> }) {
+function StudioText({ mousePos }: { mousePos: React.MutableRefObject<{ x: number; y: number }> }) {
   const meshRef = useRef<THREE.Group>(null);
-  const materialRef = useRef<THREE.MeshStandardMaterial>(null);
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
 
   useFrame((state) => {
     if (!meshRef.current) return;
     const t = state.clock.getElapsedTime();
-    // Gentle breathing
     meshRef.current.rotation.y = THREE.MathUtils.lerp(
       meshRef.current.rotation.y,
-      mousePos.current.x * 0.15,
-      0.03
+      mousePos.current.x * 0.12,
+      0.025
     );
     meshRef.current.rotation.x = THREE.MathUtils.lerp(
       meshRef.current.rotation.x,
-      mousePos.current.y * -0.08,
-      0.03
+      mousePos.current.y * -0.06,
+      0.025
     );
-    meshRef.current.position.y = Math.sin(t * 0.4) * 0.05;
+    meshRef.current.position.y = Math.sin(t * 0.3) * 0.04;
   });
 
-  const color = isDark ? "#c4a882" : "#6b4c2a";
-  const emissive = isDark ? "#3d2e1a" : "#1a1008";
+  const color = isDark ? "#d4b896" : "#5a3e22";
+  const emissive = isDark ? "#2a1e10" : "#0d0804";
 
   return (
     <group ref={meshRef}>
       <Center>
         <Text3D
           font="/fonts/helvetiker_bold.typeface.json"
-          size={1.8}
-          height={0.4}
+          size={2.2}
+          height={0.55}
           bevelEnabled
-          bevelThickness={0.03}
-          bevelSize={0.02}
-          bevelSegments={8}
-          curveSegments={32}
+          bevelThickness={0.04}
+          bevelSize={0.025}
+          bevelSegments={12}
+          curveSegments={48}
         >
-          {text}
-          <meshStandardMaterial
-            ref={materialRef}
+          KIM
+          <meshPhysicalMaterial
             color={color}
-            metalness={0.85}
-            roughness={0.15}
+            metalness={0.92}
+            roughness={0.08}
             emissive={emissive}
-            emissiveIntensity={0.1}
+            emissiveIntensity={0.15}
+            clearcoat={1}
+            clearcoatRoughness={0.1}
+            reflectivity={1}
+            envMapIntensity={1.5}
           />
         </Text3D>
       </Center>
@@ -59,44 +72,115 @@ function StudioText({ text = "KIM", mousePos }: { text?: string; mousePos: React
   );
 }
 
+/* ── Orbiting ring ── */
+function OrbitRing({ radius, speed, tilt, thickness }: { radius: number; speed: number; tilt: number; thickness: number }) {
+  const ref = useRef<THREE.Mesh>(null);
+  const isDark = useIsDark();
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    ref.current.rotation.z = state.clock.getElapsedTime() * speed;
+  });
+
+  return (
+    <mesh ref={ref} rotation={[tilt, 0, 0]}>
+      <torusGeometry args={[radius, thickness, 16, 100]} />
+      <meshStandardMaterial
+        color={isDark ? "#c4a882" : "#6b4c2a"}
+        metalness={0.95}
+        roughness={0.05}
+        transparent
+        opacity={0.15}
+      />
+    </mesh>
+  );
+}
+
 /* ── Floating accent shapes ── */
 function FloatingShapes() {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
   const color = isDark ? "#c4a882" : "#6b4c2a";
+  const glassColor = isDark ? "#e8d5bf" : "#8b6e50";
 
   return (
     <>
-      <Float speed={1.5} rotationIntensity={0.4} floatIntensity={0.6}>
-        <mesh position={[-3.5, 1.2, -1.5]}>
-          <boxGeometry args={[0.3, 0.3, 0.3]} />
+      {/* Glass sphere */}
+      <Float speed={1.2} rotationIntensity={0.2} floatIntensity={0.5}>
+        <mesh position={[-3.8, 1.5, -1]}>
+          <sphereGeometry args={[0.35, 64, 64]} />
+          <meshPhysicalMaterial
+            color={glassColor}
+            metalness={0}
+            roughness={0}
+            transmission={0.95}
+            thickness={0.5}
+            ior={1.5}
+            transparent
+            opacity={0.6}
+            envMapIntensity={2}
+          />
+        </mesh>
+      </Float>
+
+      {/* Wireframe cube */}
+      <Float speed={1.5} rotationIntensity={0.6} floatIntensity={0.6}>
+        <mesh position={[4.2, 1.0, -2]}>
+          <boxGeometry args={[0.4, 0.4, 0.4]} />
           <meshStandardMaterial color={color} metalness={0.9} roughness={0.1} wireframe />
         </mesh>
       </Float>
-      <Float speed={2} rotationIntensity={0.6} floatIntensity={0.8}>
-        <mesh position={[3.8, -0.8, -2]}>
-          <octahedronGeometry args={[0.25]} />
+
+      {/* Metallic octahedron */}
+      <Float speed={2} rotationIntensity={0.8} floatIntensity={0.8}>
+        <mesh position={[3.5, -1.2, -1.5]}>
+          <octahedronGeometry args={[0.22]} />
+          <meshPhysicalMaterial color={color} metalness={0.95} roughness={0.05} clearcoat={1} />
+        </mesh>
+      </Float>
+
+      {/* Torus knot */}
+      <Float speed={0.8} rotationIntensity={0.3} floatIntensity={0.4}>
+        <mesh position={[-3.2, -1.8, -0.8]}>
+          <torusKnotGeometry args={[0.15, 0.04, 128, 16, 2, 3]} />
+          <meshPhysicalMaterial color={color} metalness={0.9} roughness={0.1} clearcoat={0.5} />
+        </mesh>
+      </Float>
+
+      {/* Icosahedron */}
+      <Float speed={1.8} rotationIntensity={0.5} floatIntensity={0.5}>
+        <mesh position={[-2.0, 2.0, -2.5]}>
+          <icosahedronGeometry args={[0.2]} />
           <meshStandardMaterial color={color} metalness={0.9} roughness={0.1} wireframe />
         </mesh>
       </Float>
-      <Float speed={1.2} rotationIntensity={0.3} floatIntensity={0.5}>
-        <mesh position={[2.5, 1.8, -1]}>
-          <torusGeometry args={[0.2, 0.06, 16, 32]} />
+
+      {/* Cylinder pillar */}
+      <Float speed={0.6} rotationIntensity={0.1} floatIntensity={0.3}>
+        <mesh position={[2.8, 2.2, -3]} rotation={[0, 0, Math.PI / 6]}>
+          <cylinderGeometry args={[0.03, 0.03, 1.2, 8]} />
           <meshStandardMaterial color={color} metalness={0.8} roughness={0.2} />
         </mesh>
       </Float>
-      <Float speed={1.8} rotationIntensity={0.5} floatIntensity={0.4}>
-        <mesh position={[-2.8, -1.5, -0.5]}>
-          <icosahedronGeometry args={[0.18]} />
-          <meshStandardMaterial color={color} metalness={0.9} roughness={0.1} wireframe />
-        </mesh>
-      </Float>
-      {/* Ground plane with grid */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.8, 0]}>
-        <planeGeometry args={[20, 20]} />
-        <meshStandardMaterial color={isDark ? "#1a1614" : "#f0ebe4"} metalness={0} roughness={1} transparent opacity={0.5} />
+
+      {/* Orbit rings */}
+      <OrbitRing radius={3.5} speed={0.08} tilt={Math.PI / 5} thickness={0.008} />
+      <OrbitRing radius={4.2} speed={-0.05} tilt={-Math.PI / 7} thickness={0.005} />
+
+      {/* Ground reflection plane */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.2, 0]}>
+        <planeGeometry args={[30, 30]} />
+        <meshPhysicalMaterial
+          color={isDark ? "#0f0d0b" : "#f5f0ea"}
+          metalness={0.1}
+          roughness={0.6}
+          transparent
+          opacity={0.4}
+        />
       </mesh>
-      <gridHelper args={[20, 40, isDark ? "#2a241e" : "#d4cdc4", isDark ? "#1f1a15" : "#e8e2da"]} position={[0, -1.79, 0]} />
+      <gridHelper
+        args={[30, 60, isDark ? "#2a241e" : "#d4cdc4", isDark ? "#1a1610" : "#ebe5dc"]}
+        position={[0, -2.19, 0]}
+      />
     </>
   );
 }
@@ -104,65 +188,106 @@ function FloatingShapes() {
 /* ── Particle field ── */
 function ParticleField() {
   const ref = useRef<THREE.Points>(null);
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
 
   const particles = useMemo(() => {
-    const count = 200;
+    const count = 350;
     const positions = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 12;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 6;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 8;
+      positions[i * 3] = (Math.random() - 0.5) * 16;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 8;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+      sizes[i] = Math.random() * 0.015 + 0.005;
     }
-    return positions;
+    return { positions, sizes };
   }, []);
 
   useFrame((state) => {
     if (!ref.current) return;
-    ref.current.rotation.y = state.clock.getElapsedTime() * 0.02;
+    ref.current.rotation.y = state.clock.getElapsedTime() * 0.015;
+    ref.current.rotation.x = Math.sin(state.clock.getElapsedTime() * 0.1) * 0.02;
   });
 
   return (
     <points ref={ref}>
       <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[particles, 3]} />
+        <bufferAttribute attach="attributes-position" args={[particles.positions, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        size={0.015}
+        size={0.012}
         color={isDark ? "#c4a882" : "#6b4c2a"}
         transparent
-        opacity={0.4}
+        opacity={0.35}
         sizeAttenuation
       />
     </points>
   );
 }
 
+/* ── Volumetric light beams ── */
+function LightBeams() {
+  const isDark = useIsDark();
+  const ref = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    ref.current.rotation.y = state.clock.getElapsedTime() * 0.02;
+  });
+
+  const beamColor = isDark ? "#c4a882" : "#8b6e50";
+
+  return (
+    <group ref={ref}>
+      {[0, 1, 2].map((i) => (
+        <mesh key={i} position={[0, 3, 0]} rotation={[0, (Math.PI * 2 / 3) * i, Math.PI / 8 + i * 0.05]}>
+          <planeGeometry args={[0.03, 8]} />
+          <meshBasicMaterial color={beamColor} transparent opacity={0.03} side={THREE.DoubleSide} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 /* ── Scene ── */
 function Scene({ mousePos }: { mousePos: React.MutableRefObject<{ x: number; y: number }> }) {
   const { camera } = useThree();
+  const isDark = useIsDark();
 
   useEffect(() => {
-    camera.position.set(0, 0.3, 5.5);
+    camera.position.set(0, 0.4, 6);
   }, [camera]);
+
+  useFrame(() => {
+    // Subtle camera sway based on mouse
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, mousePos.current.x * 0.3, 0.02);
+    camera.position.y = THREE.MathUtils.lerp(camera.position.y, 0.4 + mousePos.current.y * 0.15, 0.02);
+  });
+
+  const fogColor = isDark ? "#0a0908" : "#f5f0ea";
 
   return (
     <>
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[5, 5, 5]} intensity={1.2} castShadow />
-      <directionalLight position={[-3, 2, -2]} intensity={0.4} color="#c4a882" />
-      <pointLight position={[0, 3, 2]} intensity={0.6} color="#fff5e6" />
+      {/* Lighting rig */}
+      <ambientLight intensity={0.2} />
+      <directionalLight position={[8, 8, 5]} intensity={1.5} castShadow color="#fff8f0" />
+      <directionalLight position={[-5, 3, -3]} intensity={0.5} color="#c4a882" />
+      <pointLight position={[0, 4, 3]} intensity={0.8} color="#fff5e6" distance={12} decay={2} />
+      <pointLight position={[-4, -1, 2]} intensity={0.3} color="#c4a882" distance={8} decay={2} />
+      <spotLight position={[0, 6, 0]} angle={0.4} penumbra={1} intensity={0.4} color="#fff5e6" />
+
       <StudioText mousePos={mousePos} />
       <FloatingShapes />
       <ParticleField />
-      <Environment preset="studio" environmentIntensity={0.3} />
-      <fog attach="fog" args={["#000000", 8, 18]} />
+      <LightBeams />
+
+      <Environment preset="studio" environmentIntensity={0.4} />
+      <fog attach="fog" args={[fogColor, 6, 20]} />
     </>
   );
 }
 
-/* ── Fallback for non-WebGL / loading ── */
+/* ── Fallback ── */
 function CanvasFallback() {
   return (
     <div className="absolute inset-0 flex items-center justify-center">
@@ -180,7 +305,6 @@ export function Hero3D() {
   const [canRender, setCanRender] = useState(true);
 
   useEffect(() => {
-    // Check for WebGL support
     try {
       const canvas = document.createElement("canvas");
       const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
@@ -190,14 +314,14 @@ export function Hero3D() {
     }
   }, []);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     mousePos.current = {
       x: ((e.clientX - rect.left) / rect.width - 0.5) * 2,
       y: ((e.clientY - rect.top) / rect.height - 0.5) * 2,
     };
-  };
+  }, []);
 
   if (!canRender) return <CanvasFallback />;
 
@@ -209,9 +333,10 @@ export function Hero3D() {
     >
       <Suspense fallback={<CanvasFallback />}>
         <Canvas
-          dpr={[1, 1.5]}
-          gl={{ antialias: true, alpha: true }}
+          dpr={[1, 2]}
+          gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
           style={{ background: "transparent" }}
+          shadows
         >
           <Scene mousePos={mousePos} />
         </Canvas>

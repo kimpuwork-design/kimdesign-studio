@@ -307,109 +307,138 @@ export default function Home() {
       <div ref={heroRef} className="relative" id="hero">
         <motion.section
           style={{ opacity: heroOpacity, y: heroY }}
-          className="min-h-[92vh] md:min-h-screen flex items-center relative overflow-hidden"
+          className="min-h-screen flex items-end relative overflow-hidden"
         >
           {/* 3D Canvas background */}
           <Hero3D />
 
+          {/* Cinematic overlays */}
           <div className="absolute inset-0 noise-overlay pointer-events-none z-[2]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent z-[3] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-transparent z-[3] pointer-events-none" />
 
-          {/* Content overlay */}
-          <div className="container relative z-10 py-20 md:py-28">
-            <div className="max-w-3xl">
-              <motion.p
-                initial={{ opacity: 0, x: -15 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
-                className="text-[10px] tracking-[0.4em] uppercase text-primary mb-7 md:mb-9 font-mono-label"
-              >
-                {hero.badge ?? "Architecture · Interiors · Urbanism"}
-              </motion.p>
+          {/* Side accent line */}
+          <motion.div
+            initial={{ scaleY: 0 }}
+            animate={{ scaleY: 1 }}
+            transition={{ duration: 1.2, delay: 0.5, ease: luxuryEase }}
+            className="absolute left-6 md:left-10 top-[15%] bottom-[15%] w-px bg-gradient-to-b from-transparent via-primary/20 to-transparent z-[4] origin-top hidden md:block"
+          />
 
-              <motion.h1 className="font-display text-[clamp(2.8rem,7.5vw,7rem)] leading-[0.92] text-foreground">
-                <span className="overflow-hidden inline-block">
-                  {(hero.title_line1 ?? "Building spaces").split(" ").map((word: string, i: number) => (
-                    <motion.span
-                      key={i}
-                      initial={{ opacity: 0, y: 45 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.7, delay: 0.3 + i * 0.07, ease: luxuryEase }}
-                      className="inline-block mr-[0.28em]"
-                    >
-                      {word}
-                    </motion.span>
-                  ))}
-                </span>
-                <br />
-                <span className="overflow-hidden inline-block">
-                  {(hero.title_line2 ?? "that endure.").split(" ").map((word: string, i: number) => (
-                    <motion.span
-                      key={`l2-${i}`}
-                      initial={{ opacity: 0, y: 45 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.7, delay: 0.45 + i * 0.07, ease: luxuryEase }}
-                      className="inline-block mr-[0.28em] hero-shimmer-text"
-                    >
-                      {word}
-                    </motion.span>
-                  ))}
-                </span>
-              </motion.h1>
+          {/* Content overlay — bottom-aligned cinematic layout */}
+          <div className="container relative z-10 pb-28 md:pb-36 pt-20">
+            <div className="grid md:grid-cols-[1fr,auto] gap-10 md:gap-20 items-end">
+              <div className="max-w-3xl">
+                <motion.div
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: "3rem" }}
+                  transition={{ duration: 0.8, delay: 0.15, ease: luxuryEase }}
+                  className="h-px bg-primary mb-7 md:mb-9"
+                />
 
-              <motion.p
+                <motion.p
+                  initial={{ opacity: 0, x: -15 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2, ease: luxuryEase }}
+                  className="text-[10px] tracking-[0.4em] uppercase text-primary mb-5 md:mb-7 font-mono-label"
+                >
+                  {hero.badge ?? "Architecture · Interiors · Urbanism"}
+                </motion.p>
+
+                <motion.h1 className="font-display text-[clamp(3rem,8vw,7.5rem)] leading-[0.88] text-foreground">
+                  <span className="overflow-hidden inline-block">
+                    {(hero.title_line1 ?? "Building spaces").split(" ").map((word: string, i: number) => (
+                      <motion.span
+                        key={i}
+                        initial={{ opacity: 0, y: 55, rotateX: -15 }}
+                        animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                        transition={{ duration: 0.8, delay: 0.3 + i * 0.08, ease: luxuryEase }}
+                        className="inline-block mr-[0.25em]"
+                      >
+                        {word}
+                      </motion.span>
+                    ))}
+                  </span>
+                  <br />
+                  <span className="overflow-hidden inline-block">
+                    {(hero.title_line2 ?? "that endure.").split(" ").map((word: string, i: number) => (
+                      <motion.span
+                        key={`l2-${i}`}
+                        initial={{ opacity: 0, y: 55, rotateX: -15 }}
+                        animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                        transition={{ duration: 0.8, delay: 0.5 + i * 0.08, ease: luxuryEase }}
+                        className="inline-block mr-[0.25em] hero-shimmer-text"
+                      >
+                        {word}
+                      </motion.span>
+                    ))}
+                  </span>
+                </motion.h1>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 0.7, ease: luxuryEase }}
+                  className="mt-7 md:mt-9 text-[15px] md:text-base text-muted-foreground max-w-md leading-[1.85] font-light"
+                >
+                  {hero.description ?? ""}
+                </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.9, ease: luxuryEase }}
+                  className="mt-10 md:mt-14 flex flex-col sm:flex-row gap-3"
+                >
+                  <MagneticButton strength={0.2}>
+                    <Button size="lg" asChild className="rounded-none px-10 h-13 tracking-[0.15em] text-[11px] uppercase font-medium">
+                      <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={13} className="ml-2.5" /></Link>
+                    </Button>
+                  </MagneticButton>
+                  <MagneticButton strength={0.2}>
+                    <Button variant="outline" size="lg" asChild className="rounded-none px-10 h-13 tracking-[0.15em] text-[11px] uppercase font-medium border-foreground/15 hover:bg-foreground hover:text-background transition-all duration-500">
+                      <Link to="/contact">{t("home_work_with_us")}</Link>
+                    </Button>
+                  </MagneticButton>
+                </motion.div>
+              </div>
+
+              {/* Right side vertical info strip */}
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.7, delay: 0.6, ease: luxuryEase }}
-                className="mt-7 md:mt-9 text-base md:text-lg text-muted-foreground max-w-md leading-[1.8] font-light"
+                transition={{ delay: 1.2, duration: 0.6 }}
+                className="hidden md:flex flex-col items-end gap-12 text-right pb-4"
               >
-                {hero.description ?? ""}
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.8, ease: luxuryEase }}
-                className="mt-9 md:mt-12 flex flex-col sm:flex-row gap-3"
-              >
-                <MagneticButton strength={0.2}>
-                  <Button size="lg" asChild className="rounded-none px-9 h-13 tracking-[0.15em] text-[11px] uppercase font-medium">
-                    <Link to="/portfolio">{t("home_view_projects")} <ArrowRight size={13} className="ml-2.5" /></Link>
-                  </Button>
-                </MagneticButton>
-                <MagneticButton strength={0.2}>
-                  <Button variant="outline" size="lg" asChild className="rounded-none px-9 h-13 tracking-[0.15em] text-[11px] uppercase font-medium border-foreground/15 hover:bg-foreground hover:text-background transition-all duration-500">
-                    <Link to="/contact">{t("home_work_with_us")}</Link>
-                  </Button>
-                </MagneticButton>
+                <div>
+                  <p className="text-[8px] tracking-[0.4em] uppercase text-muted-foreground/30 font-mono-label mb-1">Location</p>
+                  <p className="text-[11px] text-muted-foreground/60 font-mono-label">Yangon, Myanmar</p>
+                </div>
+                <div>
+                  <p className="text-[8px] tracking-[0.4em] uppercase text-muted-foreground/30 font-mono-label mb-1">Established</p>
+                  <p className="text-[11px] text-muted-foreground/60 font-mono-label">{aboutMe.est_year ?? "2008"}</p>
+                </div>
+                <LiveClock />
               </motion.div>
             </div>
           </div>
         </motion.section>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-6 left-0 right-0 px-6 md:px-10 flex items-end justify-between z-10">
-          <LiveClock className="hidden md:flex" />
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 0.5 }}
-            className="flex flex-col items-center gap-2 absolute left-1/2 -translate-x-1/2 bottom-0"
+            transition={{ delay: 1.4, duration: 0.5 }}
+            className="flex flex-col items-center gap-3"
           >
-            <span className="text-[8px] tracking-[0.35em] uppercase text-muted-foreground/40 font-mono-label">Scroll</span>
+            <span className="text-[7px] tracking-[0.4em] uppercase text-muted-foreground/30 font-mono-label">Scroll</span>
             <motion.div
-              animate={{ y: [0, 7, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className="w-px h-7 bg-gradient-to-b from-muted-foreground/30 to-transparent"
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="w-px h-8 bg-gradient-to-b from-primary/30 to-transparent"
             />
           </motion.div>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.4, duration: 0.5 }}
-            className="hidden md:block text-[9px] tracking-[0.25em] uppercase text-muted-foreground/30 font-mono-label"
-          >
-            Est. {aboutMe.est_year ?? "2008"}
-          </motion.p>
         </div>
       </div>
 

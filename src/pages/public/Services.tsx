@@ -8,8 +8,9 @@ import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, StaggerContainer, StaggerItem, LineDraw } from "@/components/motion/MotionWrappers";
-import { TextScramble } from "@/components/TextScramble";
 import { SectionLabel } from "@/components/SectionLabel";
+import { MagneticButton } from "@/components/MagneticButton";
+import { AnimatedDivider } from "@/components/AnimatedDivider";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 
@@ -20,14 +21,12 @@ const luxuryEase = [0.22, 1, 0.36, 1] as const;
 function HorizontalShowcase({ services }: { services: any[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end end"] });
   const x = useTransform(scrollYProgress, [0, 1], ["0%", `-${(services.length - 1) * 100}%`]);
 
   useEffect(() => {
     const unsubscribe = scrollYProgress.on("change", (latest) => {
-      const newIndex = Math.round(latest * (services.length - 1));
-      setActiveIndex(Math.min(newIndex, services.length - 1));
+      setActiveIndex(Math.min(Math.round(latest * (services.length - 1)), services.length - 1));
     });
     return unsubscribe;
   }, [scrollYProgress, services.length]);
@@ -35,22 +34,20 @@ function HorizontalShowcase({ services }: { services: any[] }) {
   return (
     <section ref={containerRef} className="relative" style={{ height: `${services.length * 100}vh` }}>
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* Progress indicators */}
         <div className="absolute top-1/2 left-8 -translate-y-1/2 z-20 hidden lg:flex flex-col gap-3">
           {services.map((_, i) => (
-            <motion.div key={i} className="relative" animate={{ opacity: i === activeIndex ? 1 : 0.3 }}>
-              <div className={`w-8 h-[2px] transition-all duration-500 ${i === activeIndex ? "bg-primary" : "bg-border"}`} />
+            <motion.div key={i} className="relative" animate={{ opacity: i === activeIndex ? 1 : 0.3 }} transition={{ duration: 0.3 }}>
+              <div className={`h-[2px] transition-all duration-500 ${i === activeIndex ? "w-10 bg-primary" : "w-6 bg-border"}`} />
               {i === activeIndex && (
                 <motion.span initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-                  className="absolute left-10 top-1/2 -translate-y-1/2 text-[10px] tracking-[0.2em] uppercase text-primary whitespace-nowrap">
-                  {String(i + 1).padStart(2, '0')}
+                  className="absolute left-14 top-1/2 -translate-y-1/2 text-[10px] tracking-[0.2em] uppercase text-primary whitespace-nowrap font-mono-label">
+                  {String(i + 1).padStart(2, '0')} / {String(services.length).padStart(2, '0')}
                 </motion.span>
               )}
             </motion.div>
           ))}
         </div>
 
-        {/* Horizontal slides */}
         <motion.div style={{ x }} className="flex h-full">
           {services.map((service, i) => {
             const Icon = ICON_MAP[service.icon] ?? Building2;
@@ -62,16 +59,20 @@ function HorizontalShowcase({ services }: { services: any[] }) {
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: activeIndex === i ? 1 : 0.3 }} transition={{ duration: 0.5 }}>
                         <div className="flex items-center gap-4 mb-8">
                           <span className="font-display text-7xl md:text-8xl text-border/20">{String(i + 1).padStart(2, '0')}</span>
-                          <Icon size={24} className="text-primary" />
+                          <motion.div whileHover={{ scale: 1.15, rotate: -5 }} transition={{ duration: 0.3 }}>
+                            <Icon size={24} className="text-primary" />
+                          </motion.div>
                         </div>
-                        <p className="text-[9px] tracking-[0.3em] uppercase text-primary/60 mb-3">{service.stage}</p>
+                        <p className="text-[9px] tracking-[0.3em] uppercase text-primary/60 mb-3 font-mono-label">{service.stage}</p>
                         <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground mb-6 leading-[0.95]">{service.title}</h2>
                         <p className="text-muted-foreground leading-[1.9] text-base mb-8">{service.desc}</p>
-                        <Link to="/contact"
-                          className="inline-flex items-center gap-3 text-sm tracking-[0.15em] uppercase text-foreground hover:text-primary transition-colors group">
-                          Enquire about this service
-                          <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                        </Link>
+                        <MagneticButton strength={0.15}>
+                          <Link to="/contact"
+                            className="inline-flex items-center gap-3 text-sm tracking-[0.15em] uppercase text-foreground hover:text-primary transition-colors group">
+                            Enquire about this service
+                            <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                          </Link>
+                        </MagneticButton>
                       </motion.div>
                     </div>
                     <div className="hidden lg:block relative">
@@ -96,12 +97,11 @@ function HorizontalShowcase({ services }: { services: any[] }) {
           })}
         </motion.div>
 
-        {/* Scroll hint */}
         <motion.div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
           animate={{ opacity: activeIndex === services.length - 1 ? 0 : 1 }}>
-          <span className="text-[9px] tracking-[0.2em] uppercase text-muted-foreground">Scroll</span>
+          <span className="text-[8px] tracking-[0.3em] uppercase text-muted-foreground/40 font-mono-label">Scroll</span>
           <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
-            <ChevronDown size={16} className="text-muted-foreground" />
+            <ChevronDown size={16} className="text-muted-foreground/40" />
           </motion.div>
         </motion.div>
       </div>
@@ -162,14 +162,14 @@ export default function Services() {
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 80]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.97]);
 
   return (
     <div className="bg-background relative overflow-x-hidden">
       <PublicNav />
 
       {/* ── Cinematic Hero ── */}
-      <div ref={heroRef} className="relative overflow-hidden">
-        {/* Floating wireframes */}
+      <div ref={heroRef} className="relative overflow-hidden min-h-[70vh] md:min-h-[80vh] flex items-end">
         <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }}>
             <motion.div animate={{ y: [0, -20, 0], rotate: [0, 3, 0] }} transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
@@ -182,42 +182,47 @@ export default function Services() {
           </motion.div>
         </div>
         <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-[2] pointer-events-none" />
 
-        <motion.div style={{ opacity: heroOpacity, y: heroY }} className="relative z-10">
-          <section className="container py-20 md:py-32 lg:py-40">
+        <motion.div style={{ opacity: heroOpacity, y: heroY, scale: heroScale }} className="relative z-10 w-full">
+          <section className="container pb-16 md:pb-24 pt-32 md:pt-40">
             <div className="max-w-4xl">
+              <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "3rem" }} transition={{ duration: 0.8, delay: 0.1, ease: luxuryEase }}
+                className="h-px bg-primary mb-8" />
               <SectionLabel text={page.hero_subtitle ?? "Services"} />
-              <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] text-foreground">
+              <h1 className="font-display text-[clamp(2.8rem,7.5vw,7.5rem)] leading-[0.92] text-foreground">
                 {(page.hero_title_line1 ?? "Every project,").split(" ").map((word: string, i: number) => (
-                  <motion.span key={i} initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.3 + i * 0.08, ease: luxuryEase }}
-                    className="inline-block mr-[0.3em]">{word}</motion.span>
+                  <motion.span key={i} initial={{ opacity: 0, y: 55, rotateX: -15 }} animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                    transition={{ duration: 0.8, delay: 0.3 + i * 0.08, ease: luxuryEase }}
+                    className="inline-block mr-[0.25em]">{word}</motion.span>
                 ))}
                 <br />
                 <span className="text-primary hero-shimmer-text">
                   {(page.hero_title_line2 ?? "built from scratch.").split(" ").map((word: string, i: number) => (
-                    <motion.span key={`l2-${i}`} initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.7, delay: 0.5 + i * 0.08, ease: luxuryEase }}
-                      className="inline-block mr-[0.3em]">{word}</motion.span>
+                    <motion.span key={`l2-${i}`} initial={{ opacity: 0, y: 55, rotateX: -15 }} animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                      transition={{ duration: 0.8, delay: 0.55 + i * 0.08, ease: luxuryEase }}
+                      className="inline-block mr-[0.25em]">{word}</motion.span>
                   ))}
                 </span>
               </h1>
               <FadeUp delay={0.3}>
-                <p className="mt-8 text-lg text-muted-foreground font-light leading-relaxed max-w-lg">{page.hero_description ?? ""}</p>
+                <p className="mt-8 text-base md:text-lg text-muted-foreground font-light leading-[1.85] max-w-lg">{page.hero_description ?? ""}</p>
               </FadeUp>
             </div>
           </section>
         </motion.div>
       </div>
 
+      <AnimatedDivider />
+
       {/* ── Services Showcase ── */}
-      {services.length > 0 && (
+      {services.length > 0 && services.length > 2 && (
         <section className="border-t border-border/30 relative z-10">
           <HorizontalShowcase services={services} />
         </section>
       )}
 
-      {/* ── Services Grid Fallback (when no horizontal) ── */}
+      {/* ── Services Grid Fallback ── */}
       {services.length > 0 && services.length <= 2 && (
         <section className="border-t border-border/30 py-24 md:py-36 relative z-10">
           <div className="container">
@@ -226,12 +231,13 @@ export default function Services() {
                 const Icon = ICON_MAP[service.icon] ?? Building2;
                 return (
                   <StaggerItem key={service.title}>
-                    <div className="bg-background border border-border/20 p-10 md:p-14 h-full group hover:bg-card transition-colors duration-500">
+                    <div className="bg-background border border-border/20 p-10 md:p-14 h-full group hover:bg-card transition-colors duration-500 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-px bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
                       <div className="flex items-center gap-4 mb-8">
                         <span className="font-display text-5xl text-border/30 group-hover:text-primary/20 transition-colors">{String(i + 1).padStart(2, '0')}</span>
                         <Icon size={20} className="text-primary" />
                       </div>
-                      <h3 className="font-display text-2xl md:text-3xl text-foreground mb-4">{service.title}</h3>
+                      <h3 className="font-display text-2xl md:text-3xl text-foreground mb-4 group-hover:text-primary transition-colors duration-300">{service.title}</h3>
                       <p className="text-sm text-muted-foreground leading-[1.9]">{service.desc}</p>
                     </div>
                   </StaggerItem>
@@ -244,12 +250,15 @@ export default function Services() {
 
       {/* ── Process ── */}
       {process.length > 0 && (
-        <section className="border-t border-border/30 py-24 md:py-36 relative z-10">
+        <section className="border-t border-border/30 py-24 md:py-36 relative z-10 bg-muted/10">
           <div className="container">
             <div className="text-center mb-16 md:mb-20">
               <SectionLabel text={t("services_our_process")} className="justify-center" />
               <FadeUp>
                 <h2 className="font-display text-3xl md:text-5xl text-foreground leading-[1.1]">How we work</h2>
+              </FadeUp>
+              <FadeUp delay={0.15}>
+                <p className="mt-4 text-sm text-muted-foreground max-w-md mx-auto leading-[1.8]">A proven methodology refined over years of practice.</p>
               </FadeUp>
             </div>
             <ProcessAccordion steps={process} />
@@ -266,10 +275,12 @@ export default function Services() {
               <h2 className="font-display text-4xl md:text-6xl lg:text-7xl text-foreground leading-[1.05]">
                 {page.cta_title ?? t("services_ready_discuss")}
               </h2>
-              <p className="mt-6 text-muted-foreground text-lg font-light">{page.cta_description ?? ""}</p>
-              <Button className="mt-10 rounded-none px-12 h-14 tracking-[0.15em] text-sm uppercase" size="lg" asChild>
-                <Link to="/contact">{t("services_start_conversation")} <ArrowRight size={14} className="ml-3" /></Link>
-              </Button>
+              <p className="mt-6 text-muted-foreground text-lg font-light leading-[1.8]">{page.cta_description ?? ""}</p>
+              <MagneticButton strength={0.2}>
+                <Button className="mt-10 rounded-none px-12 h-14 tracking-[0.15em] text-sm uppercase" size="lg" asChild>
+                  <Link to="/contact">{t("services_start_conversation")} <ArrowRight size={14} className="ml-3" /></Link>
+                </Button>
+              </MagneticButton>
             </div>
           </FadeUp>
         </div>

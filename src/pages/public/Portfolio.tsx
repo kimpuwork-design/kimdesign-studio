@@ -11,6 +11,7 @@ import { Search, MapPin, Calendar, Grid3X3, Star, ArrowRight, ArrowUpRight, Layo
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { FadeUp } from "@/components/motion/MotionWrappers";
 import { SectionLabel } from "@/components/SectionLabel";
+import { AnimatedDivider } from "@/components/AnimatedDivider";
 
 const CATEGORIES = ["All", "Residential", "Cultural", "Commercial", "Interior", "Landscape", "Civic", "Mixed-Use"];
 const luxuryEase = [0.22, 1, 0.36, 1] as const;

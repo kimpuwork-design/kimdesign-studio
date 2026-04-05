@@ -238,8 +238,7 @@ export default function PublicPortfolio() {
       <PublicNav />
 
       {/* ── Cinematic Hero ── */}
-      <div ref={heroRef} className="relative overflow-hidden">
-        {/* Floating wireframes */}
+      <div ref={heroRef} className="relative overflow-hidden min-h-[60vh] md:min-h-[70vh] flex items-end">
         <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }}>
             <motion.div animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
@@ -248,36 +247,36 @@ export default function PublicPortfolio() {
               className="absolute top-[30%] right-[10%] w-[120px] h-[120px] border border-primary/[0.04] rotate-[15deg]" />
             <motion.div animate={{ y: [0, -12, 0] }} transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
               className="absolute bottom-[15%] left-[4%] w-[90px] h-[90px] border border-primary/[0.04] rounded-full" />
-            <motion.div animate={{ scaleY: [0.5, 1, 0.5] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[8%] left-[8%] w-px h-[180px] bg-gradient-to-b from-transparent via-primary/[0.06] to-transparent"
-              style={{ transformOrigin: "top" }} />
           </motion.div>
         </div>
         <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-[2] pointer-events-none" />
 
-        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10">
-          <section className="container pt-20 pb-10 md:pt-32 md:pb-16">
+        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 w-full">
+          <section className="container pb-10 md:pb-16 pt-32 md:pt-40">
             <div className="max-w-4xl">
+              <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "3rem" }} transition={{ duration: 0.8, delay: 0.1, ease: luxuryEase }}
+                className="h-px bg-primary mb-8" />
               <SectionLabel text={t("portfolio_selected_work")} />
 
-              <h1 className="font-display text-[clamp(2.5rem,7vw,7rem)] text-foreground leading-[0.95]">
+              <h1 className="font-display text-[clamp(2.8rem,7.5vw,7.5rem)] text-foreground leading-[0.92]">
                 {(t("portfolio_our") || "Our").split(" ").map((word: string, i: number) => (
-                  <motion.span key={i} initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.3 + i * 0.08, ease: luxuryEase }}
-                    className="inline-block mr-[0.3em]">{word}</motion.span>
+                  <motion.span key={i} initial={{ opacity: 0, y: 55, rotateX: -15 }} animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                    transition={{ duration: 0.8, delay: 0.3 + i * 0.08, ease: luxuryEase }}
+                    className="inline-block mr-[0.25em]">{word}</motion.span>
                 ))}
                 <br />
                 <span className="text-primary hero-shimmer-text">
                   {(t("portfolio_title") || "Portfolio").split(" ").map((word: string, i: number) => (
-                    <motion.span key={`l2-${i}`} initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.7, delay: 0.6 + i * 0.08, ease: luxuryEase }}
-                      className="inline-block mr-[0.3em]">{word}</motion.span>
+                    <motion.span key={`l2-${i}`} initial={{ opacity: 0, y: 55, rotateX: -15 }} animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                      transition={{ duration: 0.8, delay: 0.55 + i * 0.08, ease: luxuryEase }}
+                      className="inline-block mr-[0.25em]">{word}</motion.span>
                   ))}
                 </span>
               </h1>
 
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.8 }}
-                className="mt-8 text-muted-foreground max-w-lg leading-relaxed text-base md:text-lg font-light">
+              <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.8, ease: luxuryEase }}
+                className="mt-8 text-muted-foreground max-w-lg leading-[1.85] text-base md:text-lg font-light">
                 {t("portfolio_description")}
               </motion.p>
 
@@ -294,6 +293,8 @@ export default function PublicPortfolio() {
           </section>
         </motion.div>
       </div>
+
+      <AnimatedDivider />
 
       {/* ── Sticky Filters ── */}
       <section className="sticky top-16 z-30 bg-background/80 backdrop-blur-xl border-t border-b border-border/30">

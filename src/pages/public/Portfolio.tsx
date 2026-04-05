@@ -396,15 +396,15 @@ export default function PublicPortfolio() {
       </div>
 
       {/* ── CTA ── */}
-      <section className="border-t border-border/30">
+      <section className="border-t border-border/30 bg-muted/10">
         <div className="container py-32 md:py-48">
           <FadeUp>
             <div className="text-center max-w-3xl mx-auto">
               <SectionLabel text={t("portfolio_start_project")} className="justify-center" />
               <h2 className="font-display text-4xl md:text-6xl lg:text-7xl text-foreground leading-[1.05]">{t("portfolio_inspired")}</h2>
-              <p className="mt-6 text-muted-foreground max-w-md mx-auto leading-relaxed font-light text-lg">{t("portfolio_lets_create")}</p>
+              <p className="mt-6 text-muted-foreground max-w-md mx-auto leading-[1.8] font-light text-lg">{t("portfolio_lets_create")}</p>
               <Link to="/contact"
-                className="inline-flex items-center gap-3 mt-10 bg-primary px-12 py-4 text-sm tracking-[0.15em] uppercase text-primary-foreground hover:bg-primary/90 transition-colors duration-500">
+                className="inline-flex items-center gap-3 mt-10 bg-primary px-12 py-4 text-sm tracking-[0.15em] uppercase text-primary-foreground hover:bg-primary/90 transition-all duration-500 hover:gap-4">
                 {t("portfolio_start_project")} <ArrowRight size={14} />
               </Link>
             </div>

@@ -34,17 +34,16 @@ interface ProjectStatus {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  inquiry: "#818cf8",
-  proposal: "#fbbf24",
-  active: "#34d399",
-  "in-progress": "#60a5fa",
-  review: "#a78bfa",
-  completed: "#4ade80",
-  delivered: "#4ade80",
-  archived: "#9ca3af",
+  inquiry: "hsl(var(--chart-4))",
+  proposal: "hsl(var(--chart-1))",
+  active: "hsl(var(--chart-3))",
+  "in-progress": "hsl(var(--chart-2))",
+  review: "hsl(var(--chart-4))",
+  completed: "hsl(var(--chart-3))",
+  delivered: "hsl(var(--chart-3))",
+  archived: "hsl(var(--muted-foreground))",
 };
 
-// Animated counter component
 function AnimatedCounter({ value, prefix = "", suffix = "" }: { value: number; prefix?: string; suffix?: string }) {
   const [display, setDisplay] = useState(0);
   const ref = useRef<number | null>(null);
@@ -69,6 +68,8 @@ function AnimatedCounter({ value, prefix = "", suffix = "" }: { value: number; p
 
   return <>{prefix}{display.toLocaleString()}{suffix}</>;
 }
+
+const luxuryEase = [0.22, 1, 0.36, 1];
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -144,37 +145,24 @@ export default function AdminDashboard() {
 
   useEffect(() => { fetchDashboardData(); }, [fetchDashboardData]);
 
-  // Real-time subscriptions
   useEffect(() => {
     const channel = supabase
       .channel('admin-dashboard-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => {
-        fetchDashboardData();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => {
-        fetchDashboardData();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'invoices' }, () => {
-        fetchDashboardData();
-      })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_logs' }, () => {
-        fetchDashboardData();
-      })
-      .subscribe((status) => {
-        setIsLive(status === 'SUBSCRIBED');
-      });
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => fetchDashboardData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => fetchDashboardData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'invoices' }, () => fetchDashboardData())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_logs' }, () => fetchDashboardData())
+      .subscribe((status) => setIsLive(status === 'SUBSCRIBED'));
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, [fetchDashboardData]);
 
   const statCards = [
-    { icon: Users, label: "Clients", value: stats.totalClients, format: "number" as const, color: "from-blue-500 to-blue-600", href: "/admin/clients", sparkData: [2, 4, 3, 6, 5, 8, stats.totalClients] },
-    { icon: Briefcase, label: "Active Projects", value: stats.activeProjects, format: "number" as const, color: "from-violet-500 to-violet-600", href: "/admin/projects", sparkData: [1, 3, 2, 4, 3, 5, stats.activeProjects] },
-    { icon: TrendingUp, label: "New Leads", value: stats.newLeads, format: "number" as const, color: "from-emerald-500 to-emerald-600", href: "/admin/leads", sparkData: [0, 2, 1, 3, 2, 4, stats.newLeads] },
-    { icon: DollarSign, label: "Revenue (mo)", value: stats.revenue, format: "currency" as const, color: "from-amber-500 to-amber-600", href: "/admin/invoices", sparkData: recentInvoices.map(r => r.total) },
-    { icon: AlertCircle, label: "Outstanding", value: stats.outstanding, format: "currency" as const, color: "from-rose-500 to-rose-600", href: "/admin/invoices", sparkData: [stats.outstanding, stats.outstanding * 0.8, stats.outstanding] },
+    { icon: Users, label: "Clients", value: stats.totalClients, format: "number" as const, href: "/admin/clients", sparkData: [2, 4, 3, 6, 5, 8, stats.totalClients] },
+    { icon: Briefcase, label: "Active Projects", value: stats.activeProjects, format: "number" as const, href: "/admin/projects", sparkData: [1, 3, 2, 4, 3, 5, stats.activeProjects] },
+    { icon: TrendingUp, label: "New Leads", value: stats.newLeads, format: "number" as const, href: "/admin/leads", sparkData: [0, 2, 1, 3, 2, 4, stats.newLeads] },
+    { icon: DollarSign, label: "Revenue (mo)", value: stats.revenue, format: "currency" as const, href: "/admin/invoices", sparkData: recentInvoices.map(r => r.total) },
+    { icon: AlertCircle, label: "Outstanding", value: stats.outstanding, format: "currency" as const, href: "/admin/invoices", sparkData: [stats.outstanding, stats.outstanding * 0.8, stats.outstanding] },
   ];
 
   const quickActions = [
@@ -187,9 +175,9 @@ export default function AdminDashboard() {
   ];
 
   const getActionIcon = (action: string) => {
-    if (action.includes("create") || action.includes("insert")) return <Plus size={12} className="text-emerald-400" />;
-    if (action.includes("update") || action.includes("edit")) return <CheckCircle2 size={12} className="text-blue-400" />;
-    if (action.includes("delete")) return <AlertCircle size={12} className="text-red-400" />;
+    if (action.includes("create") || action.includes("insert")) return <Plus size={12} className="text-primary" />;
+    if (action.includes("update") || action.includes("edit")) return <CheckCircle2 size={12} className="text-chart-2" />;
+    if (action.includes("delete")) return <AlertCircle size={12} className="text-destructive" />;
     return <Clock size={12} className="text-portal-text-muted" />;
   };
 
@@ -202,30 +190,46 @@ export default function AdminDashboard() {
 
   return (
     <PortalLayout variant="admin">
-      {/* Header */}
-      <div className="mb-5 md:mb-8 flex items-start justify-between">
-        <div className="flex items-center gap-2.5 md:gap-3">
-          <div className="h-9 w-9 md:h-11 md:w-11 rounded-xl md:rounded-2xl bg-gradient-to-br from-portal-accent to-portal-accent/60 flex items-center justify-center shadow-lg shadow-portal-accent/20 shrink-0">
-            <Zap size={16} className="md:w-[18px] md:h-[18px] text-portal-accent-foreground" />
-          </div>
+      {/* ── Header ── */}
+      <div className="mb-8 md:mb-10 flex items-start justify-between">
+        <div className="flex items-center gap-3 md:gap-4">
+          <motion.div 
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, ease: luxuryEase }}
+            className="h-11 w-11 md:h-13 md:w-13 rounded-none bg-portal-accent flex items-center justify-center shadow-[0_8px_30px_-8px_hsl(var(--portal-accent)/0.4)]"
+          >
+            <Zap size={18} className="md:w-5 md:h-5 text-portal-accent-foreground" />
+          </motion.div>
           <div className="min-w-0">
-            <h1 className="font-display text-lg md:text-2xl font-bold text-portal-text truncate">
+            <motion.h1 
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.5, ease: luxuryEase }}
+              className="font-display text-xl md:text-3xl font-bold text-portal-text tracking-tight"
+            >
               {greeting()}, <span className="gradient-text">{profile?.full_name?.split(" ")[0] ?? "Admin"}</span>
-            </h1>
-            <p className="text-xs md:text-sm text-portal-text-muted mt-0.5 hidden sm:block">Here's your studio overview for today.</p>
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-xs md:text-sm text-portal-text-muted mt-1 hidden sm:block font-light tracking-wide"
+            >
+              Studio overview · {format(new Date(), "EEEE, MMMM d")}
+            </motion.p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* Live indicator */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-portal-surface/50 border border-portal-border/30">
-            <span className={`h-1.5 w-1.5 rounded-full ${isLive ? 'bg-emerald-400 animate-pulse' : 'bg-portal-text-muted/40'}`} />
-            <span className="text-[10px] font-medium text-portal-text-muted uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 border border-portal-border/30 bg-portal-surface/30">
+            <span className={`h-1.5 w-1.5 rounded-full ${isLive ? 'bg-primary animate-pulse' : 'bg-portal-text-muted/40'}`} />
+            <span className="text-[9px] font-medium text-portal-text-muted uppercase tracking-[0.15em]">
               {isLive ? 'Live' : 'Offline'}
             </span>
           </div>
           <button
             onClick={fetchDashboardData}
-            className="rounded-lg p-2 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all"
+            className="p-2 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all"
             aria-label="Refresh"
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
@@ -233,140 +237,144 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Stat Cards with animated counters */}
-      <div className="flex gap-2.5 overflow-x-auto scrollbar-none pb-1 mb-5 md:mb-8 md:grid md:grid-cols-5 md:overflow-visible md:pb-0">
+      {/* ── Stat Cards ── */}
+      <div className="flex gap-3 overflow-x-auto scrollbar-none pb-1 mb-8 md:mb-10 md:grid md:grid-cols-5 md:overflow-visible md:pb-0">
         {statCards.map((s, idx) => {
           const Icon = s.icon;
           return (
             <motion.button
               key={s.label}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05, duration: 0.3 }}
+              transition={{ delay: idx * 0.06, duration: 0.5, ease: luxuryEase }}
               onClick={() => navigate(s.href)}
-              className="group glass-card glass-card-hover p-3 md:p-4 text-left min-w-[130px] md:min-w-0 shrink-0 md:shrink"
+              className="group relative overflow-hidden border border-portal-border/40 bg-portal-surface/20 backdrop-blur-sm p-4 md:p-5 text-left min-w-[140px] md:min-w-0 shrink-0 md:shrink hover:border-portal-accent/30 hover:bg-portal-surface/40 transition-all duration-500"
             >
-              <div className="flex items-center justify-between mb-2 md:mb-3">
-                <div className={`rounded-lg p-1.5 md:p-2 bg-gradient-to-br ${s.color} shadow-lg`}>
-                  <Icon size={12} className="md:w-[14px] md:h-[14px] text-white" />
+              {/* Hover glow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-portal-accent/[0.06] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="p-2 bg-portal-accent/10 border border-portal-accent/15">
+                    <Icon size={14} className="text-portal-accent" />
+                  </div>
+                  <ArrowUpRight size={10} className="text-portal-text-muted opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all hidden md:block" />
                 </div>
-                <ArrowUpRight size={10} className="text-portal-text-muted opacity-0 group-hover:opacity-100 transition-all hidden md:block" />
-              </div>
-              <p className="font-display text-lg md:text-2xl font-bold text-portal-text tracking-tight">
-                <AnimatedCounter 
-                  value={s.value} 
-                  prefix={s.format === "currency" ? "$" : ""} 
-                />
-              </p>
-              <div className="flex items-center justify-between mt-1">
-                <p className="text-[9px] md:text-[11px] text-portal-text-muted font-medium uppercase tracking-wider">{s.label}</p>
-                {s.sparkData.length > 1 && (
-                  <Sparkline data={s.sparkData} height={20} width={50} />
-                )}
+                <p className="font-display text-xl md:text-2xl font-bold text-portal-text tracking-tight">
+                  <AnimatedCounter value={s.value} prefix={s.format === "currency" ? "$" : ""} />
+                </p>
+                <div className="flex items-center justify-between mt-1.5">
+                  <p className="text-[9px] md:text-[10px] text-portal-text-muted font-medium uppercase tracking-[0.15em]">{s.label}</p>
+                  {s.sparkData.length > 1 && <Sparkline data={s.sparkData} height={20} width={50} />}
+                </div>
               </div>
             </motion.button>
           );
         })}
       </div>
 
-      {/* Charts Row */}
-      <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-3 mb-5 md:mb-8">
+      {/* ── Charts Row ── */}
+      <div className="grid gap-4 md:gap-5 grid-cols-1 md:grid-cols-3 mb-8 md:mb-10">
         {/* Revenue Chart */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
+          initial={{ opacity: 0, y: 24 }} 
           animate={{ opacity: 1, y: 0 }} 
-          transition={{ delay: 0.2 }}
-          className="glass-card p-5 md:col-span-2"
+          transition={{ delay: 0.25, ease: luxuryEase }}
+          className="border border-portal-border/40 bg-portal-surface/15 backdrop-blur-sm p-6 md:col-span-2"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-sm font-semibold text-portal-text">Revenue Trend</h2>
-            <span className="text-[10px] text-portal-text-muted uppercase tracking-wider">Last 6 months</span>
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="font-display text-sm font-semibold text-portal-text tracking-tight">Revenue Trend</h2>
+              <p className="text-[10px] text-portal-text-muted mt-0.5 tracking-wide">Last 6 months</p>
+            </div>
+            <div className="h-px flex-1 bg-portal-border/30 mx-4" />
+            <span className="text-[9px] text-portal-text-muted uppercase tracking-[0.2em] font-medium">Monthly</span>
           </div>
           {recentInvoices.length > 0 ? (
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={recentInvoices}>
                 <defs>
                   <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(32 95% 55%)" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="hsl(32 95% 55%)" stopOpacity={0} />
+                    <stop offset="0%" stopColor="hsl(var(--portal-accent))" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="hsl(var(--portal-accent))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="month" tick={{ fill: "hsl(220 12% 50%)", fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "hsl(220 12% 50%)", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}`} width={50} />
+                <XAxis dataKey="month" tick={{ fill: "hsl(var(--portal-text-muted))", fontSize: 10, fontFamily: "Space Grotesk" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "hsl(var(--portal-text-muted))", fontSize: 10, fontFamily: "Space Grotesk" }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}`} width={50} />
                 <Tooltip
-                  contentStyle={{ background: "hsl(230 20% 14% / 0.95)", backdropFilter: "blur(12px)", border: "1px solid hsl(230 15% 25% / 0.5)", borderRadius: 10, color: "hsl(220 20% 93%)", fontSize: 12 }}
+                  contentStyle={{ background: "hsl(var(--portal-bg) / 0.95)", backdropFilter: "blur(16px)", border: "1px solid hsl(var(--portal-border) / 0.5)", borderRadius: 0, color: "hsl(var(--portal-text))", fontSize: 12, fontFamily: "Space Grotesk" }}
                   formatter={(value: number) => [`$${value.toLocaleString()}`, "Revenue"]}
                 />
-                <Area type="monotone" dataKey="total" stroke="hsl(32 95% 55%)" strokeWidth={2} fill="url(#revenueGrad)" />
+                <Area type="monotone" dataKey="total" stroke="hsl(var(--portal-accent))" strokeWidth={2} fill="url(#revenueGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-[200px] items-center justify-center text-sm text-portal-text-muted">No revenue data yet.</div>
+            <div className="flex h-[200px] items-center justify-center text-sm text-portal-text-muted font-light">No revenue data yet.</div>
           )}
         </motion.div>
 
         {/* Project Status */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
+          initial={{ opacity: 0, y: 24 }} 
           animate={{ opacity: 1, y: 0 }} 
-          transition={{ delay: 0.3 }}
-          className="glass-card p-5"
+          transition={{ delay: 0.3, ease: luxuryEase }}
+          className="border border-portal-border/40 bg-portal-surface/15 backdrop-blur-sm p-6"
         >
-          <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Project Status</h2>
+          <h2 className="font-display text-sm font-semibold text-portal-text mb-5 tracking-tight">Project Status</h2>
           {projectStatuses.length > 0 ? (
             <div className="flex flex-col items-center">
               <ResponsiveContainer width="100%" height={140}>
                 <PieChart>
-                  <Pie data={projectStatuses} dataKey="count" nameKey="status" cx="50%" cy="50%" outerRadius={60} innerRadius={38} strokeWidth={2} stroke="hsl(230 25% 7%)">
+                  <Pie data={projectStatuses} dataKey="count" nameKey="status" cx="50%" cy="50%" outerRadius={60} innerRadius={38} strokeWidth={2} stroke="hsl(var(--portal-bg))">
                     {projectStatuses.map((entry) => (
-                      <Cell key={entry.status} fill={STATUS_COLORS[entry.status] || "#6b7280"} />
+                      <Cell key={entry.status} fill={STATUS_COLORS[entry.status] || "hsl(var(--muted-foreground))"} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ background: "hsl(230 20% 14% / 0.95)", backdropFilter: "blur(12px)", border: "1px solid hsl(230 15% 25% / 0.5)", borderRadius: 10, color: "hsl(220 20% 93%)", fontSize: 12 }} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--portal-bg) / 0.95)", backdropFilter: "blur(16px)", border: "1px solid hsl(var(--portal-border) / 0.5)", borderRadius: 0, color: "hsl(var(--portal-text))", fontSize: 12 }} />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="w-full space-y-1.5 mt-2">
+              <div className="w-full space-y-2 mt-3">
                 {projectStatuses.map((s) => (
-                  <div key={s.status} className="flex items-center gap-2 text-xs">
-                    <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: STATUS_COLORS[s.status] || "#6b7280" }} />
-                    <span className="capitalize text-portal-text-muted flex-1">{s.status}</span>
+                  <div key={s.status} className="flex items-center gap-2.5 text-xs">
+                    <span className="h-2 w-2 shrink-0" style={{ backgroundColor: STATUS_COLORS[s.status] || "hsl(var(--muted-foreground))" }} />
+                    <span className="capitalize text-portal-text-muted flex-1 tracking-wide">{s.status}</span>
                     <span className="font-display font-bold text-portal-text">{s.count}</span>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="flex h-[200px] items-center justify-center text-sm text-portal-text-muted">No projects yet.</div>
+            <div className="flex h-[200px] items-center justify-center text-sm text-portal-text-muted font-light">No projects yet.</div>
           )}
         </motion.div>
       </div>
 
-      {/* Lead Pipeline + Deadlines */}
-      <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2 mb-5 md:mb-8">
+      {/* ── Lead Pipeline + Deadlines ── */}
+      <div className="grid gap-4 md:gap-5 grid-cols-1 md:grid-cols-2 mb-8 md:mb-10">
         {stats.leadConversion.length > 0 && (
           <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
+            initial={{ opacity: 0, y: 24 }} 
             animate={{ opacity: 1, y: 0 }} 
-            transition={{ delay: 0.35 }}
-            className="glass-card p-5"
+            transition={{ delay: 0.35, ease: luxuryEase }}
+            className="border border-portal-border/40 bg-portal-surface/15 backdrop-blur-sm p-6"
           >
-            <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Lead Pipeline</h2>
-            <div className="space-y-3">
+            <h2 className="font-display text-sm font-semibold text-portal-text mb-5 tracking-tight">Lead Pipeline</h2>
+            <div className="space-y-4">
               {stats.leadConversion.map((l) => {
                 const total = stats.leadConversion.reduce((s, x) => s + x.count, 0);
                 const pct = total > 0 ? (l.count / total) * 100 : 0;
                 return (
                   <div key={l.status}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="capitalize text-xs text-portal-text-muted">{l.status}</span>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="capitalize text-xs text-portal-text-muted tracking-wide">{l.status}</span>
                       <span className="font-display font-bold text-portal-text text-sm">{l.count}</span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-portal-surface overflow-hidden">
+                    <div className="h-1 bg-portal-surface overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${pct}%` }}
-                        transition={{ duration: 0.8, delay: 0.5 }}
-                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400"
+                        transition={{ duration: 1, delay: 0.5, ease: luxuryEase }}
+                        className="h-full bg-portal-accent"
                       />
                     </div>
                   </div>
@@ -376,27 +384,27 @@ export default function AdminDashboard() {
           </motion.div>
         )}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.4, ease: luxuryEase }}
         >
           <UpcomingDeadlines />
         </motion.div>
       </div>
 
-      {/* Activity & Quick Actions */}
-      <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
+      {/* ── Activity & Quick Actions ── */}
+      <div className="grid gap-4 md:gap-5 grid-cols-1 md:grid-cols-2">
         <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
+          initial={{ opacity: 0, y: 24 }} 
           animate={{ opacity: 1, y: 0 }} 
-          transition={{ delay: 0.45 }}
-          className="glass-card p-5"
+          transition={{ delay: 0.45, ease: luxuryEase }}
+          className="border border-portal-border/40 bg-portal-surface/15 backdrop-blur-sm p-6"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-sm font-semibold text-portal-text">Recent Activity</h2>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-display text-sm font-semibold text-portal-text tracking-tight">Recent Activity</h2>
             {isLive && (
-              <span className="flex items-center gap-1 text-[9px] text-emerald-400 font-medium">
-                <span className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="flex items-center gap-1.5 text-[9px] text-primary font-medium tracking-[0.15em] uppercase">
+                <span className="h-1 w-1 rounded-full bg-primary animate-pulse" />
                 Live
               </span>
             )}
@@ -406,47 +414,47 @@ export default function AdminDashboard() {
               {activity.map((a, idx) => (
                 <motion.div
                   key={a.id}
-                  initial={{ opacity: 0, x: -10 }}
+                  initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.03 }}
-                  className="flex items-start gap-2.5 rounded-lg px-2.5 py-2 hover:bg-portal-surface-hover/40 transition-all"
+                  transition={{ delay: idx * 0.03, ease: luxuryEase }}
+                  className="flex items-start gap-3 px-3 py-2.5 hover:bg-portal-surface/40 transition-all duration-300"
                 >
-                  <div className="mt-0.5 rounded-md bg-portal-surface p-1.5">{getActionIcon(a.action)}</div>
+                  <div className="mt-0.5 p-1.5 bg-portal-surface/60 border border-portal-border/30">{getActionIcon(a.action)}</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-portal-text">
                       <span className="font-medium">{a.actor_name || "System"}</span>{" "}
                       <span className="text-portal-text-muted">{a.action}</span>
                     </p>
-                    <p className="text-[10px] text-portal-text-muted mt-0.5">{format(new Date(a.created_at), "MMM d, h:mm a")}</p>
+                    <p className="text-[10px] text-portal-text-muted/60 mt-0.5 font-mono">{format(new Date(a.created_at), "MMM d, h:mm a")}</p>
                   </div>
                 </motion.div>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-portal-text-muted py-4 text-center">No activity yet.</p>
+            <p className="text-xs text-portal-text-muted py-6 text-center font-light">No activity yet.</p>
           )}
         </motion.div>
 
         <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
+          initial={{ opacity: 0, y: 24 }} 
           animate={{ opacity: 1, y: 0 }} 
-          transition={{ delay: 0.5 }}
-          className="glass-card p-5"
+          transition={{ delay: 0.5, ease: luxuryEase }}
+          className="border border-portal-border/40 bg-portal-surface/15 backdrop-blur-sm p-6"
         >
-          <h2 className="font-display text-sm font-semibold text-portal-text mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 gap-1.5 md:gap-2">
+          <h2 className="font-display text-sm font-semibold text-portal-text mb-5 tracking-tight">Quick Actions</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 gap-2">
             {quickActions.map((action) => {
               const Icon = action.icon;
               return (
                 <button
                   key={action.label}
                   onClick={() => navigate(action.href)}
-                  className="group flex items-center gap-2 md:gap-2.5 rounded-xl border border-portal-border/40 bg-portal-surface/20 px-2.5 py-2.5 md:px-3 md:py-3 text-left text-[11px] md:text-xs hover:bg-portal-surface/50 hover:border-portal-accent/30 transition-all duration-200"
+                  className="group flex items-center gap-2.5 border border-portal-border/30 bg-portal-surface/10 px-3 py-3 text-left text-xs hover:bg-portal-surface/40 hover:border-portal-accent/30 transition-all duration-300"
                 >
-                  <div className="rounded-lg bg-portal-surface/80 p-1 md:p-1.5 group-hover:bg-portal-accent/15 transition-colors shrink-0">
-                    <Icon size={12} className="md:w-[13px] md:h-[13px] text-portal-text-muted group-hover:text-portal-accent transition-colors" />
+                  <div className="p-1.5 bg-portal-surface/50 group-hover:bg-portal-accent/15 border border-portal-border/20 group-hover:border-portal-accent/20 transition-all duration-300 shrink-0">
+                    <Icon size={13} className="text-portal-text-muted group-hover:text-portal-accent transition-colors duration-300" />
                   </div>
-                  <span className="font-medium text-portal-text truncate">{action.label}</span>
+                  <span className="font-medium text-portal-text truncate tracking-wide">{action.label}</span>
                 </button>
               );
             })}

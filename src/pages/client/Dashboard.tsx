@@ -27,7 +27,7 @@ interface Notification {
   is_read: boolean;
 }
 
-const luxuryEase = [0.22, 1, 0.36, 1];
+const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
 export default function ClientDashboard() {
   const { profile } = useAuth();

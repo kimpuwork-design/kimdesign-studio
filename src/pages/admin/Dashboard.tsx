@@ -69,7 +69,7 @@ function AnimatedCounter({ value, prefix = "", suffix = "" }: { value: number; p
   return <>{prefix}{display.toLocaleString()}{suffix}</>;
 }
 
-const luxuryEase = [0.22, 1, 0.36, 1];
+const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
 export default function AdminDashboard() {
   const navigate = useNavigate();

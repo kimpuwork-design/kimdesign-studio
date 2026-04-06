@@ -24,7 +24,7 @@ interface RecentDeliverable {
   project?: { title: string } | null;
 }
 
-const luxuryEase = [0.22, 1, 0.36, 1];
+const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
 function getGreeting() {
   const h = new Date().getHours();

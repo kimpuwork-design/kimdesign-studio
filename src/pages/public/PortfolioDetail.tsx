@@ -171,20 +171,29 @@ export default function PortfolioDetail() {
         .select("*")
         .eq("slug", slug)
         .eq("is_public", true)
-        .single();
+        .maybeSingle();
 
-      if (error || !data) { setNotFound(true); setLoading(false); return; }
+      if (error || !data) {
+        console.error("Project fetch error:", error);
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
       const p = data as unknown as ProjectItem;
       setItem(p);
 
+      const hasCategory = p.category && p.category.trim().length > 0;
+      const relatedQuery = supabase.from("projects")
+        .select("id, slug, title, thumbnail_url, category, location, year, summary, description, tags, is_featured, is_public, created_at, updated_at, content")
+        .eq("is_public", true)
+        .neq("id", p.id)
+        .limit(3);
+      if (hasCategory) relatedQuery.eq("category", p.category as string);
+      else relatedQuery.eq("is_featured", true);
+
       const [{ data: gal }, { data: rel }, { data: fileData }] = await Promise.all([
         supabase.from("portfolio_gallery").select("*").eq("project_id", p.id).order("sort_order"),
-        supabase.from("projects")
-          .select("id, slug, title, thumbnail_url, category, location, year, summary, description, tags, is_featured, is_public, created_at, updated_at, content")
-          .eq("is_public", true)
-          .neq("id", p.id)
-          .or(p.category ? `category.eq.${p.category}` : "is_featured.eq.true")
-          .limit(3),
+        relatedQuery,
         supabase.from("file_assets").select("*").eq("project_id", p.id).eq("is_deleted", false).order("sort_order", { ascending: true }).order("created_at", { ascending: false }),
       ]);
 

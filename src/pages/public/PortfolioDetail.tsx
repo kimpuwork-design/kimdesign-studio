@@ -136,7 +136,6 @@ export default function PortfolioDetail() {
   const [notFound, setNotFound] = useState(false);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [preview, setPreview] = useState<FileAsset | null>(null);
-  const [readingProgress, setReadingProgress] = useState(0);
 
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -144,14 +143,7 @@ export default function PortfolioDetail() {
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 80]);
-  
-  // Reading progress tracking
-  const { scrollYProgress: pageProgress } = useScroll();
-  const smoothProgress = useSpring(pageProgress, { stiffness: 100, damping: 30 });
-  
-  useMotionValueEvent(smoothProgress, "change", (latest) => {
-    setReadingProgress(latest);
-  });
+
   useEffect(() => {
     if (!slug) return;
     const fetchData = async () => {

@@ -10,7 +10,7 @@ import { FileIcon } from "@/components/files/FileIcon";
 import { FilePreviewModal } from "@/components/files/FilePreviewModal";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";
 import { FadeUp, StaggerContainer, StaggerItem, SlideIn } from "@/components/motion/MotionWrappers";
-import { motion, useScroll, useTransform, useSpring, useMotionValueEvent } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring, useMotionValueEvent, useMotionValue } from "framer-motion";
 
 import {
   MapPin, Calendar, Tag, ArrowLeft, ArrowRight,

@@ -256,7 +256,7 @@ export default function PortfolioDetail() {
     <div className="bg-background min-h-screen content-protected">
       <MetaTags title={pageTitle} description={displaySummary} image={coverUrl || ""} jsonLd={jsonLd} />
       <PublicNav />
-      <ReadingProgress progress={readingProgress} />
+      <ReadingProgress />
 
       {/* ── Parallax Hero ── */}
       <div ref={heroRef} className="relative overflow-hidden">

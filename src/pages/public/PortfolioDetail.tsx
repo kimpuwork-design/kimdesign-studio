@@ -10,7 +10,7 @@ import { FileIcon } from "@/components/files/FileIcon";
 import { FilePreviewModal } from "@/components/files/FilePreviewModal";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";
 import { FadeUp, StaggerContainer, StaggerItem, SlideIn } from "@/components/motion/MotionWrappers";
-import { motion, useScroll, useTransform, useSpring, useMotionValueEvent } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 import {
   MapPin, Calendar, Tag, ArrowLeft, ArrowRight,
@@ -20,28 +20,23 @@ import {
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
-/* ─── Floating Reading Progress Indicator ─── */
-function ReadingProgress({ progress }: { progress: number }) {
+/* ─── Floating Reading Progress Indicator (motion-only, no re-renders) ─── */
+function ReadingProgress() {
+  const { scrollYProgress } = useScroll();
+  const smooth = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
   const circumference = 2 * Math.PI * 18;
-  const strokeDashoffset = circumference * (1 - progress);
-  
+  const dashOffset = useTransform(smooth, (v) => circumference * (1 - v));
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 1, duration: 0.5 }}
-      className="fixed bottom-8 right-8 z-50 hidden lg:flex items-center justify-center"
+      className="fixed bottom-8 right-8 z-50 hidden lg:flex items-center justify-center pointer-events-none"
     >
       <div className="relative w-14 h-14">
-        {/* Background circle */}
         <svg className="w-full h-full -rotate-90" viewBox="0 0 40 40">
-          <circle
-            cx="20" cy="20" r="18"
-            fill="none"
-            stroke="hsl(var(--border))"
-            strokeWidth="1.5"
-            opacity="0.3"
-          />
+          <circle cx="20" cy="20" r="18" fill="none" stroke="hsl(var(--border))" strokeWidth="1.5" opacity="0.3" />
           <motion.circle
             cx="20" cy="20" r="18"
             fill="none"
@@ -49,20 +44,14 @@ function ReadingProgress({ progress }: { progress: number }) {
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            className="transition-all duration-150"
+            style={{ strokeDashoffset: dashOffset }}
           />
         </svg>
-        {/* Percentage text */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-[10px] font-medium text-foreground/70 tracking-wider">
-            {Math.round(progress * 100)}%
-          </span>
-        </div>
       </div>
     </motion.div>
   );
 }
+
 
 /* ─── Gallery Image with Inner Parallax ─── */
 function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: string; name: string }; idx: number; onClick: () => void }) {
@@ -147,7 +136,6 @@ export default function PortfolioDetail() {
   const [notFound, setNotFound] = useState(false);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [preview, setPreview] = useState<FileAsset | null>(null);
-  const [readingProgress, setReadingProgress] = useState(0);
 
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -155,14 +143,7 @@ export default function PortfolioDetail() {
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 80]);
-  
-  // Reading progress tracking
-  const { scrollYProgress: pageProgress } = useScroll();
-  const smoothProgress = useSpring(pageProgress, { stiffness: 100, damping: 30 });
-  
-  useMotionValueEvent(smoothProgress, "change", (latest) => {
-    setReadingProgress(latest);
-  });
+
   useEffect(() => {
     if (!slug) return;
     const fetchData = async () => {
@@ -275,7 +256,7 @@ export default function PortfolioDetail() {
     <div className="bg-background min-h-screen content-protected">
       <MetaTags title={pageTitle} description={displaySummary} image={coverUrl || ""} jsonLd={jsonLd} />
       <PublicNav />
-      <ReadingProgress progress={readingProgress} />
+      <ReadingProgress />
 
       {/* ── Parallax Hero ── */}
       <div ref={heroRef} className="relative overflow-hidden">

@@ -20,28 +20,23 @@ import {
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
-/* ─── Floating Reading Progress Indicator ─── */
-function ReadingProgress({ progress }: { progress: number }) {
+/* ─── Floating Reading Progress Indicator (motion-only, no re-renders) ─── */
+function ReadingProgress() {
+  const { scrollYProgress } = useScroll();
+  const smooth = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
   const circumference = 2 * Math.PI * 18;
-  const strokeDashoffset = circumference * (1 - progress);
-  
+  const dashOffset = useTransform(smooth, (v) => circumference * (1 - v));
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 1, duration: 0.5 }}
-      className="fixed bottom-8 right-8 z-50 hidden lg:flex items-center justify-center"
+      className="fixed bottom-8 right-8 z-50 hidden lg:flex items-center justify-center pointer-events-none"
     >
       <div className="relative w-14 h-14">
-        {/* Background circle */}
         <svg className="w-full h-full -rotate-90" viewBox="0 0 40 40">
-          <circle
-            cx="20" cy="20" r="18"
-            fill="none"
-            stroke="hsl(var(--border))"
-            strokeWidth="1.5"
-            opacity="0.3"
-          />
+          <circle cx="20" cy="20" r="18" fill="none" stroke="hsl(var(--border))" strokeWidth="1.5" opacity="0.3" />
           <motion.circle
             cx="20" cy="20" r="18"
             fill="none"
@@ -49,20 +44,14 @@ function ReadingProgress({ progress }: { progress: number }) {
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            className="transition-all duration-150"
+            style={{ strokeDashoffset: dashOffset }}
           />
         </svg>
-        {/* Percentage text */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-[10px] font-medium text-foreground/70 tracking-wider">
-            {Math.round(progress * 100)}%
-          </span>
-        </div>
       </div>
     </motion.div>
   );
 }
+
 
 /* ─── Gallery Image with Inner Parallax ─── */
 function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: string; name: string }; idx: number; onClick: () => void }) {

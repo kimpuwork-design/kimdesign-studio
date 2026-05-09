@@ -238,7 +238,7 @@ export default function PublicPortfolio() {
       <PublicNav />
 
       {/* ── Cinematic Hero ── */}
-      <div ref={heroRef} className="relative overflow-hidden min-h-[60vh] md:min-h-[70vh] flex items-end">
+      <div ref={heroRef} className="relative overflow-hidden flex items-end">
         <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }}>
             <motion.div animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
@@ -253,13 +253,13 @@ export default function PublicPortfolio() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-[2] pointer-events-none" />
 
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 w-full">
-          <section className="container pb-10 md:pb-16 pt-32 md:pt-40">
+          <section className="container pb-8 md:pb-12 pt-28 md:pt-32">
             <div className="max-w-4xl">
               <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "3rem" }} transition={{ duration: 0.8, delay: 0.1, ease: luxuryEase }}
-                className="h-px bg-primary mb-8" />
+                className="h-px bg-primary mb-6" />
               <SectionLabel text={t("portfolio_selected_work")} />
 
-              <h1 className="font-display text-[clamp(2.8rem,7.5vw,7.5rem)] text-foreground leading-[0.92]">
+              <h1 className="font-display text-[clamp(2.2rem,5.5vw,5.5rem)] text-foreground leading-[0.95]">
                 {(t("portfolio_our") || "Our").split(" ").map((word: string, i: number) => (
                   <motion.span key={i} initial={{ opacity: 0, y: 55, rotateX: -15 }} animate={{ opacity: 1, y: 0, rotateX: 0 }}
                     transition={{ duration: 0.8, delay: 0.3 + i * 0.08, ease: luxuryEase }}

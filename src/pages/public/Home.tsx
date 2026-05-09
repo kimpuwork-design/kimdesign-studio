@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef, useCallback, MouseEvent as ReactMouseEvent } from "react";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";
-import { Hero3D } from "@/components/Hero3D";
 import useEmblaCarousel from "embla-carousel-react";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
@@ -303,19 +302,32 @@ export default function Home() {
       <ArchitectureBusinessJsonLd />
       <PublicNav />
 
-      {/* ══════════ 3D HERO ══════════ */}
+      {/* ══════════ CINEMATIC HERO ══════════ */}
       <div ref={heroRef} className="relative" id="hero">
         <motion.section
           style={{ opacity: heroOpacity, y: heroY }}
-          className="min-h-screen flex items-end relative overflow-hidden"
+          className="min-h-screen flex items-end relative overflow-hidden bg-background"
         >
-          {/* 3D Canvas background */}
-          <Hero3D />
+          {/* Cinematic still backdrop */}
+          {heroImage ? (
+            <motion.img
+              src={heroImage}
+              alt=""
+              aria-hidden
+              draggable={false}
+              initial={{ scale: 1.15, opacity: 0 }}
+              animate={{ scale: 1.04, opacity: 1 }}
+              transition={{ duration: 2.4, ease: luxuryEase }}
+              className="absolute inset-0 w-full h-full object-cover z-[1] select-none pointer-events-none"
+            />
+          ) : (
+            <div className="absolute inset-0 z-[1] bg-gradient-to-br from-muted/40 via-background to-muted/20" />
+          )}
 
           {/* Cinematic overlays */}
           <div className="absolute inset-0 noise-overlay pointer-events-none z-[2]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent z-[3] pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-transparent z-[3] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-background/20 z-[3] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/30 to-transparent z-[3] pointer-events-none" />
 
           {/* Side accent line */}
           <motion.div

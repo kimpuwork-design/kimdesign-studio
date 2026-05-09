@@ -438,7 +438,7 @@ export default function PortfolioDetail() {
                       <div className="aspect-[4/3] overflow-hidden relative">
                         {r.thumbnail_url ? (
                           <img src={r.thumbnail_url} alt={r.title} loading="lazy"
-                            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[900ms]" />
+                            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform [transition-duration:900ms]" />
                         ) : (
                           <div className="w-full h-full bg-muted/30" />
                         )}

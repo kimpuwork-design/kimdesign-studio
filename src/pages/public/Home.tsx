@@ -70,7 +70,7 @@ function FeaturedScrollSection({ featured, setLightboxIdx }: { featured: Portfol
                 <div className="relative overflow-hidden aspect-[3/4] md:aspect-[4/5]">
                   {item.cover_image_url && (
                     <img src={item.cover_image_url} alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-[1200ms] ease-out" />
+                      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform [transition-duration:1200ms] ease-out" />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-foreground/5 to-transparent opacity-70 group-hover:opacity-85 transition-opacity duration-500" />
                   <span className="absolute top-5 left-5 font-mono-label text-[10px] tracking-[0.2em] text-background/30 select-none">

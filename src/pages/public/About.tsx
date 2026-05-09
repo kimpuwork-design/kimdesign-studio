@@ -220,7 +220,7 @@ export default function About() {
                     <ImageReveal>
                       <div className="overflow-hidden aspect-[3/4] relative">
                         {p.image_url ? (
-                          <img src={p.image_url} alt={p.name} className="h-full w-full object-cover group-hover:scale-[1.04] transition-transform duration-[1000ms] ease-out" />
+                          <img src={p.image_url} alt={p.name} className="h-full w-full object-cover group-hover:scale-[1.04] transition-transform [transition-duration:1000ms] ease-out" />
                         ) : (
                           <div className="h-full w-full bg-muted/30 flex items-center justify-center">
                             <Users size={40} className="text-muted-foreground/15" />

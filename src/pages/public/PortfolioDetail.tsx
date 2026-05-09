@@ -73,17 +73,19 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
   return (
     <StaggerItem>
       <motion.button
-        whileHover={{ scale: 1.015 }}
+        whileHover={{ scale: 1.012 }}
         whileTap={{ scale: 0.98 }}
         onClick={onClick}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="group relative w-full overflow-hidden break-inside-avoid"
+        className="group relative w-full overflow-hidden break-inside-avoid block"
         data-cursor-hover
+        data-cursor-label="View"
+        aria-label={`Open image ${idx + 1}${img.name ? `: ${img.name}` : ""}`}
       >
-        <motion.img 
-          src={img.url} 
-          alt={img.name || `Gallery ${idx + 1}`} 
+        <motion.img
+          src={img.url}
+          alt={img.name || `Gallery ${idx + 1}`}
           loading="lazy"
           draggable={false}
           onContextMenu={(e: React.MouseEvent) => e.preventDefault()}
@@ -96,11 +98,30 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
           }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         />
-        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-colors duration-300 flex items-center justify-center">
-          <div className="h-10 w-10 bg-background/80 flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300">
-            <Maximize2 size={14} className="text-foreground" />
+
+        {/* Index badge */}
+        <span className="absolute top-3 left-3 z-[2] font-mono-label text-[9px] tracking-[0.2em] text-background/90 bg-foreground/40 backdrop-blur-sm px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tabular-nums">
+          {String(idx + 1).padStart(2, "0")}
+        </span>
+
+        {/* Hover veil */}
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/0 to-foreground/0 opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
+
+        {/* Maximize icon */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="h-11 w-11 rounded-full bg-background/85 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300 shadow-lg">
+            <Maximize2 size={15} className="text-foreground" />
           </div>
         </div>
+
+        {/* Caption */}
+        {img.name && (
+          <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-400">
+            <p className="text-[11px] text-background/90 font-light leading-snug line-clamp-2 drop-shadow">
+              {img.name}
+            </p>
+          </div>
+        )}
       </motion.button>
     </StaggerItem>
   );

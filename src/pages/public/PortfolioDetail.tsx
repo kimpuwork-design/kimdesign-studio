@@ -354,7 +354,19 @@ export default function PortfolioDetail() {
             {/* Gallery — Masonry with parallax depth */}
             {allGalleryItems.length > 0 && (
               <FadeUp>
-                <SectionHeader icon={Camera} label="Gallery" count={allGalleryItems.length} />
+                <div className="flex items-center gap-4 mb-8">
+                  <Camera size={16} className="text-primary" />
+                  <h2 className="font-display text-2xl text-foreground">Gallery</h2>
+                  <span className="text-xs text-muted-foreground">{allGalleryItems.length}</span>
+                  <div className="h-px flex-1 bg-border/30" />
+                  <button
+                    onClick={() => setLightbox(0)}
+                    className="hidden md:inline-flex items-center gap-1.5 text-[10px] tracking-[0.18em] uppercase text-muted-foreground hover:text-foreground transition-colors"
+                    data-cursor-hover
+                  >
+                    <Maximize2 size={11} /> View All
+                  </button>
+                </div>
                 <StaggerContainer className="columns-2 md:columns-3 gap-3 md:gap-4 space-y-3 md:space-y-4" staggerDelay={0.06}>
                   {allGalleryItems.map((img, idx) => (
                     <GalleryImageCard key={img.id} img={img} idx={idx} onClick={() => setLightbox(idx)} />

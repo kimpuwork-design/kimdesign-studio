@@ -500,9 +500,10 @@ export default function PortfolioDetail() {
 
       {lightbox !== null && allGalleryItems.length > 0 && (
         <CinematicLightbox
-          images={allGalleryItems.map((g) => ({ id: g.id, image_url: g.url, caption: g.name }))}
+          images={allGalleryItems.map((g) => ({ id: g.id, image_url: g.url, caption: g.name, chapter: g.chapter }))}
           startIndex={lightbox}
           onClose={() => setLightbox(null)}
+          title={item.title}
         />
       )}
       {preview && <FilePreviewModal file={preview} onClose={() => setPreview(null)} role="PUBLIC" />}

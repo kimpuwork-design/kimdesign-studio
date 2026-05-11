@@ -311,3 +311,27 @@ function InfoCard({ icon, label, value }: { icon: React.ReactNode; label: string
     </div>
   );
 }
+
+function QuickStat({
+  icon, label, value, onClick, highlight,
+}: { icon: React.ReactNode; label: string; value: number | string; onClick?: () => void; highlight?: boolean }) {
+  const Comp: any = onClick ? "button" : "div";
+  return (
+    <Comp
+      onClick={onClick}
+      className={cn(
+        "glass-card p-4 text-left transition-all w-full",
+        onClick && "hover:border-portal-accent/40 hover:-translate-y-0.5 cursor-pointer",
+        highlight && "ring-1 ring-portal-accent/40"
+      )}
+    >
+      <div className="flex items-center gap-2 mb-2 text-portal-text-muted">
+        <span className={cn(highlight && "text-portal-accent")}>{icon}</span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider">{label}</span>
+      </div>
+      <p className={cn("font-display text-2xl font-bold tabular-nums", highlight ? "text-portal-accent" : "text-portal-text")}>
+        {value}
+      </p>
+    </Comp>
+  );
+}

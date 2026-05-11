@@ -206,10 +206,11 @@ export default function PortfolioDetail() {
 
       const imageFiles = allFiles.filter((f) => isImageExt(f.extension ?? ""));
       if (imageFiles.length > 0) {
+        const FILE_CAT_LABEL: Record<string, string> = Object.fromEntries(FILE_CATEGORIES.map((c) => [c.value, c.label]));
         const imgs = await Promise.all(
           imageFiles.map(async (f) => {
             const url = await getPublicFileSignedUrl(f.id);
-            return { url: url ?? "", name: f.original_name };
+            return { url: url ?? "", name: f.original_name, chapter: FILE_CAT_LABEL[f.category] ?? f.category };
           })
         );
         setGalleryImages(imgs.filter((i) => i.url));

@@ -57,6 +57,7 @@ export default function ClientProjectDetail() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [fileRefreshKey, setFileRefreshKey] = useState(0);
+  const [stats, setStats] = useState({ files: 0, unreadMessages: 0, pendingDeliverables: 0 });
 
   const tab = (searchParams.get("tab") ?? "overview") as "overview" | "files" | "messages" | "deliverables" | "billing";
   const setTab = (t: string) => setSearchParams({ tab: t });
@@ -73,6 +74,16 @@ export default function ClientProjectDetail() {
       setLoading(false);
     });
   }, [id]);
+
+  useEffect(() => {
+    if (!id || !profile) return;
+    Promise.all([
+      supabase.from("file_assets").select("id", { count: "exact", head: true }).eq("project_id", id).eq("is_deleted", false),
+      supabase.from("deliverables").select("id", { count: "exact", head: true }).eq("project_id", id).eq("status", "submitted"),
+    ]).then(([f, d]) => {
+      setStats((s) => ({ ...s, files: f.count ?? 0, pendingDeliverables: d.count ?? 0 }));
+    });
+  }, [id, profile, fileRefreshKey]);
 
   if (loading) return (
     <PortalLayout variant="client">
@@ -204,6 +215,34 @@ export default function ClientProjectDetail() {
         >
           {tab === "overview" && (
             <div className="space-y-5">
+              {/* At-a-glance stats */}
+              <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+                <QuickStat
+                  icon={<FolderOpen size={14} />}
+                  label="Files"
+                  value={stats.files}
+                  onClick={() => setTab("files")}
+                />
+                <QuickStat
+                  icon={<PackageOpen size={14} />}
+                  label="To Review"
+                  value={stats.pendingDeliverables}
+                  highlight={stats.pendingDeliverables > 0}
+                  onClick={() => setTab("deliverables")}
+                />
+                <QuickStat
+                  icon={<Users size={14} />}
+                  label="Team"
+                  value={staffMembers.length}
+                />
+                <QuickStat
+                  icon={<CalendarDays size={14} />}
+                  label="Days Left"
+                  value={project!.target_date ? Math.max(0, Math.ceil((new Date(project!.target_date).getTime() - Date.now()) / 86400000)) : "—"}
+                  highlight={!!project!.target_date && new Date(project!.target_date).getTime() - Date.now() < 7 * 86400000 && new Date(project!.target_date).getTime() > Date.now()}
+                />
+              </div>
+
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {project!.location && <InfoCard icon={<MapPin size={14} />} label="Location" value={project!.location} />}
                 {project!.start_date && <InfoCard icon={<CalendarDays size={14} />} label="Start Date" value={new Date(project!.start_date).toLocaleDateString()} />}
@@ -270,5 +309,29 @@ function InfoCard({ icon, label, value }: { icon: React.ReactNode; label: string
       <div className="flex items-center gap-2 mb-1.5 text-portal-text-muted">{icon}<span className="text-[10px] font-semibold uppercase tracking-wider">{label}</span></div>
       <p className="text-portal-text font-medium text-sm">{value}</p>
     </div>
+  );
+}
+
+function QuickStat({
+  icon, label, value, onClick, highlight,
+}: { icon: React.ReactNode; label: string; value: number | string; onClick?: () => void; highlight?: boolean }) {
+  const Comp: any = onClick ? "button" : "div";
+  return (
+    <Comp
+      onClick={onClick}
+      className={cn(
+        "glass-card p-4 text-left transition-all w-full",
+        onClick && "hover:border-portal-accent/40 hover:-translate-y-0.5 cursor-pointer",
+        highlight && "ring-1 ring-portal-accent/40"
+      )}
+    >
+      <div className="flex items-center gap-2 mb-2 text-portal-text-muted">
+        <span className={cn(highlight && "text-portal-accent")}>{icon}</span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider">{label}</span>
+      </div>
+      <p className={cn("font-display text-2xl font-bold tabular-nums", highlight ? "text-portal-accent" : "text-portal-text")}>
+        {value}
+      </p>
+    </Comp>
   );
 }

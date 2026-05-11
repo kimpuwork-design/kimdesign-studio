@@ -151,7 +151,7 @@ export default function PortfolioDetail() {
   const [item, setItem] = useState<ProjectItem | null>(null);
   const [gallery, setGallery] = useState<GalleryImage[]>([]);
   const [files, setFiles] = useState<FileAsset[]>([]);
-  const [galleryImages, setGalleryImages] = useState<{ url: string; name: string }[]>([]);
+  const [galleryImages, setGalleryImages] = useState<{ url: string; name: string; chapter?: string }[]>([]);
   const [related, setRelated] = useState<ProjectItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -206,10 +206,11 @@ export default function PortfolioDetail() {
 
       const imageFiles = allFiles.filter((f) => isImageExt(f.extension ?? ""));
       if (imageFiles.length > 0) {
+        const FILE_CAT_LABEL: Record<string, string> = Object.fromEntries(FILE_CATEGORIES.map((c) => [c.value, c.label]));
         const imgs = await Promise.all(
           imageFiles.map(async (f) => {
             const url = await getPublicFileSignedUrl(f.id);
-            return { url: url ?? "", name: f.original_name };
+            return { url: url ?? "", name: f.original_name, chapter: FILE_CAT_LABEL[f.category] ?? f.category };
           })
         );
         setGalleryImages(imgs.filter((i) => i.url));
@@ -246,9 +247,9 @@ export default function PortfolioDetail() {
   const coverUrl = item.thumbnail_url;
   const displaySummary = item.summary || item.description || "";
   const pageTitle = `${item.title} — KIM DESIGN STUDIO`;
-  const allGalleryItems = gallery.length > 0
-    ? gallery.map((g) => ({ id: g.id, url: g.image_url, name: "" }))
-    : galleryImages.map((g, i) => ({ id: `img-${i}`, url: g.url, name: g.name }));
+  const allGalleryItems: { id: string; url: string; name: string; chapter?: string }[] = gallery.length > 0
+    ? gallery.map((g) => ({ id: g.id, url: g.image_url, name: g.caption ?? "", chapter: undefined }))
+    : galleryImages.map((g, i) => ({ id: `img-${i}`, url: g.url, name: g.name, chapter: g.chapter }));
 
   const nonImageFiles = files.filter((f) => !isImageExt(f.extension ?? ""));
   const grouped: Record<string, FileAsset[]> = {};
@@ -353,7 +354,19 @@ export default function PortfolioDetail() {
             {/* Gallery — Masonry with parallax depth */}
             {allGalleryItems.length > 0 && (
               <FadeUp>
-                <SectionHeader icon={Camera} label="Gallery" count={allGalleryItems.length} />
+                <div className="flex items-center gap-4 mb-8">
+                  <Camera size={16} className="text-primary" />
+                  <h2 className="font-display text-2xl text-foreground">Gallery</h2>
+                  <span className="text-xs text-muted-foreground">{allGalleryItems.length}</span>
+                  <div className="h-px flex-1 bg-border/30" />
+                  <button
+                    onClick={() => setLightbox(0)}
+                    className="hidden md:inline-flex items-center gap-1.5 text-[10px] tracking-[0.18em] uppercase text-muted-foreground hover:text-foreground transition-colors"
+                    data-cursor-hover
+                  >
+                    <Maximize2 size={11} /> View All
+                  </button>
+                </div>
                 <StaggerContainer className="columns-2 md:columns-3 gap-3 md:gap-4 space-y-3 md:space-y-4" staggerDelay={0.06}>
                   {allGalleryItems.map((img, idx) => (
                     <GalleryImageCard key={img.id} img={img} idx={idx} onClick={() => setLightbox(idx)} />
@@ -487,9 +500,10 @@ export default function PortfolioDetail() {
 
       {lightbox !== null && allGalleryItems.length > 0 && (
         <CinematicLightbox
-          images={allGalleryItems.map((g) => ({ id: g.id, image_url: g.url, caption: g.name }))}
+          images={allGalleryItems.map((g) => ({ id: g.id, image_url: g.url, caption: g.name, chapter: g.chapter }))}
           startIndex={lightbox}
           onClose={() => setLightbox(null)}
+          title={item.title}
         />
       )}
       {preview && <FilePreviewModal file={preview} onClose={() => setPreview(null)} role="PUBLIC" />}

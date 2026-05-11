@@ -247,9 +247,9 @@ export default function PortfolioDetail() {
   const coverUrl = item.thumbnail_url;
   const displaySummary = item.summary || item.description || "";
   const pageTitle = `${item.title} — KIM DESIGN STUDIO`;
-  const allGalleryItems = gallery.length > 0
-    ? gallery.map((g) => ({ id: g.id, url: g.image_url, name: "" }))
-    : galleryImages.map((g, i) => ({ id: `img-${i}`, url: g.url, name: g.name }));
+  const allGalleryItems: { id: string; url: string; name: string; chapter?: string }[] = gallery.length > 0
+    ? gallery.map((g) => ({ id: g.id, url: g.image_url, name: g.caption ?? "", chapter: undefined }))
+    : galleryImages.map((g, i) => ({ id: `img-${i}`, url: g.url, name: g.name, chapter: g.chapter }));
 
   const nonImageFiles = files.filter((f) => !isImageExt(f.extension ?? ""));
   const grouped: Record<string, FileAsset[]> = {};

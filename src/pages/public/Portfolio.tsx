@@ -1,19 +1,21 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useContentProtection } from "@/hooks/useContentProtection";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { Search, MapPin, Calendar, Grid3X3, Star, ArrowRight, ArrowUpRight, LayoutGrid, Rows3 } from "lucide-react";
+import { Search, MapPin, Calendar, Grid3X3, Star, ArrowRight, ArrowUpRight, LayoutGrid, Rows3, X, ArrowDownUp } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { FadeUp } from "@/components/motion/MotionWrappers";
 import { SectionLabel } from "@/components/SectionLabel";
 import { AnimatedDivider } from "@/components/AnimatedDivider";
 
 const CATEGORIES = ["All", "Residential", "Cultural", "Commercial", "Interior", "Landscape", "Civic", "Mixed-Use"];
+type SortMode = "newest" | "oldest" | "az" | "year_desc";
+const SORT_LABELS: Record<SortMode, string> = { newest: "Newest", oldest: "Oldest", az: "A–Z", year_desc: "By Year" };
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
 /* ─── Animated Counter ─── */

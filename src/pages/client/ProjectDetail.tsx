@@ -57,6 +57,7 @@ export default function ClientProjectDetail() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [fileRefreshKey, setFileRefreshKey] = useState(0);
+  const [stats, setStats] = useState({ files: 0, unreadMessages: 0, pendingDeliverables: 0 });
 
   const tab = (searchParams.get("tab") ?? "overview") as "overview" | "files" | "messages" | "deliverables" | "billing";
   const setTab = (t: string) => setSearchParams({ tab: t });
@@ -73,6 +74,16 @@ export default function ClientProjectDetail() {
       setLoading(false);
     });
   }, [id]);
+
+  useEffect(() => {
+    if (!id || !profile) return;
+    Promise.all([
+      supabase.from("file_assets").select("id", { count: "exact", head: true }).eq("project_id", id).eq("is_deleted", false),
+      supabase.from("deliverables").select("id", { count: "exact", head: true }).eq("project_id", id).eq("status", "submitted"),
+    ]).then(([f, d]) => {
+      setStats((s) => ({ ...s, files: f.count ?? 0, pendingDeliverables: d.count ?? 0 }));
+    });
+  }, [id, profile, fileRefreshKey]);
 
   if (loading) return (
     <PortalLayout variant="client">

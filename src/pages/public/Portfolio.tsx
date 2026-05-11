@@ -345,13 +345,18 @@ export default function PublicPortfolio() {
         <div className="container py-3 md:py-3.5 flex flex-col gap-2.5 md:flex-row md:gap-4 md:items-center">
           <div className="relative flex-1 max-w-full md:max-w-xs">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            <input value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder={t("portfolio_search")}
-              className="w-full pl-9 pr-3 py-2 border border-border/50 bg-background/60 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-colors" />
+              className="w-full pl-9 pr-9 py-2 border border-border/50 bg-background/60 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-colors" />
+            {search && (
+              <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors" aria-label="Clear search">
+                <X size={13} />
+              </button>
+            )}
           </div>
           <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-0.5 md:pb-0 items-center flex-1">
             {CATEGORIES.map((c) => (
-              <button key={c} onClick={() => { setCategory(c); setPage(1); }}
+              <button key={c} onClick={() => setCategory(c)}
                 className={`px-3 md:px-3.5 py-1.5 text-[10px] tracking-[0.12em] uppercase font-medium transition-all duration-300 whitespace-nowrap shrink-0 ${
                   category === c ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
                 }`}>
@@ -359,13 +364,58 @@ export default function PublicPortfolio() {
               </button>
             ))}
           </div>
-          <div className="hidden md:flex items-center gap-0 border border-border/40 bg-background/40">
-            <button onClick={() => setViewMode("grid")} className={`p-2 transition-all ${viewMode === "grid" ? "bg-foreground/5 text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-              <LayoutGrid size={15} />
-            </button>
-            <button onClick={() => setViewMode("list")} className={`p-2 transition-all ${viewMode === "list" ? "bg-foreground/5 text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-              <Rows3 size={15} />
-            </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {yearOptions.length > 1 && (
+              <select
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                className="border border-border/40 bg-background/60 text-[10px] tracking-[0.12em] uppercase font-medium text-foreground py-1.5 px-2.5 focus:outline-none focus:border-primary/40 transition-colors cursor-pointer"
+                aria-label="Filter by year"
+              >
+                {yearOptions.map((y) => (
+                  <option key={y} value={y}>{y === "All" ? "All Years" : y}</option>
+                ))}
+              </select>
+            )}
+            <div className="relative">
+              <button
+                onClick={() => setSortOpen((o) => !o)}
+                className="flex items-center gap-1.5 border border-border/40 bg-background/60 text-[10px] tracking-[0.12em] uppercase font-medium text-foreground py-1.5 px-2.5 hover:border-primary/40 transition-colors"
+              >
+                <ArrowDownUp size={11} /> {SORT_LABELS[sort]}
+              </button>
+              {sortOpen && (
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setSortOpen(false)} />
+                  <div className="absolute right-0 mt-1 z-40 min-w-[140px] border border-border/40 bg-background shadow-lg">
+                    {(Object.keys(SORT_LABELS) as SortMode[]).map((s) => (
+                      <button key={s} onClick={() => setSort(s)}
+                        className={`block w-full text-left px-3 py-2 text-[10px] tracking-[0.12em] uppercase font-medium transition-colors ${
+                          sort === s ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                        }`}>
+                        {SORT_LABELS[s]}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+            {activeFiltersCount > 0 && (
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-1 text-[10px] tracking-[0.12em] uppercase font-medium text-primary hover:text-primary/70 transition-colors px-2 py-1.5"
+              >
+                <X size={11} /> Clear ({activeFiltersCount})
+              </button>
+            )}
+            <div className="hidden md:flex items-center gap-0 border border-border/40 bg-background/40">
+              <button onClick={() => setViewMode("grid")} className={`p-2 transition-all ${viewMode === "grid" ? "bg-foreground/5 text-foreground" : "text-muted-foreground hover:text-foreground"}`} aria-label="Grid view">
+                <LayoutGrid size={15} />
+              </button>
+              <button onClick={() => setViewMode("list")} className={`p-2 transition-all ${viewMode === "list" ? "bg-foreground/5 text-foreground" : "text-muted-foreground hover:text-foreground"}`} aria-label="List view">
+                <Rows3 size={15} />
+              </button>
+            </div>
           </div>
         </div>
       </section>

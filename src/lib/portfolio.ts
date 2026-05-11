@@ -24,6 +24,7 @@ export interface GalleryImage {
   image_url: string;
   sort_order: number;
   created_at: string;
+  caption?: string | null;
 }
 
 export interface StudioSettings {

@@ -151,7 +151,7 @@ export default function PortfolioDetail() {
   const [item, setItem] = useState<ProjectItem | null>(null);
   const [gallery, setGallery] = useState<GalleryImage[]>([]);
   const [files, setFiles] = useState<FileAsset[]>([]);
-  const [galleryImages, setGalleryImages] = useState<{ url: string; name: string }[]>([]);
+  const [galleryImages, setGalleryImages] = useState<{ url: string; name: string; chapter?: string }[]>([]);
   const [related, setRelated] = useState<ProjectItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);

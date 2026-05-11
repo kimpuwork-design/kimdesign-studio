@@ -215,6 +215,34 @@ export default function ClientProjectDetail() {
         >
           {tab === "overview" && (
             <div className="space-y-5">
+              {/* At-a-glance stats */}
+              <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+                <QuickStat
+                  icon={<FolderOpen size={14} />}
+                  label="Files"
+                  value={stats.files}
+                  onClick={() => setTab("files")}
+                />
+                <QuickStat
+                  icon={<PackageOpen size={14} />}
+                  label="To Review"
+                  value={stats.pendingDeliverables}
+                  highlight={stats.pendingDeliverables > 0}
+                  onClick={() => setTab("deliverables")}
+                />
+                <QuickStat
+                  icon={<Users size={14} />}
+                  label="Team"
+                  value={staffMembers.length}
+                />
+                <QuickStat
+                  icon={<CalendarDays size={14} />}
+                  label="Days Left"
+                  value={project!.target_date ? Math.max(0, Math.ceil((new Date(project!.target_date).getTime() - Date.now()) / 86400000)) : "—"}
+                  highlight={!!project!.target_date && new Date(project!.target_date).getTime() - Date.now() < 7 * 86400000 && new Date(project!.target_date).getTime() > Date.now()}
+                />
+              </div>
+
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {project!.location && <InfoCard icon={<MapPin size={14} />} label="Location" value={project!.location} />}
                 {project!.start_date && <InfoCard icon={<CalendarDays size={14} />} label="Start Date" value={new Date(project!.start_date).toLocaleDateString()} />}

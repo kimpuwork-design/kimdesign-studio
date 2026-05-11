@@ -182,11 +182,32 @@ export default function PublicPortfolio() {
   useSEO({ title: t("portfolio_title"), description: t("portfolio_description") });
   const [items, setItems] = useState<ProjectPortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const search = searchParams.get("q") ?? "";
+  const category = searchParams.get("cat") ?? "All";
+  const year = searchParams.get("year") ?? "All";
+  const sort = (searchParams.get("sort") as SortMode) || "newest";
+  const viewMode = (searchParams.get("view") as "grid" | "list") || "grid";
   const [page, setPage] = useState(1);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [sortOpen, setSortOpen] = useState(false);
   const PAGE_SIZE = 12;
+
+  const updateParam = useCallback((patch: Record<string, string | null>) => {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(patch).forEach(([k, v]) => {
+      if (v == null || v === "" || v === "All" || (k === "sort" && v === "newest") || (k === "view" && v === "grid")) next.delete(k);
+      else next.set(k, v);
+    });
+    setSearchParams(next, { replace: true });
+    setPage(1);
+  }, [searchParams, setSearchParams]);
+
+  const setSearch = (v: string) => updateParam({ q: v || null });
+  const setCategory = (v: string) => updateParam({ cat: v });
+  const setYear = (v: string) => updateParam({ year: v });
+  const setSort = (v: SortMode) => { updateParam({ sort: v }); setSortOpen(false); };
+  const setViewMode = (v: "grid" | "list") => updateParam({ view: v });
 
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
@@ -207,21 +228,42 @@ export default function PublicPortfolio() {
       });
   }, []);
 
-  const filtered = items.filter((item) => {
+  const yearOptions = useMemo(() => {
+    const years = Array.from(new Set(items.map((i) => i.year).filter((y): y is number => !!y))).sort((a, b) => b - a);
+    return ["All", ...years.map(String)];
+  }, [items]);
+
+  const filtered = useMemo(() => items.filter((item) => {
     if (category !== "All" && item.category !== category) return false;
+    if (year !== "All" && String(item.year ?? "") !== year) return false;
     if (search.trim()) {
       const q = search.toLowerCase();
       return item.title.toLowerCase().includes(q) || (item.summary ?? "").toLowerCase().includes(q) ||
         item.location?.toLowerCase().includes(q) || item.tags?.some((tg) => tg.toLowerCase().includes(q));
     }
     return true;
-  });
+  }), [items, category, year, search]);
 
-  const featured = filtered.filter((i) => i.is_featured);
-  const rest = filtered.filter((i) => !i.is_featured);
-  const allForDisplay = [...featured, ...rest];
+  const sortedFiltered = useMemo(() => {
+    const arr = [...filtered];
+    switch (sort) {
+      case "oldest": arr.sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at)); break;
+      case "az": arr.sort((a, b) => a.title.localeCompare(b.title)); break;
+      case "year_desc": arr.sort((a, b) => (b.year ?? 0) - (a.year ?? 0)); break;
+      default: arr.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
+    }
+    return arr;
+  }, [filtered, sort]);
+
+  const featured = sortedFiltered.filter((i) => i.is_featured);
+  const rest = sortedFiltered.filter((i) => !i.is_featured);
+  const allForDisplay = sort === "newest" ? [...featured, ...rest] : sortedFiltered;
   const paginated = allForDisplay.slice(0, page * PAGE_SIZE);
   const hasMore = allForDisplay.length > paginated.length;
+
+  const activeFiltersCount =
+    (category !== "All" ? 1 : 0) + (year !== "All" ? 1 : 0) + (search.trim() ? 1 : 0);
+  const clearFilters = () => setSearchParams({}, { replace: true });
 
   const getBentoSize = (index: number): "hero" | "tall" | "wide" | "normal" => {
     if (index === 0) return "hero";

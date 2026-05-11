@@ -442,7 +442,7 @@ export default function PublicPortfolio() {
               </div>
               <h3 className="font-display text-2xl text-foreground">{t("portfolio_no_projects")}</h3>
               <p className="mt-2 text-muted-foreground text-sm max-w-xs">{t("portfolio_no_found_hint")}</p>
-              <button onClick={() => { setSearch(""); setCategory("All"); }}
+              <button onClick={clearFilters}
                 className="mt-6 text-xs text-primary hover:underline tracking-[0.15em] uppercase font-medium">
                 {t("portfolio_clear_filters")}
               </button>

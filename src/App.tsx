@@ -100,6 +100,7 @@ const App = () => (
         <CommandPalette />
         <AppRoutes />
         <Suspense fallback={<PageLoader />}>
+        <main>
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<PageTransition><Home /></PageTransition>} />
@@ -156,6 +157,7 @@ const App = () => (
           <Route path="/not-authorized" element={<NotAuthorized />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </main>
         </Suspense>
         </AuthProvider>
       </BrowserRouter>

@@ -1,0 +1,19 @@
+# KIM DESIGN STUDIO
+
+> Award-winning architecture and interior design studio crafting timeless spaces in Myanmar and beyond.
+
+KIM DESIGN STUDIO designs residential, commercial, and hospitality spaces with a minimalist luxury approach. The site showcases completed work, services, and the studio's story, and lets prospective clients begin a conversation.
+
+## Pages
+
+- [Home](/): Studio introduction, featured work, and services overview.
+- [Portfolio](/portfolio): Curated archive of completed projects with filters by category and year.
+- [Projects](/projects): Public project archive with detailed galleries.
+- [Services](/services): Architecture, interior design, and consulting offerings.
+- [About](/about): Studio philosophy, team, and history.
+- [Blog](/blog): Articles on design, projects, and process.
+- [Contact](/contact): Inquire about new projects.
+
+## Optional
+
+- [Sitemap](/sitemap.xml): Machine-readable index of public pages.

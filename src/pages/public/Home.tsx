@@ -315,6 +315,10 @@ export default function Home() {
               alt=""
               aria-hidden
               draggable={false}
+              width={1920}
+              height={1080}
+              fetchPriority="high"
+              decoding="async"
               initial={{ scale: 1.15, opacity: 0 }}
               animate={{ scale: 1.04, opacity: 1 }}
               transition={{ duration: 2.4, ease: luxuryEase }}

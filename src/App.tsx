@@ -9,11 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { CommandPalette } from "@/components/CommandPalette";
-import { PageTransition } from "@/components/PageTransition";
 import { usePageTracking } from "@/hooks/usePageTracking";
-import { CustomCursor } from "@/components/CustomCursor";
-import { PageLoader as InitialLoader } from "@/components/PageLoader";
-import { ScrollProgress } from "@/components/ScrollProgress";
 import { BackToTop } from "@/components/BackToTop";
 
 // Lazy-loaded pages for code splitting

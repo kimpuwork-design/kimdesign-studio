@@ -85,9 +85,6 @@ const App = () => (
   <LanguageProvider>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <CustomCursor />
-      <InitialLoader />
-      <ScrollProgress />
       <BackToTop />
       <Toaster />
       <Sonner />
@@ -99,16 +96,17 @@ const App = () => (
         <main>
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<PageTransition><Home /></PageTransition>} />
-          <Route path="/projects" element={<PageTransition><PublicProjects /></PageTransition>} />
-          <Route path="/projects/:id" element={<PageTransition><PublicProjectDetail /></PageTransition>} />
-          <Route path="/portfolio" element={<PageTransition><Portfolio /></PageTransition>} />
-          <Route path="/portfolio/:slug" element={<PageTransition><PortfolioDetail /></PageTransition>} />
-          <Route path="/services" element={<PageTransition><Services /></PageTransition>} />
-          <Route path="/about" element={<PageTransition><About /></PageTransition>} />
-          <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
-          <Route path="/blog" element={<PageTransition><PublicBlog /></PageTransition>} />
-          <Route path="/blog/:slug" element={<PageTransition><PublicBlogDetail /></PageTransition>} />
+          <Route path="/" element={<Home />} />
+          <Route path="/projects" element={<PublicProjects />} />
+          <Route path="/projects/:id" element={<PublicProjectDetail />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/portfolio/:slug" element={<PortfolioDetail />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/blog" element={<PublicBlog />} />
+          <Route path="/blog/:slug" element={<PublicBlogDetail />} />
+
 
           {/* Auth routes */}
           <Route path="/auth/login" element={<Login />} />

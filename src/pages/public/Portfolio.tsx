@@ -22,6 +22,9 @@ const luxuryEase = [0.22, 1, 0.36, 1] as const;
 function useCountUp(target: number, duration = 1800) {
   const [count, setCount] = useState(0);
   const started = useRef(false);
+  useEffect(() => {
+    if (started.current) setCount(target);
+  }, [target]);
   const start = useCallback(() => {
     if (started.current) return;
     started.current = true;

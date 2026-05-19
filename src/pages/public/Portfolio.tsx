@@ -22,6 +22,9 @@ const luxuryEase = [0.22, 1, 0.36, 1] as const;
 function useCountUp(target: number, duration = 1800) {
   const [count, setCount] = useState(0);
   const started = useRef(false);
+  useEffect(() => {
+    if (started.current) setCount(target);
+  }, [target]);
   const start = useCallback(() => {
     if (started.current) return;
     started.current = true;
@@ -281,8 +284,8 @@ export default function PublicPortfolio() {
     <div className="bg-background min-h-screen relative content-protected">
       <PublicNav />
 
-      {/* ── Cinematic Hero ── */}
-      <div ref={heroRef} className="relative overflow-hidden flex items-end">
+      {/* ── Compact Hero ── */}
+      <div ref={heroRef} className="relative overflow-hidden flex items-end min-h-[42vh] md:min-h-[48vh]">
         <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }}>
             <motion.div animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
@@ -297,13 +300,13 @@ export default function PublicPortfolio() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-[2] pointer-events-none" />
 
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 w-full">
-          <section className="container pb-8 md:pb-12 pt-28 md:pt-32">
+          <section className="container pb-8 md:pb-10 pt-24 md:pt-28">
             <div className="max-w-4xl">
               <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "3rem" }} transition={{ duration: 0.8, delay: 0.1, ease: luxuryEase }}
                 className="h-px bg-primary mb-6" />
               <SectionLabel text={t("portfolio_selected_work")} />
 
-              <h1 className="font-display text-[clamp(2.2rem,5.5vw,5.5rem)] text-foreground leading-[0.95]">
+              <h1 className="font-display text-[clamp(2.2rem,5vw,4.8rem)] text-foreground leading-[0.95]">
                 {(t("portfolio_our") || "Our").split(" ").map((word: string, i: number) => (
                   <motion.span key={i} initial={{ opacity: 0, y: 55, rotateX: -15 }} animate={{ opacity: 1, y: 0, rotateX: 0 }}
                     transition={{ duration: 0.8, delay: 0.3 + i * 0.08, ease: luxuryEase }}
@@ -320,11 +323,11 @@ export default function PublicPortfolio() {
               </h1>
 
               <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.8, ease: luxuryEase }}
-                className="mt-8 text-muted-foreground max-w-lg leading-[1.85] text-base md:text-lg font-light">
+                className="mt-5 text-muted-foreground max-w-lg leading-[1.75] text-sm md:text-base font-light">
                 {t("portfolio_description")}
               </motion.p>
 
-              <div className="mt-10 flex items-center gap-10 overflow-x-auto pb-2 scrollbar-none">
+              <div className="mt-7 flex items-center gap-8 overflow-x-auto pb-2 scrollbar-none">
                 {[
                   { n: items.length, label: t("portfolio_projects_stat") },
                   { n: items.filter(i => i.is_featured).length, label: t("portfolio_featured_stat") },

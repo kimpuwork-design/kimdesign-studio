@@ -9,7 +9,7 @@ export function PageLoader() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const duration = 2000;
+    const duration = 700;
     const start = performance.now();
     const tick = (now: number) => {
       const p = Math.min((now - start) / duration, 1);
@@ -19,7 +19,7 @@ export function PageLoader() {
       if (p < 1) {
         requestAnimationFrame(tick);
       } else {
-        setTimeout(() => setVisible(false), 400);
+        setTimeout(() => setVisible(false), 120);
       }
     };
     requestAnimationFrame(tick);
@@ -30,10 +30,7 @@ export function PageLoader() {
       {visible && (
         <motion.div
           key="loader"
-          exit={{
-            clipPath: "inset(0 0 100% 0)",
-            transition: { duration: 0.7, ease },
-          }}
+          exit={{ opacity: 0, transition: { duration: 0.25, ease } }}
           className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-foreground"
         >
           {/* Logo with draw animation */}

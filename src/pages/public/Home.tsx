@@ -434,7 +434,7 @@ export default function Home() {
               </motion.div>
             </div>
           </div>
-        </motion.section>
+        </section>
 
         {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">

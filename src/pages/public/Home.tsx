@@ -19,7 +19,7 @@ import {
 } from "@/components/motion/MotionWrappers";
 import { Marquee } from "@/components/motion/Marquee";
 import { MagneticButton } from "@/components/MagneticButton";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowRight, Building2, Ruler, Leaf, PenTool, MapPin, GraduationCap, Award, Globe, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { SectionLabel } from "@/components/SectionLabel";
 import { LiveClock } from "@/components/LiveClock";
@@ -268,9 +268,6 @@ export default function Home() {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
   const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 50]);
 
   useEffect(() => {
     supabase
@@ -304,8 +301,7 @@ export default function Home() {
 
       {/* ══════════ CINEMATIC HERO ══════════ */}
       <div ref={heroRef} className="relative" id="hero">
-        <motion.section
-          style={{ opacity: heroOpacity, y: heroY }}
+        <section
           className="min-h-screen flex items-end relative overflow-hidden bg-background"
         >
           {/* Cinematic still backdrop */}

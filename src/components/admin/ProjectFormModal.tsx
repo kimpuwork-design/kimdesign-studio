@@ -264,15 +264,15 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
                 )}
               </div>
 
-              {/* Public visibility toggle */}
+              {/* Client/public visibility toggle */}
               <div className="flex items-center gap-3 rounded-lg border border-portal-border bg-portal-bg/50 px-4 py-3">
+                <label htmlFor="is_public" className="flex-1 cursor-pointer">
+                  <span className="text-sm font-medium text-portal-text">Show to clients</span>
+                  <span className="block text-xs text-portal-text-muted">When on, this project appears on the public Projects page for clients to view. When off, it stays hidden.</span>
+                </label>
                 <input type="checkbox" id="is_public" checked={form.is_public}
                   onChange={(e) => setForm((f) => ({ ...f, is_public: e.target.checked }))}
                   className="h-4 w-4 rounded border-portal-border accent-portal-accent" />
-                <label htmlFor="is_public" className="flex-1">
-                  <span className="text-sm font-medium text-portal-text">Show on public website</span>
-                  <span className="block text-xs text-portal-text-muted">Visible on public Projects & Portfolio pages.</span>
-                </label>
               </div>
             </>
           ) : (

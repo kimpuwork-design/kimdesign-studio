@@ -9,9 +9,10 @@ import { ProjectKanban } from "@/components/admin/ProjectKanban";
 import { supabase } from "@/integrations/supabase/client";
 import { writeAuditLog } from "@/lib/audit";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus, Search, Pencil, Trash2, Users, ExternalLink, Star, Eye, EyeOff, LayoutGrid, List, Columns } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Users, ExternalLink, Star, LayoutGrid, List, Columns } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -188,7 +189,7 @@ export default function AdminProjects() {
                     <span className="rounded-full bg-yellow-500/90 p-1"><Star size={10} className="text-white fill-white" /></span>
                   )}
                   <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", project.is_public ? "bg-emerald-500/90 text-white" : "bg-portal-bg/80 text-portal-text-muted backdrop-blur-sm")}>
-                    {project.is_public ? "Public" : "Draft"}
+                    {project.is_public ? "Visible" : "Hidden"}
                   </span>
                 </div>
               </div>
@@ -198,6 +199,17 @@ export default function AdminProjects() {
                 <div className="flex items-center justify-between mt-2">
                   <StatusBadge status={project.status} />
                   <span className="text-[10px] text-portal-text-muted">{new Date(project.updated_at).toLocaleDateString()}</span>
+                </div>
+                <div
+                  className="mt-2.5 flex items-center justify-between rounded-md border border-portal-border/40 bg-portal-surface/40 px-2.5 py-1.5"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <span className="text-[10px] font-medium text-portal-text-muted">Show to clients</span>
+                  <Switch
+                    checked={project.is_public}
+                    disabled={toggling === project.id}
+                    onCheckedChange={() => handleTogglePublic(project)}
+                  />
                 </div>
               </div>
             </div>
@@ -255,9 +267,14 @@ export default function AdminProjects() {
                       </select>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold", project.is_public ? "bg-emerald-500/15 text-emerald-400" : "bg-portal-surface text-portal-text-muted/60")}>
-                          {project.is_public ? "Public" : "Draft"}
+                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                        <Switch
+                          checked={project.is_public}
+                          disabled={toggling === project.id}
+                          onCheckedChange={() => handleTogglePublic(project)}
+                        />
+                        <span className={cn("text-[10px] font-semibold", project.is_public ? "text-emerald-400" : "text-portal-text-muted/60")}>
+                          {project.is_public ? "Visible" : "Hidden"}
                         </span>
                         {project.is_featured && <Star size={11} className="text-yellow-400 fill-yellow-400" />}
                       </div>
@@ -275,11 +292,6 @@ export default function AdminProjects() {
                           className={cn("rounded-md p-1.5 transition-colors hover:bg-portal-surface", project.is_featured ? "text-yellow-400" : "text-portal-text-muted hover:text-portal-text")}
                           disabled={toggling === project.id + "_feat"}>
                           <Star size={13} />
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); handleTogglePublic(project); }} title={project.is_public ? "Unpublish" : "Publish"}
-                          className="rounded-md p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors"
-                          disabled={toggling === project.id}>
-                          {project.is_public ? <EyeOff size={13} /> : <Eye size={13} />}
                         </button>
                         <button onClick={(e) => { e.stopPropagation(); setEditProject(project); setShowForm(true); }}
                           className="rounded-md p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors" title="Edit">

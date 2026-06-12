@@ -52,7 +52,7 @@ function Hero({ heroImage, hero, t }: { heroImage?: string; hero: any; t: (k: st
           src={heroImage}
           alt=""
           aria-hidden
-          fetchPriority="high"
+          loading="eager"
           className="absolute inset-0 w-full h-full object-cover opacity-55 z-0 select-none"
           draggable={false}
         />

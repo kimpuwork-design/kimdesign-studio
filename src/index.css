@@ -123,14 +123,14 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'DM Sans', system-ui, sans-serif;
-    letter-spacing: -0.01em;
-    font-feature-settings: "ss01", "ss02", "cv01";
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.011em;
+    font-feature-settings: "cv11", "ss01", "ss03";
   }
 
   h1, h2, h3, h4 {
-    font-family: 'Cormorant Garamond', 'Georgia', serif;
-    letter-spacing: -0.025em;
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    letter-spacing: -0.03em;
     text-wrap: balance;
     font-weight: 500;
   }

@@ -468,17 +468,27 @@ export default function PublicPortfolio() {
       </div>
 
       {/* ── CTA ── */}
-      <section className="border-t border-border/30 bg-muted/10">
-        <div className="container py-32 md:py-48">
+      <section className="border-t border-border/40">
+        <div className="container py-24 md:py-32">
           <FadeUp>
-            <div className="text-center max-w-3xl mx-auto">
-              <SectionLabel text={t("portfolio_start_project")} className="justify-center" />
-              <h2 className="font-display text-4xl md:text-6xl lg:text-7xl text-foreground leading-[1.05]">{t("portfolio_inspired")}</h2>
-              <p className="mt-6 text-muted-foreground max-w-md mx-auto leading-[1.8] font-light text-lg">{t("portfolio_lets_create")}</p>
-              <Link to="/contact"
-                className="inline-flex items-center gap-3 mt-10 bg-primary px-12 py-4 text-sm tracking-[0.15em] uppercase text-primary-foreground hover:bg-primary/90 transition-all duration-500 hover:gap-4">
-                {t("portfolio_start_project")} <ArrowRight size={14} />
-              </Link>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
+              <div className="md:col-span-8">
+                <div className="flex items-center gap-3 mb-6 text-[10px] tracking-[0.25em] uppercase text-muted-foreground font-medium">
+                  <span className="h-px w-8 bg-primary" />
+                  <span>{t("portfolio_start_project")}</span>
+                </div>
+                <h2 className="font-display text-4xl md:text-6xl text-foreground leading-[1.02] tracking-[-0.03em]">
+                  {t("portfolio_inspired")}
+                </h2>
+                <p className="mt-5 text-muted-foreground max-w-lg leading-[1.7] text-base">{t("portfolio_lets_create")}</p>
+              </div>
+              <div className="md:col-span-4 md:text-right">
+                <Link to="/contact"
+                  className="group inline-flex items-center gap-3 bg-foreground px-8 py-4 text-[11px] tracking-[0.2em] uppercase text-background hover:bg-primary transition-all duration-500">
+                  {t("portfolio_start_project")}
+                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
             </div>
           </FadeUp>
         </div>

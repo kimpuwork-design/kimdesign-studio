@@ -7,11 +7,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { Search, MapPin, Calendar, Grid3X3, Star, ArrowRight, ArrowUpRight, LayoutGrid, Rows3, X, ArrowDownUp } from "lucide-react";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { Search, MapPin, Grid3X3, Star, ArrowRight, ArrowUpRight, LayoutGrid, Rows3, X, ArrowDownUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { FadeUp } from "@/components/motion/MotionWrappers";
-import { SectionLabel } from "@/components/SectionLabel";
-import { AnimatedDivider } from "@/components/AnimatedDivider";
 
 const CATEGORIES = ["All", "Residential", "Cultural", "Commercial", "Interior", "Landscape", "Civic", "Mixed-Use"];
 type SortMode = "newest" | "oldest" | "az" | "year_desc";
@@ -82,69 +80,69 @@ interface ProjectPortfolioItem {
   updated_at: string;
 }
 
-/* ─── Grid Card ─── */
-function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioItem; size?: "hero" | "tall" | "wide" | "normal"; index: number; t: (k: string) => string }) {
+/* ─── Editorial Grid Card (title BELOW image, magazine style) ─── */
+function GridCard({ item, index, t, featured = false }: { item: ProjectPortfolioItem; index: number; t: (k: string) => string; featured?: boolean }) {
   const linkTo = item.slug ? `/portfolio/${item.slug}` : `/projects/${item.id}`;
-  const imgRef = useRef<HTMLImageElement>(null);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const el = e.currentTarget as HTMLElement;
-    const rect = el.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    if (imgRef.current) imgRef.current.style.transform = `scale(1.08) translate(${-x * 12}px, ${-y * 12}px)`;
-  };
-  const handleMouseLeave = () => {
-    if (imgRef.current) imgRef.current.style.transform = "scale(1) translate(0, 0)";
-  };
-
-  const aspectMap = { hero: "aspect-[16/10] md:aspect-[16/9]", tall: "aspect-[3/4]", wide: "aspect-[16/9]", normal: "aspect-[4/3]" };
 
   return (
-    <motion.div layout initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.97 }}
-      transition={{ duration: 0.6, delay: index * 0.05, ease: luxuryEase }}>
-      <Link to={linkTo} className="group block relative overflow-hidden" data-cursor-hover data-cursor-label="View"
-        onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
-        <div className={`${aspectMap[size]} overflow-hidden relative`}>
+    <motion.article
+      layout
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.55, delay: Math.min(index * 0.04, 0.3), ease: luxuryEase }}
+      className="group"
+    >
+      <Link to={linkTo} className="block" data-cursor-hover data-cursor-label="View">
+        <div className={`relative overflow-hidden bg-muted/30 ${featured ? "aspect-[16/9]" : "aspect-[4/3]"}`}>
           {item.thumbnail_url ? (
-            <img ref={imgRef} src={item.thumbnail_url} alt={item.title} loading="lazy" draggable={false}
+            <img
+              src={item.thumbnail_url}
+              alt={item.title}
+              loading="lazy"
+              draggable={false}
               onContextMenu={(e) => e.preventDefault()}
-              className="w-full h-full object-cover transition-transform duration-700 ease-out"
-              style={{ userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties} />
+              className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
+              style={{ userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties}
+            />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted/30">
-              <Grid3X3 size={40} className="text-muted-foreground/15" />
+            <div className="w-full h-full flex items-center justify-center">
+              <Grid3X3 size={32} className="text-muted-foreground/20" />
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-
           {item.is_featured && (
-            <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-primary px-3 py-1.5 text-[9px] font-medium text-primary-foreground tracking-[0.15em] uppercase">
-              <Star size={9} className="fill-current" /> {t("portfolio_featured_badge")}
+            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-background/95 backdrop-blur-sm px-2.5 py-1 text-[9px] font-medium text-foreground tracking-[0.18em] uppercase">
+              <Star size={9} className="fill-primary text-primary" /> {t("portfolio_featured_badge")}
             </div>
           )}
+        </div>
 
-          <motion.div className="absolute top-4 right-4 h-9 w-9 bg-background/90 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-            <ArrowUpRight size={14} className="text-foreground" />
-          </motion.div>
-
-          <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6">
-            <div className="translate-y-1 group-hover:translate-y-0 transition-transform duration-500">
-              {item.category && (
-                <span className="inline-block text-[9px] tracking-[0.2em] uppercase font-medium text-background/70 mb-2">{item.category}</span>
-              )}
-              <h3 className={`font-display text-background drop-shadow-lg leading-tight ${
-                size === "hero" ? "text-2xl md:text-4xl" : size === "tall" || size === "wide" ? "text-xl md:text-2xl" : "text-lg md:text-xl"
-              }`}>{item.title}</h3>
-              <div className="mt-2 flex items-center gap-3 text-[11px] text-background/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                {item.location && <span className="flex items-center gap-1"><MapPin size={10} />{item.location}</span>}
-                {item.year && <span className="flex items-center gap-1"><Calendar size={10} />{item.year}</span>}
-              </div>
+        <div className="pt-5 pb-2">
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="flex items-center gap-2 text-[10px] tracking-[0.18em] uppercase text-muted-foreground font-medium">
+              {item.category && <span>{item.category}</span>}
+              {item.category && item.year && <span className="text-border">/</span>}
+              {item.year && <span className="tabular-nums">{item.year}</span>}
             </div>
+            <span className="text-[10px] tracking-[0.15em] uppercase text-muted-foreground tabular-nums">
+              {String(index + 1).padStart(3, "0")}
+            </span>
+          </div>
+          <h3 className={`font-display text-foreground leading-[1.15] tracking-tight group-hover:text-primary transition-colors duration-300 ${featured ? "text-2xl md:text-[32px]" : "text-xl md:text-[22px]"}`}>
+            {item.title}
+          </h3>
+          {item.location && (
+            <p className="mt-2 flex items-center gap-1.5 text-[12px] text-muted-foreground">
+              <MapPin size={11} className="opacity-60" /> {item.location}
+            </p>
+          )}
+          <div className="mt-4 inline-flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-foreground/60 group-hover:text-primary group-hover:gap-3 transition-all duration-300">
+            <span>View Project</span>
+            <ArrowUpRight size={12} />
           </div>
         </div>
       </Link>
-    </motion.div>
+    </motion.article>
   );
 }
 
@@ -170,7 +168,7 @@ function ListCard({ item, index }: { item: ProjectPortfolioItem; index: number }
           <h3 className="font-display text-lg text-foreground group-hover:text-primary transition-colors truncate">{item.title}</h3>
           <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
             {item.location && <span className="flex items-center gap-1"><MapPin size={10} />{item.location}</span>}
-            {item.year && <span className="flex items-center gap-1"><Calendar size={10} />{item.year}</span>}
+            {item.year && <span className="tabular-nums">{item.year}</span>}
           </div>
         </div>
         <ArrowRight size={16} className="text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
@@ -213,9 +211,6 @@ export default function PublicPortfolio() {
   const setViewMode = (v: "grid" | "list") => updateParam({ view: v });
 
   const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
   useEffect(() => {
     setLoading(true);
@@ -268,80 +263,57 @@ export default function PublicPortfolio() {
     (category !== "All" ? 1 : 0) + (year !== "All" ? 1 : 0) + (search.trim() ? 1 : 0);
   const clearFilters = () => setSearchParams({}, { replace: true });
 
-  const getBentoSize = (index: number): "hero" | "tall" | "wide" | "normal" => {
-    if (index === 0) return "hero";
-    if (index === 1 || index === 2) return "tall";
-    if (index === 5 || index === 9) return "wide";
-    return "normal";
-  };
-  const getBentoSpan = (index: number): string => {
-    if (index === 0) return "md:col-span-2 md:row-span-1";
-    if (index === 5 || index === 9) return "md:col-span-2";
-    return "";
-  };
 
   return (
     <div className="bg-background min-h-screen relative content-protected">
       <PublicNav />
 
-      {/* ── Compact Hero ── */}
-      <div ref={heroRef} className="relative overflow-hidden flex items-end min-h-[42vh] md:min-h-[48vh]">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }}>
-            <motion.div animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[12%] right-[6%] w-[200px] h-[200px] border border-primary/[0.05]" />
-            <motion.div animate={{ y: [0, 15, 0], rotate: [15, 20, 15] }} transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[30%] right-[10%] w-[120px] h-[120px] border border-primary/[0.04] rotate-[15deg]" />
-            <motion.div animate={{ y: [0, -12, 0] }} transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute bottom-[15%] left-[4%] w-[90px] h-[90px] border border-primary/[0.04] rounded-full" />
-          </motion.div>
-        </div>
-        <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-[2] pointer-events-none" />
-
-        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 w-full">
-          <section className="container pb-8 md:pb-10 pt-24 md:pt-28">
-            <div className="max-w-4xl">
-              <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "3rem" }} transition={{ duration: 0.8, delay: 0.1, ease: luxuryEase }}
-                className="h-px bg-primary mb-6" />
-              <SectionLabel text={t("portfolio_selected_work")} />
-
-              <h1 className="font-display text-[clamp(2.2rem,5vw,4.8rem)] text-foreground leading-[0.95]">
-                {(t("portfolio_our") || "Our").split(" ").map((word: string, i: number) => (
-                  <motion.span key={i} initial={{ opacity: 0, y: 55, rotateX: -15 }} animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                    transition={{ duration: 0.8, delay: 0.3 + i * 0.08, ease: luxuryEase }}
-                    className="inline-block mr-[0.25em]">{word}</motion.span>
-                ))}
-                <br />
-                <span className="text-primary hero-shimmer-text">
-                  {(t("portfolio_title") || "Portfolio").split(" ").map((word: string, i: number) => (
-                    <motion.span key={`l2-${i}`} initial={{ opacity: 0, y: 55, rotateX: -15 }} animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                      transition={{ duration: 0.8, delay: 0.55 + i * 0.08, ease: luxuryEase }}
-                      className="inline-block mr-[0.25em]">{word}</motion.span>
-                  ))}
-                </span>
-              </h1>
-
-              <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.8, ease: luxuryEase }}
-                className="mt-5 text-muted-foreground max-w-lg leading-[1.75] text-sm md:text-base font-light">
+      {/* ── Editorial Hero ── */}
+      <section ref={heroRef} className="relative border-b border-border/40">
+        <div className="container pt-20 md:pt-28 pb-12 md:pb-16">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-end">
+            {/* Left: index + title */}
+            <div className="md:col-span-8">
+              <div className="flex items-center gap-3 mb-6 text-[10px] tracking-[0.25em] uppercase text-muted-foreground font-medium">
+                <span className="h-px w-8 bg-primary" />
+                <span>{t("portfolio_selected_work")}</span>
+              </div>
+              <motion.h1
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: luxuryEase }}
+                className="font-display text-[clamp(2.4rem,6vw,5.5rem)] text-foreground leading-[0.95] tracking-[-0.03em]"
+              >
+                {t("portfolio_our") || "Our"} <span className="text-primary italic font-light">{t("portfolio_title") || "Portfolio"}</span>
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.15, ease: luxuryEase }}
+                className="mt-6 text-muted-foreground max-w-xl leading-[1.7] text-[15px] md:text-base"
+              >
                 {t("portfolio_description")}
               </motion.p>
-
-              <div className="mt-7 flex items-center gap-8 overflow-x-auto pb-2 scrollbar-none">
+            </div>
+            {/* Right: stats column */}
+            <div className="md:col-span-4 md:border-l md:border-border/50 md:pl-8">
+              <div className="grid grid-cols-3 md:grid-cols-1 gap-5 md:gap-6">
                 {[
                   { n: items.length, label: t("portfolio_projects_stat") },
                   { n: items.filter(i => i.is_featured).length, label: t("portfolio_featured_stat") },
                   { n: new Set(items.map(i => i.category).filter(Boolean)).size, label: t("portfolio_categories_stat") },
                 ].map((stat, i) => (
-                  <AnimatedPortfolioStat key={stat.label} value={stat.n} label={stat.label} delay={0.9 + i * 0.1} />
+                  <div key={stat.label} className="md:flex md:items-baseline md:gap-3 md:border-b md:border-border/40 md:pb-4">
+                    <AnimatedPortfolioStat value={stat.n} label={stat.label} delay={0.3 + i * 0.08} />
+                  </div>
                 ))}
               </div>
             </div>
-          </section>
-        </motion.div>
-      </div>
+          </div>
+        </div>
+      </section>
 
-      <AnimatedDivider />
+      
 
       {/* ── Sticky Filters ── */}
       <section className="sticky top-16 z-30 bg-background/80 backdrop-blur-xl border-t border-b border-border/30">
@@ -463,12 +435,15 @@ export default function PublicPortfolio() {
             <AnimatePresence mode="wait">
               {viewMode === "grid" ? (
                 <motion.div key="grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
-                  className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                  {paginated.map((item, i) => (
-                    <div key={item.id} className={getBentoSpan(i)}>
-                      <GridCard item={item} size={getBentoSize(i)} index={i} t={t} />
-                    </div>
-                  ))}
+                  className="grid gap-x-6 gap-y-14 md:gap-x-8 md:gap-y-20 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                  {paginated.map((item, i) => {
+                    const isFeatured = sort === "newest" && i === 0 && item.is_featured;
+                    return (
+                      <div key={item.id} className={isFeatured ? "sm:col-span-2 lg:col-span-3" : ""}>
+                        <GridCard item={item} index={i} t={t} featured={isFeatured} />
+                      </div>
+                    );
+                  })}
                 </motion.div>
               ) : (
                 <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="max-w-3xl">
@@ -493,17 +468,27 @@ export default function PublicPortfolio() {
       </div>
 
       {/* ── CTA ── */}
-      <section className="border-t border-border/30 bg-muted/10">
-        <div className="container py-32 md:py-48">
+      <section className="border-t border-border/40">
+        <div className="container py-24 md:py-32">
           <FadeUp>
-            <div className="text-center max-w-3xl mx-auto">
-              <SectionLabel text={t("portfolio_start_project")} className="justify-center" />
-              <h2 className="font-display text-4xl md:text-6xl lg:text-7xl text-foreground leading-[1.05]">{t("portfolio_inspired")}</h2>
-              <p className="mt-6 text-muted-foreground max-w-md mx-auto leading-[1.8] font-light text-lg">{t("portfolio_lets_create")}</p>
-              <Link to="/contact"
-                className="inline-flex items-center gap-3 mt-10 bg-primary px-12 py-4 text-sm tracking-[0.15em] uppercase text-primary-foreground hover:bg-primary/90 transition-all duration-500 hover:gap-4">
-                {t("portfolio_start_project")} <ArrowRight size={14} />
-              </Link>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
+              <div className="md:col-span-8">
+                <div className="flex items-center gap-3 mb-6 text-[10px] tracking-[0.25em] uppercase text-muted-foreground font-medium">
+                  <span className="h-px w-8 bg-primary" />
+                  <span>{t("portfolio_start_project")}</span>
+                </div>
+                <h2 className="font-display text-4xl md:text-6xl text-foreground leading-[1.02] tracking-[-0.03em]">
+                  {t("portfolio_inspired")}
+                </h2>
+                <p className="mt-5 text-muted-foreground max-w-lg leading-[1.7] text-base">{t("portfolio_lets_create")}</p>
+              </div>
+              <div className="md:col-span-4 md:text-right">
+                <Link to="/contact"
+                  className="group inline-flex items-center gap-3 bg-foreground px-8 py-4 text-[11px] tracking-[0.2em] uppercase text-background hover:bg-primary transition-all duration-500">
+                  {t("portfolio_start_project")}
+                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
             </div>
           </FadeUp>
         </div>

@@ -313,7 +313,7 @@ export default function PublicPortfolio() {
         </div>
       </section>
 
-      <AnimatedDivider />
+      
 
       {/* ── Sticky Filters ── */}
       <section className="sticky top-16 z-30 bg-background/80 backdrop-blur-xl border-t border-b border-border/30">

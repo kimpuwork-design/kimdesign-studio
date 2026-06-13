@@ -7,11 +7,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
 import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { Search, MapPin, Calendar, Grid3X3, Star, ArrowRight, ArrowUpRight, LayoutGrid, Rows3, X, ArrowDownUp } from "lucide-react";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { Search, MapPin, Grid3X3, Star, ArrowRight, ArrowUpRight, LayoutGrid, Rows3, X, ArrowDownUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { FadeUp } from "@/components/motion/MotionWrappers";
-import { SectionLabel } from "@/components/SectionLabel";
-import { AnimatedDivider } from "@/components/AnimatedDivider";
 
 const CATEGORIES = ["All", "Residential", "Cultural", "Commercial", "Interior", "Landscape", "Civic", "Mixed-Use"];
 type SortMode = "newest" | "oldest" | "az" | "year_desc";

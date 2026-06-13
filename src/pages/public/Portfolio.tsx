@@ -168,7 +168,7 @@ function ListCard({ item, index }: { item: ProjectPortfolioItem; index: number }
           <h3 className="font-display text-lg text-foreground group-hover:text-primary transition-colors truncate">{item.title}</h3>
           <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
             {item.location && <span className="flex items-center gap-1"><MapPin size={10} />{item.location}</span>}
-            {item.year && <span className="flex items-center gap-1"><Calendar size={10} />{item.year}</span>}
+            {item.year && <span className="tabular-nums">{item.year}</span>}
           </div>
         </div>
         <ArrowRight size={16} className="text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />

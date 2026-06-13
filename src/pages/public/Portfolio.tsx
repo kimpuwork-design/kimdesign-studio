@@ -452,12 +452,15 @@ export default function PublicPortfolio() {
             <AnimatePresence mode="wait">
               {viewMode === "grid" ? (
                 <motion.div key="grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
-                  className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                  {paginated.map((item, i) => (
-                    <div key={item.id} className={getBentoSpan(i)}>
-                      <GridCard item={item} size={getBentoSize(i)} index={i} t={t} />
-                    </div>
-                  ))}
+                  className="grid gap-x-6 gap-y-14 md:gap-x-8 md:gap-y-20 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                  {paginated.map((item, i) => {
+                    const isFeatured = sort === "newest" && i === 0 && item.is_featured;
+                    return (
+                      <div key={item.id} className={isFeatured ? "sm:col-span-2 lg:col-span-3" : ""}>
+                        <GridCard item={item} index={i} t={t} featured={isFeatured} />
+                      </div>
+                    );
+                  })}
                 </motion.div>
               ) : (
                 <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="max-w-3xl">

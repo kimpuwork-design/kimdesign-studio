@@ -268,17 +268,6 @@ export default function PublicPortfolio() {
     (category !== "All" ? 1 : 0) + (year !== "All" ? 1 : 0) + (search.trim() ? 1 : 0);
   const clearFilters = () => setSearchParams({}, { replace: true });
 
-  const getBentoSize = (index: number): "hero" | "tall" | "wide" | "normal" => {
-    if (index === 0) return "hero";
-    if (index === 1 || index === 2) return "tall";
-    if (index === 5 || index === 9) return "wide";
-    return "normal";
-  };
-  const getBentoSpan = (index: number): string => {
-    if (index === 0) return "md:col-span-2 md:row-span-1";
-    if (index === 5 || index === 9) return "md:col-span-2";
-    return "";
-  };
 
   return (
     <div className="bg-background min-h-screen relative content-protected">

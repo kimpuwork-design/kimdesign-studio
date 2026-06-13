@@ -270,62 +270,50 @@ export default function PublicPortfolio() {
     <div className="bg-background min-h-screen relative content-protected">
       <PublicNav />
 
-      {/* ── Compact Hero ── */}
-      <div ref={heroRef} className="relative overflow-hidden flex items-end min-h-[42vh] md:min-h-[48vh]">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }}>
-            <motion.div animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[12%] right-[6%] w-[200px] h-[200px] border border-primary/[0.05]" />
-            <motion.div animate={{ y: [0, 15, 0], rotate: [15, 20, 15] }} transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[30%] right-[10%] w-[120px] h-[120px] border border-primary/[0.04] rotate-[15deg]" />
-            <motion.div animate={{ y: [0, -12, 0] }} transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute bottom-[15%] left-[4%] w-[90px] h-[90px] border border-primary/[0.04] rounded-full" />
-          </motion.div>
-        </div>
-        <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-[2] pointer-events-none" />
-
-        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 w-full">
-          <section className="container pb-8 md:pb-10 pt-24 md:pt-28">
-            <div className="max-w-4xl">
-              <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "3rem" }} transition={{ duration: 0.8, delay: 0.1, ease: luxuryEase }}
-                className="h-px bg-primary mb-6" />
-              <SectionLabel text={t("portfolio_selected_work")} />
-
-              <h1 className="font-display text-[clamp(2.2rem,5vw,4.8rem)] text-foreground leading-[0.95]">
-                {(t("portfolio_our") || "Our").split(" ").map((word: string, i: number) => (
-                  <motion.span key={i} initial={{ opacity: 0, y: 55, rotateX: -15 }} animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                    transition={{ duration: 0.8, delay: 0.3 + i * 0.08, ease: luxuryEase }}
-                    className="inline-block mr-[0.25em]">{word}</motion.span>
-                ))}
-                <br />
-                <span className="text-primary hero-shimmer-text">
-                  {(t("portfolio_title") || "Portfolio").split(" ").map((word: string, i: number) => (
-                    <motion.span key={`l2-${i}`} initial={{ opacity: 0, y: 55, rotateX: -15 }} animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                      transition={{ duration: 0.8, delay: 0.55 + i * 0.08, ease: luxuryEase }}
-                      className="inline-block mr-[0.25em]">{word}</motion.span>
-                  ))}
-                </span>
-              </h1>
-
-              <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.8, ease: luxuryEase }}
-                className="mt-5 text-muted-foreground max-w-lg leading-[1.75] text-sm md:text-base font-light">
+      {/* ── Editorial Hero ── */}
+      <section ref={heroRef} className="relative border-b border-border/40">
+        <div className="container pt-20 md:pt-28 pb-12 md:pb-16">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-end">
+            {/* Left: index + title */}
+            <div className="md:col-span-8">
+              <div className="flex items-center gap-3 mb-6 text-[10px] tracking-[0.25em] uppercase text-muted-foreground font-medium">
+                <span className="h-px w-8 bg-primary" />
+                <span>{t("portfolio_selected_work")}</span>
+              </div>
+              <motion.h1
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: luxuryEase }}
+                className="font-display text-[clamp(2.4rem,6vw,5.5rem)] text-foreground leading-[0.95] tracking-[-0.03em]"
+              >
+                {t("portfolio_our") || "Our"} <span className="text-primary italic font-light">{t("portfolio_title") || "Portfolio"}</span>
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.15, ease: luxuryEase }}
+                className="mt-6 text-muted-foreground max-w-xl leading-[1.7] text-[15px] md:text-base"
+              >
                 {t("portfolio_description")}
               </motion.p>
-
-              <div className="mt-7 flex items-center gap-8 overflow-x-auto pb-2 scrollbar-none">
+            </div>
+            {/* Right: stats column */}
+            <div className="md:col-span-4 md:border-l md:border-border/50 md:pl-8">
+              <div className="grid grid-cols-3 md:grid-cols-1 gap-5 md:gap-6">
                 {[
                   { n: items.length, label: t("portfolio_projects_stat") },
                   { n: items.filter(i => i.is_featured).length, label: t("portfolio_featured_stat") },
                   { n: new Set(items.map(i => i.category).filter(Boolean)).size, label: t("portfolio_categories_stat") },
                 ].map((stat, i) => (
-                  <AnimatedPortfolioStat key={stat.label} value={stat.n} label={stat.label} delay={0.9 + i * 0.1} />
+                  <div key={stat.label} className="md:flex md:items-baseline md:gap-3 md:border-b md:border-border/40 md:pb-4">
+                    <AnimatedPortfolioStat value={stat.n} label={stat.label} delay={0.3 + i * 0.08} />
+                  </div>
                 ))}
               </div>
             </div>
-          </section>
-        </motion.div>
-      </div>
+          </div>
+        </div>
+      </section>
 
       <AnimatedDivider />
 

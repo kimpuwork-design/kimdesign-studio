@@ -82,69 +82,69 @@ interface ProjectPortfolioItem {
   updated_at: string;
 }
 
-/* ─── Grid Card ─── */
-function GridCard({ item, size = "normal", index, t }: { item: ProjectPortfolioItem; size?: "hero" | "tall" | "wide" | "normal"; index: number; t: (k: string) => string }) {
+/* ─── Editorial Grid Card (title BELOW image, magazine style) ─── */
+function GridCard({ item, index, t, featured = false }: { item: ProjectPortfolioItem; index: number; t: (k: string) => string; featured?: boolean }) {
   const linkTo = item.slug ? `/portfolio/${item.slug}` : `/projects/${item.id}`;
-  const imgRef = useRef<HTMLImageElement>(null);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const el = e.currentTarget as HTMLElement;
-    const rect = el.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    if (imgRef.current) imgRef.current.style.transform = `scale(1.08) translate(${-x * 12}px, ${-y * 12}px)`;
-  };
-  const handleMouseLeave = () => {
-    if (imgRef.current) imgRef.current.style.transform = "scale(1) translate(0, 0)";
-  };
-
-  const aspectMap = { hero: "aspect-[16/10] md:aspect-[16/9]", tall: "aspect-[3/4]", wide: "aspect-[16/9]", normal: "aspect-[4/3]" };
 
   return (
-    <motion.div layout initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.97 }}
-      transition={{ duration: 0.6, delay: index * 0.05, ease: luxuryEase }}>
-      <Link to={linkTo} className="group block relative overflow-hidden" data-cursor-hover data-cursor-label="View"
-        onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
-        <div className={`${aspectMap[size]} overflow-hidden relative`}>
+    <motion.article
+      layout
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.55, delay: Math.min(index * 0.04, 0.3), ease: luxuryEase }}
+      className="group"
+    >
+      <Link to={linkTo} className="block" data-cursor-hover data-cursor-label="View">
+        <div className={`relative overflow-hidden bg-muted/30 ${featured ? "aspect-[16/9]" : "aspect-[4/3]"}`}>
           {item.thumbnail_url ? (
-            <img ref={imgRef} src={item.thumbnail_url} alt={item.title} loading="lazy" draggable={false}
+            <img
+              src={item.thumbnail_url}
+              alt={item.title}
+              loading="lazy"
+              draggable={false}
               onContextMenu={(e) => e.preventDefault()}
-              className="w-full h-full object-cover transition-transform duration-700 ease-out"
-              style={{ userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties} />
+              className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
+              style={{ userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties}
+            />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted/30">
-              <Grid3X3 size={40} className="text-muted-foreground/15" />
+            <div className="w-full h-full flex items-center justify-center">
+              <Grid3X3 size={32} className="text-muted-foreground/20" />
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-
           {item.is_featured && (
-            <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-primary px-3 py-1.5 text-[9px] font-medium text-primary-foreground tracking-[0.15em] uppercase">
-              <Star size={9} className="fill-current" /> {t("portfolio_featured_badge")}
+            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-background/95 backdrop-blur-sm px-2.5 py-1 text-[9px] font-medium text-foreground tracking-[0.18em] uppercase">
+              <Star size={9} className="fill-primary text-primary" /> {t("portfolio_featured_badge")}
             </div>
           )}
+        </div>
 
-          <motion.div className="absolute top-4 right-4 h-9 w-9 bg-background/90 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-            <ArrowUpRight size={14} className="text-foreground" />
-          </motion.div>
-
-          <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6">
-            <div className="translate-y-1 group-hover:translate-y-0 transition-transform duration-500">
-              {item.category && (
-                <span className="inline-block text-[9px] tracking-[0.2em] uppercase font-medium text-background/70 mb-2">{item.category}</span>
-              )}
-              <h3 className={`font-display text-background drop-shadow-lg leading-tight ${
-                size === "hero" ? "text-2xl md:text-4xl" : size === "tall" || size === "wide" ? "text-xl md:text-2xl" : "text-lg md:text-xl"
-              }`}>{item.title}</h3>
-              <div className="mt-2 flex items-center gap-3 text-[11px] text-background/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                {item.location && <span className="flex items-center gap-1"><MapPin size={10} />{item.location}</span>}
-                {item.year && <span className="flex items-center gap-1"><Calendar size={10} />{item.year}</span>}
-              </div>
+        <div className="pt-5 pb-2">
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="flex items-center gap-2 text-[10px] tracking-[0.18em] uppercase text-muted-foreground font-medium">
+              {item.category && <span>{item.category}</span>}
+              {item.category && item.year && <span className="text-border">/</span>}
+              {item.year && <span className="tabular-nums">{item.year}</span>}
             </div>
+            <span className="text-[10px] tracking-[0.15em] uppercase text-muted-foreground tabular-nums">
+              {String(index + 1).padStart(3, "0")}
+            </span>
+          </div>
+          <h3 className={`font-display text-foreground leading-[1.15] tracking-tight group-hover:text-primary transition-colors duration-300 ${featured ? "text-2xl md:text-[32px]" : "text-xl md:text-[22px]"}`}>
+            {item.title}
+          </h3>
+          {item.location && (
+            <p className="mt-2 flex items-center gap-1.5 text-[12px] text-muted-foreground">
+              <MapPin size={11} className="opacity-60" /> {item.location}
+            </p>
+          )}
+          <div className="mt-4 inline-flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-foreground/60 group-hover:text-primary group-hover:gap-3 transition-all duration-300">
+            <span>View Project</span>
+            <ArrowUpRight size={12} />
           </div>
         </div>
       </Link>
-    </motion.div>
+    </motion.article>
   );
 }
 

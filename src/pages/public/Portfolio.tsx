@@ -213,9 +213,6 @@ export default function PublicPortfolio() {
   const setViewMode = (v: "grid" | "list") => updateParam({ view: v });
 
   const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
   useEffect(() => {
     setLoading(true);

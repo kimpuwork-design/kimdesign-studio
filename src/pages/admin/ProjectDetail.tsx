@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { DeliverablesTab } from "@/components/deliverables/DeliverablesTab";
 import { GalleryManager } from "@/components/admin/GalleryManager";
+import { DrivePdfImporter } from "@/components/admin/DrivePdfImporter";
 import { ProjectTimeline } from "@/components/admin/ProjectTimeline";
 import { BeforeAfterSlider } from "@/components/media/BeforeAfterSlider";
 import { Button } from "@/components/ui/button";
@@ -243,10 +244,16 @@ export default function AdminProjectDetail() {
       )}
 
       {tab === "gallery" && (
-        <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
-          <h2 className="font-semibold text-portal-text mb-4 text-sm">Portfolio Gallery</h2>
-          <p className="text-xs text-portal-text-muted mb-4">Manage gallery images shown on the public portfolio page for this project.</p>
-          <GalleryManager projectId={project!.id} />
+        <div className="space-y-5">
+          <DrivePdfImporter
+            projectId={project!.id}
+            onImported={() => setFileRefreshKey((k) => k + 1)}
+          />
+          <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
+            <h2 className="font-semibold text-portal-text mb-4 text-sm">Portfolio Gallery</h2>
+            <p className="text-xs text-portal-text-muted mb-4">Manage gallery images shown on the public portfolio page for this project.</p>
+            <GalleryManager key={fileRefreshKey} projectId={project!.id} />
+          </div>
         </div>
       )}
 

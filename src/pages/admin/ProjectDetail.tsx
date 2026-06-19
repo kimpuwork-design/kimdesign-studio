@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { DeliverablesTab } from "@/components/deliverables/DeliverablesTab";
 import { GalleryManager } from "@/components/admin/GalleryManager";
+import { DrivePdfImporter } from "@/components/admin/DrivePdfImporter";
 import { ProjectTimeline } from "@/components/admin/ProjectTimeline";
 import { BeforeAfterSlider } from "@/components/media/BeforeAfterSlider";
 import { Button } from "@/components/ui/button";

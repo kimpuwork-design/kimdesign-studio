@@ -83,7 +83,7 @@ function ProjectCard({ project, t }: { project: Project; t: (k: string) => strin
           className="group block overflow-hidden rounded-2xl border border-border/30 bg-card/60 backdrop-blur-sm hover:border-primary/30 hover:shadow-[0_0_30px_hsl(var(--primary)/0.08)] transition-all duration-300">
           <div className="aspect-[16/9] overflow-hidden relative bg-secondary/30">
             {project.thumbnail_url ? (
-              <img src={project.thumbnail_url} alt={project.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <img src={project.thumbnail_url} alt={project.title} loading="eager" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted/50 to-secondary/50">
                 <ImageIcon size={32} className="text-muted-foreground/20" />

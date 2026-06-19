@@ -83,14 +83,15 @@ interface ProjectPortfolioItem {
 /* ─── Editorial Grid Card (title BELOW image, magazine style) ─── */
 function GridCard({ item, index, t, featured = false }: { item: ProjectPortfolioItem; index: number; t: (k: string) => string; featured?: boolean }) {
   const linkTo = item.slug ? `/portfolio/${item.slug}` : `/projects/${item.id}`;
+  const eager = index < 8;
 
   return (
     <motion.article
       layout
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.55, delay: Math.min(index * 0.04, 0.3), ease: luxuryEase }}
+      transition={{ duration: 0.4, delay: Math.min(index * 0.02, 0.12), ease: luxuryEase }}
       className="group"
     >
       <Link to={linkTo} className="block" data-cursor-hover data-cursor-label="View">
@@ -99,7 +100,9 @@ function GridCard({ item, index, t, featured = false }: { item: ProjectPortfolio
             <img
               src={item.thumbnail_url}
               alt={item.title}
-              loading="lazy"
+              loading={eager ? "eager" : "lazy"}
+              decoding="async"
+              {...(index < 3 ? { fetchPriority: "high" as const } : {})}
               draggable={false}
               onContextMenu={(e) => e.preventDefault()}
               className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"

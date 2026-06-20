@@ -54,8 +54,7 @@ export function DrivePdfImporter({ projectId, onImported }: Props) {
     try {
       const { data, error: fnErr } = await supabase.functions.invoke("import-drive-pdf", {
         body: { project_id: projectId, drive_url: url.trim(), replace },
-        responseType: "arrayBuffer",
-      } as never);
+      });
       if (fnErr) throw new Error(fnErr.message || "Import failed");
       const pdfBuffer = await bufferFromFunctionResponse(data);
       const pdf = await pdfjs.getDocument({ data: pdfBuffer }).promise;

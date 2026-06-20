@@ -18,9 +18,9 @@ const DRIVE_HINT =
 const JPEG_QUALITY = 0.82;
 const MAX_RENDER_WIDTH = 1600;
 
-function bufferFromFunctionResponse(data: unknown): ArrayBuffer {
+async function bufferFromFunctionResponse(data: unknown): Promise<ArrayBuffer> {
   if (data instanceof ArrayBuffer) return data;
-  if (data instanceof Blob) return data.arrayBuffer() as unknown as ArrayBuffer;
+  if (data instanceof Blob) return data.arrayBuffer();
   throw new Error("The PDF could not be downloaded from Drive.");
 }
 

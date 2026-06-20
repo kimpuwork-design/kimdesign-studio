@@ -1,6 +1,4 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-// @ts-ignore — mupdf has no Deno-friendly types but works via npm specifier
-import * as mupdf from "npm:mupdf@1.3.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,9 +8,6 @@ const corsHeaders = {
 };
 
 const MAX_PDF_BYTES = 150 * 1024 * 1024; // 150 MB
-const MAX_PAGES = 40;
-const RENDER_SCALE = 1.1; // ~100 DPI — keep memory low for big PDFs
-const JPEG_QUALITY = 78;
 
 function extractDriveFileId(input: string): string | null {
   const url = input.trim();
@@ -30,7 +25,7 @@ function extractDriveFileId(input: string): string | null {
   return null;
 }
 
-async function downloadDrivePdf(fileId: string): Promise<Uint8Array> {
+async function getDrivePdfResponse(fileId: string): Promise<Response> {
   const base = `https://drive.usercontent.google.com/download?id=${fileId}&export=download`;
   let res = await fetch(base, { redirect: "follow" });
   let ctype = res.headers.get("content-type") ?? "";
@@ -59,17 +54,42 @@ async function downloadDrivePdf(fileId: string): Promise<Uint8Array> {
       "Drive returned an HTML page instead of the PDF. Make sure the file is shared as 'Anyone with the link'."
     );
   }
-  const buf = new Uint8Array(await res.arrayBuffer());
-  if (buf.length > MAX_PDF_BYTES) {
+  const contentLength = Number(res.headers.get("content-length") ?? "0");
+  if (contentLength > MAX_PDF_BYTES) {
     throw new Error(
-      `PDF is ${(buf.length / 1024 / 1024).toFixed(1)} MB. Maximum allowed is ${MAX_PDF_BYTES / 1024 / 1024} MB.`
+      `PDF is ${(contentLength / 1024 / 1024).toFixed(1)} MB. Maximum allowed is ${MAX_PDF_BYTES / 1024 / 1024} MB.`
     );
   }
-  // Basic sanity check
-  if (buf.length < 5 || String.fromCharCode(...buf.slice(0, 4)) !== "%PDF") {
-    throw new Error("Downloaded file is not a valid PDF.");
+  return res;
+}
+
+async function clearPreviousPdfImports(admin: ReturnType<typeof createClient>, projectId: string) {
+  const prefix = `pdf-pages/${projectId}/`;
+  const { data: existing } = await admin
+    .from("portfolio_gallery")
+    .select("id, image_url")
+    .eq("project_id", projectId);
+  const toDelete = (existing ?? []).filter((r) => String(r.image_url).includes(prefix));
+  if (toDelete.length > 0) {
+    await admin
+      .from("portfolio_gallery")
+      .delete()
+      .in("id", toDelete.map((r) => r.id));
   }
-  return buf;
+
+  try {
+    const root = `pdf-pages/${projectId}`;
+    const { data: folders } = await admin.storage.from("portfolio").list(root, { limit: 1000 });
+    const paths: string[] = [];
+    for (const folder of folders ?? []) {
+      const folderPath = `${root}/${folder.name}`;
+      const { data: files } = await admin.storage.from("portfolio").list(folderPath, { limit: 1000 });
+      for (const file of files ?? []) paths.push(`${folderPath}/${file.name}`);
+    }
+    if (paths.length > 0) await admin.storage.from("portfolio").remove(paths);
+  } catch (_) {
+    // Best-effort cleanup only.
+  }
 }
 
 Deno.serve(async (req) => {
@@ -161,111 +181,18 @@ Deno.serve(async (req) => {
       });
     }
 
-    // 3) Download PDF
-    const pdfBytes = await downloadDrivePdf(fileId);
+    if (replace) await clearPreviousPdfImports(admin, projectId);
 
-    // 4) Render with mupdf
-    const doc = mupdf.Document.openDocument(pdfBytes, "application/pdf");
-    const totalPages: number = doc.countPages();
-    if (totalPages < 1) {
-      throw new Error("PDF has no pages.");
-    }
-    const pagesToRender = Math.min(totalPages, MAX_PAGES);
-
-    // Optional cleanup of previous import for this project (only PDF-imported rows)
-    if (replace) {
-      // Delete previous gallery rows whose image_url is in our pdf-pages folder for this project
-      const prefix = `pdf-pages/${projectId}/`;
-      const { data: existing } = await admin
-        .from("portfolio_gallery")
-        .select("id, image_url")
-        .eq("project_id", projectId);
-      const toDelete = (existing ?? []).filter((r) => r.image_url.includes(prefix));
-      if (toDelete.length > 0) {
-        await admin
-          .from("portfolio_gallery")
-          .delete()
-          .in("id", toDelete.map((r) => r.id));
-      }
-      // Best-effort storage cleanup (list + remove)
-      try {
-        const { data: files } = await admin.storage.from("portfolio").list(prefix.replace(/\/$/, ""), { limit: 1000 });
-        if (files && files.length > 0) {
-          await admin.storage.from("portfolio").remove(files.map((f) => `${prefix}${f.name}`));
-        }
-      } catch (_) {
-        // ignore
-      }
-    }
-
-    // Existing max sort_order
-    const { data: lastRows } = await admin
-      .from("portfolio_gallery")
-      .select("sort_order")
-      .eq("project_id", projectId)
-      .order("sort_order", { ascending: false })
-      .limit(1);
-    const baseOrder =
-      lastRows && lastRows.length > 0 ? (lastRows[0].sort_order ?? 0) + 1 : 0;
-
-    const importId = crypto.randomUUID().slice(0, 8);
-    const insertedIds: string[] = [];
-    const matrix = mupdf.Matrix.scale(RENDER_SCALE, RENDER_SCALE);
-
-    for (let i = 0; i < pagesToRender; i++) {
-      const page = doc.loadPage(i);
-      const pixmap = page.toPixmap(matrix, mupdf.ColorSpace.DeviceRGB, false, true);
-      const jpegBytes: Uint8Array = pixmap.asJPEG(JPEG_QUALITY, false);
-      pixmap.destroy?.();
-      page.destroy?.();
-
-      const pageNum = String(i + 1).padStart(3, "0");
-      const path = `pdf-pages/${projectId}/${importId}/page-${pageNum}.jpg`;
-
-      const { error: upErr } = await admin.storage
-        .from("portfolio")
-        .upload(path, jpegBytes, {
-          contentType: "image/jpeg",
-          upsert: true,
-          cacheControl: "31536000",
-        });
-      if (upErr) {
-        console.error("upload error", path, upErr.message);
-        throw new Error(`Upload failed on page ${i + 1}: ${upErr.message}`);
-      }
-
-      const { data: pub } = admin.storage.from("portfolio").getPublicUrl(path);
-      const publicUrl = pub.publicUrl;
-
-      const { data: inserted, error: insErr } = await admin
-        .from("portfolio_gallery")
-        .insert({
-          project_id: projectId,
-          image_url: publicUrl,
-          sort_order: baseOrder + i,
-          caption: `Page ${i + 1}`,
-        })
-        .select("id")
-        .single();
-      if (insErr) {
-        console.error("insert error", insErr.message);
-        throw new Error(`Database insert failed on page ${i + 1}: ${insErr.message}`);
-      }
-      insertedIds.push(inserted!.id);
-    }
-
-    doc.destroy?.();
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        imported: insertedIds.length,
-        total_pages: totalPages,
-        truncated: totalPages > MAX_PAGES,
-        gallery_ids: insertedIds,
-      }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // Stream the PDF back to the browser. Rendering happens client-side to avoid Edge memory limits.
+    const pdfResponse = await getDrivePdfResponse(fileId);
+    return new Response(pdfResponse.body, {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/pdf",
+        "Cache-Control": "no-store",
+      },
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error("import-drive-pdf error:", message);

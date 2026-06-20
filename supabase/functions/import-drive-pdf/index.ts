@@ -9,9 +9,9 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const MAX_PDF_BYTES = 25 * 1024 * 1024; // 25 MB
+const MAX_PDF_BYTES = 150 * 1024 * 1024; // 150 MB
 const MAX_PAGES = 60;
-const RENDER_SCALE = 1.6; // ~150 DPI
+const RENDER_SCALE = 1.4; // ~130 DPI
 
 function extractDriveFileId(input: string): string | null {
   const url = input.trim();

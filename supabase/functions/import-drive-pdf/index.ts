@@ -10,8 +10,9 @@ const corsHeaders = {
 };
 
 const MAX_PDF_BYTES = 150 * 1024 * 1024; // 150 MB
-const MAX_PAGES = 60;
-const RENDER_SCALE = 1.4; // ~130 DPI
+const MAX_PAGES = 40;
+const RENDER_SCALE = 1.1; // ~100 DPI — keep memory low for big PDFs
+const JPEG_QUALITY = 78;
 
 function extractDriveFileId(input: string): string | null {
   const url = input.trim();

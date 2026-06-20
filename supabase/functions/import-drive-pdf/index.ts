@@ -10,8 +10,9 @@ const corsHeaders = {
 };
 
 const MAX_PDF_BYTES = 150 * 1024 * 1024; // 150 MB
-const MAX_PAGES = 60;
-const RENDER_SCALE = 1.4; // ~130 DPI
+const MAX_PAGES = 40;
+const RENDER_SCALE = 1.1; // ~100 DPI — keep memory low for big PDFs
+const JPEG_QUALITY = 78;
 
 function extractDriveFileId(input: string): string | null {
   const url = input.trim();
@@ -214,17 +215,17 @@ Deno.serve(async (req) => {
     for (let i = 0; i < pagesToRender; i++) {
       const page = doc.loadPage(i);
       const pixmap = page.toPixmap(matrix, mupdf.ColorSpace.DeviceRGB, false, true);
-      const pngBytes: Uint8Array = pixmap.asPNG();
+      const jpegBytes: Uint8Array = pixmap.asJPEG(JPEG_QUALITY, false);
       pixmap.destroy?.();
       page.destroy?.();
 
       const pageNum = String(i + 1).padStart(3, "0");
-      const path = `pdf-pages/${projectId}/${importId}/page-${pageNum}.png`;
+      const path = `pdf-pages/${projectId}/${importId}/page-${pageNum}.jpg`;
 
       const { error: upErr } = await admin.storage
         .from("portfolio")
-        .upload(path, pngBytes, {
-          contentType: "image/png",
+        .upload(path, jpegBytes, {
+          contentType: "image/jpeg",
           upsert: true,
           cacheControl: "31536000",
         });

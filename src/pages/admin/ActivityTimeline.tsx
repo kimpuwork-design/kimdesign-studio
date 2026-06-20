@@ -37,8 +37,8 @@ const ENTITY_ICONS: Record<string, any> = {
 const ACTION_COLORS: Record<string, string> = {
   create: "text-emerald-400 bg-emerald-500/10",
   insert: "text-emerald-400 bg-emerald-500/10",
-  update: "text-blue-400 bg-blue-500/10",
-  edit: "text-blue-400 bg-blue-500/10",
+  update: "text-[#1a365d] bg-[#1a365d]/10",
+  edit: "text-[#1a365d] bg-[#1a365d]/10",
   delete: "text-red-400 bg-red-500/10",
   status: "text-amber-400 bg-amber-500/10",
 };

@@ -29,7 +29,7 @@ interface Props {
 
 function roleBadgeClass(role: string) {
   if (role === "ADMIN") return "bg-red-500/15 text-red-400";
-  if (role === "STAFF") return "bg-blue-500/15 text-blue-400";
+  if (role === "STAFF") return "bg-[#1a365d]/15 text-[#1a365d]";
   return "bg-portal-accent/15 text-portal-accent";
 }
 

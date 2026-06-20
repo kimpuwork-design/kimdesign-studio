@@ -5,7 +5,7 @@ interface Props {
 
 const QUOTE_COLORS: Record<string, string> = {
   draft: "bg-portal-border/60 text-portal-text-muted",
-  sent: "bg-blue-400/15 text-blue-400",
+  sent: "bg-[#1a365d]/15 text-[#1a365d]",
   accepted: "bg-green-500/15 text-green-500",
   rejected: "bg-destructive/15 text-destructive",
 };

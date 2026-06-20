@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 type Status = string;
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-  new:        { label: "New",        className: "bg-blue-500/10 text-blue-400 border-blue-500/20 shadow-[0_0_6px_rgba(59,130,246,0.15)]" },
+  new:        { label: "New",        className: "bg-[#1a365d]/10 text-[#1a365d] border-[#1a365d]/20 shadow-[0_0_6px_rgba(26,54,93,0.15)]" },
   contacted:  { label: "Contacted",  className: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20 shadow-[0_0_6px_rgba(234,179,8,0.15)]" },
   archived:   { label: "Archived",   className: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" },
   inquiry:    { label: "Inquiry",    className: "bg-purple-500/10 text-purple-400 border-purple-500/20 shadow-[0_0_6px_rgba(168,85,247,0.15)]" },

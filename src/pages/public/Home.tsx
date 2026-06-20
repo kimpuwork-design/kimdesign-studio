@@ -440,8 +440,6 @@ export default function Home() {
       <ArchitectureBusinessJsonLd />
       <PublicNav />
 
-      <Hero heroImage={heroImage} hero={hero} t={t} />
-
       <BentoIntro
         aboutMe={aboutMe}
         stats={stats}
@@ -449,6 +447,8 @@ export default function Home() {
         credentials={credentials}
         t={t}
       />
+
+      <Hero heroImage={heroImage} hero={hero} t={t} />
 
       <FeaturedBento featured={featured} onOpen={setLightboxIdx} t={t} />
 

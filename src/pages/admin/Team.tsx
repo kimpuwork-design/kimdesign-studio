@@ -27,7 +27,7 @@ interface TeamMember {
 const ROLE_ICONS: Record<string, any> = { ADMIN: Shield, STAFF: Briefcase, CLIENT: User };
 const ROLE_COLORS: Record<string, string> = {
   ADMIN: "text-red-400 bg-red-400/10",
-  STAFF: "text-blue-400 bg-blue-400/10",
+  STAFF: "text-[#1a365d] bg-[#1a365d]/10",
   CLIENT: "text-green-400 bg-green-400/10",
 };
 

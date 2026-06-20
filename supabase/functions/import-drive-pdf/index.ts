@@ -9,9 +9,9 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const MAX_PDF_BYTES = 25 * 1024 * 1024; // 25 MB
+const MAX_PDF_BYTES = 150 * 1024 * 1024; // 150 MB
 const MAX_PAGES = 60;
-const RENDER_SCALE = 1.6; // ~150 DPI
+const RENDER_SCALE = 1.4; // ~130 DPI
 
 function extractDriveFileId(input: string): string | null {
   const url = input.trim();
@@ -30,18 +30,32 @@ function extractDriveFileId(input: string): string | null {
 }
 
 async function downloadDrivePdf(fileId: string): Promise<Uint8Array> {
-  const url = `https://drive.google.com/uc?export=download&id=${fileId}`;
-  const res = await fetch(url, { redirect: "follow" });
+  const base = `https://drive.usercontent.google.com/download?id=${fileId}&export=download`;
+  let res = await fetch(base, { redirect: "follow" });
+  let ctype = res.headers.get("content-type") ?? "";
+
+  // Large files trigger an HTML "virus scan" confirmation page — parse and retry with confirm token
+  if (ctype.includes("text/html")) {
+    const html = await res.text();
+    const confirm = html.match(/name="confirm"\s+value="([^"]+)"/)?.[1]
+      || html.match(/confirm=([0-9A-Za-z_-]+)/)?.[1];
+    const uuid = html.match(/name="uuid"\s+value="([^"]+)"/)?.[1];
+    if (confirm) {
+      const params = new URLSearchParams({ id: fileId, export: "download", confirm });
+      if (uuid) params.set("uuid", uuid);
+      res = await fetch(`https://drive.usercontent.google.com/download?${params}`, { redirect: "follow" });
+      ctype = res.headers.get("content-type") ?? "";
+    }
+  }
+
   if (!res.ok) {
     throw new Error(
       `Drive download failed (${res.status}). Make sure the link sharing is set to "Anyone with the link".`
     );
   }
-  const ctype = res.headers.get("content-type") ?? "";
   if (ctype.includes("text/html")) {
-    // Likely the Drive "virus scan" interstitial — only happens for very large files
     throw new Error(
-      "Drive returned an HTML page instead of the PDF. The file may be too large or not publicly shared."
+      "Drive returned an HTML page instead of the PDF. Make sure the file is shared as 'Anyone with the link'."
     );
   }
   const buf = new Uint8Array(await res.arrayBuffer());

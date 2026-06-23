@@ -5,7 +5,6 @@ import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
-import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { Search, MapPin, Grid3X3, Star, ArrowRight, ArrowUpRight, LayoutGrid, Rows3, X, ArrowDownUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -504,7 +503,6 @@ export default function PublicPortfolio() {
       </section>
 
       <PublicFooter />
-      <FloatingChatButton />
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/i18n/LanguageContext";
@@ -97,7 +97,7 @@ const App = () => (
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/projects" element={<PublicProjects />} />
+          <Route path="/projects" element={<Navigate to="/portfolio" replace />} />
           <Route path="/projects/:id" element={<PublicProjectDetail />} />
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/portfolio/:slug" element={<PortfolioDetail />} />

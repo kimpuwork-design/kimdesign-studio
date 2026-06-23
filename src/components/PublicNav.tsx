@@ -11,7 +11,6 @@ import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-
 const NAV_KEYS = [
   { key: "nav_projects", href: "/portfolio" },
   { key: "nav_services", href: "/services" },
-  { key: "nav_blog", href: "/blog" },
   { key: "nav_studio", href: "/about" },
   { key: "nav_contact", href: "/contact" },
 ];

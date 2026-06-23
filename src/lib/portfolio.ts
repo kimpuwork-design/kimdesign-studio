@@ -30,10 +30,10 @@ export interface GalleryImage {
 export interface StudioSettings {
   id: string;
   studio_name: string;
-  contact_email: string;
+  contact_email?: string | null;
   logo_url: string | null;
   tagline: string | null;
-  phone: string | null;
+  phone?: string | null;
   address: string | null;
   facebook_url: string | null;
   instagram_url: string | null;

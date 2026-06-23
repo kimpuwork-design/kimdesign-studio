@@ -17,15 +17,18 @@ const SORT_LABELS: Record<SortMode, string> = { newest: "Newest", oldest: "Oldes
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
 /* ─── Animated Counter ─── */
-function useCountUp(target: number, duration = 1800) {
-  const [count, setCount] = useState(0);
-  const started = useRef(false);
+function useCountUp(target: number, duration = 1400) {
+  const [count, setCount] = useState(target);
+  const startedFor = useRef<number | null>(null);
+  // Whenever target changes (e.g. data finishes loading), snap to target
   useEffect(() => {
-    if (started.current) setCount(target);
+    if (startedFor.current === null) setCount(target);
+    else if (startedFor.current !== target) setCount(target);
   }, [target]);
   const start = useCallback(() => {
-    if (started.current) return;
-    started.current = true;
+    if (startedFor.current === target) return;
+    startedFor.current = target;
+    if (target === 0) { setCount(0); return; }
     const t0 = performance.now();
     const tick = (now: number) => {
       const p = Math.min((now - t0) / duration, 1);
@@ -43,7 +46,7 @@ function AnimatedPortfolioStat({ value, label, delay }: { value: number; label: 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { start(); obs.unobserve(el); } }, { threshold: 0.3 });
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) start(); }, { threshold: 0.2 });
     obs.observe(el);
     return () => obs.disconnect();
   }, [start]);
@@ -57,7 +60,7 @@ function AnimatedPortfolioStat({ value, label, delay }: { value: number; label: 
       transition={{ duration: 0.5, delay, ease: luxuryEase }}
       className="shrink-0"
     >
-      <p className="font-display text-3xl md:text-4xl text-foreground">{count}</p>
+      <p className="font-display text-3xl md:text-4xl text-foreground tabular-nums">{count}</p>
       <p className="text-[9px] tracking-[0.25em] uppercase text-muted-foreground mt-1">{label}</p>
     </motion.div>
   );
@@ -109,8 +112,11 @@ function GridCard({ item, index, t, featured = false }: { item: ProjectPortfolio
               style={{ userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <Grid3X3 size={32} className="text-muted-foreground/20" />
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/15 via-primary/5 to-background relative">
+              <span className="font-display text-5xl md:text-6xl text-primary/40 tracking-tight">
+                {(item.title || "·").slice(0, 2).toUpperCase()}
+              </span>
+              <div className="absolute inset-0 border border-primary/10" />
             </div>
           )}
           {item.is_featured && (

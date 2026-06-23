@@ -1,84 +1,66 @@
-## Goal
+## What I found (from auditing every public page)
 
-Admin က project တစ်ခုကို edit/create လုပ်တဲ့အခါ ပုံအများကြီး တင်စရာမလိုဘဲ **Google Drive PDF link** (Anyone-with-the-link share) တစ်ခုထည့်လိုက်ရင် —
-- PDF ထဲက page တိုင်းကို image အဖြစ်ပြောင်း (server-side render)
-- Project ရဲ့ existing `portfolio_gallery` ထဲ images အဖြစ်သိမ်း
-- Public Project Detail page မှာ ပုံတွေ gallery/lightbox နဲ့ ကြည့်လို့ရအောင်ပြ
+**Broken / wrong**
+- **Home** — Hero area is mostly empty whitespace. Profile bio contains a raw Google search URL (`https://www.google.com/search?q=shwebootmm.com`) leaked into prose. No featured projects preview. Order of sections feels disjointed.
+- **/portfolio** — Top stats show `0 Projects · 0 Featured · 0 Categories` even though there are 10 projects. Counters are broken.
+- **/projects vs /portfolio** — Two near-identical public listing pages. Confusing redundancy.
+- **About / Services / Contact** — Huge empty band above the headline (hero visual area is empty). Pages look 50% blank above the fold.
+- **Headline gradient** ("lasting legacy", "built from scratch", "let's start a conversation", "together") — broken multi-color gradient renders only on first letters; on Blog page "together" reads as "toqether". Looks glitched, not premium.
+- **CHURCH project** and similar — broken-image placeholder shows ugly icon when thumbnail missing.
+- **Blog** — Page exists in nav but has zero articles ("No articles found"). Dead link in primary nav.
+- **Floating chat button** appears on every public page including marketing pages where it adds noise.
 
-## UX flow
+**Missing**
+- Featured projects preview on Home.
+- Working stat strip (years, projects, locations).
+- Footer with social links, sitemap, contact info.
+- Map + working contact actions (mailto, tel, WhatsApp) on Contact page.
+- Related projects + breadcrumb on public project detail.
+- Premium scroll-reveal motion (currently mostly static).
 
-**Admin → ProjectFormModal**
-- "Project images" section အောက်မှာ tab/option နှစ်ခု:
-  1. Upload images (existing GalleryManager)
-  2. **Import from Google Drive PDF** *(new)*
-- Drive PDF URL input + "Import pages as images" button
-- Progress UI: `Converting page 3 of 12…` → success toast
-- Imported pages တွေ ချက်ချင်း gallery list ထဲပေါ်လာမယ်; admin က reorder/delete လုပ်နိုင်
-- Re-import လုပ်ရင် ရှေ့က PDF pages တွေကို သပ်သပ်ဖျက်ပြီးအသစ်တင်နိုင်တဲ့ option
+---
 
-**Public side — Project Detail / Portfolio Detail**
-- ရှိပြီးသား `portfolio_gallery` rendering ကိုသုံး; ပြောင်းစရာမလို
-- Lightbox/grid view အသုံးပြုထားပြီး
+## Plan (in 3 phases, all on public site only)
 
-## Technical plan
+### Phase 1 — Remove clutter
+1. **Delete `/projects` public page** — redirect to `/portfolio`. One listing only.
+2. **Remove Blog from main nav** (keep route accessible so existing URLs don't 404; link comes back when first article is published).
+3. **Hide floating chat button** on public marketing pages (keep it inside `/app` and `/admin`).
+4. **Remove the broken multi-color headline gradient** across all hero headlines; replace with a single clean premium treatment (white-on-bg with one indigo accent word).
+5. **Clean Home bio** — strip the leaked Google URL; render as a proper link only if the user has an actual website.
 
-### 1. New edge function: `import-drive-pdf`
-`supabase/functions/import-drive-pdf/index.ts`
+### Phase 2 — Fix bugs
+6. **Portfolio stats counters** — compute `Projects / Featured / Categories` correctly from loaded data.
+7. **Image fallback** — when `thumbnail_url` is missing, render a branded gradient tile with the project initials instead of the broken-image icon.
+8. **About / Services / Contact empty hero** — collapse the empty band, anchor headline + supporting visual properly so the page opens at a real composition.
+9. **Headline gradient cleanup** (see #4) doubles as a fix here.
 
-- Auth: ADMIN/STAFF role only (JWT check မှ profile lookup)
-- Input: `{ project_id, drive_url }`
-- Steps:
-  1. Drive URL ထဲက file ID ထုတ် (regex: `/file/d/{id}`, `?id={id}`)
-  2. `https://drive.google.com/uc?export=download&id={id}` ကနေ PDF bytes fetch
-     - 403/404 ဖြစ်ရင် "Make sure the link is set to 'Anyone with the link'" error ပြန်
-  3. **PDF → images**: `pdfjs-dist` (npm via esm.sh) နဲ့ page count ဖတ်ပြီး page တိုင်းကို canvas render
-     - Deno မှာ `@napi-rs/canvas` သို့မဟုတ် `skia-canvas` သုံး; alternative: `pdf-lib` + raster service
-     - Fallback approach: `pdfjs-dist` + `canvas` polyfill for Deno
-  4. Page တိုင်းကို JPEG (quality 0.85, max-width 2000px) အဖြစ်ပြောင်း
-  5. `project-files` bucket ထဲ `pdf-pages/{project_id}/{import_id}/page-001.jpg` သိမ်း
-  6. `portfolio_gallery` table ထဲ row တစ်ခုစီ insert (image_url = signed URL or storage path, sort_order = page number, caption = `Page N`)
-  7. `file_assets` ထဲမှာလည်း metadata row တင် (category: `deliverables`/`references`)
-- Return: `{ imported: N, gallery_ids: [...] }`
+### Phase 3 — Add premium polish
+10. **Home composition** (keep memory rule: profile first):
+    - Compact bento intro (profile photo + name + 3 stats + bio) above the fold.
+    - Then short "Selected Work" strip showing 3 featured projects with images.
+    - Then a single editorial quote.
+    - Then "Let's build" CTA.
+11. **Featured projects preview** on Home with hover motion.
+12. **Public project detail** — add breadcrumb (`Portfolio → category → title`), related projects (3 of same category), consistent typography.
+13. **Contact page** — working `mailto:`, `tel:`, WhatsApp deep-links pulled from settings; embed an OpenStreetMap iframe for Yangon HQ.
+14. **Footer** — proper footer with logo, nav, social icons (FB/IG/Behance from settings), copyright. Currently no real footer.
+15. **Motion** — apply existing easing token (`[0.22, 1, 0.36, 1]`) to scroll-reveal headlines and cards. Subtle, no marquees (per memory).
 
-### 2. Client-side component: `DrivePdfImporter`
-`src/components/admin/DrivePdfImporter.tsx`
+---
 
-- URL input + validation (Drive URL pattern check)
-- "Import" button → call edge function via `supabase.functions.invoke('import-drive-pdf', {...})`
-- Progress state (function မှာ streaming မလို — single response with count) — loading spinner + "This may take 30-60 seconds for large PDFs"
-- Success → toast + `onImported()` callback (parent က gallery refetch)
-- Error handling: invalid URL, access denied, too many pages (limit 50), file too large (20MB cap)
+## What I will NOT touch
+- Admin dashboard, client portal, edge functions, database — out of scope per your earlier answer.
+- Locked design tokens (colors, fonts, bento layout) — staying within Midnight Indigo + Space Grotesk + Inter.
+- Multi-language (en/my/zo) — keeping all three.
 
-### 3. ProjectFormModal integration
-- `GalleryManager` အောက်မှာ collapsible `DrivePdfImporter` ထည့်
-- Import ပြီးရင် GalleryManager refresh → ပုံတွေပေါ်လာ
+---
 
-### 4. Storage / RLS
-- `project-files` bucket ပြီးသား; current policies (staff/admin upload, project access download) သုံးလို့ရ
-- `portfolio_gallery` table policies စစ်ပြီး admin insert ရတယ်ဆိုတာ verify
+## Open questions before I start
 
-### 5. Config
-- `supabase/config.toml` မှာ `[functions.import-drive-pdf]` block + `verify_jwt = false` (in-code JWT check)
-- No new secrets needed (public Drive link)
+1. **Blog** — hide from nav only, or delete the page entirely? (I'll default to "hide from nav" unless you say delete.)
+2. **Floating chat button** — remove from public pages only, or remove project-wide? (Default: public only.)
+3. **/projects route** — redirect to /portfolio, or 404? (Default: redirect.)
+4. **Bio text on Home** — what should it say? The current paragraph has a leaked search URL and mixes "I" and "we". I'll rewrite it concisely; you can replace the words later.
 
-## Limits & guardrails
-
-- Max 50 pages per PDF
-- Max 20 MB PDF
-- Per-page max width 2000px (smaller for high page counts)
-- Timeout warning UI for big files
-- Only Drive `/file/d/...` and `?id=...` patterns; other URLs rejected with friendly error
-
-## Files to create / change
-
-- **new** `supabase/functions/import-drive-pdf/index.ts`
-- **new** `src/components/admin/DrivePdfImporter.tsx`
-- **edit** `src/components/admin/ProjectFormModal.tsx` — add importer below GalleryManager
-- **edit** `supabase/config.toml` — register new function (verify_jwt false)
-
-## Out of scope (this iteration)
-
-- Drive folder imports
-- Private Drive files (would need OAuth connector)
-- On-demand pdf.js rendering (we cache to storage instead, per your choice)
-- Re-import/sync if Drive PDF changes (manual re-import only)
+If this looks right, reply **"go"** and I'll execute all three phases. If you want to drop or change any item, point out the number.

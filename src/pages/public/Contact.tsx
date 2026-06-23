@@ -89,7 +89,7 @@ export default function Contact() {
       <PublicNav />
 
       {/* ── Cinematic Hero ── */}
-      <div ref={heroRef} className="relative overflow-hidden min-h-[48vh] md:min-h-[54vh] flex items-end">
+      <div ref={heroRef} className="relative overflow-hidden min-h-[54vh] flex items-center pt-20">
         <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8, duration: 1 }}>
             <motion.div animate={{ y: [0, -18, 0], rotate: [0, 4, 0] }} transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
@@ -107,7 +107,7 @@ export default function Contact() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-[2] pointer-events-none" />
 
         <motion.div style={{ opacity: heroOpacity, y: heroY, scale: heroScale }} className="relative z-10 w-full">
-          <div className="container pb-12 md:pb-16 pt-28 md:pt-32">
+          <div className="container py-10 md:py-14">
             <div className="max-w-4xl">
               <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "3rem" }} transition={{ duration: 0.8, delay: 0.1, ease: luxuryEase }}
                 className="h-px bg-primary mb-8" />

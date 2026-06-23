@@ -212,10 +212,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "deliverables_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "public_project_files"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "deliverables_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deliverables_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "public_projects"
             referencedColumns: ["id"]
           },
           {
@@ -285,6 +299,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "file_assets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "public_projects"
             referencedColumns: ["id"]
           },
           {
@@ -407,6 +428,13 @@ export type Database = {
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "invoices_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "public_projects"
+            referencedColumns: ["id"]
+          },
         ]
       }
       leads: {
@@ -463,6 +491,13 @@ export type Database = {
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "message_threads_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "public_projects"
+            referencedColumns: ["id"]
+          },
         ]
       }
       messages: {
@@ -502,10 +537,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "messages_attachment_file_id_fkey"
+            columns: ["attachment_file_id"]
+            isOneToOne: false
+            referencedRelation: "public_project_files"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "messages_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "public_projects"
             referencedColumns: ["id"]
           },
           {
@@ -675,6 +724,13 @@ export type Database = {
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "portfolio_gallery_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "public_projects"
+            referencedColumns: ["id"]
+          },
         ]
       }
       portfolio_items: {
@@ -789,6 +845,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "public_projects"
             referencedColumns: ["id"]
           },
           {
@@ -970,6 +1033,13 @@ export type Database = {
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "quotes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "public_projects"
+            referencedColumns: ["id"]
+          },
         ]
       }
       settings: {
@@ -1034,7 +1104,135 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_project_files: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          extension: string | null
+          id: string | null
+          mime_type: string | null
+          original_name: string | null
+          project_id: string | null
+          size_bytes: number | null
+          sort_order: number | null
+          version: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "file_assets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "file_assets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "public_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      public_projects: {
+        Row: {
+          category: string | null
+          content: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          is_featured: boolean | null
+          is_public: boolean | null
+          location: string | null
+          slug: string | null
+          start_date: string | null
+          status: string | null
+          summary: string | null
+          tags: string[] | null
+          target_date: string | null
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string | null
+          year: number | null
+        }
+        Insert: {
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          location?: string | null
+          slug?: string | null
+          start_date?: string | null
+          status?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          target_date?: string | null
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string | null
+          year?: number | null
+        }
+        Update: {
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          location?: string | null
+          slug?: string | null
+          start_date?: string | null
+          status?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          target_date?: string | null
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      public_settings: {
+        Row: {
+          address: string | null
+          behance_url: string | null
+          created_at: string | null
+          facebook_url: string | null
+          id: string | null
+          instagram_url: string | null
+          logo_url: string | null
+          studio_name: string | null
+          tagline: string | null
+        }
+        Insert: {
+          address?: string | null
+          behance_url?: string | null
+          created_at?: string | null
+          facebook_url?: string | null
+          id?: string | null
+          instagram_url?: string | null
+          logo_url?: string | null
+          studio_name?: string | null
+          tagline?: string | null
+        }
+        Update: {
+          address?: string | null
+          behance_url?: string | null
+          created_at?: string | null
+          facebook_url?: string | null
+          id?: string | null
+          instagram_url?: string | null
+          logo_url?: string | null
+          studio_name?: string | null
+          tagline?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       generate_invoice_number: { Args: never; Returns: string }

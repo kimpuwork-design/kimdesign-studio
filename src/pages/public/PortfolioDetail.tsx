@@ -170,7 +170,7 @@ export default function PortfolioDetail() {
     const fetchData = async () => {
       const { data, error } = await supabase
         .from("projects")
-        .select("*")
+        .select("id, title, slug, summary, description, content, thumbnail_url, category, location, year, tags, is_featured, is_public, status, start_date, target_date, created_at, updated_at")
         .eq("slug", slug)
         .eq("is_public", true)
         .maybeSingle();
@@ -196,7 +196,7 @@ export default function PortfolioDetail() {
       const [{ data: gal }, { data: rel }, { data: fileData }] = await Promise.all([
         supabase.from("portfolio_gallery").select("*").eq("project_id", p.id).order("sort_order"),
         relatedQuery,
-        supabase.from("file_assets").select("*").eq("project_id", p.id).eq("is_deleted", false).order("sort_order", { ascending: true }).order("created_at", { ascending: false }),
+        supabase.from("file_assets").select("id, project_id, category, original_name, mime_type, extension, size_bytes, version, sort_order, created_at, is_deleted").eq("project_id", p.id).eq("is_deleted", false).order("sort_order", { ascending: true }).order("created_at", { ascending: false }),
       ]);
 
       setGallery((gal as GalleryImage[]) ?? []);

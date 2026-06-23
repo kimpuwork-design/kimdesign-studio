@@ -45,7 +45,7 @@ export default function PublicProjectDetail() {
     if (!id) return;
     Promise.all([
       supabase.from("projects").select("id, title, description, status, location, start_date, target_date").eq("id", id).eq("is_public", true).single(),
-      supabase.from("file_assets").select("*").eq("project_id", id).eq("is_deleted", false).order("created_at", { ascending: false }),
+      supabase.from("file_assets").select("id, project_id, category, original_name, mime_type, extension, size_bytes, version, sort_order, created_at, is_deleted").eq("project_id", id).eq("is_deleted", false).order("created_at", { ascending: false }),
       supabase.from("portfolio_gallery").select("id, image_url, caption, sort_order").eq("project_id", id).order("sort_order"),
     ]).then(([{ data: proj, error }, { data: fileData }, { data: galleryData }]) => {
       if (error || !proj) { setNotFound(true); } else {

@@ -4,7 +4,6 @@ import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
-import { FloatingChatButton } from "@/components/FloatingChatButton";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { Calendar, ArrowLeft, Tag, User, Loader2 } from "lucide-react";
 import { format } from "date-fns";
@@ -162,7 +161,6 @@ export default function PublicBlogDetail() {
       )}
 
       <PublicFooter />
-      <FloatingChatButton />
     </div>
   );
 }

@@ -15,7 +15,6 @@ import { useTranslation } from "@/i18n/LanguageContext";
 import { ArchitectureBusinessJsonLd } from "@/components/JsonLd";
 import { FadeUp } from "@/components/motion/MotionWrappers";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";
-import { FloatingChatButton } from "@/components/FloatingChatButton";
 import profileImg from "@/assets/profile-placeholder.jpg";
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, GraduationCap, Award, Globe };
@@ -31,7 +30,28 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   );
 }
 
-function SectionHeader({ eyebrow, title, lead }: { eyebrow: string; title: string; lead?: string }) {
+/* Linkify URLs and strip noisy google-search URLs in prose */
+function Linkified({ text }: { text?: string }) {
+  if (!text) return null;
+  // Drop "https://www.google.com/search?q=..." entirely (noise leaked from bio)
+  const cleaned = text.replace(/https?:\/\/(www\.)?google\.[^\s]+/gi, "").replace(/\s{2,}/g, " ").trim();
+  const parts = cleaned.split(/(https?:\/\/[^\s]+)/g);
+  return (
+    <>
+      {parts.map((p, i) =>
+        /^https?:\/\//.test(p) ? (
+          <a key={i} href={p} target="_blank" rel="noreferrer" className="text-primary underline-offset-4 hover:underline break-all">
+            {p.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+          </a>
+        ) : (
+          <span key={i}>{p}</span>
+        )
+      )}
+    </>
+  );
+}
+
+function SectionHeader({ eyebrow, title, lead }: { eyebrow: string; title: string; lead?: React.ReactNode }) {
   return (
     <div className="max-w-3xl">
       <Eyebrow>{eyebrow}</Eyebrow>
@@ -120,7 +140,7 @@ function BentoIntro({
       <SectionHeader
         eyebrow={t("home_recognition") || "The studio"}
         title={`${aboutMe.name_first ?? "Elena"} ${aboutMe.name_last ?? "Markov"}`}
-        lead={aboutMe.bio_main}
+        lead={<Linkified text={aboutMe.bio_main} />}
       />
 
       <div className="mt-14 grid gap-4 md:gap-5 grid-cols-12 auto-rows-[minmax(120px,auto)]">
@@ -459,7 +479,6 @@ export default function Home() {
       <AwardsList awards={awards} t={t} />
 
       <PublicFooter />
-      <FloatingChatButton />
 
       {lightboxIdx !== null && (
         <CinematicLightbox

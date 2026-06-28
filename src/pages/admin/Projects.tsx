@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { PortalLayout } from "@/components/PortalLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -44,6 +44,7 @@ const STATUS_OPTIONS = ["all", "inquiry", "active", "review", "delivered", "arch
 export default function AdminProjects() {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,6 +73,17 @@ export default function AdminProjects() {
   }, [statusFilter, search]);
 
   useEffect(() => { fetchProjects(); }, [fetchProjects]);
+
+  // Open the create modal automatically when navigated with ?new=1
+  // (used by the global command palette and dashboard quick actions).
+  useEffect(() => {
+    if (searchParams.get("new") === "1") {
+      setEditProject(null);
+      setShowForm(true);
+      searchParams.delete("new");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleDelete = async (project: Project) => {
     if (!confirm(`Delete project "${project.title}"? This cannot be undone.`)) return;

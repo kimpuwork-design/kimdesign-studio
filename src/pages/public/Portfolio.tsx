@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FadeUp } from "@/components/motion/MotionWrappers";
+import { ProgressiveImage } from "@/components/media/ProgressiveImage";
 import {
   Select,
   SelectContent,

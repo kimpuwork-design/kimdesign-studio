@@ -57,17 +57,17 @@ export function PublicNav() {
       transition={{ duration: 0.4, ease }}
       className={`sticky top-0 z-50 transition-all duration-500 ${scrolled ? "glass-nav shadow-sm" : "bg-transparent"}`}
     >
-      <div className={`container flex items-center justify-between transition-all duration-500 ${scrolled ? "h-14" : "h-16 md:h-[72px]"}`}>
+      <div className={`container flex items-center justify-between transition-all duration-500 ${scrolled ? "h-12 md:h-14" : "h-14 md:h-[72px]"}`}>
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+        <Link to="/" className="flex items-center gap-2 md:gap-2.5 group shrink min-w-0">
           {logoUrl && logoUrl !== "/logo-placeholder.png" ? (
-            <div className="h-8 w-8 overflow-hidden flex items-center justify-center">
+            <div className="h-7 w-7 md:h-8 md:w-8 overflow-hidden flex items-center justify-center shrink-0">
               <img src={logoUrl} alt={studioName} className="h-full w-full object-contain" />
             </div>
           ) : (
-            <KMonogramLogo size={28} className="rounded-sm" animated />
+            <KMonogramLogo size={26} className="rounded-sm shrink-0" animated />
           )}
-          <span className="font-display text-[15px] md:text-base text-foreground tracking-tight font-medium">{studioName}</span>
+          <span className="font-display text-[13px] md:text-base text-foreground tracking-tight font-medium truncate">{studioName}</span>
         </Link>
 
         {/* Desktop nav */}

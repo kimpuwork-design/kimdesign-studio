@@ -97,6 +97,7 @@ export default function Register() {
                 required
                 className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus:ring-portal-accent focus:border-portal-accent"
               />
+              {fieldErrors.fullName && <p className="text-xs text-destructive">{fieldErrors.fullName}</p>}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-portal-text-muted">Email</Label>
@@ -110,19 +111,21 @@ export default function Register() {
                 autoComplete="email"
                 className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus:ring-portal-accent focus:border-portal-accent"
               />
+              {fieldErrors.email && <p className="text-xs text-destructive">{fieldErrors.email}</p>}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password" className="text-portal-text-muted">Password</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Min. 8 characters"
+                placeholder="Min. 8 characters, with a letter and a number"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="new-password"
                 className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus:ring-portal-accent focus:border-portal-accent"
               />
+              {fieldErrors.password && <p className="text-xs text-destructive">{fieldErrors.password}</p>}
             </div>
 
             {error && (

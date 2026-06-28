@@ -6,6 +6,9 @@ verify_jwt = false
 [functions.get-public-file-url]
 verify_jwt = false
 
+[functions.get-public-file-urls]
+verify_jwt = false
+
 [functions.generate-invoice-pdf]
 verify_jwt = false
 

@@ -189,9 +189,9 @@ export default function Contact() {
             <div>
               {submitted ? (
                 <FadeIn>
-                  <div className="border border-border/30 p-12 md:p-16 text-center bg-card/30">
+                  <div className="border border-border/30 p-12 md:p-16 text-center bg-card/30" role="status" aria-live="polite">
                     <motion.div initial={{ scale: 0, rotate: -10 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 200, damping: 15 }}>
-                      <CheckCircle2 size={40} className="text-primary mx-auto mb-6" />
+                      <CheckCircle2 size={40} className="text-primary mx-auto mb-6" aria-hidden="true" />
                     </motion.div>
                     <h3 className="font-display text-3xl text-foreground">{t("contact_thank_you")}</h3>
                     <p className="mt-3 text-muted-foreground text-sm font-light leading-[1.8]">{t("contact_in_touch")}</p>
@@ -205,9 +205,9 @@ export default function Contact() {
                   </div>
                 </FadeIn>
               ) : (
-                <form onSubmit={handleSubmit} className="border border-border/30 p-6 md:p-10 space-y-6 bg-card/20" noValidate>
+                <form onSubmit={handleSubmit} className="border border-border/30 p-6 md:p-10 space-y-6 bg-card/20" noValidate aria-describedby={serverError ? "contact-form-error" : undefined}>
                   <div className="flex items-center gap-3 mb-2">
-                    <Send size={14} className="text-primary/40" />
+                    <Send size={14} className="text-primary/40" aria-hidden="true" />
                     <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground/50 font-mono-label">Send us a message</p>
                   </div>
                   <LineDraw className="h-px w-full bg-border/30 mb-4" />
@@ -217,39 +217,46 @@ export default function Contact() {
                       <Label htmlFor="name" className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-focus-within/field:text-primary transition-colors duration-300">{t("contact_full_name")}</Label>
                       <div className="relative">
                         <Input id="name" placeholder="Your name" value={form.name} onChange={(e) => set("name", e.target.value)}
+                          required autoComplete="name"
+                          aria-invalid={!!errors.name}
+                          aria-describedby={errors.name ? "name-error" : undefined}
                           className="rounded-none border-border/40 bg-transparent focus:border-transparent h-11 peer" />
-                        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" />
+                        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" aria-hidden="true" />
                       </div>
-                      {errors.name && <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-destructive">{errors.name}</motion.p>}
+                      {errors.name && <motion.p id="name-error" role="alert" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-destructive">{errors.name}</motion.p>}
                     </div>
                     <div className="space-y-2 group/field">
                       <Label htmlFor="email" className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-focus-within/field:text-primary transition-colors duration-300">{t("contact_email")}</Label>
                       <div className="relative">
                         <Input id="email" type="email" placeholder="you@example.com" value={form.email} onChange={(e) => set("email", e.target.value)}
+                          required autoComplete="email"
+                          aria-invalid={!!errors.email}
+                          aria-describedby={errors.email ? "email-error" : undefined}
                           className="rounded-none border-border/40 bg-transparent focus:border-transparent h-11 peer" />
-                        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" />
+                        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" aria-hidden="true" />
                       </div>
-                      {errors.email && <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-destructive">{errors.email}</motion.p>}
+                      {errors.email && <motion.p id="email-error" role="alert" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-destructive">{errors.email}</motion.p>}
                     </div>
                   </div>
                   <div className="grid gap-6 sm:grid-cols-2">
                     <div className="space-y-2 group/field">
                       <Label htmlFor="phone" className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-focus-within/field:text-primary transition-colors duration-300">{t("contact_phone")} <span className="normal-case text-muted-foreground/50">{t("contact_phone_optional")}</span></Label>
                       <div className="relative">
-                        <Input id="phone" placeholder="+95 000 000 0000" value={form.phone} onChange={(e) => set("phone", e.target.value)}
+                        <Input id="phone" type="tel" placeholder="+95 000 000 0000" value={form.phone} onChange={(e) => set("phone", e.target.value)}
+                          autoComplete="tel"
                           className="rounded-none border-border/40 bg-transparent focus:border-transparent h-11 peer" />
-                        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" />
+                        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" aria-hidden="true" />
                       </div>
                     </div>
                     <div className="space-y-2 group/field">
-                      <Label className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-focus-within/field:text-primary transition-colors duration-300">{t("contact_project_type")}</Label>
+                      <Label htmlFor="projectType" className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-focus-within/field:text-primary transition-colors duration-300">{t("contact_project_type")}</Label>
                       <div className="relative">
-                        <select value={form.projectType} onChange={(e) => set("projectType", e.target.value)}
+                        <select id="projectType" value={form.projectType} onChange={(e) => set("projectType", e.target.value)}
                           className="w-full border border-border/40 bg-transparent px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-transparent h-11 peer">
                           <option value="">{t("contact_select_type")}</option>
                           {projectTypes.map((pt) => <option key={pt} value={pt}>{pt}</option>)}
                         </select>
-                        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" />
+                        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" aria-hidden="true" />
                       </div>
                     </div>
                   </div>
@@ -257,18 +264,21 @@ export default function Contact() {
                     <Label htmlFor="message" className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-focus-within/field:text-primary transition-colors duration-300">{t("contact_tell_us")}</Label>
                     <div className="relative">
                       <Textarea id="message" placeholder="Describe your project…" rows={7} value={form.message}
+                        required
+                        aria-invalid={!!errors.message}
+                        aria-describedby={errors.message ? "message-error" : undefined}
                         onChange={(e) => set("message", e.target.value)} className="rounded-none resize-none border-border/40 bg-transparent focus:border-transparent peer" />
-                      <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" />
+                      <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-primary scale-x-0 peer-focus:scale-x-100 transition-transform duration-500 origin-left" aria-hidden="true" />
                     </div>
-                    {errors.message && <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-destructive">{errors.message}</motion.p>}
+                    {errors.message && <motion.p id="message-error" role="alert" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-destructive">{errors.message}</motion.p>}
                   </div>
-                  {serverError && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-destructive/10 px-4 py-3 text-sm text-destructive">{serverError}</motion.p>}
+                  {serverError && <motion.p id="contact-form-error" role="alert" aria-live="assertive" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-destructive/10 px-4 py-3 text-sm text-destructive">{serverError}</motion.p>}
                   <div className="flex items-center justify-between pt-2">
                     <p className="text-[10px] text-muted-foreground/40 font-mono-label hidden sm:block">All fields except phone are required</p>
                     <MagneticButton strength={0.2}>
                       <Button type="submit" className="rounded-none px-10 h-12 tracking-[0.15em] text-sm uppercase" disabled={submitting}>
                         {submitting ? t("contact_sending") : t("contact_submit")}
-                        {!submitting && <ArrowRight size={14} className="ml-3" />}
+                        {!submitting && <ArrowRight size={14} className="ml-3" aria-hidden="true" />}
                       </Button>
                     </MagneticButton>
                   </div>

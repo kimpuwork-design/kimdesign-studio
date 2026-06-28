@@ -14,12 +14,15 @@ import { BackToTop } from "@/components/BackToTop";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // Lazy-loaded pages for code splitting
-const lazyRetry = (fn: () => Promise<any>) =>
-  lazy(() => fn().catch(() => {
-    // Force reload on chunk load failure (stale deploy)
-    window.location.reload();
-    return new Promise(() => {});
-  }));
+type LazyModule<T = unknown> = { default: React.ComponentType<T> };
+const lazyRetry = <T,>(fn: () => Promise<LazyModule<T>>) =>
+  lazy<React.ComponentType<T>>(() =>
+    fn().catch(() => {
+      // Force reload on chunk load failure (stale deploy)
+      window.location.reload();
+      return new Promise<LazyModule<T>>(() => {});
+    }),
+  );
 
 const Home = lazyRetry(() => import("./pages/public/Home"));
 const Portfolio = lazyRetry(() => import("./pages/public/Portfolio"));
@@ -62,7 +65,18 @@ const NotificationsPage = lazyRetry(() => import("./pages/shared/NotificationsPa
 const NotFound = lazyRetry(() => import("./pages/NotFound"));
 const NotAuthorized = lazyRetry(() => import("./pages/NotAuthorized"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Sensible defaults: less refetch thrash, retry once on transient failures.
+      staleTime: 30_000,
+      gcTime: 5 * 60_000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+    mutations: { retry: 0 },
+  },
+});
 
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center">

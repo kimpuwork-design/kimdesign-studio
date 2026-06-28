@@ -142,8 +142,45 @@ export default function AdminProjects() {
       toast({ title: newVal ? "Published" : "Unpublished" });
       fetchProjects();
     }
-    setToggling(null);
   };
+
+  const bulkSetStatus = async (status: string) => {
+    const ids = sel.selectedIds; if (!ids.length) return;
+    setBulkBusy(true);
+    const { error } = await supabase.from("projects").update({ status }).in("id", ids);
+    setBulkBusy(false);
+    if (error) { sonnerToast.error("Bulk update failed", { description: error.message }); return; }
+    if (profile) await writeAuditLog({ actor_id: profile.id, action: "project_bulk_status", entity_type: "project", metadata: { count: ids.length, status } });
+    sonnerToast.success(`${ids.length} project${ids.length === 1 ? "" : "s"} → ${status}`);
+    sel.clear(); fetchProjects();
+  };
+  const bulkDelete = async () => {
+    const ids = sel.selectedIds; if (!ids.length) return;
+    if (!confirm(`Delete ${ids.length} project${ids.length === 1 ? "" : "s"}? This cannot be undone.`)) return;
+    setBulkBusy(true);
+    const { error } = await supabase.from("projects").delete().in("id", ids);
+    setBulkBusy(false);
+    if (error) { sonnerToast.error("Bulk delete failed", { description: error.message }); return; }
+    if (profile) await writeAuditLog({ actor_id: profile.id, action: "project_bulk_deleted", entity_type: "project", metadata: { count: ids.length } });
+    sonnerToast.success(`${ids.length} project${ids.length === 1 ? "" : "s"} deleted`);
+    sel.clear(); fetchProjects();
+  };
+  const bulkExport = () => {
+    const rows = projects.filter((p) => sel.isSelected(p.id));
+    if (!rows.length) return;
+    exportCSV(`projects-${new Date().toISOString().slice(0, 10)}`, rows.map((p) => ({
+      title: p.title, client: p.profiles?.full_name ?? "", status: p.status, category: p.category ?? "",
+      location: p.location ?? "", is_public: p.is_public ? "yes" : "no", updated_at: p.updated_at,
+    })), [
+      { key: "title", header: "Title" }, { key: "client", header: "Client" },
+      { key: "status", header: "Status" }, { key: "category", header: "Category" },
+      { key: "location", header: "Location" }, { key: "is_public", header: "Public" },
+      { key: "updated_at", header: "Updated" },
+    ]);
+    sonnerToast.success(`Exported ${rows.length} project${rows.length === 1 ? "" : "s"}`);
+  };
+
+
 
   return (
     <PortalLayout variant="admin">

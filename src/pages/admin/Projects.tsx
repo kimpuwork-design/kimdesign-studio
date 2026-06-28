@@ -323,14 +323,27 @@ export default function AdminProjects() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-portal-border/60 bg-portal-surface/30">
+                  <th className="w-8 px-3 py-2.5 text-left">
+                    <Checkbox
+                      checked={sel.allSelected ? true : sel.someSelected ? "indeterminate" : false}
+                      onCheckedChange={() => sel.toggleAll()}
+                      aria-label="Select all projects"
+                    />
+                  </th>
                   {["Title", "Client", "Category", "Status", "Portfolio", "Updated", "Actions"].map((h) => (
                     <th key={h} className="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-widest text-portal-text-muted/70">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-portal-border/30">
-                {projects.map((project) => (
-                  <tr key={project.id} className="hover:bg-portal-accent/[0.04] transition-colors group">
+                {projects.map((project) => {
+                  const checked = sel.isSelected(project.id);
+                  return (
+                  <tr key={project.id} className={cn("transition-colors group", checked ? "bg-portal-accent/[0.07]" : "hover:bg-portal-accent/[0.04]")}>
+                    <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
+                      <Checkbox checked={checked} onCheckedChange={() => sel.toggle(project.id)} aria-label={`Select ${project.title}`} />
+                    </td>
+
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2.5">
                         {project.thumbnail_url ? (

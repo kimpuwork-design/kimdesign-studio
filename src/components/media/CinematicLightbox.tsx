@@ -531,15 +531,17 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
               onClick={() => { setDirection(i > idx ? 1 : -1); setIdx(i); }}
               style={{
                 flexShrink: 0,
-                width: i === idx ? 56 : 44,
-                height: i === idx ? 56 : 44,
+                width: i === idx ? 60 : 46,
+                height: i === idx ? 60 : 46,
                 overflow: "hidden",
-                border: i === idx ? "2px solid rgba(255,255,255,0.95)" : "1px solid rgba(255,255,255,0.1)",
-                opacity: i === idx ? 1 : 0.45,
+                borderRadius: 8,
+                border: i === idx ? "2px solid hsl(43 75% 60%)" : "1px solid hsl(43 50% 70% / 0.12)",
+                opacity: i === idx ? 1 : 0.5,
                 cursor: "pointer",
                 padding: 0,
                 background: "transparent",
-                transition: "all 250ms cubic-bezier(0.22,1,0.36,1)",
+                boxShadow: i === idx ? "0 6px 22px -6px hsl(43 70% 50% / 0.55)" : "none",
+                transition: "all 280ms cubic-bezier(0.22,1,0.36,1)",
               }}
             >
               <img

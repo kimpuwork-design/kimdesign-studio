@@ -126,11 +126,17 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
     return () => window.clearInterval(t);
   }, [playing, total]);
 
-  // Lock body scroll
+  // Lock body scroll + remember & restore focus
   useEffect(() => {
     const s = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = s; };
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    // Move focus into the dialog so Tab cycles inside and screen readers announce it.
+    requestAnimationFrame(() => rootRef.current?.focus());
+    return () => {
+      document.body.style.overflow = s;
+      previouslyFocused?.focus?.();
+    };
   }, []);
 
   // Auto-hide chrome during slideshow / inactivity
@@ -293,6 +299,10 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
   const content = (
     <div
       ref={rootRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title ? `${title} — image viewer` : "Image viewer"}
+      tabIndex={-1}
       onContextMenu={(e) => e.preventDefault()}
       onClick={onClose}
       onMouseMove={wakeChrome}
@@ -328,6 +338,15 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
         .lb-grid-tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 700ms cubic-bezier(0.22,1,0.36,1); }
         .lb-grid-tile:hover img { transform: scale(1.06); }
       `}</style>
+
+      {/* Screen-reader live region — announces current image on navigation. */}
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}
+      >
+        {total > 0 ? `Image ${idx + 1} of ${total}${current?.caption ? `: ${current.caption}` : ""}` : ""}
+      </div>
 
       {/* Top progress bar — gold */}
       <div className={`lb-chrome ${chromeVisible ? "" : "hidden"}`} style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "hsl(218 50% 14% / 0.6)", zIndex: 5 }}>

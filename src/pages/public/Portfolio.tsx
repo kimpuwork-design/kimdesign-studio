@@ -21,6 +21,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { FadeUp } from "@/components/motion/MotionWrappers";
 import { ProgressiveImage } from "@/components/media/ProgressiveImage";
+import { thumbUrl } from "@/lib/images";
 import {
   Select,
   SelectContent,
@@ -183,6 +184,14 @@ function GridCard({
       <Link
         to={linkTo}
         aria-label={`${item.title}${item.location ? ` — ${item.location}` : ""}`}
+        onPointerEnter={() => {
+          // Warm the full-size thumbnail into the browser cache for instant detail view.
+          if (item.thumbnail_url) {
+            const img = new Image();
+            img.decoding = "async";
+            img.src = item.thumbnail_url;
+          }
+        }}
         className="block rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <div
@@ -196,6 +205,7 @@ function GridCard({
               alt=""
               eager={eager}
               priority={index < 3}
+              thumbWidth={featured ? 1280 : 720}
               onContextMenu={(e) => e.preventDefault()}
               className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
               wrapperClassName="size-full"
@@ -277,9 +287,10 @@ function ListCard({
         {item.thumbnail_url && (
           <div className="shrink-0 w-20 h-16 sm:w-24 sm:h-16 overflow-hidden rounded-sm bg-muted/40">
             <img
-              src={item.thumbnail_url}
+              src={thumbUrl(item.thumbnail_url, { width: 240 })}
               alt=""
               loading="lazy"
+              decoding="async"
               className="size-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
           </div>

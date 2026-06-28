@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { Helmet } from "react-helmet-async";
 import { useContentProtection } from "@/hooks/useContentProtection";
 import { useParams, Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
@@ -168,6 +169,7 @@ export default function PortfolioDetail() {
   useEffect(() => {
     if (!slug) return;
     let cancelled = false;
+    let refreshTimer: number | undefined;
 
     // Stage 1 — fetch ONLY project metadata so the hero + body render immediately.
     (async () => {
@@ -213,9 +215,13 @@ export default function PortfolioDetail() {
 
       // Stage 3 — batch-sign all image URLs in ONE round-trip
       const imageFiles = allFiles.filter((f) => isImageExt(f.extension ?? ""));
-      if (imageFiles.length > 0) {
-        const FILE_CAT_LABEL: Record<string, string> = Object.fromEntries(FILE_CATEGORIES.map((c) => [c.value, c.label]));
-        const urls = await getPublicFileSignedUrls(imageFiles.map((f) => f.id));
+      if (imageFiles.length === 0) return;
+
+      const FILE_CAT_LABEL: Record<string, string> = Object.fromEntries(FILE_CATEGORIES.map((c) => [c.value, c.label]));
+      const imageIds = imageFiles.map((f) => f.id);
+
+      const refreshSignedUrls = async () => {
+        const urls = await getPublicFileSignedUrls(imageIds);
         if (cancelled) return;
         const imgs = imageFiles
           .map((f) => {
@@ -225,10 +231,17 @@ export default function PortfolioDetail() {
           })
           .filter((x): x is { url: string; name: string; chapter: string } => !!x);
         setGalleryImages(imgs);
-      }
+        // Silently re-sign 30s before the 5-minute expiry to avoid broken images on long sessions.
+        refreshTimer = window.setTimeout(refreshSignedUrls, 4.5 * 60 * 1000);
+      };
+
+      await refreshSignedUrls();
     })();
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      if (refreshTimer) window.clearTimeout(refreshTimer);
+    };
   }, [slug]);
 
   if (loading) return (
@@ -286,7 +299,7 @@ export default function PortfolioDetail() {
 
   return (
     <div className="bg-background min-h-screen content-protected">
-      <MetaTags title={pageTitle} description={displaySummary} image={coverUrl || ""} jsonLd={jsonLd} />
+      <MetaTags title={pageTitle} description={displaySummary} image={coverUrl || ""} jsonLd={jsonLd} slug={item.slug || ""} />
       <PublicNav />
       <ReadingProgress />
 
@@ -544,24 +557,24 @@ function DetailRow({ label, value, icon }: { label: string; value: string; icon?
   );
 }
 
-function MetaTags({ title, description, image, jsonLd }: { title: string; description: string; image: string; jsonLd: object }) {
-  useEffect(() => {
-    document.title = title;
-    const setMeta = (name: string, content: string, prop = false) => {
-      const attr = prop ? "property" : "name";
-      let el = document.querySelector(`meta[${attr}="${name}"]`);
-      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
-      el.setAttribute("content", content);
-    };
-    setMeta("description", description);
-    setMeta("og:title", title, true);
-    setMeta("og:description", description, true);
-    setMeta("og:image", image, true);
-    setMeta("og:type", "article", true);
-    let script = document.querySelector("#portfolio-jsonld") as HTMLScriptElement | null;
-    if (!script) { script = document.createElement("script"); script.id = "portfolio-jsonld"; script.type = "application/ld+json"; document.head.appendChild(script); }
-    script.textContent = JSON.stringify(jsonLd);
-    return () => { document.title = title.split(" — ")[1] || "Studio"; };
-  }, [title, description, image, jsonLd]);
-  return null;
+function MetaTags({ title, description, image, jsonLd, slug }: { title: string; description: string; image: string; jsonLd: object; slug: string }) {
+  const canonical = `https://kimdesign-studio.lovable.app/portfolio/${slug}`;
+  return (
+    <Helmet>
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      <link rel="canonical" href={canonical} />
+      <meta property="og:type" content="article" />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:url" content={canonical} />
+      {image && <meta property="og:image" content={image} />}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      {image && <meta name="twitter:image" content={image} />}
+      <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+    </Helmet>
+  );
 }
+

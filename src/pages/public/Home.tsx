@@ -16,6 +16,8 @@ import { ArchitectureBusinessJsonLd } from "@/components/JsonLd";
 import { FadeUp } from "@/components/motion/MotionWrappers";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";
 import profileImg from "@/assets/profile-placeholder.jpg";
+import heroPortraitDemo from "@/assets/hero-portrait.jpg";
+import { Mail, Phone as PhoneIcon, Linkedin, Download, Home as HomeIcon, FileText, Briefcase, Sparkles, Link2 } from "lucide-react";
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, GraduationCap, Award, Globe };
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -460,14 +462,13 @@ export default function Home() {
       <ArchitectureBusinessJsonLd />
       <PublicNav />
 
-      <BentoSystemHero
+      <PortraitHero
+        settings={settings}
         studioName={studioName}
-        aboutMe={aboutMe}
         hero={hero}
-        featured={featured}
-        award={awards[0]}
         t={t}
       />
+
 
       <BentoIntro
         aboutMe={aboutMe}

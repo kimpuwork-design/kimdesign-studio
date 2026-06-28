@@ -6,92 +6,93 @@
 
 @layer base {
   :root {
-    /* Midnight Indigo — premium, professional, high-level */
-    --background: 240 33% 99%;
-    --foreground: 240 47% 7%;
+    /* Navy + Gold + White — premium luxury */
+    --background: 0 0% 100%;
+    --foreground: 218 65% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 47% 7%;
+    --card-foreground: 218 65% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 47% 7%;
+    --popover-foreground: 218 65% 12%;
 
-    /* Electric indigo accent */
-    --primary: 243 75% 59%;
-    --primary-foreground: 0 0% 100%;
+    /* Deep navy primary */
+    --primary: 218 65% 18%;
+    --primary-foreground: 43 60% 92%;
 
-    --secondary: 240 20% 96%;
-    --secondary-foreground: 240 47% 7%;
+    --secondary: 218 30% 96%;
+    --secondary-foreground: 218 65% 12%;
 
-    --muted: 240 14% 95%;
-    --muted-foreground: 240 8% 42%;
+    --muted: 218 20% 95%;
+    --muted-foreground: 218 12% 40%;
 
-    --accent: 243 75% 59%;
-    --accent-foreground: 0 0% 100%;
+    /* Gold accent */
+    --accent: 43 65% 52%;
+    --accent-foreground: 218 65% 12%;
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 14% 90%;
-    --input: 240 14% 90%;
-    --ring: 243 75% 59%;
+    --border: 218 18% 88%;
+    --input: 218 18% 88%;
+    --ring: 43 65% 52%;
 
     --radius: 0.5rem;
 
-    /* Portal — Midnight Indigo dark surfaces */
-    --portal-bg: 240 47% 6%;
-    --portal-surface: 240 38% 10%;
-    --portal-surface-hover: 240 32% 14%;
-    --portal-border: 240 25% 18%;
-    --portal-text: 240 20% 96%;
-    --portal-text-muted: 240 12% 60%;
-    --portal-accent: 243 75% 65%;
-    --portal-accent-foreground: 240 47% 6%;
+    /* Portal — Navy dark surfaces with gold */
+    --portal-bg: 218 65% 8%;
+    --portal-surface: 218 50% 12%;
+    --portal-surface-hover: 218 42% 16%;
+    --portal-border: 218 30% 22%;
+    --portal-text: 43 40% 95%;
+    --portal-text-muted: 218 14% 65%;
+    --portal-accent: 43 70% 58%;
+    --portal-accent-foreground: 218 65% 8%;
 
     /* Glass tokens */
-    --glass-bg: 240 38% 10% / 0.7;
-    --glass-border: 240 25% 22% / 0.5;
-    --glass-glow: 243 75% 65% / 0.12;
+    --glass-bg: 218 50% 12% / 0.7;
+    --glass-border: 43 40% 60% / 0.18;
+    --glass-glow: 43 70% 58% / 0.15;
     --glass-blur: 20px;
 
     /* Sidebar */
-    --sidebar-background: 240 47% 5%;
-    --sidebar-foreground: 240 20% 96%;
-    --sidebar-primary: 243 75% 65%;
-    --sidebar-primary-foreground: 240 47% 6%;
-    --sidebar-accent: 240 32% 14%;
-    --sidebar-accent-foreground: 240 20% 96%;
-    --sidebar-border: 240 25% 12%;
-    --sidebar-ring: 243 75% 65%;
+    --sidebar-background: 218 65% 7%;
+    --sidebar-foreground: 43 40% 95%;
+    --sidebar-primary: 43 70% 58%;
+    --sidebar-primary-foreground: 218 65% 8%;
+    --sidebar-accent: 218 42% 16%;
+    --sidebar-accent-foreground: 43 40% 95%;
+    --sidebar-border: 218 30% 14%;
+    --sidebar-ring: 43 70% 58%;
 
     /* Chart colors */
-    --chart-1: 243 75% 59%;
-    --chart-2: 200 80% 55%;
-    --chart-3: 160 60% 45%;
-    --chart-4: 280 60% 60%;
-    --chart-5: 340 70% 55%;
+    --chart-1: 218 65% 30%;
+    --chart-2: 43 70% 55%;
+    --chart-3: 200 60% 45%;
+    --chart-4: 28 65% 55%;
+    --chart-5: 218 40% 50%;
   }
 
   .dark {
-    --background: 240 47% 5%;
-    --foreground: 240 20% 96%;
-    --card: 240 38% 8%;
-    --card-foreground: 240 20% 96%;
-    --popover: 240 38% 8%;
-    --popover-foreground: 240 20% 96%;
-    --primary: 243 75% 70%;
-    --primary-foreground: 240 47% 5%;
-    --secondary: 240 32% 12%;
-    --secondary-foreground: 240 20% 96%;
-    --muted: 240 28% 13%;
-    --muted-foreground: 240 10% 60%;
-    --accent: 243 75% 70%;
-    --accent-foreground: 240 47% 5%;
+    --background: 218 65% 7%;
+    --foreground: 43 40% 95%;
+    --card: 218 50% 10%;
+    --card-foreground: 43 40% 95%;
+    --popover: 218 50% 10%;
+    --popover-foreground: 43 40% 95%;
+    --primary: 43 70% 58%;
+    --primary-foreground: 218 65% 8%;
+    --secondary: 218 42% 14%;
+    --secondary-foreground: 43 40% 95%;
+    --muted: 218 35% 15%;
+    --muted-foreground: 218 14% 65%;
+    --accent: 43 70% 58%;
+    --accent-foreground: 218 65% 8%;
     --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 25% 15%;
-    --input: 240 25% 15%;
-    --ring: 243 75% 70%;
+    --border: 218 30% 18%;
+    --input: 218 30% 18%;
+    --ring: 43 70% 58%;
   }
 }
 

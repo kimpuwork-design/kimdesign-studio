@@ -399,7 +399,9 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
 
       {/* Image area */}
       <div
+        ref={stageRef}
         onClick={(e) => e.stopPropagation()}
+        onDoubleClick={handleDoubleClick}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}

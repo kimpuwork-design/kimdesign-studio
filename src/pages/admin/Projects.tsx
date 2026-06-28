@@ -462,6 +462,18 @@ export default function AdminProjects() {
           onClose={() => { setAssignProject(null); fetchProjects(); }}
         />
       )}
+
+      <BulkActionBar
+        count={sel.count}
+        onClear={sel.clear}
+        noun="projects"
+        actions={[
+          { label: "Archive", icon: Archive, onClick: () => bulkSetStatus("archived"), disabled: bulkBusy },
+          { label: "Mark active", onClick: () => bulkSetStatus("active"), variant: "primary", disabled: bulkBusy },
+          { label: "Export CSV", icon: Download, onClick: bulkExport, disabled: bulkBusy },
+          { label: "Delete", icon: Trash2, onClick: bulkDelete, variant: "destructive", disabled: bulkBusy },
+        ]}
+      />
     </PortalLayout>
   );
 }

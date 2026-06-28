@@ -100,29 +100,35 @@ export function PublicNav() {
               setTheme(theme === "dark" ? "light" : "dark");
               setTimeout(() => document.documentElement.classList.remove("theme-transitioning"), 600);
             }}
-            className="p-2.5 text-muted-foreground hover:text-foreground transition-colors" aria-label="Toggle theme">
+            className="inline-flex items-center justify-center min-h-11 min-w-11 rounded-md text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}>
             <AnimatePresence mode="wait" initial={false}>
               {theme === "dark" ? (
                 <motion.div key="sun" initial={{ opacity: 0, rotate: -90, scale: 0.5 }} animate={{ opacity: 1, rotate: 0, scale: 1 }} exit={{ opacity: 0, rotate: 90, scale: 0.5 }} transition={{ duration: 0.2 }}>
-                  <Sun size={15} />
+                  <Sun size={15} aria-hidden="true" />
                 </motion.div>
               ) : (
                 <motion.div key="moon" initial={{ opacity: 0, rotate: 90, scale: 0.5 }} animate={{ opacity: 1, rotate: 0, scale: 1 }} exit={{ opacity: 0, rotate: -90, scale: 0.5 }} transition={{ duration: 0.2 }}>
-                  <Moon size={15} />
+                  <Moon size={15} aria-hidden="true" />
                 </motion.div>
               )}
             </AnimatePresence>
           </button>
-          <button className="p-2 md:hidden text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
+          <button
+            className="inline-flex items-center justify-center min-h-11 min-w-11 md:hidden rounded-md text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-nav-panel"
+          >
             <AnimatePresence mode="wait" initial={false}>
               {mobileOpen ? (
                 <motion.div key="close" initial={{ opacity: 0, rotate: -90 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
-                  <X size={20} />
+                  <X size={20} aria-hidden="true" />
                 </motion.div>
               ) : (
                 <motion.div key="menu" initial={{ opacity: 0, rotate: 90 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: -90 }} transition={{ duration: 0.2 }}>
-                  <Menu size={20} />
+                  <Menu size={20} aria-hidden="true" />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -139,6 +145,10 @@ export function PublicNav() {
             exit={{ clipPath: "inset(0 0 100% 0)" }}
             transition={{ duration: 0.5, ease }}
             className="fixed inset-x-0 top-0 bottom-0 z-40 bg-foreground md:hidden overflow-y-auto"
+            id="mobile-nav-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Main navigation"
           >
             <div className="container pt-24 pb-10 flex flex-col h-full">
               <nav className="flex-1 space-y-0">

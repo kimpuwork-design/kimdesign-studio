@@ -591,7 +591,7 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
                         onClick={() => { setDirection(i > idx ? 1 : -1); setIdx(i); setShowGrid(false); }}
                         style={{
                           aspectRatio: "1 / 1",
-                          outline: i === idx ? "2px solid rgba(255,255,255,0.95)" : "none",
+                          outline: i === idx ? "2px solid hsl(43 75% 60%)" : "none",
                           outlineOffset: -2,
                         }}
                       >

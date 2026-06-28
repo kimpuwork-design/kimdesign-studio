@@ -5,7 +5,7 @@ import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { GalleryImage } from "@/lib/portfolio";
-import { FileAsset, formatBytes, FILE_CATEGORIES, isImageExt, getPublicFileSignedUrl } from "@/lib/files";
+import { FileAsset, formatBytes, FILE_CATEGORIES, isImageExt, getPublicFileSignedUrls } from "@/lib/files";
 import { FileIcon } from "@/components/files/FileIcon";
 import { FilePreviewModal } from "@/components/files/FilePreviewModal";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";

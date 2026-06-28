@@ -129,9 +129,9 @@ export default function NotificationsPage({ variant }: Props) {
 
   return (
     <PortalLayout variant={variant}>
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-4 flex items-center justify-between gap-4">
         <PageHeader
-          title="Notifications"
+          title="Inbox"
           subtitle={unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
           className="mb-0"
         />
@@ -161,12 +161,46 @@ export default function NotificationsPage({ variant }: Props) {
         </div>
       </div>
 
+      {/* Type tabs + search */}
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex gap-1 overflow-x-auto scrollbar-none">
+          {TYPE_TABS.map((t) => {
+            const Icon = t.icon;
+            const active = typeFilter === t.key;
+            return (
+              <button
+                key={t.key}
+                onClick={() => setTypeFilter(t.key)}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-medium whitespace-nowrap transition-all",
+                  active
+                    ? "border-portal-accent bg-portal-accent/15 text-portal-accent"
+                    : "border-portal-border/50 text-portal-text-muted hover:border-portal-accent/40 hover:text-portal-text"
+                )}
+              >
+                <Icon size={11} /> {t.label}
+                <span className={cn("ml-1 rounded-full px-1.5 py-0 text-[9px] font-bold", active ? "bg-portal-accent/25" : "bg-portal-surface/60")}>{t.count}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="relative w-full sm:w-64">
+          <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-portal-text-muted" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search inbox…"
+            className="pl-8 h-8 text-xs bg-portal-surface/30 border-portal-border/50"
+          />
+        </div>
+      </div>
+
       <div className="glass-card overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 size={20} className="animate-spin text-portal-text-muted" />
           </div>
-        ) : notifications.length === 0 ? (
+        ) : visible.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Inbox size={36} className="mb-3 text-portal-text-muted/30" />
             <p className="font-medium text-portal-text text-sm">No notifications</p>

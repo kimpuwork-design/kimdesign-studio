@@ -39,6 +39,9 @@ export default function NotificationsPage({ variant }: Props) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "unread">("all");
+  const [typeFilter, setTypeFilter] = useState<"all" | "message" | "deliverable" | "system">("all");
+  const [search, setSearch] = useState("");
+
 
   const fetch = useCallback(async () => {
     if (!profile) return;

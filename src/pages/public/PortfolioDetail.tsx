@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { Helmet } from "react-helmet-async";
 import { useContentProtection } from "@/hooks/useContentProtection";
 import { useParams, Link } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
@@ -286,7 +287,7 @@ export default function PortfolioDetail() {
 
   return (
     <div className="bg-background min-h-screen content-protected">
-      <MetaTags title={pageTitle} description={displaySummary} image={coverUrl || ""} jsonLd={jsonLd} />
+      <MetaTags title={pageTitle} description={displaySummary} image={coverUrl || ""} jsonLd={jsonLd} slug={item.slug || ""} />
       <PublicNav />
       <ReadingProgress />
 
@@ -544,24 +545,24 @@ function DetailRow({ label, value, icon }: { label: string; value: string; icon?
   );
 }
 
-function MetaTags({ title, description, image, jsonLd }: { title: string; description: string; image: string; jsonLd: object }) {
-  useEffect(() => {
-    document.title = title;
-    const setMeta = (name: string, content: string, prop = false) => {
-      const attr = prop ? "property" : "name";
-      let el = document.querySelector(`meta[${attr}="${name}"]`);
-      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
-      el.setAttribute("content", content);
-    };
-    setMeta("description", description);
-    setMeta("og:title", title, true);
-    setMeta("og:description", description, true);
-    setMeta("og:image", image, true);
-    setMeta("og:type", "article", true);
-    let script = document.querySelector("#portfolio-jsonld") as HTMLScriptElement | null;
-    if (!script) { script = document.createElement("script"); script.id = "portfolio-jsonld"; script.type = "application/ld+json"; document.head.appendChild(script); }
-    script.textContent = JSON.stringify(jsonLd);
-    return () => { document.title = title.split(" — ")[1] || "Studio"; };
-  }, [title, description, image, jsonLd]);
-  return null;
+function MetaTags({ title, description, image, jsonLd, slug }: { title: string; description: string; image: string; jsonLd: object; slug: string }) {
+  const canonical = `https://kimdesign-studio.lovable.app/portfolio/${slug}`;
+  return (
+    <Helmet>
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      <link rel="canonical" href={canonical} />
+      <meta property="og:type" content="article" />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:url" content={canonical} />
+      {image && <meta property="og:image" content={image} />}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      {image && <meta name="twitter:image" content={image} />}
+      <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+    </Helmet>
+  );
 }
+

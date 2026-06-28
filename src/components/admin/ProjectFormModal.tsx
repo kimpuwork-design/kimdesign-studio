@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { writeAuditLog } from "@/lib/audit";
 import { useAuth } from "@/contexts/AuthContext";
 import { slugify } from "@/lib/portfolio";
+import { projectSchema, validateFile, zodFieldErrors } from "@/lib/validation";
+import { friendlyErrorMessage } from "@/lib/errors";
 
 interface Profile {
   id: string;
@@ -86,6 +88,7 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
   const [tagInput, setTagInput] = useState("");
   const [tab, setTab] = useState<"project" | "portfolio">("project");
@@ -94,14 +97,33 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
   const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const validationError = validateFile(file, ["png", "jpg", "jpeg", "webp"]);
+    if (validationError) {
+      toast.error("Thumbnail couldn't be added", { description: validationError });
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
     setUploading(true);
-    const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-    const path = `thumbnails/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error: upErr } = await supabase.storage.from("portfolio").upload(path, file, { upsert: true });
-    if (upErr) { setError(upErr.message); setUploading(false); return; }
-    const { data: urlData } = supabase.storage.from("portfolio").getPublicUrl(path);
-    setForm((f) => ({ ...f, thumbnail_url: urlData.publicUrl }));
-    setUploading(false);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+      const path = `thumbnails/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("portfolio").upload(path, file, { upsert: true });
+      if (upErr) {
+        const msg = friendlyErrorMessage(upErr);
+        setError(msg);
+        toast.error("Upload failed", { description: msg });
+        return;
+      }
+      const { data: urlData } = supabase.storage.from("portfolio").getPublicUrl(path);
+      setForm((f) => ({ ...f, thumbnail_url: urlData.publicUrl }));
+    } catch (err) {
+      const msg = friendlyErrorMessage(err);
+      setError(msg);
+      toast.error("Upload failed", { description: msg });
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
   };
 
   const removeThumbnail = () => setForm((f) => ({ ...f, thumbnail_url: "" }));
@@ -136,14 +158,48 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (saving) return; // guard against double-submit
-    if (!form.title.trim()) { setError("Title is required."); return; }
     setError(null);
-    setSaving(true);
+    setFieldErrors({});
+
+    // Zod validation
+    const parsed = projectSchema.safeParse({
+      title: form.title,
+      description: form.description,
+      status: form.status,
+      location: form.location,
+      start_date: form.start_date,
+      target_date: form.target_date,
+      slug: form.slug,
+      summary: form.summary,
+      content: form.content,
+      year: form.year,
+      thumbnail_url: form.thumbnail_url,
+    });
+    if (!parsed.success) {
+      const errs = zodFieldErrors(parsed);
+      setFieldErrors(errs);
+      const first = Object.values(errs)[0];
+      setError(first ?? "Please fix the highlighted fields.");
+      toast.error("Please fix the highlighted fields", { description: first });
+      if (errs.slug || errs.summary || errs.content || errs.year) setTab("portfolio");
+      else setTab("project");
+      return;
+    }
+
+    if (form.target_date && form.start_date && form.target_date < form.start_date) {
+      setFieldErrors({ target_date: "Target date must be after start date" });
+      toast.error("Invalid dates", { description: "Target date must be after start date." });
+      return;
+    }
 
     const effectiveClientId = form.client_id || profile?.id;
-    if (!effectiveClientId) { setError("No user found."); setSaving(false); return; }
+    if (!effectiveClientId) {
+      setError("Please select a client first.");
+      toast.error("Client required", { description: "Please select a client before saving." });
+      return;
+    }
 
-    // Loading toast — replaced by the parent's success/error toast on completion.
+    setSaving(true);
     const toastId = toast.loading(
       editProject ? "Saving changes…" : "Creating project…",
       { description: form.title.trim() }
@@ -152,6 +208,7 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
     const finishWithError = (msg: string) => {
       toast.dismiss(toastId);
       setError(msg);
+      toast.error(editProject ? "Couldn't save project" : "Couldn't create project", { description: msg });
       onError?.(msg);
       setSaving(false);
     };
@@ -175,36 +232,48 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
       is_featured: form.is_featured,
     };
 
-    if (editProject) {
-      const { error: err } = await supabase.from("projects").update(payload).eq("id", editProject.id);
-      if (err) { finishWithError(err.message); return; }
-      if (profile) await writeAuditLog({
-        actor_id: profile.id, action: "project_updated", entity_type: "project",
-        entity_id: editProject.id, metadata: { title: form.title },
-      });
-    } else {
-      const { data: newProject, error: err } = await supabase
-        .from("projects").insert([payload]).select("id").single();
-      if (err || !newProject) {
-        finishWithError(err?.message ?? "Failed to create project");
-        return;
+    try {
+      if (editProject) {
+        const { error: err } = await supabase.from("projects").update(payload).eq("id", editProject.id);
+        if (err) { finishWithError(friendlyErrorMessage(err)); return; }
+        if (profile) {
+          await writeAuditLog({
+            actor_id: profile.id, action: "project_updated", entity_type: "project",
+            entity_id: editProject.id, metadata: { title: form.title },
+          }).catch(() => {});
+        }
+      } else {
+        const { data: newProject, error: err } = await supabase
+          .from("projects").insert([payload]).select("id").single();
+        if (err || !newProject) {
+          finishWithError(friendlyErrorMessage(err ?? new Error("Failed to create project")));
+          return;
+        }
+
+        const { error: memberErr } = await supabase.from("project_members").insert([{
+          project_id: newProject.id,
+          user_id: form.client_id,
+          member_role: "CLIENT",
+        }]);
+        if (memberErr) {
+          // eslint-disable-next-line no-console
+          console.warn("Couldn't add client as project member:", memberErr.message);
+        }
+
+        if (profile) {
+          await writeAuditLog({
+            actor_id: profile.id, action: "project_created", entity_type: "project",
+            entity_id: newProject.id, metadata: { title: form.title },
+          }).catch(() => {});
+        }
       }
 
-      await supabase.from("project_members").insert([{
-        project_id: newProject.id,
-        user_id: form.client_id,
-        member_role: "CLIENT",
-      }]);
-
-      if (profile) await writeAuditLog({
-        actor_id: profile.id, action: "project_created", entity_type: "project",
-        entity_id: newProject.id, metadata: { title: form.title },
-      });
+      toast.dismiss(toastId);
+      setSaving(false);
+      onSaved({ created: !editProject });
+    } catch (err) {
+      finishWithError(friendlyErrorMessage(err));
     }
-
-    toast.dismiss(toastId);
-    setSaving(false);
-    onSaved({ created: !editProject });
   };
 
   return (
@@ -238,6 +307,7 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
                 <Label className="text-portal-text-muted">Title *</Label>
                 <Input value={form.title} onChange={(e) => handleTitleChange(e.target.value)}
                   className="bg-portal-bg border-portal-border text-portal-text" placeholder="Project title" />
+                {fieldErrors.title && <p className="text-xs text-destructive">{fieldErrors.title}</p>}
               </div>
 
               <div className="space-y-1.5">

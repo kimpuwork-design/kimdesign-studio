@@ -5,12 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Sparkles } from "lucide-react";
+import { loginSchema, zodFieldErrors } from "@/lib/validation";
+import { friendlyErrorMessage } from "@/lib/errors";
+import { toast } from "sonner";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const { signIn, profile } = useAuth();
   const navigate = useNavigate();
@@ -18,12 +22,27 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
-    const { error } = await signIn(email, password);
-    setLoading(false);
-    if (error) {
-      setError(error.message);
+    setFieldErrors({});
+    const parsed = loginSchema.safeParse({ email, password });
+    if (!parsed.success) {
+      setFieldErrors(zodFieldErrors(parsed));
       return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await signIn(parsed.data.email, parsed.data.password);
+      if (error) {
+        const msg = friendlyErrorMessage(error);
+        setError(msg);
+        toast.error("Sign in failed", { description: msg });
+        return;
+      }
+    } catch (err) {
+      const msg = friendlyErrorMessage(err);
+      setError(msg);
+      toast.error("Sign in failed", { description: msg });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,6 +83,7 @@ export default function Login() {
                 autoComplete="email"
                 className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus:ring-portal-accent focus:border-portal-accent"
               />
+              {fieldErrors.email && <p className="text-xs text-destructive">{fieldErrors.email}</p>}
             </div>
 
             <div className="space-y-1.5">
@@ -87,6 +107,7 @@ export default function Login() {
                   {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
+              {fieldErrors.password && <p className="text-xs text-destructive">{fieldErrors.password}</p>}
             </div>
 
             {error && (

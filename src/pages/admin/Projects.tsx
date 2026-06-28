@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { PortalLayout } from "@/components/PortalLayout";
 import { PageHeader } from "@/components/PageHeader";
@@ -6,15 +6,24 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { ProjectFormModal } from "@/components/admin/ProjectFormModal";
 import { StaffAssignModal } from "@/components/admin/StaffAssignModal";
 import { ProjectKanban } from "@/components/admin/ProjectKanban";
+import { BulkActionBar } from "@/components/admin/bulk/BulkActionBar";
+import { useBulkSelection } from "@/components/admin/bulk/useBulkSelection";
+import { exportCSV } from "@/lib/csv";
 import { supabase } from "@/integrations/supabase/client";
 import { writeAuditLog } from "@/lib/audit";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus, Search, Pencil, Trash2, Users, ExternalLink, Star, LayoutGrid, List, Columns } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Users, ExternalLink, Star, LayoutGrid, List, Columns, Archive, Download, BookmarkPlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
 import { cn } from "@/lib/utils";
+
+interface SavedView { name: string; status: string; search: string; }
+const VIEWS_KEY = "admin.projects.savedViews";
+
 
 interface Project {
   id: string;
@@ -56,6 +65,25 @@ export default function AdminProjects() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [toggling, setToggling] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "grid" | "kanban">("table");
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [savedViews, setSavedViews] = useState<SavedView[]>(() => {
+    try { return JSON.parse(localStorage.getItem(VIEWS_KEY) || "[]"); } catch { return []; }
+  });
+
+  const sel = useBulkSelection(useMemo(() => projects.map((p) => p.id), [projects]));
+
+  const persistViews = (v: SavedView[]) => {
+    setSavedViews(v);
+    localStorage.setItem(VIEWS_KEY, JSON.stringify(v));
+  };
+  const saveCurrentView = () => {
+    const name = prompt("Name this filter view:");
+    if (!name?.trim()) return;
+    persistViews([...savedViews.filter((v) => v.name !== name.trim()), { name: name.trim(), status: statusFilter, search }]);
+    sonnerToast.success(`Saved view "${name.trim()}"`);
+  };
+  const applyView = (v: SavedView) => { setStatusFilter(v.status); setSearch(v.search); };
+  const removeView = (name: string) => persistViews(savedViews.filter((v) => v.name !== name));
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -63,6 +91,7 @@ export default function AdminProjects() {
       .from("projects")
       .select("*, profiles(full_name, company)")
       .order("updated_at", { ascending: false });
+
 
     if (statusFilter !== "all") query = query.eq("status", statusFilter);
     if (search.trim()) query = query.ilike("title", `%${search}%`);
@@ -113,8 +142,45 @@ export default function AdminProjects() {
       toast({ title: newVal ? "Published" : "Unpublished" });
       fetchProjects();
     }
-    setToggling(null);
   };
+
+  const bulkSetStatus = async (status: string) => {
+    const ids = sel.selectedIds; if (!ids.length) return;
+    setBulkBusy(true);
+    const { error } = await supabase.from("projects").update({ status }).in("id", ids);
+    setBulkBusy(false);
+    if (error) { sonnerToast.error("Bulk update failed", { description: error.message }); return; }
+    if (profile) await writeAuditLog({ actor_id: profile.id, action: "project_bulk_status", entity_type: "project", metadata: { count: ids.length, status } });
+    sonnerToast.success(`${ids.length} project${ids.length === 1 ? "" : "s"} → ${status}`);
+    sel.clear(); fetchProjects();
+  };
+  const bulkDelete = async () => {
+    const ids = sel.selectedIds; if (!ids.length) return;
+    if (!confirm(`Delete ${ids.length} project${ids.length === 1 ? "" : "s"}? This cannot be undone.`)) return;
+    setBulkBusy(true);
+    const { error } = await supabase.from("projects").delete().in("id", ids);
+    setBulkBusy(false);
+    if (error) { sonnerToast.error("Bulk delete failed", { description: error.message }); return; }
+    if (profile) await writeAuditLog({ actor_id: profile.id, action: "project_bulk_deleted", entity_type: "project", metadata: { count: ids.length } });
+    sonnerToast.success(`${ids.length} project${ids.length === 1 ? "" : "s"} deleted`);
+    sel.clear(); fetchProjects();
+  };
+  const bulkExport = () => {
+    const rows = projects.filter((p) => sel.isSelected(p.id));
+    if (!rows.length) return;
+    exportCSV(`projects-${new Date().toISOString().slice(0, 10)}`, rows.map((p) => ({
+      title: p.title, client: p.profiles?.full_name ?? "", status: p.status, category: p.category ?? "",
+      location: p.location ?? "", is_public: p.is_public ? "yes" : "no", updated_at: p.updated_at,
+    })), [
+      { key: "title", header: "Title" }, { key: "client", header: "Client" },
+      { key: "status", header: "Status" }, { key: "category", header: "Category" },
+      { key: "location", header: "Location" }, { key: "is_public", header: "Public" },
+      { key: "updated_at", header: "Updated" },
+    ]);
+    sonnerToast.success(`Exported ${rows.length} project${rows.length === 1 ? "" : "s"}`);
+  };
+
+
 
   return (
     <PortalLayout variant="admin">
@@ -167,7 +233,29 @@ export default function AdminProjects() {
         </div>
       </div>
 
+      {/* Saved filter views */}
+      {(savedViews.length > 0 || statusFilter !== "all" || search) && (
+        <div className="mb-3 flex items-center gap-1.5 flex-wrap">
+          <span className="text-[10px] uppercase tracking-widest text-portal-text-muted/60 mr-1">Views</span>
+          {savedViews.map((v) => (
+            <span key={v.name} className="group inline-flex items-center gap-1 rounded-full border border-portal-border/50 bg-portal-surface/30 pl-2.5 pr-1 py-0.5 text-[11px] text-portal-text-muted hover:border-portal-accent/50 hover:text-portal-text transition-colors">
+              <button onClick={() => applyView(v)}>{v.name}</button>
+              <button onClick={() => removeView(v.name)} className="opacity-0 group-hover:opacity-100 rounded-full p-0.5 hover:bg-destructive/15 hover:text-destructive" title="Remove view">
+                <X size={10} />
+              </button>
+            </span>
+          ))}
+          {(statusFilter !== "all" || search) && (
+            <button onClick={saveCurrentView}
+              className="inline-flex items-center gap-1 rounded-full border border-portal-accent/40 bg-portal-accent/10 px-2.5 py-0.5 text-[11px] font-medium text-portal-accent hover:bg-portal-accent/15">
+              <BookmarkPlus size={11} /> Save current
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Content */}
+
       {loading ? (
         <div className="glass-card flex items-center justify-center py-20">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-portal-accent border-t-transparent" />
@@ -235,14 +323,27 @@ export default function AdminProjects() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-portal-border/60 bg-portal-surface/30">
+                  <th className="w-8 px-3 py-2.5 text-left">
+                    <Checkbox
+                      checked={sel.allSelected ? true : sel.someSelected ? "indeterminate" : false}
+                      onCheckedChange={() => sel.toggleAll()}
+                      aria-label="Select all projects"
+                    />
+                  </th>
                   {["Title", "Client", "Category", "Status", "Portfolio", "Updated", "Actions"].map((h) => (
                     <th key={h} className="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-widest text-portal-text-muted/70">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-portal-border/30">
-                {projects.map((project) => (
-                  <tr key={project.id} className="hover:bg-portal-accent/[0.04] transition-colors group">
+                {projects.map((project) => {
+                  const checked = sel.isSelected(project.id);
+                  return (
+                  <tr key={project.id} className={cn("transition-colors group", checked ? "bg-portal-accent/[0.07]" : "hover:bg-portal-accent/[0.04]")}>
+                    <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
+                      <Checkbox checked={checked} onCheckedChange={() => sel.toggle(project.id)} aria-label={`Select ${project.title}`} />
+                    </td>
+
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2.5">
                         {project.thumbnail_url ? (
@@ -321,7 +422,8 @@ export default function AdminProjects() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -360,6 +462,18 @@ export default function AdminProjects() {
           onClose={() => { setAssignProject(null); fetchProjects(); }}
         />
       )}
+
+      <BulkActionBar
+        count={sel.count}
+        onClear={sel.clear}
+        noun="projects"
+        actions={[
+          { label: "Archive", icon: Archive, onClick: () => bulkSetStatus("archived"), disabled: bulkBusy },
+          { label: "Mark active", onClick: () => bulkSetStatus("active"), variant: "primary", disabled: bulkBusy },
+          { label: "Export CSV", icon: Download, onClick: bulkExport, disabled: bulkBusy },
+          { label: "Delete", icon: Trash2, onClick: bulkDelete, variant: "destructive", disabled: bulkBusy },
+        ]}
+      />
     </PortalLayout>
   );
 }

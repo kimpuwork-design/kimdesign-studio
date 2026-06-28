@@ -1,11 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PortalLayout } from "@/components/PortalLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { BillingStatusBadge } from "@/components/billing/BillingStatusBadge";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Search, Send, CheckCircle2, Ban, Download, Trash2 } from "lucide-react";
+import { BulkActionBar } from "@/components/admin/bulk/BulkActionBar";
+import { useBulkSelection } from "@/components/admin/bulk/useBulkSelection";
+import { exportCSV } from "@/lib/csv";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { writeAuditLog } from "@/lib/audit";
+import { cn } from "@/lib/utils";
 
 interface Invoice {
   id: string;
@@ -22,10 +29,12 @@ interface Invoice {
 const STATUSES = ["all", "draft", "sent", "paid", "void"];
 
 export default function AdminInvoices() {
+  const { profile } = useAuth();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -46,11 +55,49 @@ export default function AdminInvoices() {
     (i.projects?.title ?? "").toLowerCase().includes(search.toLowerCase())
   );
 
+  const sel = useBulkSelection(useMemo(() => filtered.map((i) => i.id), [filtered]));
+
   const fmt = (amount: number, currency: string) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency }).format(amount);
 
   const isOverdue = (inv: Invoice) =>
     inv.due_date && inv.status === "sent" && new Date(inv.due_date) < new Date();
+
+  const bulkSetStatus = async (status: string) => {
+    const ids = sel.selectedIds; if (!ids.length) return;
+    setBulkBusy(true);
+    const { error } = await supabase.from("invoices").update({ status }).in("id", ids);
+    setBulkBusy(false);
+    if (error) { toast.error("Bulk update failed", { description: error.message }); return; }
+    if (profile) await writeAuditLog({ actor_id: profile.id, action: "invoice_bulk_status", entity_type: "invoice", metadata: { count: ids.length, status } });
+    toast.success(`${ids.length} invoice${ids.length === 1 ? "" : "s"} → ${status}`);
+    sel.clear(); load();
+  };
+  const bulkDeleteDrafts = async () => {
+    const ids = filtered.filter((i) => sel.isSelected(i.id) && i.status === "draft").map((i) => i.id);
+    if (!ids.length) { toast.error("Only draft invoices can be deleted"); return; }
+    if (!confirm(`Delete ${ids.length} draft invoice${ids.length === 1 ? "" : "s"}?`)) return;
+    setBulkBusy(true);
+    const { error } = await supabase.from("invoices").delete().in("id", ids);
+    setBulkBusy(false);
+    if (error) { toast.error("Delete failed", { description: error.message }); return; }
+    toast.success(`${ids.length} draft${ids.length === 1 ? "" : "s"} deleted`);
+    sel.clear(); load();
+  };
+  const bulkExport = () => {
+    const rows = filtered.filter((i) => sel.isSelected(i.id));
+    if (!rows.length) return;
+    exportCSV(`invoices-${new Date().toISOString().slice(0, 10)}`, rows.map((i) => ({
+      number: i.invoice_number, project: i.projects?.title ?? "", client: i.projects?.profiles?.full_name ?? "",
+      status: i.status, currency: i.currency, total: i.total, issue_date: i.issue_date, due_date: i.due_date ?? "",
+    })), [
+      { key: "number", header: "Invoice #" }, { key: "project", header: "Project" },
+      { key: "client", header: "Client" }, { key: "status", header: "Status" },
+      { key: "currency", header: "Currency" }, { key: "total", header: "Total" },
+      { key: "issue_date", header: "Issued" }, { key: "due_date", header: "Due" },
+    ]);
+    toast.success(`Exported ${rows.length} invoice${rows.length === 1 ? "" : "s"}`);
+  };
 
   return (
     <PortalLayout variant="admin">
@@ -88,6 +135,13 @@ export default function AdminInvoices() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-portal-border/50 bg-gradient-to-r from-portal-surface/80 to-portal-bg/40">
+                <th className="w-8 px-3 py-3 text-left">
+                  <Checkbox
+                    checked={sel.allSelected ? true : sel.someSelected ? "indeterminate" : false}
+                    onCheckedChange={() => sel.toggleAll()}
+                    aria-label="Select all invoices"
+                  />
+                </th>
                 <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-portal-text-muted">Invoice #</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-portal-text-muted">Project</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-portal-text-muted">Client</th>
@@ -97,8 +151,13 @@ export default function AdminInvoices() {
               </tr>
             </thead>
             <tbody className="divide-y divide-portal-border/30">
-              {filtered.map(inv => (
-                <tr key={inv.id} className={`hover:bg-portal-accent/5 transition-colors ${isOverdue(inv) ? "bg-destructive/5" : ""}`}>
+              {filtered.map(inv => {
+                const checked = sel.isSelected(inv.id);
+                return (
+                <tr key={inv.id} className={cn("transition-colors", checked ? "bg-portal-accent/[0.07]" : isOverdue(inv) ? "bg-destructive/5 hover:bg-destructive/10" : "hover:bg-portal-accent/5")}>
+                  <td className="px-3 py-3">
+                    <Checkbox checked={checked} onCheckedChange={() => sel.toggle(inv.id)} aria-label={`Select ${inv.invoice_number}`} />
+                  </td>
                   <td className="px-4 py-3 font-mono text-xs text-portal-text">{inv.invoice_number}</td>
                   <td className="px-4 py-3 text-portal-text">{inv.projects?.title ?? "—"}</td>
                   <td className="px-4 py-3 text-portal-text-muted">{inv.projects?.profiles?.full_name ?? "—"}</td>
@@ -113,11 +172,25 @@ export default function AdminInvoices() {
                   </td>
                   <td className="px-4 py-3 text-right font-semibold text-portal-text">{fmt(inv.total, inv.currency)}</td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         )}
       </div>
+
+      <BulkActionBar
+        count={sel.count}
+        onClear={sel.clear}
+        noun="invoices"
+        actions={[
+          { label: "Mark sent", icon: Send, onClick: () => bulkSetStatus("sent"), variant: "primary", disabled: bulkBusy },
+          { label: "Mark paid", icon: CheckCircle2, onClick: () => bulkSetStatus("paid"), disabled: bulkBusy },
+          { label: "Void", icon: Ban, onClick: () => bulkSetStatus("void"), disabled: bulkBusy },
+          { label: "Export CSV", icon: Download, onClick: bulkExport, disabled: bulkBusy },
+          { label: "Delete drafts", icon: Trash2, onClick: bulkDeleteDrafts, variant: "destructive", disabled: bulkBusy },
+        ]}
+      />
     </PortalLayout>
   );
 }

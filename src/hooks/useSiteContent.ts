@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-type SiteContentMap = Record<string, unknown>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SiteContentMap = Record<string, any>;
 
 export function useSiteContent(...sections: string[]) {
   const [content, setContent] = useState<SiteContentMap>({});
@@ -30,7 +31,8 @@ export function useSiteContent(...sections: string[]) {
           return;
         }
         const map: SiteContentMap = {};
-        (data ?? []).forEach((row: { section: string; content: unknown }) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (data ?? []).forEach((row: any) => {
           map[row.section] = row.content;
         });
         setContent(map);

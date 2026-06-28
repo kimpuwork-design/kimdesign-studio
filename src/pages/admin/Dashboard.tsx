@@ -287,9 +287,11 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── Stat Cards ── */}
-      <div className="flex gap-3 overflow-x-auto scrollbar-none pb-1 mb-8 md:mb-10 md:grid md:grid-cols-5 md:overflow-visible md:pb-0">
+      <div className="flex gap-3 overflow-x-auto scrollbar-none pb-1 mb-8 md:mb-10 md:grid md:grid-cols-4 xl:grid-cols-7 md:overflow-visible md:pb-0">
         {statCards.map((s, idx) => {
           const Icon = s.icon;
+          const trend = (s as { trend?: number }).trend;
+          const sub = (s as { sub?: string }).sub;
           return (
             <motion.button
               key={s.label}
@@ -299,21 +301,28 @@ export default function AdminDashboard() {
               onClick={() => navigate(s.href)}
               className="group relative overflow-hidden border border-portal-border/40 bg-portal-surface/20 backdrop-blur-sm p-4 md:p-5 text-left min-w-[140px] md:min-w-0 shrink-0 md:shrink hover:border-portal-accent/30 hover:bg-portal-surface/40 transition-all duration-500"
             >
-              {/* Hover glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-portal-accent/[0.06] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-3">
                   <div className="p-2 bg-portal-accent/10 border border-portal-accent/15">
                     <Icon size={14} className="text-portal-accent" />
                   </div>
-                  <ArrowUpRight size={10} className="text-portal-text-muted opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all hidden md:block" />
+                  {trend !== undefined && trend !== 0 ? (
+                    <span className={`text-[10px] font-medium tabular-nums ${trend > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                      {trend > 0 ? "+" : ""}{trend}%
+                    </span>
+                  ) : (
+                    <ArrowUpRight size={10} className="text-portal-text-muted opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all hidden md:block" />
+                  )}
                 </div>
                 <p className="font-display text-xl md:text-2xl font-bold text-portal-text tracking-tight">
                   <AnimatedCounter value={s.value} prefix={s.format === "currency" ? "$" : ""} />
                 </p>
-                <div className="flex items-center justify-between mt-1.5">
-                  <p className="text-[9px] md:text-[10px] text-portal-text-muted font-medium uppercase tracking-[0.15em]">{s.label}</p>
+                <div className="flex items-center justify-between mt-1.5 gap-2">
+                  <div className="min-w-0">
+                    <p className="text-[9px] md:text-[10px] text-portal-text-muted font-medium uppercase tracking-[0.15em] truncate">{s.label}</p>
+                    {sub && <p className="text-[9px] text-portal-text-muted/70 tabular-nums mt-0.5 truncate">{sub}</p>}
+                  </div>
                   {s.sparkData.length > 1 && <Sparkline data={s.sparkData} height={20} width={50} />}
                 </div>
               </div>

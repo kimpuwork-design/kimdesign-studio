@@ -1,7 +1,7 @@
 import { PortalLayout } from "@/components/PortalLayout";
 import { UpcomingDeadlines } from "@/components/admin/UpcomingDeadlines";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Zap, RefreshCw, Activity } from "lucide-react";
+import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Zap, RefreshCw, Activity, Eye, Globe } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +18,12 @@ interface Stats {
   revenue: number;
   outstanding: number;
   leadConversion: { status: string; count: number }[];
+  visitorsToday: number;
+  viewsToday: number;
+  visitors7d: number;
+  views7d: number;
+  visitorsTrend: number;
+  trafficSpark: number[];
 }
 
 interface RecentActivity {
@@ -74,7 +80,7 @@ const luxuryEase = [0.22, 1, 0.36, 1] as const;
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const [stats, setStats] = useState<Stats>({ totalClients: 0, activeProjects: 0, newLeads: 0, revenue: 0, outstanding: 0, leadConversion: [] });
+  const [stats, setStats] = useState<Stats>({ totalClients: 0, activeProjects: 0, newLeads: 0, revenue: 0, outstanding: 0, leadConversion: [], visitorsToday: 0, viewsToday: 0, visitors7d: 0, views7d: 0, visitorsTrend: 0, trafficSpark: [] });
   const [activity, setActivity] = useState<RecentActivity[]>([]);
   const [projectStatuses, setProjectStatuses] = useState<ProjectStatus[]>([]);
   const [recentInvoices, setRecentInvoices] = useState<{ month: string; total: number }[]>([]);
@@ -84,7 +90,11 @@ export default function AdminDashboard() {
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
 
-    const [clientsRes, projectsRes, leadsRes, revenueRes, activityRes, statusRes, invoiceRes, outstandingRes, allLeadsRes] = await Promise.all([
+    const since7d = subDays(new Date(), 7).toISOString();
+    const since14d = subDays(new Date(), 14).toISOString();
+    const startToday = new Date(); startToday.setHours(0, 0, 0, 0);
+
+    const [clientsRes, projectsRes, leadsRes, revenueRes, activityRes, statusRes, invoiceRes, outstandingRes, allLeadsRes, trafficRes] = await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "CLIENT"),
       supabase.from("projects").select("id", { count: "exact", head: true }).neq("status", "archived").neq("status", "completed"),
       supabase.from("leads").select("id", { count: "exact", head: true }).eq("status", "new"),
@@ -94,6 +104,7 @@ export default function AdminDashboard() {
       supabase.from("invoices").select("total, paid_at").eq("status", "paid").gte("paid_at", subDays(new Date(), 180).toISOString()),
       supabase.from("invoices").select("total").in("status", ["sent", "draft"]),
       supabase.from("leads").select("status"),
+      supabase.from("page_views").select("visitor_id, created_at").gte("created_at", since14d),
     ]);
 
     const revenue = (revenueRes.data || []).reduce((sum, inv) => sum + Number(inv.total || 0), 0);
@@ -103,7 +114,42 @@ export default function AdminDashboard() {
     (allLeadsRes.data || []).forEach((l: any) => { leadCounts[l.status] = (leadCounts[l.status] || 0) + 1; });
     const leadConversion = Object.entries(leadCounts).map(([status, count]) => ({ status, count }));
 
-    setStats({ totalClients: clientsRes.count || 0, activeProjects: projectsRes.count || 0, newLeads: leadsRes.count || 0, revenue, outstanding, leadConversion });
+    // Visitor analytics
+    const pv = (trafficRes.data || []) as { visitor_id: string | null; created_at: string }[];
+    const todayViews = pv.filter((v) => new Date(v.created_at) >= startToday);
+    const last7 = pv.filter((v) => new Date(v.created_at).toISOString() >= since7d);
+    const prev7 = pv.filter((v) => {
+      const t = new Date(v.created_at).toISOString();
+      return t >= since14d && t < since7d;
+    });
+    const uniq = (rows: typeof pv) => new Set(rows.map((r) => r.visitor_id).filter(Boolean)).size;
+    const visitors7d = uniq(last7);
+    const prevVisitors = uniq(prev7);
+    const visitorsTrend = prevVisitors > 0 ? Math.round(((visitors7d - prevVisitors) / prevVisitors) * 100) : 0;
+    // 7-day sparkline of daily unique visitors (oldest → newest)
+    const trafficSpark: number[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const dayStart = subDays(new Date(), i); dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(dayStart); dayEnd.setHours(23, 59, 59, 999);
+      const dayRows = pv.filter((v) => {
+        const t = new Date(v.created_at);
+        return t >= dayStart && t <= dayEnd;
+      });
+      trafficSpark.push(uniq(dayRows));
+    }
+
+    setStats({
+      totalClients: clientsRes.count || 0,
+      activeProjects: projectsRes.count || 0,
+      newLeads: leadsRes.count || 0,
+      revenue, outstanding, leadConversion,
+      visitorsToday: uniq(todayViews),
+      viewsToday: todayViews.length,
+      visitors7d,
+      views7d: last7.length,
+      visitorsTrend,
+      trafficSpark,
+    });
 
     if (activityRes.data) {
       const actorIds = [...new Set(activityRes.data.map(a => a.actor_id).filter(Boolean))];

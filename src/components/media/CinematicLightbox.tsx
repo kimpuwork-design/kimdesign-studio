@@ -24,9 +24,10 @@ interface Props {
 }
 
 const SWIPE_THRESHOLD = 50;
-const MAX_ZOOM = 4;
+const MAX_ZOOM = 6;
 const MIN_ZOOM = 1;
 const SLIDESHOW_INTERVAL = 4000;
+const DBL_TAP_ZOOM = 2.5;
 
 function resolveUrl(raw: string) {
   const v = raw?.trim() ?? "";
@@ -61,6 +62,8 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
   const dragStart = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
   const pinchStart = useRef<{ dist: number; zoom: number } | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const lastTap = useRef<number>(0);
   const idleTimer = useRef<number | null>(null);
 
   // Group by chapter for the grid + chapter nav
@@ -188,16 +191,38 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
     return () => window.removeEventListener("keydown", h);
   }, [next, prev, onClose, zoomIn, zoomOut, resetZoom, toggleFullscreen, showGrid]);
 
-  // Mouse wheel zoom
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    const delta = -e.deltaY * 0.002;
+  // Cursor-anchored zoom (wheel)
+  const zoomAt = useCallback((clientX: number, clientY: number, factor: number) => {
+    const el = stageRef.current;
+    if (!el) { setZoom((z) => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z * factor))); return; }
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
     setZoom((z) => {
-      const nz = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z + delta * z));
-      if (nz <= 1) setPan({ x: 0, y: 0 });
+      const nz = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z * factor));
+      const ratio = nz / z;
+      if (nz <= 1) { setPan({ x: 0, y: 0 }); return nz; }
+      setPan((p) => {
+        // pivot the zoom around the cursor position relative to stage center
+        const ox = clientX - cx - p.x;
+        const oy = clientY - cy - p.y;
+        return { x: p.x - ox * (ratio - 1), y: p.y - oy * (ratio - 1) };
+      });
       return nz;
     });
   }, []);
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+    zoomAt(e.clientX, e.clientY, factor);
+  }, [zoomAt]);
+
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (zoom > 1) { resetZoom(); return; }
+    zoomAt(e.clientX, e.clientY, DBL_TAP_ZOOM);
+  };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (zoom <= 1) return;
@@ -268,13 +293,14 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
       onMouseMove={wakeChrome}
       style={{
         position: "fixed", inset: 0, zIndex: 99999,
-        background: "rgba(8,8,8,0.97)",
-        backdropFilter: "blur(8px)",
+        background:
+          "radial-gradient(ellipse at center, hsl(218 65% 8% / 0.96) 0%, hsl(218 70% 4% / 0.99) 70%, hsl(218 80% 2% / 1) 100%)",
+        backdropFilter: "blur(10px)",
         display: "flex", flexDirection: "column",
         height: "100dvh", maxHeight: "100dvh",
         overflow: "hidden",
         touchAction: "none",
-        animation: "lbFade 280ms cubic-bezier(0.22,1,0.36,1)",
+        animation: "lbFade 320ms cubic-bezier(0.22,1,0.36,1)",
         cursor: chromeVisible ? "default" : "none",
       }}
     >
@@ -284,23 +310,23 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
         @keyframes lbSlideL { from { opacity: 0; transform: translateX(-40px) scale(0.98); } to { opacity: 1; transform: translateX(0) scale(1); } }
         @keyframes lbZoomIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
         @keyframes lbToast { 0% { opacity: 0; transform: translateY(8px); } 15%,85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-8px); } }
-        .lb-btn { width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.85); transition: background 200ms ease, transform 200ms ease, opacity 200ms ease; backdrop-filter: blur(10px); }
-        .lb-btn:hover { background: rgba(255,255,255,0.18); transform: scale(1.05); }
-        .lb-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .lb-btn.active { background: rgba(255,255,255,0.95); color: rgba(0,0,0,0.9); }
-        .lb-nav { width: 48px; height: 48px; }
-        .lb-chrome { transition: opacity 300ms ease, transform 300ms ease; }
+        .lb-btn { width: 38px; height: 38px; border-radius: 10px; background: hsl(218 50% 12% / 0.55); border: 1px solid hsl(43 50% 70% / 0.10); cursor: pointer; display: flex; align-items: center; justify-content: center; color: hsl(43 35% 92% / 0.85); transition: background 220ms ease, color 220ms ease, transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease; backdrop-filter: blur(12px) saturate(1.2); }
+        .lb-btn:hover { background: hsl(218 50% 16% / 0.85); color: hsl(43 75% 65%); border-color: hsl(43 70% 58% / 0.45); transform: translateY(-1px); box-shadow: 0 6px 20px -8px hsl(43 70% 50% / 0.35); }
+        .lb-btn:disabled { opacity: 0.28; cursor: not-allowed; transform: none; box-shadow: none; }
+        .lb-btn.active { background: linear-gradient(135deg, hsl(43 70% 58%), hsl(43 75% 48%)); color: hsl(218 65% 10%); border-color: hsl(43 75% 60%); box-shadow: 0 4px 16px -4px hsl(43 70% 50% / 0.5); }
+        .lb-nav { width: 52px; height: 52px; border-radius: 999px; }
+        .lb-chrome { transition: opacity 320ms ease, transform 320ms ease; }
         .lb-chrome.hidden { opacity: 0; pointer-events: none; transform: translateY(-8px); }
         .lb-chrome.bottom.hidden { transform: translateY(8px); }
-        .lb-grid-tile { position: relative; overflow: hidden; cursor: pointer; background: rgba(255,255,255,0.03); transition: transform 250ms cubic-bezier(0.22,1,0.36,1); }
-        .lb-grid-tile:hover { transform: scale(1.02); }
-        .lb-grid-tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 600ms cubic-bezier(0.22,1,0.36,1); }
+        .lb-grid-tile { position: relative; overflow: hidden; cursor: pointer; background: hsl(218 50% 12% / 0.4); border: 1px solid hsl(43 50% 70% / 0.06); border-radius: 8px; transition: transform 280ms cubic-bezier(0.22,1,0.36,1), border-color 280ms ease, box-shadow 280ms ease; }
+        .lb-grid-tile:hover { transform: scale(1.03); border-color: hsl(43 70% 58% / 0.6); box-shadow: 0 10px 30px -10px hsl(43 70% 50% / 0.35); }
+        .lb-grid-tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 700ms cubic-bezier(0.22,1,0.36,1); }
         .lb-grid-tile:hover img { transform: scale(1.06); }
       `}</style>
 
-      {/* Top progress bar */}
-      <div className={`lb-chrome ${chromeVisible ? "" : "hidden"}`} style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "rgba(255,255,255,0.08)", zIndex: 5 }}>
-        <div style={{ width: `${progressPct}%`, height: "100%", background: "rgba(255,255,255,0.85)", transition: "width 380ms cubic-bezier(0.22,1,0.36,1)" }} />
+      {/* Top progress bar — gold */}
+      <div className={`lb-chrome ${chromeVisible ? "" : "hidden"}`} style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "hsl(218 50% 14% / 0.6)", zIndex: 5 }}>
+        <div style={{ width: `${progressPct}%`, height: "100%", background: "linear-gradient(90deg, hsl(43 70% 58%), hsl(43 80% 72%))", boxShadow: "0 0 12px hsl(43 70% 58% / 0.6)", transition: "width 420ms cubic-bezier(0.22,1,0.36,1)" }} />
       </div>
 
       {/* Top bar */}
@@ -373,7 +399,9 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
 
       {/* Image area */}
       <div
+        ref={stageRef}
         onClick={(e) => e.stopPropagation()}
+        onDoubleClick={handleDoubleClick}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -439,12 +467,16 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
                 className={`lb-chrome ${chromeVisible ? "" : "hidden"}`}
                 style={{
                   position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)",
-                  maxWidth: "min(640px, 86vw)",
-                  background: "rgba(0,0,0,0.55)", backdropFilter: "blur(14px)",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  padding: "10px 16px",
-                  color: "rgba(255,255,255,0.92)", fontSize: 12, lineHeight: 1.55,
+                  maxWidth: "min(680px, 88vw)",
+                  background: "hsl(218 60% 8% / 0.7)",
+                  backdropFilter: "blur(18px) saturate(1.3)",
+                  border: "1px solid hsl(43 60% 60% / 0.18)",
+                  borderRadius: 12,
+                  padding: "12px 20px",
+                  color: "hsl(43 35% 95% / 0.95)", fontSize: 12.5, lineHeight: 1.6,
                   fontFamily: "system-ui, sans-serif", textAlign: "center",
+                  boxShadow: "0 12px 40px -12px hsl(218 80% 2% / 0.6), 0 0 0 1px hsl(43 70% 58% / 0.04) inset",
+                  letterSpacing: "0.01em",
                 }}
               >
                 {current.caption}
@@ -499,15 +531,17 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
               onClick={() => { setDirection(i > idx ? 1 : -1); setIdx(i); }}
               style={{
                 flexShrink: 0,
-                width: i === idx ? 56 : 44,
-                height: i === idx ? 56 : 44,
+                width: i === idx ? 60 : 46,
+                height: i === idx ? 60 : 46,
                 overflow: "hidden",
-                border: i === idx ? "2px solid rgba(255,255,255,0.95)" : "1px solid rgba(255,255,255,0.1)",
-                opacity: i === idx ? 1 : 0.45,
+                borderRadius: 8,
+                border: i === idx ? "2px solid hsl(43 75% 60%)" : "1px solid hsl(43 50% 70% / 0.12)",
+                opacity: i === idx ? 1 : 0.5,
                 cursor: "pointer",
                 padding: 0,
                 background: "transparent",
-                transition: "all 250ms cubic-bezier(0.22,1,0.36,1)",
+                boxShadow: i === idx ? "0 6px 22px -6px hsl(43 70% 50% / 0.55)" : "none",
+                transition: "all 280ms cubic-bezier(0.22,1,0.36,1)",
               }}
             >
               <img
@@ -557,7 +591,7 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
                         onClick={() => { setDirection(i > idx ? 1 : -1); setIdx(i); setShowGrid(false); }}
                         style={{
                           aspectRatio: "1 / 1",
-                          outline: i === idx ? "2px solid rgba(255,255,255,0.95)" : "none",
+                          outline: i === idx ? "2px solid hsl(43 75% 60%)" : "none",
                           outlineOffset: -2,
                         }}
                       >

@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { writeAuditLog } from "@/lib/audit";
 import { useAuth } from "@/contexts/AuthContext";
 import { slugify } from "@/lib/portfolio";
+import { projectSchema, validateFile, zodFieldErrors } from "@/lib/validation";
+import { friendlyErrorMessage } from "@/lib/errors";
 
 interface Profile {
   id: string;

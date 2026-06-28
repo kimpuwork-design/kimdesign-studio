@@ -85,7 +85,7 @@ export default function About() {
       <PublicNav />
 
       {/* ── Cinematic Hero ── */}
-      <div ref={heroRef} className="relative overflow-hidden min-h-[58vh] flex items-center pt-20">
+      <div ref={heroRef} className="relative overflow-hidden min-h-[44vh] md:min-h-[58vh] flex items-center pt-14 md:pt-20">
         <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }}>
             <motion.div animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
@@ -103,12 +103,12 @@ export default function About() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-[2] pointer-events-none" />
 
         <motion.div style={{ opacity: heroOpacity, y: heroY, scale: heroScale }} className="relative z-10 w-full">
-          <section className="container py-10 md:py-14">
+          <section className="container py-6 md:py-14">
             <div className="max-w-4xl">
               <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "3rem" }} transition={{ duration: 0.8, delay: 0.1, ease: luxuryEase }}
                 className="h-px bg-primary mb-8" />
               <SectionLabel text={page.hero_subtitle ?? t("about_the_studio")} />
-              <h1 className="font-display text-[clamp(2.8rem,7.5vw,7.5rem)] leading-[0.92] text-foreground">
+              <h1 className="font-display text-[clamp(2.1rem,7.5vw,7.5rem)] leading-[0.95] md:leading-[0.92] text-foreground">
                 {(page.hero_title_line1 ?? "Architecture as a").split(" ").map((word: string, i: number) => (
                   <motion.span key={i} initial={{ opacity: 0, y: 55, rotateX: -15 }} animate={{ opacity: 1, y: 0, rotateX: 0 }}
                     transition={{ duration: 0.8, delay: 0.3 + i * 0.08, ease: luxuryEase }}

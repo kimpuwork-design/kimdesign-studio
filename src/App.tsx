@@ -123,8 +123,6 @@ const App = () => (
           <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminSettings /></ProtectedRoute>} />
           <Route path="/admin/site-content" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminSiteContent /></ProtectedRoute>} />
           <Route path="/admin/audit-logs" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminAuditLogs /></ProtectedRoute>} />
-          <Route path="/admin/blog" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminBlog /></ProtectedRoute>} />
-          <Route path="/admin/blog/:id" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminBlogEditor /></ProtectedRoute>} />
           <Route path="/admin/notifications" element={<ProtectedRoute allowedRoles={["ADMIN"]}><NotificationsPage variant="admin" /></ProtectedRoute>} />
           <Route path="/admin/analytics" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminAnalytics /></ProtectedRoute>} />
           <Route path="/admin/activity" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminActivityTimeline /></ProtectedRoute>} />

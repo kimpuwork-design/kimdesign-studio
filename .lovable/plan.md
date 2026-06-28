@@ -1,73 +1,80 @@
-# Premium Hardening + Cleanup
+# Admin Panel — Next-Level Upgrade
 
-## Add (what's still missing)
+Four feature tracks plus visual polish, sequenced so each ships independently and the panel stays usable throughout.
 
-### 1. SEO essentials
-- `public/sitemap.xml` generated at build/dev time from real routes + published projects.
-- `scripts/generate-sitemap.ts` wired through `predev` / `prebuild`.
-- `public/robots.txt` allowing all crawlers + `Sitemap:` directive.
-- Switch per-route head from custom hook to **react-helmet-async**: per-project `<title>`, `description`, `canonical`, `og:*`, and `Article` JSON-LD on `PortfolioDetail`. Sitewide `og:*` stays in `index.html` as fallback for non-JS crawlers.
+## 1. Dashboard depth
 
-### 2. Lightbox accessibility (WCAG)
-- `role="dialog"`, `aria-modal="true"`, `aria-label` from project title.
-- Focus trap (Tab/Shift-Tab stays inside; Escape closes — already there).
-- Return focus to the trigger element on close.
-- Live region announcing "Image X of N" on navigation.
+Extend `src/pages/admin/Dashboard.tsx` with a second analytics row below the existing stat strip:
 
-### 3. Performance polish
-- **Thumbnail transforms** — append `?width=720&quality=75&resize=cover` to Supabase storage URLs in the Portfolio grid (`ProjectCard`) so 4 MB hero JPEGs aren't downloaded for 400 px tiles. Bandwidth drop ≈ 80%.
-- **Hover/touchstart prefetch** — on Portfolio cards, prefetch the project metadata + cover image on `pointerenter`/`touchstart` so navigation feels instant.
-- **Signed-URL silent refresh** — re-call `get-public-file-urls` ~30 s before the 5-min expiry while the user is still on the project page.
+- **Live visitor map** — world map (react-simple-maps + topojson) with country dots sized by 7-day unique visitors. Source: `page_views` joined to a new `country` column.
+- **Top pages (7d)** — bar list of `path` grouped by views and unique visitors.
+- **Referrers (7d)** — domain-grouped list from `referrer`.
+- **Device / browser split** — donut from a parsed `user_agent`.
+- **Revenue vs Leads (30d)** — dual-line area chart combining `invoices.paid_at` and `leads.created_at`.
 
-### 4. Reliability
-- **`ErrorBoundary`** wrapping each top-level route — one crash no longer blanks the whole app; shows recovery UI with Back/Reload.
+Backend: add nullable `country`, `path`, `referrer`, `user_agent`, `device` columns to `page_views` (already partially present — confirm and fill gaps in migration), and a lightweight client-side tracker update in `src/lib/analytics.ts` to capture them. No server-side geo lookup yet — country derived from `navigator.language` as a v1 fallback.
 
-## Remove (unused)
+## 2. Bulk actions everywhere
 
-### Files (33)
-Delete every shadcn primitive not imported anywhere + the orphaned `ProtectedImage`:
+A reusable `<BulkActionBar />` + `useBulkSelection()` hook (in `src/components/admin/bulk/`). Wired into:
+
+- Leads — Archive, Delete, Mark contacted, Export CSV
+- Clients — Export CSV (no destructive bulk for safety)
+- Projects — Archive, Set status, Toggle public, Delete, Export CSV
+- Invoices — Mark sent / paid / void, Delete drafts, Export CSV
+- Files — Move category, Delete, Bulk download (signed URL zip via edge function later — v1: sequential download)
+
+Pattern: checkbox column on row, sticky action bar slides up from bottom when selection > 0, confirm dialog for destructive ops, optimistic UI + toast.
+
+## 3. Projects workspace
+
+Upgrade `src/pages/admin/Projects.tsx` and the existing Kanban:
+
+- Drag-and-drop **Kanban with inline edit** (title, status, owner) using `@dnd-kit` (already in deps).
+- **Saved filter views** stored in `localStorage` per admin (e.g. "My active", "Overdue").
+- **Column customization** in table view — show/hide and reorder columns, persisted per admin.
+- **Project timeline view** — Gantt-style horizontal bars for `start_date → target_date`, grouped by status, with overdue highlighted.
+
+No schema changes required.
+
+## 4. Inbox & notifications hub
+
+New route `/admin/inbox` (`src/pages/admin/Inbox.tsx`) combining three streams into one virtualized list:
+
+- `messages` across all projects
+- `leads` with `status = 'new'`
+- `deliverables` with `status = 'submitted'` (awaiting review)
+
+Features: unread badge per stream, search, snooze (client-side `localStorage` until v2 server field), quick-reply for messages, "open in context" link for each item. Realtime updates via existing channels.
+
+Sidebar entry added to `ModernPortalLayout.tsx`.
+
+## 5. Visual polish
+
+- Skeleton loaders for every admin page (extend `SkeletonScreens.tsx`).
+- Better empty states (illustration + primary CTA) on Leads, Clients, Files, Invoices, Inbox.
+- Page-transition wrapper using framer-motion's `AnimatePresence` in `PortalLayout`.
+- Tighter spacing pass on dense tables (10–12 px row height, 11px metadata, sticky headers).
+- Consistent action-bar hover states and focus rings.
+
+## Order of delivery
 
 ```text
-src/components/media/ProtectedImage.tsx
-src/components/ui/{accordion,alert-dialog,alert,aspect-ratio,badge,
-breadcrumb,calendar,card,carousel,chart,checkbox,collapsible,
-context-menu,data-table,drawer,form,hover-card,input-otp,menubar,
-navigation-menu,pagination,popover,progress,radio-group,resizable,
-scroll-area,slider,table,tabs,toggle-group,toggle}.tsx
-src/components/ui/use-toast.ts
+Step A → Visual polish primitives (skeletons, empty-state, page-transition wrapper)
+Step B → Dashboard depth (migration + new cards)
+Step C → Bulk-action primitives + wire into Leads + Projects + Invoices + Files
+Step D → Projects workspace (Kanban DnD inline edit, saved views, columns, timeline)
+Step E → Inbox hub
 ```
 
-Edge functions reported by knip are **kept** — they are runtime entrypoints invoked by name, not imported in source (knip false positive).
-
-### Dependencies (25 runtime + 2 dev)
-`bun remove` the unused packages:
-
-```text
-@hookform/resolvers, @radix-ui/react-{accordion,alert-dialog,
-aspect-ratio,checkbox,collapsible,context-menu,hover-card,menubar,
-navigation-menu,popover,progress,radio-group,scroll-area,slider,
-tabs,toggle,toggle-group}, @tanstack/react-table, embla-carousel-react,
-input-otp, react-day-picker, react-hook-form, react-resizable-panels,
-vaul, @tailwindcss/typography, @testing-library/react
-```
-
-Bundle size drop ≈ 200-300 KB minified.
-
-### Unused exports
-Leave alone for now — pruning 63 named exports adds noise with little user-facing payoff. Revisit on the next refactor.
-
-## Out of scope
-- View-count tracking, PWA, route-level data cache (React Query) — defer to a separate request.
-- Image OG generation (`@vercel/og`) — needs a clear visual brief first.
+Each step is independently shippable and verified with `tsgo --noEmit` + a quick browser smoke test before moving on.
 
 ## Technical notes
-- Helmet adoption: add `<HelmetProvider>` once in `src/main.tsx`, remove `<link rel="canonical">` from `index.html`, leave sitewide `og:*` in place.
-- `ErrorBoundary` is a tiny class component placed inside `<Routes>` per top-level page (or one global wrapper inside `App.tsx`).
-- Thumbnail URL helper: small utility in `src/lib/images.ts` that takes a public Supabase URL and appends transform query params; no-op for non-Supabase URLs.
-- Sitemap generator queries `projects` where `is_public = true` using the anon key; same source-of-truth as the public route.
 
-## Verification
-- `tsgo --noEmit` clean
-- `vite build` clean
-- `bunx knip` → unused-files count drops to ≤ 5 (edge functions only)
-- Playwright smoke: `/`, `/portfolio`, `/portfolio/:slug`, `/contact` load with 0 console errors
+- New deps: `react-simple-maps` + `world-atlas` for the map. `@dnd-kit` is already installed.
+- Migration touches `page_views` only — additive nullable columns, no breaking change.
+- All new tables (if any — currently none planned) would include GRANT + RLS.
+- No edits to `client.ts`, `types.ts`, or `.env`.
+- Existing realtime channels reused; no new publications needed.
+
+Reply **approve** to start with Step A, or tell me which step to do first / skip.

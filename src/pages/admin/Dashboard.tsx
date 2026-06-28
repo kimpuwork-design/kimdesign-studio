@@ -1,5 +1,6 @@
 import { PortalLayout } from "@/components/PortalLayout";
 import { UpcomingDeadlines } from "@/components/admin/UpcomingDeadlines";
+import { DashboardInsights } from "@/components/admin/DashboardInsights";
 import { useAuth } from "@/contexts/AuthContext";
 import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Zap, RefreshCw, Activity, Eye, Globe } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
@@ -373,7 +374,13 @@ export default function AdminDashboard() {
         })}
       </div>
 
+      {/* ── Audience Insights (top pages · referrers · device split) ── */}
+      <div className="mb-8 md:mb-10">
+        <DashboardInsights />
+      </div>
+
       {/* ── Charts Row ── */}
+
       <div className="grid gap-4 md:gap-5 grid-cols-1 md:grid-cols-3 mb-8 md:mb-10">
         {/* Revenue Chart */}
         <motion.div 

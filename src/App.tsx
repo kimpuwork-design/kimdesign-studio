@@ -21,16 +21,11 @@ const lazyRetry = (fn: () => Promise<any>) =>
   }));
 
 const Home = lazyRetry(() => import("./pages/public/Home"));
-const _unused = null;
-const PublicProjects = lazyRetry(() => import("./pages/public/Projects"));
-const PublicProjectDetail = lazyRetry(() => import("./pages/public/ProjectDetail"));
 const Portfolio = lazyRetry(() => import("./pages/public/Portfolio"));
 const PortfolioDetail = lazyRetry(() => import("./pages/public/PortfolioDetail"));
 const Services = lazyRetry(() => import("./pages/public/Services"));
 const About = lazyRetry(() => import("./pages/public/About"));
 const Contact = lazyRetry(() => import("./pages/public/Contact"));
-const PublicBlog = lazyRetry(() => import("./pages/public/Blog"));
-const PublicBlogDetail = lazyRetry(() => import("./pages/public/BlogDetail"));
 
 const Login = lazyRetry(() => import("./pages/auth/Login"));
 const Register = lazyRetry(() => import("./pages/auth/Register"));

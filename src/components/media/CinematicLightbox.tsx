@@ -126,11 +126,17 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
     return () => window.clearInterval(t);
   }, [playing, total]);
 
-  // Lock body scroll
+  // Lock body scroll + remember & restore focus
   useEffect(() => {
     const s = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = s; };
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    // Move focus into the dialog so Tab cycles inside and screen readers announce it.
+    requestAnimationFrame(() => rootRef.current?.focus());
+    return () => {
+      document.body.style.overflow = s;
+      previouslyFocused?.focus?.();
+    };
   }, []);
 
   // Auto-hide chrome during slideshow / inactivity

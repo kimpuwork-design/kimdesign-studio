@@ -307,6 +307,7 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
                 <Label className="text-portal-text-muted">Title *</Label>
                 <Input value={form.title} onChange={(e) => handleTitleChange(e.target.value)}
                   className="bg-portal-bg border-portal-border text-portal-text" placeholder="Project title" />
+                {fieldErrors.title && <p className="text-xs text-destructive">{fieldErrors.title}</p>}
               </div>
 
               <div className="space-y-1.5">

@@ -21,15 +21,11 @@ const lazyRetry = (fn: () => Promise<any>) =>
   }));
 
 const Home = lazyRetry(() => import("./pages/public/Home"));
-const PublicProjects = lazyRetry(() => import("./pages/public/Projects"));
-const PublicProjectDetail = lazyRetry(() => import("./pages/public/ProjectDetail"));
 const Portfolio = lazyRetry(() => import("./pages/public/Portfolio"));
 const PortfolioDetail = lazyRetry(() => import("./pages/public/PortfolioDetail"));
 const Services = lazyRetry(() => import("./pages/public/Services"));
 const About = lazyRetry(() => import("./pages/public/About"));
 const Contact = lazyRetry(() => import("./pages/public/Contact"));
-const PublicBlog = lazyRetry(() => import("./pages/public/Blog"));
-const PublicBlogDetail = lazyRetry(() => import("./pages/public/BlogDetail"));
 
 const Login = lazyRetry(() => import("./pages/auth/Login"));
 const Register = lazyRetry(() => import("./pages/auth/Register"));
@@ -49,8 +45,6 @@ const AdminTeam = lazyRetry(() => import("./pages/admin/Team"));
 const AdminSettings = lazyRetry(() => import("./pages/admin/AdminSettings"));
 const AdminSiteContent = lazyRetry(() => import("./pages/admin/SiteContent"));
 const AdminAuditLogs = lazyRetry(() => import("./pages/admin/AuditLogs"));
-const AdminBlog = lazyRetry(() => import("./pages/admin/Blog"));
-const AdminBlogEditor = lazyRetry(() => import("./pages/admin/BlogEditor"));
 const AdminAnalytics = lazyRetry(() => import("./pages/admin/Analytics"));
 const AdminActivityTimeline = lazyRetry(() => import("./pages/admin/ActivityTimeline"));
 
@@ -98,14 +92,15 @@ const App = () => (
           {/* Public routes */}
           <Route path="/" element={<Home />} />
           <Route path="/projects" element={<Navigate to="/portfolio" replace />} />
-          <Route path="/projects/:id" element={<PublicProjectDetail />} />
+          <Route path="/projects/:id" element={<Navigate to="/portfolio" replace />} />
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/portfolio/:slug" element={<PortfolioDetail />} />
           <Route path="/services" element={<Services />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/blog" element={<PublicBlog />} />
-          <Route path="/blog/:slug" element={<PublicBlogDetail />} />
+          <Route path="/blog" element={<Navigate to="/" replace />} />
+          <Route path="/blog/:slug" element={<Navigate to="/" replace />} />
+
 
 
           {/* Auth routes */}
@@ -128,8 +123,6 @@ const App = () => (
           <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminSettings /></ProtectedRoute>} />
           <Route path="/admin/site-content" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminSiteContent /></ProtectedRoute>} />
           <Route path="/admin/audit-logs" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminAuditLogs /></ProtectedRoute>} />
-          <Route path="/admin/blog" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminBlog /></ProtectedRoute>} />
-          <Route path="/admin/blog/:id" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminBlogEditor /></ProtectedRoute>} />
           <Route path="/admin/notifications" element={<ProtectedRoute allowedRoles={["ADMIN"]}><NotificationsPage variant="admin" /></ProtectedRoute>} />
           <Route path="/admin/analytics" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminAnalytics /></ProtectedRoute>} />
           <Route path="/admin/activity" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminActivityTimeline /></ProtectedRoute>} />

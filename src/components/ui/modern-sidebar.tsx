@@ -83,7 +83,6 @@ const adminNav: NavGroup[] = [
   {
     label: "Content",
     items: [
-      { label: "Blog", href: "/admin/blog", icon: Newspaper },
       { label: "Site Content", href: "/admin/site-content", icon: FileText },
     ],
   },

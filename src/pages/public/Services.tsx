@@ -10,7 +10,6 @@ import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, StaggerContainer, StaggerItem, LineDraw } from "@/components/motion/MotionWrappers";
 import { SectionLabel } from "@/components/SectionLabel";
 import { MagneticButton } from "@/components/MagneticButton";
-import { AnimatedDivider } from "@/components/AnimatedDivider";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 
@@ -213,7 +212,6 @@ export default function Services() {
         </motion.div>
       </div>
 
-      <AnimatedDivider />
 
       {/* ── Services Showcase ── */}
       {services.length > 0 && services.length > 2 && (

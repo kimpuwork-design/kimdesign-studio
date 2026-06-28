@@ -10,7 +10,6 @@ import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, StaggerContainer, StaggerItem, SlideIn, ImageReveal, LineDraw } from "@/components/motion/MotionWrappers";
 import { SectionLabel } from "@/components/SectionLabel";
 import { MagneticButton } from "@/components/MagneticButton";
-import { AnimatedDivider } from "@/components/AnimatedDivider";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect, useCallback } from "react";
 
@@ -134,7 +133,6 @@ export default function About() {
         </motion.div>
       </div>
 
-      <AnimatedDivider />
 
       {/* ── Story ── */}
       {storyParagraphs.length > 0 && (

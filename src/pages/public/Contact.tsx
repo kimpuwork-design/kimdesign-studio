@@ -15,7 +15,6 @@ import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, SlideIn, FadeIn, LineDraw } from "@/components/motion/MotionWrappers";
 import { MagneticButton } from "@/components/MagneticButton";
 import { SectionLabel } from "@/components/SectionLabel";
-import { AnimatedDivider } from "@/components/AnimatedDivider";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
@@ -137,7 +136,6 @@ export default function Contact() {
         </motion.div>
       </div>
 
-      <AnimatedDivider />
 
       {/* ── Contact Content ── */}
       <section className="border-t border-border/30 relative z-10">

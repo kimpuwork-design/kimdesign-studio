@@ -166,7 +166,7 @@ function PortraitHero({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease }}
-            className="font-display font-bold leading-[0.88] tracking-[-0.04em] text-[clamp(3.2rem,9vw,8rem)]"
+            className="font-display font-bold leading-[0.88] tracking-[-0.04em] text-[clamp(2.4rem,9vw,8rem)]"
           >
             <span className="block">{line1}</span>
             {line2 && <span className="block">{line2}</span>}

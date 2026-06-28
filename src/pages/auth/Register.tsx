@@ -85,7 +85,7 @@ export default function Register() {
         </div>
 
         <div className="glass-card p-8">
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5" noValidate aria-describedby={error ? "register-form-error" : undefined}>
             <div className="space-y-1.5">
               <Label htmlFor="fullName" className="text-portal-text-muted">Full Name</Label>
               <Input
@@ -95,9 +95,12 @@ export default function Register() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
-                className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus:ring-portal-accent focus:border-portal-accent"
+                autoComplete="name"
+                aria-invalid={!!fieldErrors.fullName}
+                aria-describedby={fieldErrors.fullName ? "fullName-error" : undefined}
+                className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus-visible:ring-2 focus-visible:ring-portal-accent focus-visible:ring-offset-2 focus-visible:ring-offset-portal-bg focus:border-portal-accent"
               />
-              {fieldErrors.fullName && <p className="text-xs text-destructive">{fieldErrors.fullName}</p>}
+              {fieldErrors.fullName && <p id="fullName-error" role="alert" className="text-xs text-destructive">{fieldErrors.fullName}</p>}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-portal-text-muted">Email</Label>
@@ -109,9 +112,11 @@ export default function Register() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus:ring-portal-accent focus:border-portal-accent"
+                aria-invalid={!!fieldErrors.email}
+                aria-describedby={fieldErrors.email ? "email-error" : undefined}
+                className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus-visible:ring-2 focus-visible:ring-portal-accent focus-visible:ring-offset-2 focus-visible:ring-offset-portal-bg focus:border-portal-accent"
               />
-              {fieldErrors.email && <p className="text-xs text-destructive">{fieldErrors.email}</p>}
+              {fieldErrors.email && <p id="email-error" role="alert" className="text-xs text-destructive">{fieldErrors.email}</p>}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password" className="text-portal-text-muted">Password</Label>
@@ -123,16 +128,22 @@ export default function Register() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="new-password"
-                className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus:ring-portal-accent focus:border-portal-accent"
+                aria-invalid={!!fieldErrors.password}
+                aria-describedby={fieldErrors.password ? "password-error" : "password-hint"}
+                className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus-visible:ring-2 focus-visible:ring-portal-accent focus-visible:ring-offset-2 focus-visible:ring-offset-portal-bg focus:border-portal-accent"
               />
-              {fieldErrors.password && <p className="text-xs text-destructive">{fieldErrors.password}</p>}
+              {fieldErrors.password ? (
+                <p id="password-error" role="alert" className="text-xs text-destructive">{fieldErrors.password}</p>
+              ) : (
+                <p id="password-hint" className="text-xs text-portal-text-muted">At least 8 characters, including a letter and a number.</p>
+              )}
             </div>
 
             {error && (
-              <p className="rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2 text-sm text-destructive">{error}</p>
+              <p id="register-form-error" role="alert" aria-live="assertive" className="rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2 text-sm text-destructive">{error}</p>
             )}
 
-            <Button type="submit" className="w-full bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90" disabled={loading}>
+            <Button type="submit" className="w-full min-h-11 bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90" disabled={loading}>
               {loading ? "Creating account..." : "Create Account"}
             </Button>
           </form>

@@ -129,11 +129,11 @@ export function ModernPortalLayout({ children, variant }: ModernPortalLayoutProp
               {profile && <NotificationBell />}
             </div>
           </header>
-          <main className="flex-1 overflow-auto">
+          <div role="region" aria-label="Page content" className="flex-1 overflow-auto">
             <div className="p-3 md:p-4 lg:p-8 animate-page-enter">
               {children}
             </div>
-          </main>
+          </div>
         </div>
         <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} variant={variant} />
       </div>

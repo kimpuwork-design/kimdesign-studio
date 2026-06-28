@@ -455,7 +455,7 @@ export default function PublicPortfolio() {
     <div className="bg-background min-h-dvh relative content-protected">
       <PublicNav />
 
-      <main id="main" aria-labelledby="portfolio-heading">
+      <div aria-labelledby="portfolio-heading">
         {/* ── Editorial Hero ── */}
         <section className="relative border-b border-border/40">
           <div className="container pt-10 md:pt-28 pb-8 md:pb-16">
@@ -833,7 +833,7 @@ export default function PublicPortfolio() {
             </FadeUp>
           </div>
         </section>
-      </main>
+      </div>
 
       <PublicFooter />
     </div>

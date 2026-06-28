@@ -70,7 +70,7 @@ export default function Login() {
         </div>
 
         <div className="glass-card p-8 glass-glow-ring">
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5" noValidate aria-describedby={error ? "login-form-error" : undefined}>
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-portal-text-muted">Email</Label>
               <Input
@@ -81,9 +81,11 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus:ring-portal-accent focus:border-portal-accent"
+                aria-invalid={!!fieldErrors.email}
+                aria-describedby={fieldErrors.email ? "email-error" : undefined}
+                className="bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus-visible:ring-2 focus-visible:ring-portal-accent focus-visible:ring-offset-2 focus-visible:ring-offset-portal-bg focus:border-portal-accent"
               />
-              {fieldErrors.email && <p className="text-xs text-destructive">{fieldErrors.email}</p>}
+              {fieldErrors.email && <p id="email-error" className="text-xs text-destructive" role="alert">{fieldErrors.email}</p>}
             </div>
 
             <div className="space-y-1.5">
@@ -97,24 +99,28 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  className="pr-10 bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus:ring-portal-accent focus:border-portal-accent"
+                  aria-invalid={!!fieldErrors.password}
+                  aria-describedby={fieldErrors.password ? "password-error" : undefined}
+                  className="pr-12 bg-portal-bg/50 border-portal-border text-portal-text placeholder:text-portal-text-muted focus-visible:ring-2 focus-visible:ring-portal-accent focus-visible:ring-offset-2 focus-visible:ring-offset-portal-bg focus:border-portal-accent"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPwd(!showPwd)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-portal-text-muted hover:text-portal-text transition-colors"
+                  aria-label={showPwd ? "Hide password" : "Show password"}
+                  aria-pressed={showPwd}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center min-h-9 min-w-9 rounded-md text-portal-text-muted hover:text-portal-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-portal-accent focus-visible:ring-offset-2 focus-visible:ring-offset-portal-bg"
                 >
-                  {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPwd ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
                 </button>
               </div>
-              {fieldErrors.password && <p className="text-xs text-destructive">{fieldErrors.password}</p>}
+              {fieldErrors.password && <p id="password-error" className="text-xs text-destructive" role="alert">{fieldErrors.password}</p>}
             </div>
 
             {error && (
-              <p className="rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2 text-sm text-destructive">{error}</p>
+              <p id="login-form-error" role="alert" aria-live="assertive" className="rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2 text-sm text-destructive">{error}</p>
             )}
 
-            <Button type="submit" className="w-full bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90" disabled={loading}>
+            <Button type="submit" className="w-full min-h-11 bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>

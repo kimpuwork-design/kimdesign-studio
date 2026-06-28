@@ -59,6 +59,17 @@ export default function AdminSettings() {
     setLogoUploading(false);
   };
 
+  const handlePortraitUpload = async (file: File) => {
+    if (!settings) return;
+    setLogoUploading(true);
+    const path = `hero/${Date.now()}_${file.name}`;
+    const { error } = await supabase.storage.from("portfolio").upload(path, file, { upsert: true });
+    if (error) { toast({ title: "Upload failed", description: error.message, variant: "destructive" }); setLogoUploading(false); return; }
+    const { data } = supabase.storage.from("portfolio").getPublicUrl(path);
+    set("hero_portrait_url", data.publicUrl);
+    setLogoUploading(false);
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!settings || !profile) return;
@@ -73,7 +84,12 @@ export default function AdminSettings() {
       facebook_url: settings.facebook_url,
       instagram_url: settings.instagram_url,
       behance_url: settings.behance_url,
+      hero_portrait_url: settings.hero_portrait_url ?? null,
+      hero_role: settings.hero_role ?? null,
+      hero_status: settings.hero_status ?? null,
+      cv_url: settings.cv_url ?? null,
     }).eq("id", settings.id);
+
 
     setSaving(false);
     if (error) { toast({ title: "Save failed", description: error.message, variant: "destructive" }); return; }

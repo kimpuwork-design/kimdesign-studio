@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { PortalLayout } from "@/components/PortalLayout";
 import { PageHeader } from "@/components/PageHeader";
@@ -6,15 +6,24 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { ProjectFormModal } from "@/components/admin/ProjectFormModal";
 import { StaffAssignModal } from "@/components/admin/StaffAssignModal";
 import { ProjectKanban } from "@/components/admin/ProjectKanban";
+import { BulkActionBar } from "@/components/admin/bulk/BulkActionBar";
+import { useBulkSelection } from "@/components/admin/bulk/useBulkSelection";
+import { exportCSV } from "@/lib/csv";
 import { supabase } from "@/integrations/supabase/client";
 import { writeAuditLog } from "@/lib/audit";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus, Search, Pencil, Trash2, Users, ExternalLink, Star, LayoutGrid, List, Columns } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Users, ExternalLink, Star, LayoutGrid, List, Columns, Archive, Download, BookmarkPlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
 import { cn } from "@/lib/utils";
+
+interface SavedView { name: string; status: string; search: string; }
+const VIEWS_KEY = "admin.projects.savedViews";
+
 
 interface Project {
   id: string;

@@ -77,7 +77,7 @@ export default function AdminProjectDetail() {
   const load = async () => {
     if (!id) return;
     const [{ data: proj, error }, { data: mems }] = await Promise.all([
-      supabase.from("projects").select("*, profiles(full_name, company)").eq("id", id).single(),
+      supabase.from("projects").select("*, profiles(full_name, company)").eq("id", id).maybeSingle(),
       supabase.from("project_members").select("id, member_role, profiles(full_name)").eq("project_id", id),
     ]);
     if (error || !proj) { setNotFound(true); setLoading(false); return; }

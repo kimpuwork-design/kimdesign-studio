@@ -65,7 +65,7 @@ export default function ClientProjectDetail() {
   useEffect(() => {
     if (!id) return;
     Promise.all([
-      supabase.from("projects").select("*").eq("id", id).single(),
+      supabase.from("projects").select("*").eq("id", id).maybeSingle(),
       supabase.from("project_members").select("id, member_role, profiles(full_name, avatar_url)").eq("project_id", id),
     ]).then(([{ data: proj, error }, { data: mems }]) => {
       if (error || !proj) { setNotFound(true); setLoading(false); return; }

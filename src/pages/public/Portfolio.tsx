@@ -833,7 +833,7 @@ export default function PublicPortfolio() {
             </FadeUp>
           </div>
         </section>
-      </main>
+      </div>
 
       <PublicFooter />
     </div>

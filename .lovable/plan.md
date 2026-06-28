@@ -1,66 +1,70 @@
-## What I found (from auditing every public page)
-
-**Broken / wrong**
-- **Home** — Hero area is mostly empty whitespace. Profile bio contains a raw Google search URL (`https://www.google.com/search?q=shwebootmm.com`) leaked into prose. No featured projects preview. Order of sections feels disjointed.
-- **/portfolio** — Top stats show `0 Projects · 0 Featured · 0 Categories` even though there are 10 projects. Counters are broken.
-- **/projects vs /portfolio** — Two near-identical public listing pages. Confusing redundancy.
-- **About / Services / Contact** — Huge empty band above the headline (hero visual area is empty). Pages look 50% blank above the fold.
-- **Headline gradient** ("lasting legacy", "built from scratch", "let's start a conversation", "together") — broken multi-color gradient renders only on first letters; on Blog page "together" reads as "toqether". Looks glitched, not premium.
-- **CHURCH project** and similar — broken-image placeholder shows ugly icon when thumbnail missing.
-- **Blog** — Page exists in nav but has zero articles ("No articles found"). Dead link in primary nav.
-- **Floating chat button** appears on every public page including marketing pages where it adds noise.
-
-**Missing**
-- Featured projects preview on Home.
-- Working stat strip (years, projects, locations).
-- Footer with social links, sitemap, contact info.
-- Map + working contact actions (mailto, tel, WhatsApp) on Contact page.
-- Related projects + breadcrumb on public project detail.
-- Premium scroll-reveal motion (currently mostly static).
+## Goal
+Take the whole project (public site + admin + client portal) to a true premium-level finish. Remove what's unused, fix what's half-built, and make every existing feature actually work well.
 
 ---
 
-## Plan (in 3 phases, all on public site only)
+## Phase 1 — Cleanup (remove the noise)
 
-### Phase 1 — Remove clutter
-1. **Delete `/projects` public page** — redirect to `/portfolio`. One listing only.
-2. **Remove Blog from main nav** (keep route accessible so existing URLs don't 404; link comes back when first article is published).
-3. **Hide floating chat button** on public marketing pages (keep it inside `/app` and `/admin`).
-4. **Remove the broken multi-color headline gradient** across all hero headlines; replace with a single clean premium treatment (white-on-bg with one indigo accent word).
-5. **Clean Home bio** — strip the leaked Google URL; render as a proper link only if the user has an actual website.
+**Public routes & pages**
+- Delete `src/pages/public/Projects.tsx` (already redirected; remove the file and its lazy import).
+- Delete `src/pages/public/Blog.tsx`, `BlogDetail.tsx` + admin `Blog.tsx`, `BlogEditor.tsx` (zero articles, no usage, dead nav weight). Remove `blog_posts` references in client code only — keep DB intact.
+- Delete `src/pages/public/ProjectDetail.tsx` (legacy; PortfolioDetail is canonical).
 
-### Phase 2 — Fix bugs
-6. **Portfolio stats counters** — compute `Projects / Featured / Categories` correctly from loaded data.
-7. **Image fallback** — when `thumbnail_url` is missing, render a branded gradient tile with the project initials instead of the broken-image icon.
-8. **About / Services / Contact empty hero** — collapse the empty band, anchor headline + supporting visual properly so the page opens at a real composition.
-9. **Headline gradient cleanup** (see #4) doubles as a fix here.
+**Dead components**
+- Audit & delete unused: `AnimatedDivider`, `TextScramble`, `SectionIndicator`, `Marquee`, `CustomCursor`, `LiveClock`, `SparklineChart`, `MagneticButton`, `TiltCard` — keep only those actually imported (verify with rg).
+- Delete `FloatingChatButton` (Telegram half-build) and its imports project-wide.
+- Remove `KMonogramLogo` unused variants.
 
-### Phase 3 — Add premium polish
-10. **Home composition** (keep memory rule: profile first):
-    - Compact bento intro (profile photo + name + 3 stats + bio) above the fold.
-    - Then short "Selected Work" strip showing 3 featured projects with images.
-    - Then a single editorial quote.
-    - Then "Let's build" CTA.
-11. **Featured projects preview** on Home with hover motion.
-12. **Public project detail** — add breadcrumb (`Portfolio → category → title`), related projects (3 of same category), consistent typography.
-13. **Contact page** — working `mailto:`, `tel:`, WhatsApp deep-links pulled from settings; embed an OpenStreetMap iframe for Yangon HQ.
-14. **Footer** — proper footer with logo, nav, social icons (FB/IG/Behance from settings), copyright. Currently no real footer.
-15. **Motion** — apply existing easing token (`[0.22, 1, 0.36, 1]`) to scroll-reveal headlines and cards. Subtle, no marquees (per memory).
+**Routes cleanup in `App.tsx`**
+- Drop blog routes, `/projects/:id`, `/projects` redirect (becomes 404 → /portfolio via NotFound).
+- Drop admin blog routes from nav + router.
+
+---
+
+## Phase 2 — Fix broken/half-working features
+
+**Public site**
+- **Home**: real hero composition, working featured-projects strip (3 cards from `is_featured=true`), editorial quote, CTA. Compact bento intro stays.
+- **Portfolio**: ensure stats counters fire (already fixed) + add working category filter chips + search.
+- **Contact**: wire `mailto:`, `tel:`, WhatsApp deep links from `settings`. Embed OpenStreetMap iframe for HQ address. Make the contact form actually insert into `leads` table with toast confirmation.
+- **PortfolioDetail**: breadcrumb (Portfolio → category → title), related projects (3 same-category), gallery lightbox already exists — verify it opens.
+- **Footer**: real footer with logo, nav, social icons (FB/IG/Behance from settings), contact, copyright.
+
+**Admin dashboard**
+- Verify Projects/Clients/Leads/Quotes/Invoices/Files/Deliverables CRUD all work end-to-end (smoke-test with Playwright; fix what crashes).
+- Wire AdminSettings save → settings table (verify columns persist).
+- Notifications bell: confirm realtime works, mark-as-read works.
+
+**Client portal**
+- Verify `/app` dashboard, project list, project detail tabs (messages, files, deliverables, billing) all load with current RLS.
+- Fix any 403/empty states from the recent column-grant changes (PortfolioDetail/ProjectDetail style queries).
+
+---
+
+## Phase 3 — Premium polish
+
+- Unified motion: scroll-reveal with project easing `[0.22, 1, 0.36, 1]` on headlines/cards (subtle, no marquees per memory rule).
+- Headline treatment: clean static indigo accent word (already shipped); apply consistently to About/Services/Contact heroes.
+- Image fallback gradient tiles everywhere thumbnails render (Home, Portfolio, Related).
+- Empty-state illustrations for: no projects, no messages, no files, no notifications.
+- Loading skeletons everywhere data fetches (replace spinner-only states).
+- Light/dark parity check on every public page.
 
 ---
 
 ## What I will NOT touch
-- Admin dashboard, client portal, edge functions, database — out of scope per your earlier answer.
-- Locked design tokens (colors, fonts, bento layout) — staying within Midnight Indigo + Space Grotesk + Inter.
-- Multi-language (en/my/zo) — keeping all three.
+- Database schema, RLS policies, edge functions (recent security migrations stay).
+- Locked design tokens (Midnight Indigo, Space Grotesk + Inter, bento layout).
+- i18n (en/my/zo all preserved).
+- Auth flow.
 
 ---
 
-## Open questions before I start
+## Execution order
+1. Cleanup pass (delete files, rg-verify no broken imports, build green).
+2. Public site fixes (Home featured, Contact form/links, Footer, PortfolioDetail polish).
+3. Portal smoke-test via Playwright → patch what breaks.
+4. Motion + empty-states + skeletons.
+5. Final Playwright pass on all 5 public pages + 3 portal entry points; report.
 
-1. **Blog** — hide from nav only, or delete the page entirely? (I'll default to "hide from nav" unless you say delete.)
-2. **Floating chat button** — remove from public pages only, or remove project-wide? (Default: public only.)
-3. **/projects route** — redirect to /portfolio, or 404? (Default: redirect.)
-4. **Bio text on Home** — what should it say? The current paragraph has a leaked search URL and mixes "I" and "we". I'll rewrite it concisely; you can replace the words later.
-
-If this looks right, reply **"go"** and I'll execute all three phases. If you want to drop or change any item, point out the number.
+Reply **"go"** to start, or call out anything to drop/add.

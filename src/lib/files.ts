@@ -162,3 +162,27 @@ export async function getPublicFileSignedUrl(
     return null;
   }
 }
+
+/**
+ * Batch variant — fetches signed URLs for many public file assets in a
+ * single round-trip. Returns a map { [fileAssetId]: signedUrl }.
+ * Files belonging to non-public projects are silently omitted.
+ */
+export async function getPublicFileSignedUrls(
+  fileAssetIds: string[]
+): Promise<Record<string, string>> {
+  if (!fileAssetIds.length) return {};
+  try {
+    const { data, error } = await supabase.functions.invoke("get-public-file-urls", {
+      body: { file_asset_ids: fileAssetIds },
+    });
+    if (error || !data?.urls) {
+      console.error("Batch signed URL error:", error?.message || "No URLs");
+      return {};
+    }
+    return data.urls as Record<string, string>;
+  } catch (err) {
+    console.error("Batch signed URL fetch error:", err);
+    return {};
+  }
+}

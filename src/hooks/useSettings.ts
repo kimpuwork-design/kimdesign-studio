@@ -10,7 +10,9 @@ export function useSettings() {
 
   useEffect(() => {
     if (cache.loaded) { setSettings(cache.data); setLoading(false); return; }
-    supabase.from("settings").select("*").maybeSingle().then(({ data }) => {
+    supabase.from("settings").select(
+      "id, studio_name, logo_url, tagline, address, facebook_url, instagram_url, behance_url, created_at, hero_portrait_url, hero_role, hero_status, cv_url"
+    ).maybeSingle().then(({ data }) => {
       cache.data = data as StudioSettings | null;
       cache.loaded = true;
       setSettings(cache.data);

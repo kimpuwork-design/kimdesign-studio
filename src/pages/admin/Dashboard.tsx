@@ -77,6 +77,45 @@ function AnimatedCounter({ value, prefix = "", suffix = "" }: { value: number; p
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
+/** Live "people currently on the site" pill — refreshes every 20s */
+function NowOnlinePill() {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    const fetchCount = async () => {
+      const since = new Date(Date.now() - 5 * 60_000).toISOString();
+      const { data } = await supabase
+        .from("page_views")
+        .select("visitor_id, session_id")
+        .gte("created_at", since);
+      if (cancelled) return;
+      const set = new Set<string>();
+      (data || []).forEach((r: { visitor_id: string | null; session_id: string | null }) => {
+        const k = r.visitor_id || r.session_id;
+        if (k) set.add(k);
+      });
+      setCount(set.size);
+    };
+    fetchCount();
+    const id = setInterval(fetchCount, 20_000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, []);
+  return (
+    <div
+      className="flex items-center gap-1.5 px-3 py-1.5 border border-emerald-500/30 bg-emerald-500/10"
+      title="Unique visitors active in the last 5 minutes"
+    >
+      <span className="relative flex h-2 w-2">
+        <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60 animate-ping" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+      </span>
+      <span className="text-[10px] font-semibold text-emerald-300 tabular-nums">
+        {count} <span className="font-normal text-emerald-300/70 uppercase tracking-wider text-[9px]">now online</span>
+      </span>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { profile } = useAuth();
@@ -270,6 +309,7 @@ export default function AdminDashboard() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <NowOnlinePill />
           <div className="flex items-center gap-1.5 px-3 py-1.5 border border-portal-border/30 bg-portal-surface/30">
             <span className={`h-1.5 w-1.5 rounded-full ${isLive ? 'bg-primary animate-pulse' : 'bg-portal-text-muted/40'}`} />
             <span className="text-[9px] font-medium text-portal-text-muted uppercase tracking-[0.15em]">

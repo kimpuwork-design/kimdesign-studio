@@ -37,7 +37,7 @@ function cleanProse(text?: string): string {
 export default function Home() {
   const { settings } = useSettings();
   const { t } = useTranslation();
-  const { content } = useSiteContent("hero");
+  const { content } = useSiteContent("hero", "about_me");
 
   const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
   useSEO({
@@ -51,7 +51,7 @@ export default function Home() {
     <div className="bg-background relative overflow-x-hidden">
       <ArchitectureBusinessJsonLd />
       <PublicNav />
-      <PortraitHero settings={settings} studioName={studioName} hero={hero} t={t} />
+      <PortraitHero settings={settings} studioName={studioName} hero={hero} aboutMe={content.about_me ?? {}} t={t} />
       <PublicFooter />
     </div>
   );
@@ -62,14 +62,17 @@ function PortraitHero({
   settings,
   studioName,
   hero,
+  aboutMe,
   t,
 }: {
   settings: any;
   studioName: string;
   hero: any;
+  aboutMe: any;
   t: (k: string) => string;
 }) {
-  const portrait = settings?.hero_portrait_url || heroPortraitDemo;
+  const portrait = aboutMe?.profile_image_url || settings?.hero_portrait_url || heroPortraitDemo;
+
   const role =
     settings?.hero_role || hero?.badge || "Architecture & Interior Design Studio";
   const status = settings?.hero_status || "Open to commissions";

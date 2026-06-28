@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { X, User, Save, ImagePlus, Trash2, Plus } from "lucide-react";
+import { X, User, Save, ImagePlus, Trash2, Plus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -134,12 +135,26 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return; // guard against double-submit
     if (!form.title.trim()) { setError("Title is required."); return; }
     setError(null);
     setSaving(true);
 
     const effectiveClientId = form.client_id || profile?.id;
     if (!effectiveClientId) { setError("No user found."); setSaving(false); return; }
+
+    // Loading toast — replaced by the parent's success/error toast on completion.
+    const toastId = toast.loading(
+      editProject ? "Saving changes…" : "Creating project…",
+      { description: form.title.trim() }
+    );
+
+    const finishWithError = (msg: string) => {
+      toast.dismiss(toastId);
+      setError(msg);
+      onError?.(msg);
+      setSaving(false);
+    };
 
     const payload = {
       client_id: effectiveClientId,
@@ -162,7 +177,7 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
 
     if (editProject) {
       const { error: err } = await supabase.from("projects").update(payload).eq("id", editProject.id);
-      if (err) { setError(err.message); onError?.(err.message); setSaving(false); return; }
+      if (err) { finishWithError(err.message); return; }
       if (profile) await writeAuditLog({
         actor_id: profile.id, action: "project_updated", entity_type: "project",
         entity_id: editProject.id, metadata: { title: form.title },
@@ -171,8 +186,8 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
       const { data: newProject, error: err } = await supabase
         .from("projects").insert([payload]).select("id").single();
       if (err || !newProject) {
-        const msg = err?.message ?? "Failed to create project";
-        setError(msg); onError?.(msg); setSaving(false); return;
+        finishWithError(err?.message ?? "Failed to create project");
+        return;
       }
 
       await supabase.from("project_members").insert([{
@@ -187,19 +202,21 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
       });
     }
 
+    toast.dismiss(toastId);
     setSaving(false);
     onSaved({ created: !editProject });
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60" onClick={() => { if (!saving) onClose(); }} />
       <div className="relative z-10 w-full max-w-2xl rounded-xl border border-portal-border bg-portal-surface overflow-y-auto max-h-[90vh]">
         <div className="flex items-center justify-between border-b border-portal-border px-6 py-4">
           <h2 className="font-display text-lg font-bold text-portal-text">
             {editProject ? "Edit Project" : "New Project"}
           </h2>
-          <button onClick={onClose} className="rounded p-1 text-portal-text-muted hover:text-portal-text"><X size={18} /></button>
+          <button onClick={onClose} disabled={saving}
+            className="rounded p-1 text-portal-text-muted hover:text-portal-text disabled:opacity-50 disabled:cursor-not-allowed"><X size={18} /></button>
         </div>
 
         {/* Tabs */}
@@ -357,12 +374,12 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={onClose}
-              className="flex-1 border-portal-border text-portal-text-muted hover:bg-portal-bg">Cancel</Button>
-            <Button type="submit" disabled={saving}
+            <Button type="button" variant="outline" onClick={onClose} disabled={saving}
+              className="flex-1 border-portal-border text-portal-text-muted hover:bg-portal-bg disabled:opacity-60">Cancel</Button>
+            <Button type="submit" disabled={saving} aria-busy={saving}
               className="flex-1 bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90">
-              <Save size={14} className="mr-2" />
-              {saving ? "Saving…" : editProject ? "Save Changes" : "Create Project"}
+              {saving ? <Loader2 size={14} className="mr-2 animate-spin" /> : <Save size={14} className="mr-2" />}
+              {saving ? (editProject ? "Saving…" : "Creating…") : editProject ? "Save Changes" : "Create Project"}
             </Button>
           </div>
         </form>

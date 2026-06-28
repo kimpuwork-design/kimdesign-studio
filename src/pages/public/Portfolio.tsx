@@ -104,7 +104,7 @@ function GridCard({ item, index, t, featured = false }: { item: ProjectPortfolio
               alt={item.title}
               loading={eager ? "eager" : "lazy"}
               decoding="async"
-              {...(index < 3 ? { fetchPriority: "high" as const } : {})}
+              {...(index < 3 ? ({ fetchpriority: "high" } as any) : {})}
               draggable={false}
               onContextMenu={(e) => e.preventDefault()}
               className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"

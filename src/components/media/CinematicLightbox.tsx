@@ -24,9 +24,10 @@ interface Props {
 }
 
 const SWIPE_THRESHOLD = 50;
-const MAX_ZOOM = 4;
+const MAX_ZOOM = 6;
 const MIN_ZOOM = 1;
 const SLIDESHOW_INTERVAL = 4000;
+const DBL_TAP_ZOOM = 2.5;
 
 function resolveUrl(raw: string) {
   const v = raw?.trim() ?? "";

@@ -88,6 +88,7 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
   const [tagInput, setTagInput] = useState("");
   const [tab, setTab] = useState<"project" | "portfolio">("project");
@@ -96,14 +97,33 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
   const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const validationError = validateFile(file, ["png", "jpg", "jpeg", "webp"]);
+    if (validationError) {
+      toast.error("Thumbnail couldn't be added", { description: validationError });
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
     setUploading(true);
-    const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-    const path = `thumbnails/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error: upErr } = await supabase.storage.from("portfolio").upload(path, file, { upsert: true });
-    if (upErr) { setError(upErr.message); setUploading(false); return; }
-    const { data: urlData } = supabase.storage.from("portfolio").getPublicUrl(path);
-    setForm((f) => ({ ...f, thumbnail_url: urlData.publicUrl }));
-    setUploading(false);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+      const path = `thumbnails/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("portfolio").upload(path, file, { upsert: true });
+      if (upErr) {
+        const msg = friendlyErrorMessage(upErr);
+        setError(msg);
+        toast.error("Upload failed", { description: msg });
+        return;
+      }
+      const { data: urlData } = supabase.storage.from("portfolio").getPublicUrl(path);
+      setForm((f) => ({ ...f, thumbnail_url: urlData.publicUrl }));
+    } catch (err) {
+      const msg = friendlyErrorMessage(err);
+      setError(msg);
+      toast.error("Upload failed", { description: msg });
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
   };
 
   const removeThumbnail = () => setForm((f) => ({ ...f, thumbnail_url: "" }));

@@ -293,13 +293,14 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
       onMouseMove={wakeChrome}
       style={{
         position: "fixed", inset: 0, zIndex: 99999,
-        background: "rgba(8,8,8,0.97)",
-        backdropFilter: "blur(8px)",
+        background:
+          "radial-gradient(ellipse at center, hsl(218 65% 8% / 0.96) 0%, hsl(218 70% 4% / 0.99) 70%, hsl(218 80% 2% / 1) 100%)",
+        backdropFilter: "blur(10px)",
         display: "flex", flexDirection: "column",
         height: "100dvh", maxHeight: "100dvh",
         overflow: "hidden",
         touchAction: "none",
-        animation: "lbFade 280ms cubic-bezier(0.22,1,0.36,1)",
+        animation: "lbFade 320ms cubic-bezier(0.22,1,0.36,1)",
         cursor: chromeVisible ? "default" : "none",
       }}
     >
@@ -309,23 +310,23 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
         @keyframes lbSlideL { from { opacity: 0; transform: translateX(-40px) scale(0.98); } to { opacity: 1; transform: translateX(0) scale(1); } }
         @keyframes lbZoomIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
         @keyframes lbToast { 0% { opacity: 0; transform: translateY(8px); } 15%,85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-8px); } }
-        .lb-btn { width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.85); transition: background 200ms ease, transform 200ms ease, opacity 200ms ease; backdrop-filter: blur(10px); }
-        .lb-btn:hover { background: rgba(255,255,255,0.18); transform: scale(1.05); }
-        .lb-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .lb-btn.active { background: rgba(255,255,255,0.95); color: rgba(0,0,0,0.9); }
-        .lb-nav { width: 48px; height: 48px; }
-        .lb-chrome { transition: opacity 300ms ease, transform 300ms ease; }
+        .lb-btn { width: 38px; height: 38px; border-radius: 10px; background: hsl(218 50% 12% / 0.55); border: 1px solid hsl(43 50% 70% / 0.10); cursor: pointer; display: flex; align-items: center; justify-content: center; color: hsl(43 35% 92% / 0.85); transition: background 220ms ease, color 220ms ease, transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease; backdrop-filter: blur(12px) saturate(1.2); }
+        .lb-btn:hover { background: hsl(218 50% 16% / 0.85); color: hsl(43 75% 65%); border-color: hsl(43 70% 58% / 0.45); transform: translateY(-1px); box-shadow: 0 6px 20px -8px hsl(43 70% 50% / 0.35); }
+        .lb-btn:disabled { opacity: 0.28; cursor: not-allowed; transform: none; box-shadow: none; }
+        .lb-btn.active { background: linear-gradient(135deg, hsl(43 70% 58%), hsl(43 75% 48%)); color: hsl(218 65% 10%); border-color: hsl(43 75% 60%); box-shadow: 0 4px 16px -4px hsl(43 70% 50% / 0.5); }
+        .lb-nav { width: 52px; height: 52px; border-radius: 999px; }
+        .lb-chrome { transition: opacity 320ms ease, transform 320ms ease; }
         .lb-chrome.hidden { opacity: 0; pointer-events: none; transform: translateY(-8px); }
         .lb-chrome.bottom.hidden { transform: translateY(8px); }
-        .lb-grid-tile { position: relative; overflow: hidden; cursor: pointer; background: rgba(255,255,255,0.03); transition: transform 250ms cubic-bezier(0.22,1,0.36,1); }
-        .lb-grid-tile:hover { transform: scale(1.02); }
-        .lb-grid-tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 600ms cubic-bezier(0.22,1,0.36,1); }
+        .lb-grid-tile { position: relative; overflow: hidden; cursor: pointer; background: hsl(218 50% 12% / 0.4); border: 1px solid hsl(43 50% 70% / 0.06); border-radius: 8px; transition: transform 280ms cubic-bezier(0.22,1,0.36,1), border-color 280ms ease, box-shadow 280ms ease; }
+        .lb-grid-tile:hover { transform: scale(1.03); border-color: hsl(43 70% 58% / 0.6); box-shadow: 0 10px 30px -10px hsl(43 70% 50% / 0.35); }
+        .lb-grid-tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 700ms cubic-bezier(0.22,1,0.36,1); }
         .lb-grid-tile:hover img { transform: scale(1.06); }
       `}</style>
 
-      {/* Top progress bar */}
-      <div className={`lb-chrome ${chromeVisible ? "" : "hidden"}`} style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "rgba(255,255,255,0.08)", zIndex: 5 }}>
-        <div style={{ width: `${progressPct}%`, height: "100%", background: "rgba(255,255,255,0.85)", transition: "width 380ms cubic-bezier(0.22,1,0.36,1)" }} />
+      {/* Top progress bar — gold */}
+      <div className={`lb-chrome ${chromeVisible ? "" : "hidden"}`} style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "hsl(218 50% 14% / 0.6)", zIndex: 5 }}>
+        <div style={{ width: `${progressPct}%`, height: "100%", background: "linear-gradient(90deg, hsl(43 70% 58%), hsl(43 80% 72%))", boxShadow: "0 0 12px hsl(43 70% 58% / 0.6)", transition: "width 420ms cubic-bezier(0.22,1,0.36,1)" }} />
       </div>
 
       {/* Top bar */}

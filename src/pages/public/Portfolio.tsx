@@ -552,6 +552,7 @@ export default function PublicPortfolio() {
               )}
             </div>
 
+            <div className="flex items-center gap-2 md:contents">
             {/* Category chips */}
             <div
               role="tablist"
@@ -664,6 +665,7 @@ export default function PublicPortfolio() {
                   <Rows3 size={15} aria-hidden />
                 </button>
               </div>
+            </div>
             </div>
           </div>
         </section>

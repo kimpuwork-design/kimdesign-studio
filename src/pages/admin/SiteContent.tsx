@@ -8,7 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, Upload, Save, ChevronDown, ChevronRight, Image as ImageIcon } from "lucide-react";
+import { Loader2, Plus, Trash2, Upload, Save, ChevronDown, ChevronRight, Image as ImageIcon, ExternalLink } from "lucide-react";
+
+const SECTION_PUBLIC_PATH: Record<string, string> = {
+  about_me: "/", hero: "/", stats: "/", services_home: "/", testimonials: "/", awards: "/", cta: "/",
+  about_page: "/about", values: "/about", team: "/about",
+  services_full: "/services", services_page: "/services", process: "/services",
+  contact_info: "/contact",
+};
 
 interface SectionRow {
   section: string;
@@ -155,18 +162,30 @@ export default function SiteContent() {
                     onImageUpload={handleImageUpload}
                     uploading={uploading}
                   />
-                  <Button
-                    onClick={() => handleSave(row.section)}
-                    disabled={saving === row.section}
-                    size="sm"
-                    className="bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90"
-                  >
-                    {saving === row.section ? (
-                      <><Loader2 size={14} className="animate-spin mr-2" />Saving…</>
-                    ) : (
-                      <><Save size={14} className="mr-2" />Save Section</>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      onClick={() => handleSave(row.section)}
+                      disabled={saving === row.section}
+                      size="sm"
+                      className="bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90"
+                    >
+                      {saving === row.section ? (
+                        <><Loader2 size={14} className="animate-spin mr-2" />Saving…</>
+                      ) : (
+                        <><Save size={14} className="mr-2" />Save Section</>
+                      )}
+                    </Button>
+                    {SECTION_PUBLIC_PATH[row.section] && (
+                      <a
+                        href={SECTION_PUBLIC_PATH[row.section]}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-portal-border bg-portal-bg/40 px-3 py-1.5 text-xs text-portal-text-muted hover:text-portal-text hover:border-portal-accent/40 transition-colors"
+                      >
+                        <ExternalLink size={12} /> Preview live page
+                      </a>
                     )}
-                  </Button>
+                  </div>
                 </div>
               )}
             </div>

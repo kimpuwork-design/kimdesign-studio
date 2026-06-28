@@ -38,6 +38,10 @@ export interface StudioSettings {
   facebook_url: string | null;
   instagram_url: string | null;
   behance_url: string | null;
+  hero_portrait_url?: string | null;
+  hero_role?: string | null;
+  hero_status?: string | null;
+  cv_url?: string | null;
 }
 
 export function slugify(text: string): string {

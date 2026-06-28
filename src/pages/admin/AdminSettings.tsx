@@ -59,6 +59,17 @@ export default function AdminSettings() {
     setLogoUploading(false);
   };
 
+  const handlePortraitUpload = async (file: File) => {
+    if (!settings) return;
+    setLogoUploading(true);
+    const path = `hero/${Date.now()}_${file.name}`;
+    const { error } = await supabase.storage.from("portfolio").upload(path, file, { upsert: true });
+    if (error) { toast({ title: "Upload failed", description: error.message, variant: "destructive" }); setLogoUploading(false); return; }
+    const { data } = supabase.storage.from("portfolio").getPublicUrl(path);
+    set("hero_portrait_url", data.publicUrl);
+    setLogoUploading(false);
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!settings || !profile) return;
@@ -73,7 +84,12 @@ export default function AdminSettings() {
       facebook_url: settings.facebook_url,
       instagram_url: settings.instagram_url,
       behance_url: settings.behance_url,
+      hero_portrait_url: settings.hero_portrait_url ?? null,
+      hero_role: settings.hero_role ?? null,
+      hero_status: settings.hero_status ?? null,
+      cv_url: settings.cv_url ?? null,
     }).eq("id", settings.id);
+
 
     setSaving(false);
     if (error) { toast({ title: "Save failed", description: error.message, variant: "destructive" }); return; }
@@ -233,6 +249,56 @@ export default function AdminSettings() {
                     </div>
                   </div>
                 </div>
+
+                <div className="glass-card p-6 space-y-4">
+                  <h2 className="font-semibold text-portal-text text-sm uppercase tracking-wider flex items-center gap-2">
+                    <Palette size={14} className="text-portal-accent" /> Landing Hero
+                  </h2>
+                  <div>
+                    <Label className="text-portal-text-muted text-xs mb-2 block">Hero Portrait Image</Label>
+                    <div className="flex items-center gap-4 flex-wrap">
+                      {settings.hero_portrait_url && (
+                        <div className="relative">
+                          <img src={settings.hero_portrait_url} alt="Hero" className="h-20 w-16 rounded-lg object-cover bg-portal-bg border border-portal-border" />
+                          <button type="button" onClick={() => set("hero_portrait_url", null)}
+                            className="absolute -top-2 -right-2 rounded-full bg-destructive p-0.5 text-white">
+                            <X size={10} />
+                          </button>
+                        </div>
+                      )}
+                      <label className="flex items-center gap-2 cursor-pointer rounded-lg border border-portal-border bg-portal-bg px-3 py-2 text-xs text-portal-text-muted hover:border-portal-accent/50 hover:text-portal-text transition-colors">
+                        {logoUploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+                        {logoUploading ? "Uploading…" : "Upload Portrait"}
+                        <input type="file" accept="image/*" className="sr-only"
+                          onChange={(e) => e.target.files?.[0] && handlePortraitUpload(e.target.files[0])} />
+                      </label>
+                      <Input value={settings.hero_portrait_url ?? ""} onChange={(e) => set("hero_portrait_url", e.target.value || null)}
+                        placeholder="https://…" className="flex-1 min-w-[160px] bg-portal-bg border-portal-border text-portal-text text-xs" />
+                    </div>
+                    <p className="text-[11px] text-portal-text-muted mt-2">Recommended: portrait orientation, dark background with rim light, ~1024×1536.</p>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label className="text-portal-text-muted text-xs">Role / Subtitle</Label>
+                      <Input value={settings.hero_role ?? ""} onChange={(e) => set("hero_role", e.target.value || null)}
+                        placeholder="Architecture & Interior Design Studio"
+                        className="bg-portal-bg border-portal-border text-portal-text" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-portal-text-muted text-xs">Status Badge</Label>
+                      <Input value={settings.hero_status ?? ""} onChange={(e) => set("hero_status", e.target.value || null)}
+                        placeholder="Open to commissions"
+                        className="bg-portal-bg border-portal-border text-portal-text" />
+                    </div>
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label className="text-portal-text-muted text-xs">CV / Portfolio Download URL</Label>
+                      <Input value={settings.cv_url ?? ""} onChange={(e) => set("cv_url", e.target.value || null)}
+                        placeholder="https://…/cv.pdf"
+                        className="bg-portal-bg border-portal-border text-portal-text" />
+                    </div>
+                  </div>
+                </div>
+
                 <Button type="submit" disabled={saving} className="bg-portal-accent text-portal-accent-foreground hover:bg-portal-accent/90">
                   {saving ? <><Loader2 size={14} className="animate-spin mr-2" />Saving…</> : "Save Branding"}
                 </Button>

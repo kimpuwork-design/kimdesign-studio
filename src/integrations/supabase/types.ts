@@ -1048,7 +1048,11 @@ export type Database = {
           behance_url: string | null
           contact_email: string
           created_at: string
+          cv_url: string | null
           facebook_url: string | null
+          hero_portrait_url: string | null
+          hero_role: string | null
+          hero_status: string | null
           id: string
           instagram_url: string | null
           logo_url: string | null
@@ -1061,7 +1065,11 @@ export type Database = {
           behance_url?: string | null
           contact_email?: string
           created_at?: string
+          cv_url?: string | null
           facebook_url?: string | null
+          hero_portrait_url?: string | null
+          hero_role?: string | null
+          hero_status?: string | null
           id?: string
           instagram_url?: string | null
           logo_url?: string | null
@@ -1074,7 +1082,11 @@ export type Database = {
           behance_url?: string | null
           contact_email?: string
           created_at?: string
+          cv_url?: string | null
           facebook_url?: string | null
+          hero_portrait_url?: string | null
+          hero_role?: string | null
+          hero_status?: string | null
           id?: string
           instagram_url?: string | null
           logo_url?: string | null

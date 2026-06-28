@@ -11,6 +11,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { CommandPalette } from "@/components/CommandPalette";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { BackToTop } from "@/components/BackToTop";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // Lazy-loaded pages for code splitting
 const lazyRetry = (fn: () => Promise<any>) =>
@@ -88,6 +89,7 @@ const App = () => (
         <AppRoutes />
         <Suspense fallback={<PageLoader />}>
         <main>
+        <ErrorBoundary>
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Home />} />

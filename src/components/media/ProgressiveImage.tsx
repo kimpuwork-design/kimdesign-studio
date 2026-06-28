@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Props extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "onLoad"> {
   src: string;
@@ -9,15 +9,25 @@ interface Props extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "onLoad"
   priority?: boolean;
   /** Tailwind/aspect wrapper class. */
   wrapperClassName?: string;
+  /**
+   * Aspect-ratio for the wrapper, e.g. "16 / 9", "4 / 3", "1 / 1".
+   * Reserves layout space BEFORE the image loads, eliminating CLS.
+   * Skip only when the parent already enforces a height/aspect.
+   */
+  aspectRatio?: string;
   /** Object-fit on the <img>. Default "cover". */
   fit?: "cover" | "contain";
   onReady?: () => void;
 }
 
 /**
- * Progressive image with shimmer placeholder + decode-then-fade-in.
- * Uses `img.decode()` so the bitmap is fully ready before we show it,
- * which eliminates the half-painted flash on large hero images.
+ * Progressive image with a persistent skeleton (correct aspect-ratio) + decode-then-fade-in.
+ *
+ * Layout-safe: the wrapper reserves space via `aspect-ratio` so the skeleton
+ * and the eventual <img> occupy identical boxes — no layout shift on load.
+ *
+ * The skeleton stays mounted UNDER the image while it fades in (so the empty
+ * box never flashes), then unmounts after the fade transition completes.
  */
 export function ProgressiveImage({
   src,
@@ -25,17 +35,19 @@ export function ProgressiveImage({
   eager = false,
   priority = false,
   wrapperClassName = "",
+  aspectRatio,
   fit = "cover",
   className = "",
   onReady,
   ...rest
 }: Props) {
-  const [ready, setReady] = useState(false);
+  const [decoded, setDecoded] = useState(false);
+  const [skeletonMounted, setSkeletonMounted] = useState(true);
   const [errored, setErrored] = useState(false);
-  const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    setReady(false);
+    setDecoded(false);
+    setSkeletonMounted(true);
     setErrored(false);
     if (!src) return;
     let cancelled = false;
@@ -43,28 +55,43 @@ export function ProgressiveImage({
     probe.decoding = "async";
     probe.src = src;
     const finish = () => {
-      if (cancelled) return;
-      setReady(true);
-      onReady?.();
+      if (!cancelled) {
+        setDecoded(true);
+        onReady?.();
+      }
     };
-    // Prefer decode() when available so the bitmap is paint-ready.
-    (probe.decode ? probe.decode().then(finish, finish) : Promise.resolve().then(() => {
+    const fail = () => { if (!cancelled) setErrored(true); };
+    if (probe.decode) {
+      probe.decode().then(finish, () => {
+        // decode() can reject for valid-but-unsupported scenarios; fall back to onload.
+        probe.onload = finish;
+        probe.onerror = fail;
+      });
+    } else {
       probe.onload = finish;
-      probe.onerror = () => { if (!cancelled) { setErrored(true); } };
-    }));
+      probe.onerror = fail;
+    }
     return () => { cancelled = true; };
   }, [src, onReady]);
 
+  const wrapperStyle: React.CSSProperties = aspectRatio
+    ? { aspectRatio }
+    : {};
+
   return (
-    <div className={`relative overflow-hidden ${wrapperClassName}`}>
-      {/* Shimmer placeholder — navy/gold tinted */}
-      {!ready && !errored && (
+    <div
+      className={`relative overflow-hidden bg-muted/40 ${wrapperClassName}`}
+      style={wrapperStyle}
+    >
+      {/* Persistent skeleton — sits BEHIND the image so the fade-in
+          reveals the bitmap on top of the shimmer (no empty flash). */}
+      {skeletonMounted && !errored && (
         <div
           aria-hidden
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(110deg, hsl(218 30% 92%) 8%, hsl(43 40% 90%) 18%, hsl(218 30% 92%) 33%)",
+              "linear-gradient(110deg, hsl(218 30% 92%) 8%, hsl(43 45% 90%) 18%, hsl(218 30% 92%) 33%)",
             backgroundSize: "200% 100%",
             animation: "progressiveShimmer 1.6s linear infinite",
           }}
@@ -76,9 +103,12 @@ export function ProgressiveImage({
           100% { background-position: -200% 0; }
         }
       `}</style>
-      {src && !errored && (
+      {errored ? (
+        <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
+          <span>Image unavailable</span>
+        </div>
+      ) : src ? (
         <img
-          ref={imgRef}
           src={src}
           alt={alt}
           loading={eager ? "eager" : "lazy"}
@@ -86,14 +116,21 @@ export function ProgressiveImage({
           draggable={false}
           {...(priority ? ({ fetchpriority: "high" } as Record<string, string>) : {})}
           {...rest}
-          className={`size-full ${fit === "cover" ? "object-cover" : "object-contain"} transition-opacity duration-700 ease-out ${ready ? "opacity-100" : "opacity-0"} ${className}`}
+          onTransitionEnd={(e) => {
+            // Unmount skeleton only after opacity transition lands at 1.
+            if (e.propertyName === "opacity" && decoded) {
+              setSkeletonMounted(false);
+            }
+            rest.onTransitionEnd?.(e);
+          }}
+          className={`relative size-full ${fit === "cover" ? "object-cover" : "object-contain"} transition-opacity duration-700 ease-out ${decoded ? "opacity-100" : "opacity-0"} ${className}`}
           style={{
             userSelect: "none",
             WebkitUserDrag: "none",
             ...(rest.style || {}),
           } as React.CSSProperties}
         />
-      )}
+      ) : null}
     </div>
   );
 }

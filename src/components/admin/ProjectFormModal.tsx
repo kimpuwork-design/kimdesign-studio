@@ -209,13 +209,14 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60" onClick={() => { if (!saving) onClose(); }} />
       <div className="relative z-10 w-full max-w-2xl rounded-xl border border-portal-border bg-portal-surface overflow-y-auto max-h-[90vh]">
         <div className="flex items-center justify-between border-b border-portal-border px-6 py-4">
           <h2 className="font-display text-lg font-bold text-portal-text">
             {editProject ? "Edit Project" : "New Project"}
           </h2>
-          <button onClick={onClose} className="rounded p-1 text-portal-text-muted hover:text-portal-text"><X size={18} /></button>
+          <button onClick={onClose} disabled={saving}
+            className="rounded p-1 text-portal-text-muted hover:text-portal-text disabled:opacity-50 disabled:cursor-not-allowed"><X size={18} /></button>
         </div>
 
         {/* Tabs */}

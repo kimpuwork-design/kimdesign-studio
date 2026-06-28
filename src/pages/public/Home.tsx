@@ -460,6 +460,15 @@ export default function Home() {
       <ArchitectureBusinessJsonLd />
       <PublicNav />
 
+      <BentoSystemHero
+        studioName={studioName}
+        aboutMe={aboutMe}
+        hero={hero}
+        featured={featured}
+        award={awards[0]}
+        t={t}
+      />
+
       <BentoIntro
         aboutMe={aboutMe}
         stats={stats}
@@ -467,8 +476,6 @@ export default function Home() {
         credentials={credentials}
         t={t}
       />
-
-      <Hero heroImage={heroImage} hero={hero} t={t} />
 
       <FeaturedBento featured={featured} onOpen={setLightboxIdx} t={t} />
 
@@ -494,3 +501,219 @@ export default function Home() {
     </div>
   );
 }
+
+/* ───────────── BENTO SYSTEM HERO (bold indigo brand) ───────────── */
+function BentoSystemHero({
+  studioName,
+  aboutMe,
+  hero,
+  featured,
+  award,
+  t,
+}: {
+  studioName: string;
+  aboutMe: any;
+  hero: any;
+  featured: PortfolioItem[];
+  award?: { year?: string | number; title?: string; org?: string };
+  t: (k: string) => string;
+}) {
+  const words = studioName.split(/\s+/).slice(0, 4);
+  const monogram = words.map((w) => w[0]).join("").slice(0, 3).toUpperCase();
+  const tagline =
+    hero.description ??
+    aboutMe.bio_short ??
+    "Defining the intersection of structural void and atmospheric light.";
+  const manifesto =
+    aboutMe.quote ??
+    "We believe architecture is not the building, but the space between walls. Our work explores minimalism as a vessel for human experience.";
+  const principalNote =
+    aboutMe.quote2 ??
+    aboutMe.bio_main?.split(".")[0] ??
+    "Architecture starts when you carefully put two bricks together. There it begins.";
+  const p0 = featured[0];
+  const p1 = featured[1];
+  const p2 = featured[2];
+
+  const fadeIn = {
+    initial: { opacity: 0, y: 24 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: "-50px" },
+    transition: { duration: 0.7, ease },
+  } as const;
+
+  return (
+    <section className="container pt-10 md:pt-14 pb-14 md:pb-20">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-[minmax(160px,auto)]">
+        {/* Brand block */}
+        <motion.div
+          {...fadeIn}
+          className="md:col-span-8 md:row-span-3 bg-primary text-primary-foreground p-10 md:p-16 flex flex-col justify-between overflow-hidden relative group"
+        >
+          <div className="relative z-10">
+            <p className="text-[11px] uppercase tracking-[0.4em] font-medium opacity-70 mb-8">
+              {hero.badge ?? "Global Architecture Practice"}
+            </p>
+            <h1 className="font-display font-bold leading-[0.85] tracking-tighter text-[clamp(3.5rem,9vw,8rem)]">
+              {words.map((w, i) => (
+                <span key={i} className="block">{w}</span>
+              ))}
+            </h1>
+          </div>
+          <div className="relative z-10 mt-12 flex items-end justify-between gap-8">
+            <p className="text-base md:text-lg max-w-xs font-light opacity-90 leading-relaxed">
+              {tagline}
+            </p>
+            <Link
+              to="/portfolio"
+              aria-label={t("home_view_projects") || "View projects"}
+              className="hidden md:flex shrink-0 w-12 h-12 border border-primary-foreground/30 rounded-full items-center justify-center group-hover:bg-primary-foreground group-hover:text-primary transition-all duration-500"
+            >
+              <ArrowRight size={18} className="-rotate-45" />
+            </Link>
+          </div>
+          <div className="absolute top-0 right-0 p-10 font-display text-primary-foreground/10 text-[8rem] md:text-[10rem] font-bold select-none leading-none pointer-events-none">
+            {monogram}
+          </div>
+        </motion.div>
+
+        {/* Manifesto */}
+        <motion.div
+          {...fadeIn}
+          transition={{ duration: 0.7, ease, delay: 0.05 }}
+          className="md:col-span-4 md:row-span-2 bg-card border border-primary/10 p-8 md:p-10 flex flex-col justify-center relative overflow-hidden"
+        >
+          <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
+          <p className="text-primary font-display font-medium text-xl md:text-2xl mb-5 tracking-tight">
+            {t("home_manifesto") || "Manifesto"}
+          </p>
+          <p className="text-muted-foreground leading-relaxed text-[15px] md:text-base">
+            {manifesto}
+          </p>
+          <Link
+            to="/about"
+            className="mt-7 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-primary group/lnk w-fit"
+          >
+            {t("home_read_philosophy") || "Read philosophy"}
+            <ArrowRight size={12} className="transition-transform group-hover/lnk:translate-x-1" />
+          </Link>
+        </motion.div>
+
+        {/* Honors */}
+        <motion.div
+          {...fadeIn}
+          transition={{ duration: 0.7, ease, delay: 0.1 }}
+          className="md:col-span-4 bg-primary/5 p-8 flex flex-col justify-between border border-primary/10 min-h-[160px]"
+        >
+          <div className="flex justify-between items-start">
+            <div className="w-2 h-2 bg-primary rounded-full" />
+            <span className="text-primary font-display text-[10px] font-bold tracking-[0.3em] uppercase">
+              {t("home_honors") || "Honors"}
+            </span>
+          </div>
+          <div className="mt-4">
+            <p className="text-xl md:text-2xl font-display font-bold text-primary leading-tight">
+              {award ? `${award.title}${award.year ? ` · ${award.year}` : ""}` : "Recognized Practice"}
+            </p>
+            <p className="text-[11px] text-primary/60 mt-1 uppercase tracking-[0.15em]">
+              {award?.org ?? "Selected Distinctions"}
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Primary project */}
+        {p0 && (
+          <Link
+            to={`/portfolio/${p0.slug}`}
+            className="md:col-span-6 md:row-span-2 group relative overflow-hidden bg-muted min-h-[280px]"
+          >
+            {p0.cover_image_url ? (
+              <img
+                src={p0.cover_image_url}
+                alt={p0.title}
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                loading="lazy"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center font-display text-5xl text-primary/60">
+                {p0.title?.[0]}
+              </div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+              <span className="text-[10px] uppercase tracking-[0.25em] mb-2 opacity-80">
+                {p0.category ?? "Project 01"}
+              </span>
+              <h3 className="text-2xl md:text-3xl font-display font-bold tracking-tight">{p0.title}</h3>
+            </div>
+          </Link>
+        )}
+
+        {/* Secondary project */}
+        {p1 && (
+          <Link
+            to={`/portfolio/${p1.slug}`}
+            className="md:col-span-3 md:row-span-2 group relative overflow-hidden bg-muted min-h-[280px]"
+          >
+            {p1.cover_image_url ? (
+              <img
+                src={p1.cover_image_url}
+                alt={p1.title}
+                className="w-full h-full object-cover transition-all duration-700 grayscale group-hover:grayscale-0 group-hover:scale-105"
+                loading="lazy"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-foreground/10 to-foreground/30 flex items-center justify-center font-display text-4xl text-foreground/40">
+                {p1.title?.[0]}
+              </div>
+            )}
+            <div className="absolute inset-0 border-0 group-hover:border-[16px] border-primary/20 transition-all duration-500 pointer-events-none" />
+          </Link>
+        )}
+
+        {/* Tertiary project */}
+        {p2 && (
+          <Link
+            to={`/portfolio/${p2.slug}`}
+            className="md:col-span-3 md:row-span-2 group relative overflow-hidden bg-muted min-h-[280px]"
+          >
+            {p2.cover_image_url ? (
+              <img
+                src={p2.cover_image_url}
+                alt={p2.title}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center font-display text-4xl text-primary/50">
+                {p2.title?.[0]}
+              </div>
+            )}
+            <div className="absolute inset-0 flex items-center justify-center bg-background/0 group-hover:bg-background/20 transition-colors duration-300">
+              <div className="bg-card/95 backdrop-blur px-5 py-3 text-primary font-display font-bold text-[11px] tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
+                {t("home_view_details") || "VIEW DETAILS"}
+              </div>
+            </div>
+          </Link>
+        )}
+
+        {/* Principal note */}
+        <motion.div
+          {...fadeIn}
+          transition={{ duration: 0.7, ease, delay: 0.15 }}
+          className="md:col-span-6 bg-foreground text-background p-10 md:p-12 flex items-center"
+        >
+          <div className="flex flex-col">
+            <Quote size={22} className="text-primary mb-5" />
+            <p className="font-display text-xl md:text-2xl mb-5 italic text-background/90 font-light leading-snug">
+              "{principalNote}"
+            </p>
+            <p className="text-[10px] uppercase tracking-[0.3em] text-primary font-bold">
+              {t("home_principal_note") || "Principal's Note"}
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+

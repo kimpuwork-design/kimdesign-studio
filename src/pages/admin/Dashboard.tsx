@@ -198,12 +198,15 @@ export default function AdminDashboard() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => fetchDashboardData())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'invoices' }, () => fetchDashboardData())
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_logs' }, () => fetchDashboardData())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'page_views' }, () => fetchDashboardData())
       .subscribe((status) => setIsLive(status === 'SUBSCRIBED'));
 
     return () => { supabase.removeChannel(channel); };
   }, [fetchDashboardData]);
 
   const statCards = [
+    { icon: Eye, label: "Visitors Today", value: stats.visitorsToday, format: "number" as const, href: "/admin/analytics", sparkData: stats.trafficSpark, sub: `${stats.viewsToday.toLocaleString()} views` },
+    { icon: Globe, label: "Visitors (7d)", value: stats.visitors7d, format: "number" as const, href: "/admin/analytics", sparkData: stats.trafficSpark, trend: stats.visitorsTrend, sub: `${stats.views7d.toLocaleString()} views` },
     { icon: Users, label: "Clients", value: stats.totalClients, format: "number" as const, href: "/admin/clients", sparkData: [2, 4, 3, 6, 5, 8, stats.totalClients] },
     { icon: Briefcase, label: "Active Projects", value: stats.activeProjects, format: "number" as const, href: "/admin/projects", sparkData: [1, 3, 2, 4, 3, 5, stats.activeProjects] },
     { icon: TrendingUp, label: "New Leads", value: stats.newLeads, format: "number" as const, href: "/admin/leads", sparkData: [0, 2, 1, 3, 2, 4, stats.newLeads] },
@@ -215,7 +218,7 @@ export default function AdminDashboard() {
     { label: "Add Client", icon: Plus, href: "/admin/clients" },
     { label: "New Project", icon: Briefcase, href: "/admin/projects" },
     { label: "Upload Files", icon: Upload, href: "/admin/files" },
-    { label: "View Reports", icon: BarChart3, href: "/admin/invoices" },
+    { label: "View Analytics", icon: BarChart3, href: "/admin/analytics" },
     { label: "Manage Leads", icon: TrendingUp, href: "/admin/leads" },
     { label: "Site Content", icon: FileText, href: "/admin/site-content" },
   ];

@@ -531,9 +531,9 @@ function PortraitHero({
   const line2 = tokens.slice(mid).join(" ");
 
   const navItems = [
-    { icon: HomeIcon, label: t("nav_home") || "Home", to: "/" },
-    { icon: FileText, label: t("nav_about") || "Summary", to: "/about" },
-    { icon: Briefcase, label: t("nav_portfolio") || "Portfolio", to: "/portfolio" },
+    { icon: HomeIcon, label: "Home", to: "/" },
+    { icon: FileText, label: "Summary", to: "/about" },
+    { icon: Briefcase, label: "Portfolio", to: "/portfolio" },
     { icon: Sparkles, label: t("nav_services") || "Services", to: "/services" },
     { icon: Link2, label: t("nav_contact") || "Contact", to: "/contact" },
   ];

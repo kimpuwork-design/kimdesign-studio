@@ -1,7 +1,7 @@
 import { PortalLayout } from "@/components/PortalLayout";
 import { UpcomingDeadlines } from "@/components/admin/UpcomingDeadlines";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Zap, RefreshCw, Activity } from "lucide-react";
+import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Zap, RefreshCw, Activity, Eye, Globe } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +18,12 @@ interface Stats {
   revenue: number;
   outstanding: number;
   leadConversion: { status: string; count: number }[];
+  visitorsToday: number;
+  viewsToday: number;
+  visitors7d: number;
+  views7d: number;
+  visitorsTrend: number;
+  trafficSpark: number[];
 }
 
 interface RecentActivity {
@@ -74,7 +80,7 @@ const luxuryEase = [0.22, 1, 0.36, 1] as const;
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const [stats, setStats] = useState<Stats>({ totalClients: 0, activeProjects: 0, newLeads: 0, revenue: 0, outstanding: 0, leadConversion: [] });
+  const [stats, setStats] = useState<Stats>({ totalClients: 0, activeProjects: 0, newLeads: 0, revenue: 0, outstanding: 0, leadConversion: [], visitorsToday: 0, viewsToday: 0, visitors7d: 0, views7d: 0, visitorsTrend: 0, trafficSpark: [] });
   const [activity, setActivity] = useState<RecentActivity[]>([]);
   const [projectStatuses, setProjectStatuses] = useState<ProjectStatus[]>([]);
   const [recentInvoices, setRecentInvoices] = useState<{ month: string; total: number }[]>([]);
@@ -84,7 +90,11 @@ export default function AdminDashboard() {
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
 
-    const [clientsRes, projectsRes, leadsRes, revenueRes, activityRes, statusRes, invoiceRes, outstandingRes, allLeadsRes] = await Promise.all([
+    const since7d = subDays(new Date(), 7).toISOString();
+    const since14d = subDays(new Date(), 14).toISOString();
+    const startToday = new Date(); startToday.setHours(0, 0, 0, 0);
+
+    const [clientsRes, projectsRes, leadsRes, revenueRes, activityRes, statusRes, invoiceRes, outstandingRes, allLeadsRes, trafficRes] = await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "CLIENT"),
       supabase.from("projects").select("id", { count: "exact", head: true }).neq("status", "archived").neq("status", "completed"),
       supabase.from("leads").select("id", { count: "exact", head: true }).eq("status", "new"),
@@ -94,6 +104,7 @@ export default function AdminDashboard() {
       supabase.from("invoices").select("total, paid_at").eq("status", "paid").gte("paid_at", subDays(new Date(), 180).toISOString()),
       supabase.from("invoices").select("total").in("status", ["sent", "draft"]),
       supabase.from("leads").select("status"),
+      supabase.from("page_views").select("visitor_id, created_at").gte("created_at", since14d),
     ]);
 
     const revenue = (revenueRes.data || []).reduce((sum, inv) => sum + Number(inv.total || 0), 0);
@@ -103,7 +114,42 @@ export default function AdminDashboard() {
     (allLeadsRes.data || []).forEach((l: any) => { leadCounts[l.status] = (leadCounts[l.status] || 0) + 1; });
     const leadConversion = Object.entries(leadCounts).map(([status, count]) => ({ status, count }));
 
-    setStats({ totalClients: clientsRes.count || 0, activeProjects: projectsRes.count || 0, newLeads: leadsRes.count || 0, revenue, outstanding, leadConversion });
+    // Visitor analytics
+    const pv = (trafficRes.data || []) as { visitor_id: string | null; created_at: string }[];
+    const todayViews = pv.filter((v) => new Date(v.created_at) >= startToday);
+    const last7 = pv.filter((v) => new Date(v.created_at).toISOString() >= since7d);
+    const prev7 = pv.filter((v) => {
+      const t = new Date(v.created_at).toISOString();
+      return t >= since14d && t < since7d;
+    });
+    const uniq = (rows: typeof pv) => new Set(rows.map((r) => r.visitor_id).filter(Boolean)).size;
+    const visitors7d = uniq(last7);
+    const prevVisitors = uniq(prev7);
+    const visitorsTrend = prevVisitors > 0 ? Math.round(((visitors7d - prevVisitors) / prevVisitors) * 100) : 0;
+    // 7-day sparkline of daily unique visitors (oldest → newest)
+    const trafficSpark: number[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const dayStart = subDays(new Date(), i); dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(dayStart); dayEnd.setHours(23, 59, 59, 999);
+      const dayRows = pv.filter((v) => {
+        const t = new Date(v.created_at);
+        return t >= dayStart && t <= dayEnd;
+      });
+      trafficSpark.push(uniq(dayRows));
+    }
+
+    setStats({
+      totalClients: clientsRes.count || 0,
+      activeProjects: projectsRes.count || 0,
+      newLeads: leadsRes.count || 0,
+      revenue, outstanding, leadConversion,
+      visitorsToday: uniq(todayViews),
+      viewsToday: todayViews.length,
+      visitors7d,
+      views7d: last7.length,
+      visitorsTrend,
+      trafficSpark,
+    });
 
     if (activityRes.data) {
       const actorIds = [...new Set(activityRes.data.map(a => a.actor_id).filter(Boolean))];
@@ -152,12 +198,15 @@ export default function AdminDashboard() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => fetchDashboardData())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'invoices' }, () => fetchDashboardData())
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_logs' }, () => fetchDashboardData())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'page_views' }, () => fetchDashboardData())
       .subscribe((status) => setIsLive(status === 'SUBSCRIBED'));
 
     return () => { supabase.removeChannel(channel); };
   }, [fetchDashboardData]);
 
   const statCards = [
+    { icon: Eye, label: "Visitors Today", value: stats.visitorsToday, format: "number" as const, href: "/admin/analytics", sparkData: stats.trafficSpark, sub: `${stats.viewsToday.toLocaleString()} views` },
+    { icon: Globe, label: "Visitors (7d)", value: stats.visitors7d, format: "number" as const, href: "/admin/analytics", sparkData: stats.trafficSpark, trend: stats.visitorsTrend, sub: `${stats.views7d.toLocaleString()} views` },
     { icon: Users, label: "Clients", value: stats.totalClients, format: "number" as const, href: "/admin/clients", sparkData: [2, 4, 3, 6, 5, 8, stats.totalClients] },
     { icon: Briefcase, label: "Active Projects", value: stats.activeProjects, format: "number" as const, href: "/admin/projects", sparkData: [1, 3, 2, 4, 3, 5, stats.activeProjects] },
     { icon: TrendingUp, label: "New Leads", value: stats.newLeads, format: "number" as const, href: "/admin/leads", sparkData: [0, 2, 1, 3, 2, 4, stats.newLeads] },
@@ -169,7 +218,7 @@ export default function AdminDashboard() {
     { label: "Add Client", icon: Plus, href: "/admin/clients" },
     { label: "New Project", icon: Briefcase, href: "/admin/projects" },
     { label: "Upload Files", icon: Upload, href: "/admin/files" },
-    { label: "View Reports", icon: BarChart3, href: "/admin/invoices" },
+    { label: "View Analytics", icon: BarChart3, href: "/admin/analytics" },
     { label: "Manage Leads", icon: TrendingUp, href: "/admin/leads" },
     { label: "Site Content", icon: FileText, href: "/admin/site-content" },
   ];
@@ -238,9 +287,11 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── Stat Cards ── */}
-      <div className="flex gap-3 overflow-x-auto scrollbar-none pb-1 mb-8 md:mb-10 md:grid md:grid-cols-5 md:overflow-visible md:pb-0">
+      <div className="flex gap-3 overflow-x-auto scrollbar-none pb-1 mb-8 md:mb-10 md:grid md:grid-cols-4 xl:grid-cols-7 md:overflow-visible md:pb-0">
         {statCards.map((s, idx) => {
           const Icon = s.icon;
+          const trend = (s as { trend?: number }).trend;
+          const sub = (s as { sub?: string }).sub;
           return (
             <motion.button
               key={s.label}
@@ -250,21 +301,28 @@ export default function AdminDashboard() {
               onClick={() => navigate(s.href)}
               className="group relative overflow-hidden border border-portal-border/40 bg-portal-surface/20 backdrop-blur-sm p-4 md:p-5 text-left min-w-[140px] md:min-w-0 shrink-0 md:shrink hover:border-portal-accent/30 hover:bg-portal-surface/40 transition-all duration-500"
             >
-              {/* Hover glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-portal-accent/[0.06] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-3">
                   <div className="p-2 bg-portal-accent/10 border border-portal-accent/15">
                     <Icon size={14} className="text-portal-accent" />
                   </div>
-                  <ArrowUpRight size={10} className="text-portal-text-muted opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all hidden md:block" />
+                  {trend !== undefined && trend !== 0 ? (
+                    <span className={`text-[10px] font-medium tabular-nums ${trend > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                      {trend > 0 ? "+" : ""}{trend}%
+                    </span>
+                  ) : (
+                    <ArrowUpRight size={10} className="text-portal-text-muted opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all hidden md:block" />
+                  )}
                 </div>
                 <p className="font-display text-xl md:text-2xl font-bold text-portal-text tracking-tight">
                   <AnimatedCounter value={s.value} prefix={s.format === "currency" ? "$" : ""} />
                 </p>
-                <div className="flex items-center justify-between mt-1.5">
-                  <p className="text-[9px] md:text-[10px] text-portal-text-muted font-medium uppercase tracking-[0.15em]">{s.label}</p>
+                <div className="flex items-center justify-between mt-1.5 gap-2">
+                  <div className="min-w-0">
+                    <p className="text-[9px] md:text-[10px] text-portal-text-muted font-medium uppercase tracking-[0.15em] truncate">{s.label}</p>
+                    {sub && <p className="text-[9px] text-portal-text-muted/70 tabular-nums mt-0.5 truncate">{sub}</p>}
+                  </div>
                   {s.sparkData.length > 1 && <Sparkline data={s.sparkData} height={20} width={50} />}
                 </div>
               </div>

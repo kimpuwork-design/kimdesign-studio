@@ -146,6 +146,7 @@ const App = () => (
           <Route path="/not-authorized" element={<NotAuthorized />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </ErrorBoundary>
         </main>
         </Suspense>
         </AuthProvider>

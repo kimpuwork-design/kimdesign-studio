@@ -191,16 +191,38 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
     return () => window.removeEventListener("keydown", h);
   }, [next, prev, onClose, zoomIn, zoomOut, resetZoom, toggleFullscreen, showGrid]);
 
-  // Mouse wheel zoom
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    const delta = -e.deltaY * 0.002;
+  // Cursor-anchored zoom (wheel)
+  const zoomAt = useCallback((clientX: number, clientY: number, factor: number) => {
+    const el = stageRef.current;
+    if (!el) { setZoom((z) => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z * factor))); return; }
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
     setZoom((z) => {
-      const nz = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z + delta * z));
-      if (nz <= 1) setPan({ x: 0, y: 0 });
+      const nz = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z * factor));
+      const ratio = nz / z;
+      if (nz <= 1) { setPan({ x: 0, y: 0 }); return nz; }
+      setPan((p) => {
+        // pivot the zoom around the cursor position relative to stage center
+        const ox = clientX - cx - p.x;
+        const oy = clientY - cy - p.y;
+        return { x: p.x - ox * (ratio - 1), y: p.y - oy * (ratio - 1) };
+      });
       return nz;
     });
   }, []);
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+    zoomAt(e.clientX, e.clientY, factor);
+  }, [zoomAt]);
+
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (zoom > 1) { resetZoom(); return; }
+    zoomAt(e.clientX, e.clientY, DBL_TAP_ZOOM);
+  };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (zoom <= 1) return;

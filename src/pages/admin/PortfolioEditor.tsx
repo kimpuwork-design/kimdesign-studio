@@ -55,7 +55,7 @@ export default function AdminPortfolioEditor() {
     if (isNew) return;
     const fetchItem = async () => {
       const [{ data: item }, { data: gal }] = await Promise.all([
-        supabase.from("portfolio_items").select("*").eq("id", id).single(),
+        supabase.from("portfolio_items").select("*").eq("id", id).maybeSingle(),
         supabase.from("portfolio_gallery").select("*").eq("portfolio_id", id).order("sort_order"),
       ]);
       if (item) {

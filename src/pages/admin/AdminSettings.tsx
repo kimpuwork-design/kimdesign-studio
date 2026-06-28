@@ -40,7 +40,7 @@ export default function AdminSettings() {
   }, [profile, user]);
 
   useEffect(() => {
-    supabase.from("settings").select("*").single().then(({ data }) => {
+    supabase.from("settings").select("*").maybeSingle().then(({ data }) => {
       if (data) setSettings(data as StudioSettings);
     });
   }, []);

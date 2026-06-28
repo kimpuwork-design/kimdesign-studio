@@ -80,10 +80,11 @@ export default function AdminProjects() {
     if (searchParams.get("new") === "1") {
       setEditProject(null);
       setShowForm(true);
+      toast({ title: "New project", description: "Fill in the details to create a project." });
       searchParams.delete("new");
       setSearchParams(searchParams, { replace: true });
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, toast]);
 
   const handleDelete = async (project: Project) => {
     if (!confirm(`Delete project "${project.title}"? This cannot be undone.`)) return;
@@ -331,7 +332,24 @@ export default function AdminProjects() {
         <ProjectFormModal
           editProject={editProject}
           onClose={() => { setShowForm(false); setEditProject(null); }}
-          onSaved={() => { setShowForm(false); setEditProject(null); fetchProjects(); }}
+          onSaved={({ created }) => {
+            setShowForm(false);
+            setEditProject(null);
+            fetchProjects();
+            toast({
+              title: created ? "Project created" : "Project updated",
+              description: created
+                ? "The new project is now visible in the list."
+                : "Your changes have been saved.",
+            });
+          }}
+          onError={(message) => {
+            toast({
+              title: editProject ? "Update failed" : "Create failed",
+              description: message,
+              variant: "destructive",
+            });
+          }}
         />
       )}
 

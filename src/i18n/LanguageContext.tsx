@@ -19,7 +19,7 @@ function getInitialLang(): Language {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === "en" || stored === "my" || stored === "zo") return stored;
-  } catch {}
+  } catch { /* localStorage unavailable (SSR / privacy mode) */ }
   return "en";
 }
 
@@ -28,7 +28,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = useCallback((lang: Language) => {
     setLangState(lang);
-    try { localStorage.setItem(STORAGE_KEY, lang); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, lang); } catch { /* storage quota / disabled */ }
   }, []);
 
   const t = useCallback(

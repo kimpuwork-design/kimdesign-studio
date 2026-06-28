@@ -167,7 +167,10 @@ export default function PortfolioDetail() {
 
   useEffect(() => {
     if (!slug) return;
-    const fetchData = async () => {
+    let cancelled = false;
+
+    // Stage 1 — fetch ONLY project metadata so the hero + body render immediately.
+    (async () => {
       const { data, error } = await supabase
         .from("projects")
         .select("id, title, slug, summary, description, content, thumbnail_url, category, location, year, tags, is_featured, is_public, status, start_date, target_date, created_at, updated_at")
@@ -175,6 +178,7 @@ export default function PortfolioDetail() {
         .eq("is_public", true)
         .maybeSingle();
 
+      if (cancelled) return;
       if (error || !data) {
         console.error("Project fetch error:", error);
         setNotFound(true);
@@ -183,7 +187,9 @@ export default function PortfolioDetail() {
       }
       const p = data as unknown as ProjectItem;
       setItem(p);
+      setLoading(false);
 
+      // Stage 2 — in parallel, fetch gallery, related and file list (no signing yet).
       const hasCategory = p.category && p.category.trim().length > 0;
       const relatedQuery = supabase.from("projects")
         .select("id, slug, title, thumbnail_url, category, location, year, summary, description, tags, is_featured, is_public, created_at, updated_at, content")
@@ -198,27 +204,31 @@ export default function PortfolioDetail() {
         relatedQuery,
         supabase.from("file_assets").select("id, project_id, category, original_name, mime_type, extension, size_bytes, version, sort_order, created_at, is_deleted").eq("project_id", p.id).eq("is_deleted", false).order("sort_order", { ascending: true }).order("created_at", { ascending: false }),
       ]);
+      if (cancelled) return;
 
       setGallery((gal as GalleryImage[]) ?? []);
       setRelated((rel as unknown as ProjectItem[]) ?? []);
       const allFiles = (fileData as unknown as FileAsset[]) ?? [];
       setFiles(allFiles);
 
+      // Stage 3 — batch-sign all image URLs in ONE round-trip
       const imageFiles = allFiles.filter((f) => isImageExt(f.extension ?? ""));
       if (imageFiles.length > 0) {
         const FILE_CAT_LABEL: Record<string, string> = Object.fromEntries(FILE_CATEGORIES.map((c) => [c.value, c.label]));
-        const imgs = await Promise.all(
-          imageFiles.map(async (f) => {
-            const url = await getPublicFileSignedUrl(f.id);
-            return { url: url ?? "", name: f.original_name, chapter: FILE_CAT_LABEL[f.category] ?? f.category };
+        const urls = await getPublicFileSignedUrls(imageFiles.map((f) => f.id));
+        if (cancelled) return;
+        const imgs = imageFiles
+          .map((f) => {
+            const url = urls[f.id];
+            if (!url) return null;
+            return { url, name: f.original_name, chapter: FILE_CAT_LABEL[f.category] ?? f.category };
           })
-        );
-        setGalleryImages(imgs.filter((i) => i.url));
+          .filter((x): x is { url: string; name: string; chapter: string } => !!x);
+        setGalleryImages(imgs);
       }
+    })();
 
-      setLoading(false);
-    };
-    fetchData();
+    return () => { cancelled = true; };
   }, [slug]);
 
   if (loading) return (

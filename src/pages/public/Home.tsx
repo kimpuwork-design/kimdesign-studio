@@ -102,7 +102,9 @@ function PortraitHero({
           width={1024}
           height={1536}
           loading="eager"
-          fetchPriority="high"
+          // @ts-expect-error React 18 lowercase attribute
+          fetchpriority="high"
+
           draggable={false}
           className="absolute inset-y-0 right-0 h-full w-full md:w-[62%] object-cover object-[center_20%] select-none pointer-events-none"
         />

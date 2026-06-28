@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { thumbUrl } from "@/lib/images";
 
 interface Props extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "onLoad"> {
   src: string;
@@ -17,6 +18,11 @@ interface Props extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "onLoad"
   aspectRatio?: string;
   /** Object-fit on the <img>. Default "cover". */
   fit?: "cover" | "contain";
+  /**
+   * If set, request a resized variant from Supabase storage
+   * (`?width=X&quality=75`). No-op for non-Supabase URLs.
+   */
+  thumbWidth?: number;
   onReady?: () => void;
 }
 
@@ -37,10 +43,12 @@ export function ProgressiveImage({
   wrapperClassName = "",
   aspectRatio,
   fit = "cover",
+  thumbWidth,
   className = "",
   onReady,
   ...rest
 }: Props) {
+  const resolvedSrc = thumbWidth ? thumbUrl(src, { width: thumbWidth }) : src;
   const [decoded, setDecoded] = useState(false);
   const [skeletonMounted, setSkeletonMounted] = useState(true);
   const [errored, setErrored] = useState(false);
@@ -49,11 +57,11 @@ export function ProgressiveImage({
     setDecoded(false);
     setSkeletonMounted(true);
     setErrored(false);
-    if (!src) return;
+    if (!resolvedSrc) return;
     let cancelled = false;
     const probe = new Image();
     probe.decoding = "async";
-    probe.src = src;
+    probe.src = resolvedSrc;
     const finish = () => {
       if (!cancelled) {
         setDecoded(true);
@@ -72,7 +80,7 @@ export function ProgressiveImage({
       probe.onerror = fail;
     }
     return () => { cancelled = true; };
-  }, [src, onReady]);
+  }, [resolvedSrc, onReady]);
 
   const wrapperStyle: React.CSSProperties = aspectRatio
     ? { aspectRatio }
@@ -107,9 +115,9 @@ export function ProgressiveImage({
         <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
           <span>Image unavailable</span>
         </div>
-      ) : src ? (
+      ) : resolvedSrc ? (
         <img
-          src={src}
+          src={resolvedSrc}
           alt={alt}
           loading={eager ? "eager" : "lazy"}
           decoding="async"

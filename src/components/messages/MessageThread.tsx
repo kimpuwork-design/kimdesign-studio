@@ -69,7 +69,10 @@ export function MessageThread({ projectId, currentUserId, currentUserRole }: Pro
       .insert({ project_id: projectId })
       .select("id")
       .single();
-    if (error) { console.error("Thread create error:", error.message); return null; }
+    if (error || !created) {
+      console.error("Thread create error:", error?.message ?? "no row returned");
+      return null;
+    }
     return created.id;
   }, [projectId]);
 

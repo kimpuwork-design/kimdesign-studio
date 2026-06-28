@@ -458,7 +458,7 @@ export default function PublicPortfolio() {
       <main id="main" aria-labelledby="portfolio-heading">
         {/* ── Editorial Hero ── */}
         <section className="relative border-b border-border/40">
-          <div className="container pt-20 md:pt-28 pb-12 md:pb-16">
+          <div className="container pt-10 md:pt-28 pb-8 md:pb-16">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-end">
               <div className="md:col-span-8">
                 <div className="flex items-center gap-3 mb-6 text-[10px] tracking-[0.25em] uppercase text-muted-foreground font-medium">
@@ -522,7 +522,7 @@ export default function PublicPortfolio() {
           aria-label="Filter and sort projects"
           className="sticky top-16 z-30 bg-background/85 backdrop-blur-xl border-y border-border/40"
         >
-          <div className="container py-3 md:py-3.5 space-y-2.5 md:space-y-0 md:flex md:items-center md:gap-4">
+          <div className="container py-3 md:py-3.5 space-y-2 md:space-y-0 md:flex md:items-center md:gap-4">
             {/* Search */}
             <div className="relative w-full md:max-w-xs">
               <label htmlFor="portfolio-search" className="sr-only">

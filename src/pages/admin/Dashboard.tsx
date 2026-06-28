@@ -6,7 +6,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { format, subDays, startOfMonth } from "date-fns";
+import { format, subDays, subMonths, startOfMonth } from "date-fns";
 import { motion } from "framer-motion";
 import { Sparkline, TrendIndicator } from "@/components/SparklineChart";
 import { DashboardSkeleton } from "@/components/SkeletonScreens";
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
 
     const [clientsRes, projectsRes, leadsRes, revenueRes, activityRes, statusRes, invoiceRes, outstandingRes, allLeadsRes, trafficRes] = await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "CLIENT"),
-      supabase.from("projects").select("id", { count: "exact", head: true }).neq("status", "archived").neq("status", "completed"),
+      supabase.from("projects").select("id", { count: "exact", head: true }).in("status", ["inquiry", "active", "review"]),
       supabase.from("leads").select("id", { count: "exact", head: true }).eq("status", "new"),
       supabase.from("invoices").select("total").eq("status", "paid").gte("paid_at", startOfMonth(new Date()).toISOString()),
       supabase.from("audit_logs").select("id, action, entity_type, created_at, actor_id").order("created_at", { ascending: false }).limit(8),
@@ -210,19 +210,21 @@ export default function AdminDashboard() {
     }
 
     if (invoiceRes.data) {
-      const monthly: Record<string, number> = {};
+      // Build the last 6 months as ordered buckets (oldest → newest) using
+      // year-month keys so duplicate month abbreviations across years don't collide.
+      const buckets: { key: string; month: string; total: number }[] = [];
       for (let i = 5; i >= 0; i--) {
-        const d = subDays(new Date(), i * 30);
-        const key = format(d, "MMM");
-        monthly[key] = 0;
+        const d = subMonths(new Date(), i);
+        buckets.push({ key: format(d, "yyyy-MM"), month: format(d, "MMM"), total: 0 });
       }
-      invoiceRes.data.forEach(inv => {
-        if (inv.paid_at) {
-          const key = format(new Date(inv.paid_at), "MMM");
-          if (key in monthly) monthly[key] += Number(inv.total || 0);
-        }
+      const byKey = new Map(buckets.map((b) => [b.key, b]));
+      invoiceRes.data.forEach((inv) => {
+        if (!inv.paid_at) return;
+        const k = format(new Date(inv.paid_at), "yyyy-MM");
+        const b = byKey.get(k);
+        if (b) b.total += Number(inv.total || 0);
       });
-      setRecentInvoices(Object.entries(monthly).map(([month, total]) => ({ month, total })));
+      setRecentInvoices(buckets.map((b) => ({ month: b.month, total: b.total })));
     }
 
     setLoading(false);

@@ -45,8 +45,6 @@ const AdminTeam = lazyRetry(() => import("./pages/admin/Team"));
 const AdminSettings = lazyRetry(() => import("./pages/admin/AdminSettings"));
 const AdminSiteContent = lazyRetry(() => import("./pages/admin/SiteContent"));
 const AdminAuditLogs = lazyRetry(() => import("./pages/admin/AuditLogs"));
-const AdminBlog = lazyRetry(() => import("./pages/admin/Blog"));
-const AdminBlogEditor = lazyRetry(() => import("./pages/admin/BlogEditor"));
 const AdminAnalytics = lazyRetry(() => import("./pages/admin/Analytics"));
 const AdminActivityTimeline = lazyRetry(() => import("./pages/admin/ActivityTimeline"));
 
@@ -94,14 +92,15 @@ const App = () => (
           {/* Public routes */}
           <Route path="/" element={<Home />} />
           <Route path="/projects" element={<Navigate to="/portfolio" replace />} />
-          <Route path="/projects/:id" element={<PublicProjectDetail />} />
+          <Route path="/projects/:id" element={<Navigate to="/portfolio" replace />} />
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/portfolio/:slug" element={<PortfolioDetail />} />
           <Route path="/services" element={<Services />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/blog" element={<PublicBlog />} />
-          <Route path="/blog/:slug" element={<PublicBlogDetail />} />
+          <Route path="/blog" element={<Navigate to="/" replace />} />
+          <Route path="/blog/:slug" element={<Navigate to="/" replace />} />
+
 
 
           {/* Auth routes */}

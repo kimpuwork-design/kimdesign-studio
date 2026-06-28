@@ -6,6 +6,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Sun, Moon, Search, Command, ChevronRight, Home } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { CommandPalette } from "@/components/admin/CommandPalette";
 
 interface ModernPortalLayoutProps {
   children: React.ReactNode;
@@ -45,6 +47,19 @@ export function ModernPortalLayout({ children, variant }: ModernPortalLayoutProp
   const isMobile = useIsMobile();
   const { theme, setTheme } = useTheme();
   const breadcrumbs = useBreadcrumbs(variant);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  // ⌘K / Ctrl+K to open the global command palette
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <SidebarProvider>
@@ -84,12 +99,23 @@ export function ModernPortalLayout({ children, variant }: ModernPortalLayoutProp
               </nav>
 
               {/* Search hint — hide on mobile */}
-              <button className="hidden lg:flex items-center gap-2 rounded-lg border border-portal-border/40 bg-portal-surface/30 px-3 py-1.5 text-[11px] text-portal-text-muted hover:border-portal-accent/30 hover:text-portal-text transition-all ml-4">
+              <button
+                onClick={() => setPaletteOpen(true)}
+                className="hidden lg:flex items-center gap-2 rounded-lg border border-portal-border/40 bg-portal-surface/30 px-3 py-1.5 text-[11px] text-portal-text-muted hover:border-portal-accent/30 hover:text-portal-text transition-all ml-4"
+              >
                 <Search size={12} />
                 <span>Search...</span>
                 <kbd className="flex items-center gap-0.5 rounded border border-portal-border/40 bg-portal-bg/50 px-1 py-0.5 text-[9px] font-medium ml-3">
                   <Command size={8} />K
                 </kbd>
+              </button>
+              {/* Mobile: search icon only */}
+              <button
+                onClick={() => setPaletteOpen(true)}
+                aria-label="Search"
+                className="lg:hidden rounded-lg p-1.5 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all ml-1"
+              >
+                <Search size={14} />
               </button>
             </div>
             <div className="flex items-center gap-0.5 md:gap-1 shrink-0">
@@ -109,6 +135,7 @@ export function ModernPortalLayout({ children, variant }: ModernPortalLayoutProp
             </div>
           </main>
         </div>
+        <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} variant={variant} />
       </div>
     </SidebarProvider>
   );

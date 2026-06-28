@@ -90,15 +90,6 @@ export const en: TranslationSet = {
   portfolio_begin_conversation: "Begin a Conversation",
 
   // Blog
-  blog_insights_badge: "Blog & Insights",
-  blog_title: "Blog",
-  blog_description: "Architecture insights, project updates, and industry news from our studio.",
-  blog_search: "Search articles…",
-  blog_no_articles: "No articles found",
-  blog_no_articles_hint: "Try adjusting your search or filters.",
-  blog_post_not_found: "Post not found",
-  blog_back: "Back to Blog",
-  blog_more_articles: "More Articles",
 
   // Projects (public)
   projects_our_work: "Our Work",

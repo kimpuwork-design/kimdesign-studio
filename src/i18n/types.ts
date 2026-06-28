@@ -102,15 +102,6 @@ export type TranslationSet = {
   portfolio_begin_conversation: string;
 
   // Blog
-  blog_insights_badge: string;
-  blog_title: string;
-  blog_description: string;
-  blog_search: string;
-  blog_no_articles: string;
-  blog_no_articles_hint: string;
-  blog_post_not_found: string;
-  blog_back: string;
-  blog_more_articles: string;
 
   // Projects (public)
   projects_our_work: string;

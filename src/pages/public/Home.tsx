@@ -37,7 +37,7 @@ function cleanProse(text?: string): string {
 export default function Home() {
   const { settings } = useSettings();
   const { t } = useTranslation();
-  const { content } = useSiteContent("hero");
+  const { content } = useSiteContent("hero", "about_me");
 
   const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
   useSEO({

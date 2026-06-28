@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FadeUp } from "@/components/motion/MotionWrappers";
+import { ProgressiveImage } from "@/components/media/ProgressiveImage";
 import {
   Select,
   SelectContent,
@@ -190,21 +191,14 @@ function GridCard({
           }`}
         >
           {item.thumbnail_url ? (
-            <img
+            <ProgressiveImage
               src={item.thumbnail_url}
               alt=""
-              loading={eager ? "eager" : "lazy"}
-              decoding="async"
-              {...(index < 3 ? ({ fetchpriority: "high" } as any) : {})}
-              draggable={false}
+              eager={eager}
+              priority={index < 3}
               onContextMenu={(e) => e.preventDefault()}
-              className="size-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
-              style={
-                {
-                  userSelect: "none",
-                  WebkitUserDrag: "none",
-                } as React.CSSProperties
-              }
+              className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
+              wrapperClassName="size-full"
             />
           ) : (
             <div className="size-full flex items-center justify-center bg-gradient-to-br from-primary/15 via-primary/5 to-background">

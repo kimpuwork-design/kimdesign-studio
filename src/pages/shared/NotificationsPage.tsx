@@ -87,22 +87,45 @@ export default function NotificationsPage({ variant }: Props) {
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
+  const visible = notifications.filter((n) => {
+    if (typeFilter !== "all" && n.type !== typeFilter) return false;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      if (!n.title.toLowerCase().includes(q) && !(n.body ?? "").toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
+  const typeCounts = {
+    message: notifications.filter((n) => n.type === "message").length,
+    deliverable: notifications.filter((n) => n.type === "deliverable").length,
+    system: notifications.filter((n) => n.type === "system").length,
+  };
+
   // Group notifications by date
-  const grouped = notifications.reduce<Record<string, Notification[]>>((acc, n) => {
+  const grouped = visible.reduce<Record<string, Notification[]>>((acc, n) => {
     const date = new Date(n.created_at);
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     let key: string;
     if (date.toDateString() === today.toDateString()) key = "Today";
     else if (date.toDateString() === yesterday.toDateString()) key = "Yesterday";
     else key = date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-    
+
     if (!acc[key]) acc[key] = [];
     acc[key].push(n);
     return acc;
   }, {});
+
+  const TYPE_TABS = [
+    { key: "all" as const, label: "All", icon: Inbox, count: notifications.length },
+    { key: "message" as const, label: "Messages", icon: MessageSquare, count: typeCounts.message },
+    { key: "deliverable" as const, label: "Deliverables", icon: Package, count: typeCounts.deliverable },
+    { key: "system" as const, label: "System", icon: SettingsIcon, count: typeCounts.system },
+  ];
+
 
   return (
     <PortalLayout variant={variant}>

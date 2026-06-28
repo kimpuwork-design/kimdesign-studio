@@ -233,7 +233,29 @@ export default function AdminProjects() {
         </div>
       </div>
 
+      {/* Saved filter views */}
+      {(savedViews.length > 0 || statusFilter !== "all" || search) && (
+        <div className="mb-3 flex items-center gap-1.5 flex-wrap">
+          <span className="text-[10px] uppercase tracking-widest text-portal-text-muted/60 mr-1">Views</span>
+          {savedViews.map((v) => (
+            <span key={v.name} className="group inline-flex items-center gap-1 rounded-full border border-portal-border/50 bg-portal-surface/30 pl-2.5 pr-1 py-0.5 text-[11px] text-portal-text-muted hover:border-portal-accent/50 hover:text-portal-text transition-colors">
+              <button onClick={() => applyView(v)}>{v.name}</button>
+              <button onClick={() => removeView(v.name)} className="opacity-0 group-hover:opacity-100 rounded-full p-0.5 hover:bg-destructive/15 hover:text-destructive" title="Remove view">
+                <X size={10} />
+              </button>
+            </span>
+          ))}
+          {(statusFilter !== "all" || search) && (
+            <button onClick={saveCurrentView}
+              className="inline-flex items-center gap-1 rounded-full border border-portal-accent/40 bg-portal-accent/10 px-2.5 py-0.5 text-[11px] font-medium text-portal-accent hover:bg-portal-accent/15">
+              <BookmarkPlus size={11} /> Save current
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Content */}
+
       {loading ? (
         <div className="glass-card flex items-center justify-center py-20">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-portal-accent border-t-transparent" />

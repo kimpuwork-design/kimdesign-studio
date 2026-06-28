@@ -51,7 +51,7 @@ export default function Home() {
     <div className="bg-background relative overflow-x-hidden">
       <ArchitectureBusinessJsonLd />
       <PublicNav />
-      <PortraitHero settings={settings} studioName={studioName} hero={hero} t={t} />
+      <PortraitHero settings={settings} studioName={studioName} hero={hero} aboutMe={content.about_me ?? {}} t={t} />
       <PublicFooter />
     </div>
   );

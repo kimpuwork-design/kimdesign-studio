@@ -62,14 +62,17 @@ function PortraitHero({
   settings,
   studioName,
   hero,
+  aboutMe,
   t,
 }: {
   settings: any;
   studioName: string;
   hero: any;
+  aboutMe: any;
   t: (k: string) => string;
 }) {
-  const portrait = settings?.hero_portrait_url || heroPortraitDemo;
+  const portrait = aboutMe?.profile_image_url || settings?.hero_portrait_url || heroPortraitDemo;
+
   const role =
     settings?.hero_role || hero?.badge || "Architecture & Interior Design Studio";
   const status = settings?.hero_status || "Open to commissions";

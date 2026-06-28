@@ -90,15 +90,6 @@ export const zo: TranslationSet = {
   portfolio_begin_conversation: "Thu ki gen ding",
 
   // Blog
-  blog_insights_badge: "Blog leh thuthei",
-  blog_title: "Blog",
-  blog_description: "Kan studio pan inn sak thuthei, nasep update leh thu tha teng.",
-  blog_search: "Laithiangte zong ding…",
-  blog_no_articles: "Laithiang mu lo",
-  blog_no_articles_hint: "Na zong dan siah kik in.",
-  blog_post_not_found: "Laithiang mu lo",
-  blog_back: "Blog ah kik ding",
-  blog_more_articles: "Laithiang tamzaw",
 
   // Projects (public)
   projects_our_work: "Kan nasep teng",

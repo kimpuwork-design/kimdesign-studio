@@ -90,15 +90,6 @@ export const my: TranslationSet = {
   portfolio_begin_conversation: "စကားပြောကြစို့",
 
   // Blog
-  blog_insights_badge: "ဘလော့ဂ်နှင့် ထိုးထွင်းသိမြင်မှုများ",
-  blog_title: "ဘလော့ဂ်",
-  blog_description: "ကျွန်ုပ်တို့၏ စတူဒီယိုမှ ဗိသုကာ ထိုးထွင်းသိမြင်မှုများ၊ ပရောဂျက် အပ်ဒိတ်များနှင့် လုပ်ငန်းသတင်းများ။",
-  blog_search: "ဆောင်းပါးများ ရှာရန်…",
-  blog_no_articles: "ဆောင်းပါးများ မတွေ့ပါ",
-  blog_no_articles_hint: "ရှာဖွေမှု သို့မဟုတ် စစ်ထုတ်မှုများကို ပြင်ဆင်ကြည့်ပါ။",
-  blog_post_not_found: "ဆောင်းပါး မတွေ့ပါ",
-  blog_back: "ဘလော့ဂ်သို့ ပြန်သွားရန်",
-  blog_more_articles: "နောက်ထပ် ဆောင်းပါးများ",
 
   // Projects (public)
   projects_our_work: "ကျွန်ုပ်တို့၏ လုပ်ငန်းများ",

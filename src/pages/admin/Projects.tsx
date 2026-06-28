@@ -85,7 +85,12 @@ export default function AdminProjects() {
   const applyView = (v: SavedView) => { setStatusFilter(v.status); setSearch(v.search); };
   const removeView = (name: string) => persistViews(savedViews.filter((v) => v.name !== name));
 
+  const fetchProjects = useCallback(async () => {
+    setLoading(true);
+    let query = supabase
       .from("projects")
+      .select("*, profiles(full_name, company)")
+      .order("updated_at", { ascending: false });
       .select("*, profiles(full_name, company)")
       .order("updated_at", { ascending: false });
 

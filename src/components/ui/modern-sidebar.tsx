@@ -90,7 +90,7 @@ const adminNav: NavGroup[] = [
     label: "System",
     items: [
       { label: "Team", href: "/admin/team", icon: Users },
-      { label: "Notifications", href: "/admin/notifications", icon: Activity },
+      { label: "Inbox", href: "/admin/notifications", icon: Activity },
       { label: "Settings", href: "/admin/settings", icon: Settings },
       { label: "Audit Logs", href: "/admin/audit-logs", icon: Activity },
     ],

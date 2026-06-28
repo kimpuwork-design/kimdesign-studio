@@ -65,10 +65,26 @@ export default function AdminProjects() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [toggling, setToggling] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "grid" | "kanban">("table");
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [savedViews, setSavedViews] = useState<SavedView[]>(() => {
+    try { return JSON.parse(localStorage.getItem(VIEWS_KEY) || "[]"); } catch { return []; }
+  });
 
-  const fetchProjects = useCallback(async () => {
-    setLoading(true);
-    let query = supabase
+  const sel = useBulkSelection(useMemo(() => projects.map((p) => p.id), [projects]));
+
+  const persistViews = (v: SavedView[]) => {
+    setSavedViews(v);
+    localStorage.setItem(VIEWS_KEY, JSON.stringify(v));
+  };
+  const saveCurrentView = () => {
+    const name = prompt("Name this filter view:");
+    if (!name?.trim()) return;
+    persistViews([...savedViews.filter((v) => v.name !== name.trim()), { name: name.trim(), status: statusFilter, search }]);
+    sonnerToast.success(`Saved view "${name.trim()}"`);
+  };
+  const applyView = (v: SavedView) => { setStatusFilter(v.status); setSearch(v.search); };
+  const removeView = (name: string) => persistViews(savedViews.filter((v) => v.name !== name));
+
       .from("projects")
       .select("*, profiles(full_name, company)")
       .order("updated_at", { ascending: false });

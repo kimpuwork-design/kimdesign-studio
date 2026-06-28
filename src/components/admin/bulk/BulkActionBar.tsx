@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 export interface BulkAction {
   label: string;
-  icon?: React.ComponentType<{ size?: number; className?: string }>;
+  icon?: React.ComponentType<{ size?: string | number; className?: string }>;
   onClick: () => void;
   /** Visual variant. Destructive = red, primary = accent, default = neutral. */
   variant?: "default" | "primary" | "destructive";

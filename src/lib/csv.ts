@@ -11,7 +11,7 @@ function escapeCell(value: unknown): string {
   return s;
 }
 
-export function toCSV<T extends Record<string, unknown>>(
+export function toCSV<T>(
   rows: T[],
   columns: { key: keyof T; header: string }[],
 ): string {
@@ -36,7 +36,7 @@ export function downloadCSV(filename: string, csv: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-export function exportCSV<T extends Record<string, unknown>>(
+export function exportCSV<T>(
   filename: string,
   rows: T[],
   columns: { key: keyof T; header: string }[],

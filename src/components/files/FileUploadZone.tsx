@@ -10,10 +10,12 @@ import {
   formatBytes,
   getExtension,
   getNextVersion,
-  validateExtension,
 } from "@/lib/files";
+import { validateFile } from "@/lib/validation";
+import { friendlyErrorMessage, reportError } from "@/lib/errors";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
 
 interface QueuedFile {
   file: File;
@@ -41,80 +43,113 @@ export function FileUploadZone({ projectId, uploaderId, onUploaded }: Props) {
 
   const enqueue = (files: FileList | File[]) => {
     const arr = Array.from(files);
-    const newItems: QueuedFile[] = arr.map((file) => ({
-      file,
-      id: crypto.randomUUID(),
-      status: validateExtension(file.name) ? "pending" : "error",
-      error: validateExtension(file.name)
-        ? undefined
-        : `Extension .${getExtension(file.name)} not allowed`,
-      progress: 0,
-    }));
+    let rejected = 0;
+    const newItems: QueuedFile[] = arr.map((file) => {
+      const err = validateFile(file, ALLOWED_EXTENSIONS);
+      if (err) rejected += 1;
+      return {
+        file,
+        id: crypto.randomUUID(),
+        status: err ? "error" : "pending",
+        error: err ?? undefined,
+        progress: 0,
+      };
+    });
     setQueue((q) => [...q, ...newItems]);
+    if (rejected > 0) {
+      sonnerToast.error(
+        `${rejected} file${rejected > 1 ? "s" : ""} couldn't be added`,
+        { description: "Check the highlighted items for details (size or type)." },
+      );
+    }
   };
 
   const uploadItem = async (item: QueuedFile) => {
-    updateItem(item.id, { status: "uploading", progress: 10 });
-    const ext = getExtension(item.file.name);
-    const version = await getNextVersion(projectId, category, item.file.name);
-    const path = buildStoragePath(projectId, category, version, item.file.name);
+    updateItem(item.id, { status: "uploading", progress: 10, error: undefined });
+    try {
+      const ext = getExtension(item.file.name);
+      const version = await getNextVersion(projectId, category, item.file.name);
+      const path = buildStoragePath(projectId, category, version, item.file.name);
 
-    const { error: storageError } = await supabase.storage
-      .from("project-files")
-      .upload(path, item.file, { upsert: false, contentType: item.file.type || undefined });
+      const { error: storageError } = await supabase.storage
+        .from("project-files")
+        .upload(path, item.file, { upsert: false, contentType: item.file.type || undefined });
 
-    if (storageError) {
-      updateItem(item.id, { status: "error", error: storageError.message });
-      return;
+      if (storageError) {
+        const msg = friendlyErrorMessage(storageError);
+        updateItem(item.id, { status: "error", error: msg });
+        return false;
+      }
+
+      updateItem(item.id, { progress: 70 });
+
+      const { data: inserted, error: dbError } = await supabase
+        .from("file_assets")
+        .insert({
+          project_id: projectId,
+          uploader_id: uploaderId,
+          category,
+          original_name: item.file.name,
+          storage_bucket: "project-files",
+          storage_path: path,
+          mime_type: item.file.type || null,
+          extension: ext,
+          size_bytes: item.file.size,
+          version,
+        })
+        .select("id")
+        .single();
+
+      if (dbError) {
+        // Rollback storage if DB insert failed
+        await supabase.storage.from("project-files").remove([path]).catch(() => {});
+        const msg = friendlyErrorMessage(dbError);
+        updateItem(item.id, { status: "error", error: msg });
+        return false;
+      }
+
+      await writeAuditLog({
+        actor_id: uploaderId,
+        action: "file_uploaded",
+        entity_type: "file",
+        entity_id: inserted?.id,
+        metadata: { project_id: projectId, category, original_name: item.file.name, version },
+      }).catch(() => {});
+
+      updateItem(item.id, { status: "done", progress: 100 });
+      onUploaded?.();
+      return true;
+    } catch (err) {
+      const msg = friendlyErrorMessage(err);
+      updateItem(item.id, { status: "error", error: msg });
+      return false;
     }
-
-    updateItem(item.id, { progress: 70 });
-
-    const { data: inserted, error: dbError } = await supabase
-      .from("file_assets")
-      .insert({
-        project_id: projectId,
-        uploader_id: uploaderId,
-        category,
-        original_name: item.file.name,
-        storage_bucket: "project-files",
-        storage_path: path,
-        mime_type: item.file.type || null,
-        extension: ext,
-        size_bytes: item.file.size,
-        version,
-      })
-      .select("id")
-      .single();
-
-    if (dbError) {
-      // Rollback storage
-      await supabase.storage.from("project-files").remove([path]);
-      updateItem(item.id, { status: "error", error: dbError.message });
-      return;
-    }
-
-    // Audit log
-    await writeAuditLog({
-      actor_id: uploaderId,
-      action: "file_uploaded",
-      entity_type: "file",
-      entity_id: inserted?.id,
-      metadata: { project_id: projectId, category, original_name: item.file.name, version },
-    });
-
-    updateItem(item.id, { status: "done", progress: 100 });
-    onUploaded?.();
   };
 
   const uploadAll = async () => {
     const pending = queue.filter((f) => f.status === "pending");
     if (pending.length === 0) return;
+    let ok = 0;
+    let failed = 0;
     for (const item of pending) {
-      await uploadItem(item);
+      const success = await uploadItem(item);
+      if (success) ok += 1;
+      else failed += 1;
     }
-    toast({ title: "Upload complete", description: `${pending.length} file(s) uploaded.` });
+    if (ok > 0 && failed === 0) {
+      toast({ title: "Upload complete", description: `${ok} file(s) uploaded.` });
+    } else if (ok > 0 && failed > 0) {
+      sonnerToast.warning("Some files failed", {
+        description: `${ok} uploaded, ${failed} failed. Hover failed items for details.`,
+      });
+    } else {
+      reportError(new Error("No files uploaded"), {
+        title: "Upload failed",
+        fallback: "None of the files could be uploaded. Please try again.",
+      });
+    }
   };
+
 
   const remove = (id: string) => setQueue((q) => q.filter((f) => f.id !== id));
 

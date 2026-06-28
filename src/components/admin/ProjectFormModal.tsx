@@ -55,13 +55,14 @@ interface ProjectFormModalProps {
     is_featured?: boolean;
   } | null;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (info: { created: boolean }) => void;
+  onError?: (message: string) => void;
 }
 
 const STATUS_OPTIONS = ["inquiry", "active", "review", "delivered", "archived"];
 const CATEGORIES = ["Residential", "Commercial", "Interior", "Landscape", "Hospitality", "Cultural", "Mixed-Use", "Civic", "Other"];
 
-export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormModalProps) {
+export function ProjectFormModal({ editProject, onClose, onSaved, onError }: ProjectFormModalProps) {
   const { profile } = useAuth();
   const [clients, setClients] = useState<Profile[]>([]);
   const [form, setForm] = useState<ProjectFormData>({
@@ -161,7 +162,7 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
 
     if (editProject) {
       const { error: err } = await supabase.from("projects").update(payload).eq("id", editProject.id);
-      if (err) { setError(err.message); setSaving(false); return; }
+      if (err) { setError(err.message); onError?.(err.message); setSaving(false); return; }
       if (profile) await writeAuditLog({
         actor_id: profile.id, action: "project_updated", entity_type: "project",
         entity_id: editProject.id, metadata: { title: form.title },
@@ -169,7 +170,10 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
     } else {
       const { data: newProject, error: err } = await supabase
         .from("projects").insert([payload]).select("id").single();
-      if (err || !newProject) { setError(err?.message ?? "Failed to create project"); setSaving(false); return; }
+      if (err || !newProject) {
+        const msg = err?.message ?? "Failed to create project";
+        setError(msg); onError?.(msg); setSaving(false); return;
+      }
 
       await supabase.from("project_members").insert([{
         project_id: newProject.id,
@@ -184,7 +188,7 @@ export function ProjectFormModal({ editProject, onClose, onSaved }: ProjectFormM
     }
 
     setSaving(false);
-    onSaved();
+    onSaved({ created: !editProject });
   };
 
   return (

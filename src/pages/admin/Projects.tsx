@@ -91,8 +91,7 @@ export default function AdminProjects() {
       .from("projects")
       .select("*, profiles(full_name, company)")
       .order("updated_at", { ascending: false });
-      .select("*, profiles(full_name, company)")
-      .order("updated_at", { ascending: false });
+
 
     if (statusFilter !== "all") query = query.eq("status", statusFilter);
     if (search.trim()) query = query.ilike("title", `%${search}%`);

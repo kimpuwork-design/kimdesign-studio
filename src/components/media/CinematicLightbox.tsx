@@ -293,6 +293,10 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
   const content = (
     <div
       ref={rootRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title ? `${title} — image viewer` : "Image viewer"}
+      tabIndex={-1}
       onContextMenu={(e) => e.preventDefault()}
       onClick={onClose}
       onMouseMove={wakeChrome}

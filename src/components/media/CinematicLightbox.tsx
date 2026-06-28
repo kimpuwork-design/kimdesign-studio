@@ -85,14 +85,19 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
   const current = images[idx];
   const currentUrl = useMemo(() => resolveUrl(current?.image_url ?? ""), [current?.image_url]);
 
-  // Preload neighbors
+  // Preload a window of neighbors and decode them so they're paint-ready
   useEffect(() => {
     if (total <= 1) return;
-    [(idx + 1) % total, (idx - 1 + total) % total, (idx + 2) % total].forEach((i) => {
+    const offsets = [1, -1, 2, -2, 3];
+    offsets.forEach((off) => {
+      const i = ((idx + off) % total + total) % total;
       const u = resolveUrl(images[i]?.image_url ?? "");
       if (!u) return;
       const im = new Image();
+      im.decoding = "async";
       im.src = u;
+      // Best-effort decode; ignore errors
+      im.decode?.().catch(() => {});
     });
   }, [idx, total, images]);
 

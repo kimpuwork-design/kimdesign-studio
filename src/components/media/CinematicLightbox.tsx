@@ -62,6 +62,8 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
   const dragStart = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
   const pinchStart = useRef<{ dist: number; zoom: number } | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const lastTap = useRef<number>(0);
   const idleTimer = useRef<number | null>(null);
 
   // Group by chapter for the grid + chapter nav

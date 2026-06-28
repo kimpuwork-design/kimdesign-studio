@@ -91,8 +91,9 @@ export function validateFile(file: File, allowedExtensions: string[]) {
 }
 
 // Helper to convert zod error to flat field-error map
-export function zodFieldErrors<T>(result: z.SafeParseError<T>): Record<string, string> {
+export function zodFieldErrors<T>(result: z.SafeParseReturnType<unknown, T>): Record<string, string> {
   const out: Record<string, string> = {};
+  if (result.success) return out;
   for (const err of result.error.errors) {
     const key = err.path.join(".") || "_";
     if (!out[key]) out[key] = err.message;

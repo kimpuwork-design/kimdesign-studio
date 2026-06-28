@@ -158,14 +158,48 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (saving) return; // guard against double-submit
-    if (!form.title.trim()) { setError("Title is required."); return; }
     setError(null);
-    setSaving(true);
+    setFieldErrors({});
+
+    // Zod validation
+    const parsed = projectSchema.safeParse({
+      title: form.title,
+      description: form.description,
+      status: form.status,
+      location: form.location,
+      start_date: form.start_date,
+      target_date: form.target_date,
+      slug: form.slug,
+      summary: form.summary,
+      content: form.content,
+      year: form.year,
+      thumbnail_url: form.thumbnail_url,
+    });
+    if (!parsed.success) {
+      const errs = zodFieldErrors(parsed);
+      setFieldErrors(errs);
+      const first = Object.values(errs)[0];
+      setError(first ?? "Please fix the highlighted fields.");
+      toast.error("Please fix the highlighted fields", { description: first });
+      if (errs.slug || errs.summary || errs.content || errs.year) setTab("portfolio");
+      else setTab("project");
+      return;
+    }
+
+    if (form.target_date && form.start_date && form.target_date < form.start_date) {
+      setFieldErrors({ target_date: "Target date must be after start date" });
+      toast.error("Invalid dates", { description: "Target date must be after start date." });
+      return;
+    }
 
     const effectiveClientId = form.client_id || profile?.id;
-    if (!effectiveClientId) { setError("No user found."); setSaving(false); return; }
+    if (!effectiveClientId) {
+      setError("Please select a client first.");
+      toast.error("Client required", { description: "Please select a client before saving." });
+      return;
+    }
 
-    // Loading toast — replaced by the parent's success/error toast on completion.
+    setSaving(true);
     const toastId = toast.loading(
       editProject ? "Saving changes…" : "Creating project…",
       { description: form.title.trim() }
@@ -174,6 +208,7 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
     const finishWithError = (msg: string) => {
       toast.dismiss(toastId);
       setError(msg);
+      toast.error(editProject ? "Couldn't save project" : "Couldn't create project", { description: msg });
       onError?.(msg);
       setSaving(false);
     };
@@ -197,36 +232,48 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
       is_featured: form.is_featured,
     };
 
-    if (editProject) {
-      const { error: err } = await supabase.from("projects").update(payload).eq("id", editProject.id);
-      if (err) { finishWithError(err.message); return; }
-      if (profile) await writeAuditLog({
-        actor_id: profile.id, action: "project_updated", entity_type: "project",
-        entity_id: editProject.id, metadata: { title: form.title },
-      });
-    } else {
-      const { data: newProject, error: err } = await supabase
-        .from("projects").insert([payload]).select("id").single();
-      if (err || !newProject) {
-        finishWithError(err?.message ?? "Failed to create project");
-        return;
+    try {
+      if (editProject) {
+        const { error: err } = await supabase.from("projects").update(payload).eq("id", editProject.id);
+        if (err) { finishWithError(friendlyErrorMessage(err)); return; }
+        if (profile) {
+          await writeAuditLog({
+            actor_id: profile.id, action: "project_updated", entity_type: "project",
+            entity_id: editProject.id, metadata: { title: form.title },
+          }).catch(() => {});
+        }
+      } else {
+        const { data: newProject, error: err } = await supabase
+          .from("projects").insert([payload]).select("id").single();
+        if (err || !newProject) {
+          finishWithError(friendlyErrorMessage(err ?? new Error("Failed to create project")));
+          return;
+        }
+
+        const { error: memberErr } = await supabase.from("project_members").insert([{
+          project_id: newProject.id,
+          user_id: form.client_id,
+          member_role: "CLIENT",
+        }]);
+        if (memberErr) {
+          // eslint-disable-next-line no-console
+          console.warn("Couldn't add client as project member:", memberErr.message);
+        }
+
+        if (profile) {
+          await writeAuditLog({
+            actor_id: profile.id, action: "project_created", entity_type: "project",
+            entity_id: newProject.id, metadata: { title: form.title },
+          }).catch(() => {});
+        }
       }
 
-      await supabase.from("project_members").insert([{
-        project_id: newProject.id,
-        user_id: form.client_id,
-        member_role: "CLIENT",
-      }]);
-
-      if (profile) await writeAuditLog({
-        actor_id: profile.id, action: "project_created", entity_type: "project",
-        entity_id: newProject.id, metadata: { title: form.title },
-      });
+      toast.dismiss(toastId);
+      setSaving(false);
+      onSaved({ created: !editProject });
+    } catch (err) {
+      finishWithError(friendlyErrorMessage(err));
     }
-
-    toast.dismiss(toastId);
-    setSaving(false);
-    onSaved({ created: !editProject });
   };
 
   return (

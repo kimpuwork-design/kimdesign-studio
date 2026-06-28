@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   CommandDialog, CommandInput, CommandList, CommandEmpty,
@@ -40,7 +40,6 @@ const STATIC_ROUTES: Record<Variant, { label: string; href: string; icon: any; g
     { group: "Navigate", label: "Settings", href: "/admin/settings", icon: Settings },
     { group: "Create", label: "New Project", href: "/admin/projects?new=1", icon: Plus },
     { group: "Create", label: "New Portfolio Item", href: "/admin/portfolio/new", icon: Plus },
-    { group: "Create", label: "New Client", href: "/admin/clients?new=1", icon: Plus },
     { group: "External", label: "Open Public Website", href: "/", icon: Eye },
     { group: "External", label: "Open Portfolio Page", href: "/portfolio", icon: Eye },
   ],
@@ -65,6 +64,7 @@ export function CommandPalette({ open, onOpenChange, variant }: Props) {
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<Hit[]>([]);
   const [loading, setLoading] = useState(false);
+  const latestTermRef = useRef("");
 
   // Reset query when closed
   useEffect(() => { if (!open) setQ(""); }, [open]);
@@ -72,8 +72,9 @@ export function CommandPalette({ open, onOpenChange, variant }: Props) {
   // Debounced live search across clients/projects/leads/portfolio (admin only)
   useEffect(() => {
     if (variant !== "admin") { setHits([]); return; }
-    if (!q.trim() || q.length < 2) { setHits([]); return; }
+    if (!q.trim() || q.length < 2) { setHits([]); setLoading(false); return; }
     const term = q.trim();
+    latestTermRef.current = term;
     const handle = setTimeout(async () => {
       setLoading(true);
       const like = `%${term}%`;
@@ -83,6 +84,8 @@ export function CommandPalette({ open, onOpenChange, variant }: Props) {
         supabase.from("leads").select("id, name, email, status").or(`name.ilike.${like},email.ilike.${like}`).limit(5),
         supabase.from("portfolio_items").select("id, title, category").ilike("title", like).limit(5),
       ]);
+      // Guard against stale results overwriting newer searches.
+      if (latestTermRef.current !== term) return;
       const out: Hit[] = [];
       (clients.data || []).forEach((c: any) =>
         out.push({ id: `c-${c.id}`, label: c.full_name || "(no name)", href: `/admin/clients`, kind: "client" }));

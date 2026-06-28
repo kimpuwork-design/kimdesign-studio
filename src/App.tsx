@@ -14,13 +14,13 @@ import { BackToTop } from "@/components/BackToTop";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // Lazy-loaded pages for code splitting
-type LazyModule = { default: React.ComponentType<Record<string, unknown>> };
-const lazyRetry = <T extends LazyModule>(fn: () => Promise<T>) =>
-  lazy<React.ComponentType<Record<string, unknown>>>(() =>
+type LazyModule<T = unknown> = { default: React.ComponentType<T> };
+const lazyRetry = <T,>(fn: () => Promise<LazyModule<T>>) =>
+  lazy<React.ComponentType<T>>(() =>
     fn().catch(() => {
       // Force reload on chunk load failure (stale deploy)
       window.location.reload();
-      return new Promise<T>(() => {});
+      return new Promise<LazyModule<T>>(() => {});
     }),
   );
 

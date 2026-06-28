@@ -339,6 +339,15 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
         .lb-grid-tile:hover img { transform: scale(1.06); }
       `}</style>
 
+      {/* Screen-reader live region — announces current image on navigation. */}
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}
+      >
+        {total > 0 ? `Image ${idx + 1} of ${total}${current?.caption ? `: ${current.caption}` : ""}` : ""}
+      </div>
+
       {/* Top progress bar — gold */}
       <div className={`lb-chrome ${chromeVisible ? "" : "hidden"}`} style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "hsl(218 50% 14% / 0.6)", zIndex: 5 }}>
         <div style={{ width: `${progressPct}%`, height: "100%", background: "linear-gradient(90deg, hsl(43 70% 58%), hsl(43 80% 72%))", boxShadow: "0 0 12px hsl(43 70% 58% / 0.6)", transition: "width 420ms cubic-bezier(0.22,1,0.36,1)" }} />

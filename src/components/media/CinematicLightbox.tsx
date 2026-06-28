@@ -467,12 +467,16 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
                 className={`lb-chrome ${chromeVisible ? "" : "hidden"}`}
                 style={{
                   position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)",
-                  maxWidth: "min(640px, 86vw)",
-                  background: "rgba(0,0,0,0.55)", backdropFilter: "blur(14px)",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  padding: "10px 16px",
-                  color: "rgba(255,255,255,0.92)", fontSize: 12, lineHeight: 1.55,
+                  maxWidth: "min(680px, 88vw)",
+                  background: "hsl(218 60% 8% / 0.7)",
+                  backdropFilter: "blur(18px) saturate(1.3)",
+                  border: "1px solid hsl(43 60% 60% / 0.18)",
+                  borderRadius: 12,
+                  padding: "12px 20px",
+                  color: "hsl(43 35% 95% / 0.95)", fontSize: 12.5, lineHeight: 1.6,
                   fontFamily: "system-ui, sans-serif", textAlign: "center",
+                  boxShadow: "0 12px 40px -12px hsl(218 80% 2% / 0.6), 0 0 0 1px hsl(43 70% 58% / 0.04) inset",
+                  letterSpacing: "0.01em",
                 }}
               >
                 {current.caption}

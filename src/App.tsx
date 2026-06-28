@@ -21,6 +21,7 @@ const lazyRetry = (fn: () => Promise<any>) =>
   }));
 
 const Home = lazyRetry(() => import("./pages/public/Home"));
+const _unused = null;
 const PublicProjects = lazyRetry(() => import("./pages/public/Projects"));
 const PublicProjectDetail = lazyRetry(() => import("./pages/public/ProjectDetail"));
 const Portfolio = lazyRetry(() => import("./pages/public/Portfolio"));

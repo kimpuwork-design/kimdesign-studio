@@ -422,7 +422,8 @@ export default function AdminProjects() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

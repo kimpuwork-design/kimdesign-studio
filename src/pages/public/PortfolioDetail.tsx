@@ -10,6 +10,7 @@ import { FileAsset, formatBytes, FILE_CATEGORIES, isImageExt, getPublicFileSigne
 import { FileIcon } from "@/components/files/FileIcon";
 import { FilePreviewModal } from "@/components/files/FilePreviewModal";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";
+import { ProgressiveImage } from "@/components/media/ProgressiveImage";
 import { FadeUp, StaggerContainer, StaggerItem, SlideIn } from "@/components/motion/MotionWrappers";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
@@ -79,24 +80,25 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
         onClick={onClick}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="group relative w-full overflow-hidden break-inside-avoid block"
+        className="group relative w-full overflow-hidden break-inside-avoid block bg-muted/20"
         data-cursor-hover
         data-cursor-label="View"
         aria-label={`Open image ${idx + 1}${img.name ? `: ${img.name}` : ""}`}
       >
-        <motion.img
+        <ProgressiveImage
           src={img.url}
           alt={img.name || `Gallery ${idx + 1}`}
-          loading="lazy"
-          draggable={false}
-          onContextMenu={(e: React.MouseEvent) => e.preventDefault()}
+          eager={idx < 4}
+          thumbWidth={800}
+          onContextMenu={(e) => e.preventDefault()}
           className="w-full object-cover"
-          style={{ userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties}
+          wrapperClassName="w-full"
           animate={{
             scale: 1.08,
             x: (mousePos.x - 0.5) * -14,
             y: (mousePos.y - 0.5) * -14,
           }}
+          // @ts-ignore - motion props passed through
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         />
 
@@ -106,7 +108,7 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
         </span>
 
         {/* Hover veil */}
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/0 to-foreground/0 opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/0 to-foreground/0 opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none" />
 
         {/* Maximize icon */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -117,7 +119,7 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
 
         {/* Caption */}
         {img.name && (
-          <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-400">
+          <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-400 pointer-events-none">
             <p className="text-[11px] text-background/90 font-light leading-snug line-clamp-2 drop-shadow">
               {img.name}
             </p>
@@ -308,7 +310,15 @@ export default function PortfolioDetail() {
         {coverUrl ? (
           <section className="relative h-[60vh] md:h-[75vh] min-h-[400px] max-h-[900px]">
             <motion.div style={{ scale: heroScale }} className="absolute inset-0">
-              <img src={coverUrl} alt={item.title} draggable={false} onContextMenu={(e) => e.preventDefault()} className="w-full h-full object-cover" style={{ userSelect: "none", WebkitUserDrag: "none" } as React.CSSProperties} />
+              <ProgressiveImage 
+                src={coverUrl} 
+                alt={item.title} 
+                eager 
+                priority 
+                onContextMenu={(e) => e.preventDefault()} 
+                className="w-full h-full object-cover" 
+                wrapperClassName="w-full h-full"
+              />
               <div className="absolute inset-0 bg-gradient-to-b from-foreground/20 via-foreground/10 to-background" />
             </motion.div>
             {/* Film grain overlay */}
@@ -494,8 +504,13 @@ export default function PortfolioDetail() {
                     <Link to={rLink} className="group block relative overflow-hidden" data-cursor-hover>
                       <div className="aspect-[4/3] overflow-hidden relative">
                         {r.thumbnail_url ? (
-                          <img src={r.thumbnail_url} alt={r.title} loading="lazy"
-                            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform [transition-duration:900ms]" />
+                          <ProgressiveImage 
+                            src={r.thumbnail_url} 
+                            alt={r.title} 
+                            thumbWidth={600}
+                            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform [transition-duration:900ms]" 
+                            wrapperClassName="w-full h-full"
+                          />
                         ) : (
                           <div className="w-full h-full bg-muted/30" />
                         )}

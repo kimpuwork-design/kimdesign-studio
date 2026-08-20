@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { thumbUrl } from "@/lib/images";
 
-interface Props extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "onLoad"> {
+interface Props extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "onLoad" | "onAnimationStart" | "onDragStart" | "onDragEnd" | "onDrag"> {
   src: string;
   alt: string;
   /** Force eager load (above-the-fold). Default false. */
@@ -24,6 +25,9 @@ interface Props extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "onLoad"
    */
   thumbWidth?: number;
   onReady?: () => void;
+  /** motion props */
+  animate?: any;
+  transition?: any;
 }
 
 /**
@@ -46,6 +50,8 @@ export function ProgressiveImage({
   thumbWidth,
   className = "",
   onReady,
+  animate,
+  transition,
   ...rest
 }: Props) {
   const resolvedSrc = thumbWidth ? thumbUrl(src, { width: thumbWidth }) : src;
@@ -116,7 +122,7 @@ export function ProgressiveImage({
           <span>Image unavailable</span>
         </div>
       ) : resolvedSrc ? (
-        <img
+        <motion.img
           src={resolvedSrc}
           alt={alt}
           loading={eager ? "eager" : "lazy"}
@@ -124,6 +130,8 @@ export function ProgressiveImage({
           draggable={false}
           {...(priority ? ({ fetchpriority: "high" } as Record<string, string>) : {})}
           {...rest}
+          animate={animate}
+          transition={transition}
           onTransitionEnd={(e) => {
             // Unmount skeleton only after opacity transition lands at 1.
             if (e.propertyName === "opacity" && decoded) {

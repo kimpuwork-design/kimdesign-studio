@@ -164,7 +164,7 @@ function PortraitHero({
               transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="text-amber-400 text-[13px] md:text-[15px] tracking-[0.04em] font-medium block whitespace-pre-line"
             >
-              {"'''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''\n                                        \n                                            \n                                            improve to next level"}
+              {"'''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''\n                                        \n                                            \n                                            v"}
             </motion.p>
           </div>
 

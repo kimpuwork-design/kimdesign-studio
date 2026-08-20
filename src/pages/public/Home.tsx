@@ -69,10 +69,10 @@ export default function Home() {
   const hero = content.hero ?? {};
 
   return (
-    <div className="bg-background relative overflow-x-hidden">
+    <div className="bg-background relative overflow-x-hidden min-h-screen">
       <ArchitectureBusinessJsonLd />
       <PublicNav />
-      <main>
+      <main id="main-content">
         <PortraitHero settings={settings} studioName={studioName} hero={hero} aboutMe={content.about_me ?? {}} t={t} />
         
         {/* Expertise Section */}

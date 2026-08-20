@@ -21,7 +21,6 @@ import { useSEO } from "@/hooks/useSEO";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { ArchitectureBusinessJsonLd } from "@/components/JsonLd";
 import { ProgressiveImage } from "@/components/media/ProgressiveImage";
-import heroPortraitDemo from "@/assets/hero-portrait.jpg";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 

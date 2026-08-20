@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { thumbUrl } from "@/lib/images";
 
-interface Props extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "onLoad"> {
+interface Props extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "onLoad" | "onAnimationStart" | "onDragStart" | "onDragEnd" | "onDrag"> {
   src: string;
   alt: string;
   /** Force eager load (above-the-fold). Default false. */

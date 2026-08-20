@@ -193,8 +193,7 @@ export default function Services() {
                 <div className="overflow-hidden">
                   <motion.div
                     initial={{ y: "100%" }}
-                    whileInView={{ y: 0 }}
-                    viewport={{ once: true }}
+                    animate={{ y: 0 }}
                     transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
                     className="block"
                   >
@@ -204,8 +203,7 @@ export default function Services() {
                 <div className="overflow-hidden mt-1 md:mt-2">
                   <motion.div
                     initial={{ y: "100%" }}
-                    whileInView={{ y: 0 }}
-                    viewport={{ once: true }}
+                    animate={{ y: 0 }}
                     transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
                     className="text-primary hero-shimmer-text block"
                   >

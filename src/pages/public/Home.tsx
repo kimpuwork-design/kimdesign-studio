@@ -25,9 +25,9 @@ import { ArchitectureBusinessJsonLd } from "@/components/JsonLd";
 import { ProgressiveImage } from "@/components/media/ProgressiveImage";
 import { MagneticButton } from "@/components/MagneticButton";
 import { SectionLabel } from "@/components/SectionLabel";
-import { FadeUp, StaggerContainer, StaggerItem, ScaleIn } from "@/components/motion/MotionWrappers";
-import { useRef } from "react";
-import { thumbUrl } from "@/lib/images";
+import { FadeUp, StaggerContainer, StaggerItem, ImageReveal } from "@/components/motion/MotionWrappers";
+import { useRef, useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 

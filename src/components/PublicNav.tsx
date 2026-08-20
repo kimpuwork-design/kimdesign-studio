@@ -1,12 +1,21 @@
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Sun, Moon, ArrowRight } from "lucide-react";
+import { Menu, X, Sun, Moon, ArrowRight, Accessibility } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 import { useSettings } from "@/hooks/useSettings";
 import { KMonogramLogo } from "@/components/KMonogramLogo";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useTranslation } from "@/i18n/LanguageContext";
+import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const NAV_KEYS = [
   { key: "nav_projects", href: "/portfolio" },
@@ -24,6 +33,7 @@ export function PublicNav() {
   const { theme, setTheme } = useTheme();
   const { settings } = useSettings();
   const { t } = useTranslation();
+  const { reduceMotion, setReduceMotion } = useAccessibility();
   const location = useLocation();
   const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
   const logoUrl = settings?.logo_url || "/logo-placeholder.png";
@@ -94,6 +104,27 @@ export function PublicNav() {
 
         {/* Right actions */}
         <div className="flex items-center gap-0.5">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="inline-flex items-center justify-center min-h-11 min-w-11 rounded-md text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                aria-label="Accessibility settings"
+              >
+                <Accessibility size={15} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Accessibility</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuCheckboxItem
+                checked={reduceMotion}
+                onCheckedChange={setReduceMotion}
+              >
+                Reduce motion
+              </DropdownMenuCheckboxItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <LanguageToggle />
           <button onClick={() => {
               document.documentElement.classList.add("theme-transitioning");

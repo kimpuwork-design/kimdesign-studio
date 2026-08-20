@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { thumbUrl } from "@/lib/images";
+import { useAccessibility } from "@/contexts/AccessibilityContext";
 
 interface Props extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "onLoad" | "onAnimationStart" | "onDragStart" | "onDragEnd" | "onDrag"> {
   src: string;
@@ -54,6 +55,7 @@ export function ProgressiveImage({
   transition,
   ...rest
 }: Props) {
+  const { reduceMotion } = useAccessibility();
   const resolvedSrc = thumbWidth ? thumbUrl(src, { width: thumbWidth }) : src;
   const [decoded, setDecoded] = useState(false);
   const [skeletonMounted, setSkeletonMounted] = useState(true);
@@ -140,7 +142,7 @@ export function ProgressiveImage({
             rest.onTransitionEnd?.(e);
           }}
           className={`relative size-full ${fit === "cover" ? "object-cover" : "object-contain"} transition-all duration-[800ms] ${
-            decoded ? "opacity-100 blur-0 scale-100" : "opacity-0 blur-md scale-[1.01]"
+            decoded ? "opacity-100 blur-0 scale-100" : `opacity-0 ${reduceMotion ? "" : "blur-md scale-[1.01]"}`
           } ${className}`}
           style={{
             userSelect: "none",

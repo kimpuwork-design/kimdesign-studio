@@ -7,9 +7,11 @@ import { writeAuditLog } from "@/lib/audit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Loader2, X, User, Lock, Palette, Phone, Globe } from "lucide-react";
+import { Upload, Loader2, X, User, Lock, Palette, Phone, Globe, Accessibility } from "lucide-react";
 import { AvatarUpload } from "@/components/admin/AvatarUpload";
+import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SETTINGS_TABS = [
@@ -26,6 +28,7 @@ export default function AdminSettings() {
   const [saving, setSaving] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
   const [activeTab, setActiveTab] = useState("account");
+  const { reduceMotion, setReduceMotion } = useAccessibility();
 
   const [fullName, setFullName] = useState("");
   const [newEmail, setNewEmail] = useState("");
@@ -296,6 +299,23 @@ export default function AdminSettings() {
                         placeholder="https://…/cv.pdf"
                         className="bg-portal-bg border-portal-border text-portal-text" />
                     </div>
+                  </div>
+                </div>
+
+                <div className="glass-card p-6 space-y-4">
+                  <h2 className="font-semibold text-portal-text text-sm uppercase tracking-wider flex items-center gap-2">
+                    <Accessibility size={14} className="text-portal-accent" /> Motion & Accessibility
+                  </h2>
+                  <div className="flex items-center justify-between py-2">
+                    <div className="space-y-0.5">
+                      <Label className="text-portal-text text-sm">Reduce Motion</Label>
+                      <p className="text-xs text-portal-text-muted">Disable blur, scale and complex transitions for a simpler UI.</p>
+                    </div>
+                    <Switch 
+                      checked={reduceMotion} 
+                      onCheckedChange={setReduceMotion}
+                      className="data-[state=checked]:bg-portal-accent"
+                    />
                   </div>
                 </div>
 

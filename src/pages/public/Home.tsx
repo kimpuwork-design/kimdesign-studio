@@ -172,8 +172,28 @@ function PortraitHero({
             transition={{ duration: 0.8, delay: 0.1, ease }}
             className="font-display font-bold leading-[0.88] tracking-[-0.04em] text-[clamp(2.4rem,9vw,8rem)]"
           >
-            <span className="block">{line1}</span>
-            {line2 && <span className="block">{line2}</span>}
+            <div className="overflow-hidden">
+              <motion.span 
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                className="block"
+              >
+                {line1}
+              </motion.span>
+            </div>
+            {line2 && (
+              <div className="overflow-hidden mt-[-0.1em]">
+                <motion.span 
+                  initial={{ y: "100%" }}
+                  animate={{ y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  className="block"
+                >
+                  {line2}
+                </motion.span>
+              </div>
+            )}
           </motion.h1>
 
           {description && (

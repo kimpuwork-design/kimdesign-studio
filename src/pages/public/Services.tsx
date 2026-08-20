@@ -190,19 +190,31 @@ export default function Services() {
                 className="h-px bg-primary mb-8" />
               <SectionLabel text={page.hero_subtitle ?? "Services"} />
               <h1 className="font-display text-[clamp(2.1rem,7.5vw,7.5rem)] leading-[0.95] md:leading-[0.92] text-foreground">
-                {(page.hero_title_line1 ?? "Every project,").split(" ").map((word: string, i: number) => (
-                  <motion.span key={i} initial={{ opacity: 0, y: 55, rotateX: -15 }} animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                    transition={{ duration: 0.8, delay: 0.3 + i * 0.08, ease: luxuryEase }}
-                    className="inline-block mr-[0.25em]">{word}</motion.span>
-                ))}
-                <br />
-                <span className="text-primary hero-shimmer-text">
-                  {(page.hero_title_line2 ?? "built from scratch.").split(" ").map((word: string, i: number) => (
-                    <motion.span key={`l2-${i}`} initial={{ opacity: 0, y: 55, rotateX: -15 }} animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                      transition={{ duration: 0.8, delay: 0.55 + i * 0.08, ease: luxuryEase }}
-                      className="inline-block mr-[0.25em]">{word}</motion.span>
-                  ))}
-                </span>
+                <div className="overflow-hidden">
+                  <motion.div
+                    initial={{ y: "100%" }}
+                    whileInView={{ y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    {(page.hero_title_line1 ?? "Every project,").split(" ").map((word: string, i: number) => (
+                      <span key={i} className="inline-block mr-[0.25em]">{word}</span>
+                    ))}
+                  </motion.div>
+                </div>
+                <div className="overflow-hidden mt-1 md:mt-2">
+                  <motion.div
+                    initial={{ y: "100%" }}
+                    whileInView={{ y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                    className="text-primary hero-shimmer-text"
+                  >
+                    {(page.hero_title_line2 ?? "built from scratch.").split(" ").map((word: string, i: number) => (
+                      <span key={`l2-${i}`} className="inline-block mr-[0.25em]">{word}</span>
+                    ))}
+                  </motion.div>
+                </div>
               </h1>
               <FadeUp delay={0.3}>
                 <p className="mt-8 text-base md:text-lg text-muted-foreground font-light leading-[1.85] max-w-lg">{page.hero_description ?? ""}</p>

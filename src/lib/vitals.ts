@@ -1,5 +1,5 @@
 
-import { onLCP, onFID, onCLS, onFCP, onTTFB, Metric } from 'web-vitals';
+import { onLCP, onCLS, onFCP, onTTFB, Metric } from 'web-vitals';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -39,7 +39,7 @@ function sendToAnalytics(metric: Metric) {
 
 export function reportWebVitals() {
   try {
-    onFID(sendToAnalytics);
+    // onFID was removed in web-vitals v4+ (use onLCP/onCLS/onFCP)
     onLCP(sendToAnalytics);
     onCLS(sendToAnalytics);
     onFCP(sendToAnalytics);

@@ -140,10 +140,7 @@ export function ProgressiveImage({
           {...rest}
           animate={animate}
           transition={transition}
-          onTransitionEnd={(e) => {
-            rest.onTransitionEnd?.(e);
-          }}
-          onAnimationComplete={() => {
+          onLoad={() => {
             if (decoded) {
               setSkeletonMounted(false);
             }

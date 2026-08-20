@@ -107,6 +107,7 @@ function PortraitHero({
           height={1536}
           eager
           priority
+          aspectRatio="2 / 3"
           onContextMenu={(e) => e.preventDefault()}
           className="absolute inset-y-0 right-0 h-full w-full md:w-[62%] object-cover object-[center_20%] select-none pointer-events-none"
           wrapperClassName="absolute inset-y-0 right-0 h-full w-full md:w-[62%]"

@@ -290,6 +290,7 @@ function ListCard({
             src={item.thumbnail_url}
             alt=""
             thumbWidth={240}
+            aspectRatio="3 / 2"
             wrapperClassName="shrink-0 w-20 h-16 sm:w-24 sm:h-16 rounded-sm"
             className="group-hover:scale-105 transition-transform duration-700"
           />

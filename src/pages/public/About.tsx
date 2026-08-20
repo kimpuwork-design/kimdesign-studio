@@ -114,11 +114,10 @@ export default function About() {
                     initial={{ y: "100%" }}
                     whileInView={{ y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                    className="block"
                   >
-                    {(page.hero_title_line1 ?? "Architecture as a").split(" ").map((word: string, i: number) => (
-                      <span key={i} className="inline-block mr-[0.25em]">{word}</span>
-                    ))}
+                    {page.hero_title_line1 ?? "Architecture as a"}
                   </motion.div>
                 </div>
                 <div className="overflow-hidden mt-1 md:mt-2">
@@ -126,12 +125,10 @@ export default function About() {
                     initial={{ y: "100%" }}
                     whileInView={{ y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                    className="text-primary hero-shimmer-text"
+                    transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                    className="text-primary hero-shimmer-text block"
                   >
-                    {(page.hero_title_line2 ?? "long conversation.").split(" ").map((word: string, i: number) => (
-                      <span key={`l2-${i}`} className="inline-block mr-[0.25em]">{word}</span>
-                    ))}
+                    {page.hero_title_line2 ?? "long conversation."}
                   </motion.div>
                 </div>
               </h1>

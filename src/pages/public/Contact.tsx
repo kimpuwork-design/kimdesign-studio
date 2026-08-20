@@ -117,11 +117,10 @@ export default function Contact() {
                     initial={{ y: "100%" }}
                     whileInView={{ y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                    className="block"
                   >
-                    {(t("contact_lets_start") || "Let's start a").split(" ").map((word: string, i: number) => (
-                      <span key={i} className="inline-block mr-[0.25em]">{word}</span>
-                    ))}
+                    {t("contact_lets_start") || "Let's start a"}
                   </motion.div>
                 </div>
                 <div className="overflow-hidden mt-1 md:mt-2">
@@ -129,12 +128,10 @@ export default function Contact() {
                     initial={{ y: "100%" }}
                     whileInView={{ y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                    className="text-primary hero-shimmer-text"
+                    transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                    className="text-primary hero-shimmer-text block"
                   >
-                    {(t("contact_conversation") || "conversation.").split(" ").map((word: string, i: number) => (
-                      <span key={`l2-${i}`} className="inline-block mr-[0.25em]">{word}</span>
-                    ))}
+                    {t("contact_conversation") || "conversation."}
                   </motion.div>
                 </div>
               </h1>

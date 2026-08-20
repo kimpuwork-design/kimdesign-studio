@@ -21,7 +21,6 @@ import { useSEO } from "@/hooks/useSEO";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { ArchitectureBusinessJsonLd } from "@/components/JsonLd";
 import { ProgressiveImage } from "@/components/media/ProgressiveImage";
-import heroPortraitDemo from "@/assets/hero-portrait.jpg";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -72,11 +71,10 @@ function PortraitHero({
   aboutMe: any;
   t: (k: string) => string;
 }) {
-  const portrait = aboutMe?.profile_image_url || settings?.hero_portrait_url || heroPortraitDemo;
+  const portrait = aboutMe?.profile_image_url || settings?.hero_portrait_url || null;
 
-  const role =
-    settings?.hero_role || hero?.badge || "Architecture & Interior Design Studio";
-  const status = settings?.hero_status || "Open to commissions";
+  const role = settings?.hero_role || hero?.badge || "";
+  const status = settings?.hero_status || "";
   const cvUrl = settings?.cv_url;
   const email = settings?.contact_email;
   const phone = settings?.phone;
@@ -100,18 +98,20 @@ function PortraitHero({
   return (
     <section className="relative px-4 md:px-6 pt-6 md:pt-8 pb-10 md:pb-14">
       <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[28px] md:rounded-[36px] bg-[#0c0c0e] text-white min-h-[78vh] md:min-h-[86vh] flex flex-col">
-        <ProgressiveImage
-          src={portrait}
-          alt={studioName}
-          width={1024}
-          height={1536}
-          eager
-          priority
-          aspectRatio="2 / 3"
-          onContextMenu={(e) => e.preventDefault()}
-          className="absolute inset-y-0 right-0 h-full w-full md:w-[62%] object-cover object-[center_20%] select-none pointer-events-none"
-          wrapperClassName="absolute inset-y-0 right-0 h-full w-full md:w-[62%]"
-        />
+        {portrait && (
+          <ProgressiveImage
+            src={portrait}
+            alt={studioName}
+            width={1024}
+            height={1536}
+            eager
+            priority
+            aspectRatio="2 / 3"
+            onContextMenu={(e) => e.preventDefault()}
+            className="absolute inset-y-0 right-0 h-full w-full md:w-[62%] object-cover object-[center_20%] select-none pointer-events-none"
+            wrapperClassName="absolute inset-y-0 right-0 h-full w-full md:w-[62%]"
+          />
+        )}
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
@@ -130,18 +130,20 @@ function PortraitHero({
         />
 
         <div className="relative z-10 flex items-start justify-between p-6 md:p-10">
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease }}
-            className="inline-flex items-center gap-2 text-[11px] tracking-[0.18em] uppercase text-white/80"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-            </span>
-            {status}
-          </motion.div>
+          {status ? (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease }}
+              className="inline-flex items-center gap-2 text-[11px] tracking-[0.18em] uppercase text-white/80"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+              </span>
+              {status}
+            </motion.div>
+          ) : <span />}
 
           {cvUrl && (
             <a
@@ -157,16 +159,18 @@ function PortraitHero({
         </div>
 
         <div className="relative z-10 flex-1 flex flex-col justify-end px-6 md:px-12 pb-28 md:pb-32">
-          <div className="overflow-hidden mb-3">
-            <motion.p
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-              className="text-amber-400 text-[13px] md:text-[15px] tracking-[0.04em] font-medium block whitespace-pre-line"
-            >
-              {"'''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''\n                                        \n                                            \n                                            remove all demo pictures, texts"}
-            </motion.p>
-          </div>
+          {role && (
+            <div className="overflow-hidden mb-3">
+              <motion.p
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                className="text-amber-400 text-[13px] md:text-[15px] tracking-[0.04em] font-medium block"
+              >
+                {role}
+              </motion.p>
+            </div>
+          )}
 
           <motion.h1
             initial={{ opacity: 0 }}

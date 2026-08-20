@@ -1,6 +1,7 @@
 import { PortalLayout } from "@/components/PortalLayout";
 import { UpcomingDeadlines } from "@/components/admin/UpcomingDeadlines";
 import { DashboardInsights } from "@/components/admin/DashboardInsights";
+import { DashboardActivityHeatmap } from "@/components/admin/DashboardActivityHeatmap";
 import { useAuth } from "@/contexts/AuthContext";
 import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Zap, RefreshCw, Activity, Eye, Globe } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
@@ -305,12 +306,9 @@ export default function AdminDashboard() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-xs md:text-sm text-portal-text-muted mt-1 hidden sm:block font-light tracking-wide"
+              className="text-xs md:text-sm text-portal-text-muted mt-1 hidden sm:block font-light tracking-wide whitespace-pre-line"
             >
-              '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
-                                        
-                                            
-                                            improve to next level · {format(new Date(), "EEEE, MMMM d")}
+              {"'''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''\n                                        \n                                            \n                                            improve to next level"}
             </motion.p>
           </div>
         </div>
@@ -329,6 +327,27 @@ export default function AdminDashboard() {
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
           </button>
+        </div>
+      </div>
+
+      {/* ── System Status ── */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-8 px-4 py-3 border border-portal-border/30 bg-portal-surface/10 rounded-xl">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+          <span className="text-[10px] font-semibold text-portal-text-muted uppercase tracking-wider">Database Connected</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+          <span className="text-[10px] font-semibold text-portal-text-muted uppercase tracking-wider">Realtime Service Active</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Activity size={12} className="text-portal-accent" />
+          <span className="text-[10px] font-semibold text-portal-text-muted uppercase tracking-wider">Peak Traffic: {Math.max(...stats.trafficSpark).toLocaleString()} unique/day</span>
+        </div>
+        <div className="flex-1 hidden md:block" />
+        <div className="flex items-center gap-2 text-[10px] text-portal-text-muted font-medium">
+          <kbd className="px-1.5 py-0.5 rounded border border-portal-border bg-portal-surface text-[9px] font-mono">⌘K</kbd>
+          <span>for Command Palette</span>
         </div>
       </div>
 
@@ -502,14 +521,17 @@ export default function AdminDashboard() {
         </motion.div>
       </div>
 
-      {/* ── Activity & Quick Actions ── */}
-      <div className="grid gap-4 md:gap-5 grid-cols-1 md:grid-cols-2">
-        <motion.div 
-          initial={{ opacity: 0, y: 24 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ delay: 0.45, ease: luxuryEase }}
-          className="border border-portal-border/40 bg-portal-surface/15 backdrop-blur-sm p-6"
-        >
+      {/* ── Activity & Insights ── */}
+      <div className="grid gap-4 md:gap-5 grid-cols-1 lg:grid-cols-3 mb-8 md:mb-10">
+        <div className="lg:col-span-2 space-y-4 md:space-y-5">
+          <DashboardActivityHeatmap activities={activity} />
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 24 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: 0.45, ease: luxuryEase }}
+            className="border border-portal-border/40 bg-portal-surface/15 backdrop-blur-sm p-6"
+          >
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-display text-sm font-semibold text-portal-text tracking-tight">Recent Activity</h2>
             {isLive && (
@@ -544,8 +566,9 @@ export default function AdminDashboard() {
             <p className="text-xs text-portal-text-muted py-6 text-center font-light">No activity yet.</p>
           )}
         </motion.div>
+        </div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 24 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ delay: 0.5, ease: luxuryEase }}

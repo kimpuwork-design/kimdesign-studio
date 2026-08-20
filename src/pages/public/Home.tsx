@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   MapPin,
@@ -11,6 +11,8 @@ import {
   Briefcase,
   Sparkles,
   Link2,
+  ArrowRight,
+  ArrowUpRight,
 } from "lucide-react";
 
 import { PublicNav } from "@/components/PublicNav";
@@ -21,6 +23,11 @@ import { useSEO } from "@/hooks/useSEO";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { ArchitectureBusinessJsonLd } from "@/components/JsonLd";
 import { ProgressiveImage } from "@/components/media/ProgressiveImage";
+import { MagneticButton } from "@/components/MagneticButton";
+import { SectionLabel } from "@/components/SectionLabel";
+import { FadeUp, StaggerContainer, StaggerItem, ScaleIn } from "@/components/motion/MotionWrappers";
+import { useRef } from "react";
+import { thumbUrl } from "@/lib/images";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 

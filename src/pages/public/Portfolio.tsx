@@ -206,6 +206,7 @@ function GridCard({
               eager={eager}
               priority={index < 3}
               thumbWidth={featured ? 1280 : 720}
+              aspectRatio={featured ? "16 / 9" : "4 / 3"}
               onContextMenu={(e) => e.preventDefault()}
               className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
               wrapperClassName="size-full"

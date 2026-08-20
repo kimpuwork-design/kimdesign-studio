@@ -19,6 +19,7 @@ interface Hit {
   sub?: string;
   href: string;
   kind: "client" | "project" | "lead" | "portfolio";
+  image?: string | null;
 }
 
 const STATIC_ROUTES: Record<Variant, { label: string; href: string; icon: any; group: string }[]> = {

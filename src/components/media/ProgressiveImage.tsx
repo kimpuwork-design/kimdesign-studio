@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { thumbUrl } from "@/lib/images";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 
@@ -101,18 +101,24 @@ export function ProgressiveImage({
     >
       {/* Persistent skeleton — sits BEHIND the image so the fade-in
           reveals the bitmap on top of the shimmer (no empty flash). */}
-      {skeletonMounted && !errored && (
-        <div
-          aria-hidden
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(110deg, rgba(255,255,255,0.03) 8%, rgba(255,255,255,0.06) 18%, rgba(255,255,255,0.03) 33%)",
-            backgroundSize: "200% 100%",
-            animation: "progressiveShimmer 2s linear infinite",
-          }}
-        />
-      )}
+      <AnimatePresence>
+        {skeletonMounted && !errored && (
+          <motion.div
+            key="skeleton"
+            data-skeleton="true"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute inset-0 z-0"
+            style={{
+              background:
+                "linear-gradient(110deg, rgba(255,255,255,0.03) 8%, rgba(255,255,255,0.06) 18%, rgba(255,255,255,0.03) 33%)",
+              backgroundSize: "200% 100%",
+              animation: "progressiveShimmer 2s linear infinite",
+            }}
+          />
+        )}
+      </AnimatePresence>
       <style>{`
         @keyframes progressiveShimmer {
           0% { background-position: 200% 0; }
@@ -134,14 +140,12 @@ export function ProgressiveImage({
           {...rest}
           animate={animate}
           transition={transition}
-          onTransitionEnd={(e) => {
-            // Unmount skeleton only after opacity transition lands at 1.
-            if (e.propertyName === "opacity" && decoded) {
+          onLoad={() => {
+            if (decoded) {
               setSkeletonMounted(false);
             }
-            rest.onTransitionEnd?.(e);
           }}
-          className={`relative size-full ${fit === "cover" ? "object-cover" : "object-contain"} transition-all duration-[800ms] ${
+          className={`relative size-full z-10 ${fit === "cover" ? "object-cover" : "object-contain"} transition-all duration-[800ms] ${
             decoded ? "opacity-100 blur-0 scale-100" : `opacity-0 ${reduceMotion ? "" : "blur-md scale-[1.01]"}`
           } ${className}`}
           style={{

@@ -95,6 +95,7 @@ const App = () => (
   <LanguageProvider>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <AssetPrefetcher />
       <BackToTop />
       <Toaster />
       <Sonner />

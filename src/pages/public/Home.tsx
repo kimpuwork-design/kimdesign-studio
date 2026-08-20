@@ -98,18 +98,20 @@ function PortraitHero({
   return (
     <section className="relative px-4 md:px-6 pt-6 md:pt-8 pb-10 md:pb-14">
       <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[28px] md:rounded-[36px] bg-[#0c0c0e] text-white min-h-[78vh] md:min-h-[86vh] flex flex-col">
-        <ProgressiveImage
-          src={portrait}
-          alt={studioName}
-          width={1024}
-          height={1536}
-          eager
-          priority
-          aspectRatio="2 / 3"
-          onContextMenu={(e) => e.preventDefault()}
-          className="absolute inset-y-0 right-0 h-full w-full md:w-[62%] object-cover object-[center_20%] select-none pointer-events-none"
-          wrapperClassName="absolute inset-y-0 right-0 h-full w-full md:w-[62%]"
-        />
+        {portrait && (
+          <ProgressiveImage
+            src={portrait}
+            alt={studioName}
+            width={1024}
+            height={1536}
+            eager
+            priority
+            aspectRatio="2 / 3"
+            onContextMenu={(e) => e.preventDefault()}
+            className="absolute inset-y-0 right-0 h-full w-full md:w-[62%] object-cover object-[center_20%] select-none pointer-events-none"
+            wrapperClassName="absolute inset-y-0 right-0 h-full w-full md:w-[62%]"
+          />
+        )}
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"

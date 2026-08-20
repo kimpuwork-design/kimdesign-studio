@@ -1,6 +1,7 @@
 import { PortalLayout } from "@/components/PortalLayout";
 import { UpcomingDeadlines } from "@/components/admin/UpcomingDeadlines";
 import { DashboardInsights } from "@/components/admin/DashboardInsights";
+import { DashboardActivityHeatmap } from "@/components/admin/DashboardActivityHeatmap";
 import { useAuth } from "@/contexts/AuthContext";
 import { Users, Briefcase, TrendingUp, DollarSign, ArrowUpRight, Plus, Upload, BarChart3, Clock, CheckCircle2, AlertCircle, FileText, Zap, RefreshCw, Activity, Eye, Globe } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";

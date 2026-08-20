@@ -24,6 +24,9 @@ interface Props extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "onLoad"
    */
   thumbWidth?: number;
   onReady?: () => void;
+  /** motion props */
+  animate?: any;
+  transition?: any;
 }
 
 /**

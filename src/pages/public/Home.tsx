@@ -530,3 +530,28 @@ function NarrativeSection({ aboutMe, t }: { aboutMe: any; t: any }) {
   );
 }
 
+/* ───────────── RECOGNITION SECTION ───────────── */
+function RecognitionSection({ t }: { t: any }) {
+  const recognitions = [
+    "AD Digest", "ArchDaily", "Dezeen", "Elle Decor", "Interior Design", "Frame"
+  ];
+
+  return (
+    <section className="py-20 md:py-32 border-t border-border/30 bg-muted/5">
+      <div className="container">
+        <p className="text-[10px] tracking-[0.4em] uppercase text-muted-foreground/40 text-center mb-12 font-mono-label">
+          {t("home_as_seen_in") || "Featured & Recognized in"}
+        </p>
+        <div className="flex flex-wrap justify-center items-center gap-x-12 md:gap-x-24 gap-y-12 grayscale opacity-30 hover:opacity-60 transition-opacity duration-700">
+          {recognitions.map((name) => (
+            <span key={name} className="font-display text-xl md:text-2xl lg:text-3xl tracking-tighter text-foreground whitespace-nowrap">
+              {name}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+

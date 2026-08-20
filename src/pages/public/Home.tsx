@@ -44,7 +44,8 @@ function cleanProse(text?: string): string {
 export default function Home() {
   const { settings } = useSettings();
   const { t } = useTranslation();
-  const { content } = useSiteContent("hero", "about_me");
+  const { content } = useSiteContent("hero", "about_me", "services_summary", "featured_projects");
+  const [featuredProjects, setFeaturedProjects] = useState<any[]>([]);
 
   const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
   useSEO({
@@ -52,13 +53,37 @@ export default function Home() {
     description: t("seo_home_description"),
   });
 
+  useEffect(() => {
+    supabase
+      .from("projects")
+      .select("id, title, slug, summary, thumbnail_url, category, location, is_featured, is_public")
+      .eq("is_public", true)
+      .order("is_featured", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(6)
+      .then(({ data }) => {
+        if (data) setFeaturedProjects(data);
+      });
+  }, []);
+
   const hero = content.hero ?? {};
 
   return (
     <div className="bg-background relative overflow-x-hidden">
       <ArchitectureBusinessJsonLd />
       <PublicNav />
-      <PortraitHero settings={settings} studioName={studioName} hero={hero} aboutMe={content.about_me ?? {}} t={t} />
+      <main>
+        <PortraitHero settings={settings} studioName={studioName} hero={hero} aboutMe={content.about_me ?? {}} t={t} />
+        
+        {/* Expertise Section */}
+        <ExpertiseSection services={content.services_summary ?? []} t={t} />
+
+        {/* Selected Work Section */}
+        <SelectedWork projects={featuredProjects} t={t} />
+
+        {/* Narrative Section (About Summary) */}
+        <NarrativeSection aboutMe={content.about_me ?? {}} t={t} />
+      </main>
       <PublicFooter />
     </div>
   );

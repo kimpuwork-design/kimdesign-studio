@@ -123,4 +123,15 @@ export const my: TranslationSet = {
   // Floating Chat
   chat_whatsapp: "WhatsApp",
   chat_viber: "Viber",
+  // SEO
+  seo_home_title: "ပင်မစာမျက်နှာ",
+  seo_home_description: "ခေတ်မှီဆန်းသစ်သော ဗိသုကာနှင့် အတွင်းပိုင်းဒီဇိုင်း ဝန်ဆောင်မှုများ။",
+  seo_portfolio_title: "ပရောဂျက်များ",
+  seo_portfolio_description: "ကျွန်ုပ်တို့၏ ရွေးချယ်ထားသော ဗိသုကာနှင့် ဒီဇိုင်းလက်ရာများကို ကြည့်ရှုပါ။",
+  seo_about_title: "ကျွန်ုပ်တို့အကြောင်း",
+  seo_about_description: "KIM DESIGN STUDIO ၏ မူဝါဒများနှင့် လုပ်ငန်းအတွေ့အကြုံများ။",
+  seo_services_title: "ဝန်ဆောင်မှုများ",
+  seo_services_description: "ဗိသုကာ၊ အတွင်းပိုင်းဒီဇိုင်းနှင့် စီမံကိန်းရေးဆွဲခြင်းဆိုင်ရာ ဝန်ဆောင်မှုများ။",
+  seo_contact_title: "ဆက်သွယ်ရန်",
+  seo_contact_description: "သင့်ပရောဂျက်များအတွက် ကျွန်ုပ်တို့ထံ ဆက်သွယ်မေးမြန်းနိုင်ပါသည်။",
 };

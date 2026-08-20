@@ -123,4 +123,15 @@ export const en: TranslationSet = {
   // Floating Chat
   chat_whatsapp: "WhatsApp",
   chat_viber: "Viber",
+  // SEO
+  seo_home_title: "Home",
+  seo_home_description: "Professional Architecture & Interior Design Studio crafting timeless spaces.",
+  seo_portfolio_title: "Portfolio",
+  seo_portfolio_description: "Explore our selected architectural and interior design projects.",
+  seo_about_title: "About",
+  seo_about_description: "Learn about KIM DESIGN STUDIO, our philosophy, and the creative team.",
+  seo_services_title: "Services",
+  seo_services_description: "Comprehensive architecture, interior design, and planning services.",
+  seo_contact_title: "Contact",
+  seo_contact_description: "Get in touch for your next architecture or design project.",
 };

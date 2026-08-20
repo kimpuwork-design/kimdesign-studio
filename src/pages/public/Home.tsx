@@ -41,8 +41,8 @@ export default function Home() {
 
   const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
   useSEO({
-    title: "Home",
-    description: `${studioName} — Professional Architecture & Design Studio in Myanmar`,
+    title: t("seo_home_title"),
+    description: t("seo_home_description"),
   });
 
   const hero = content.hero ?? {};

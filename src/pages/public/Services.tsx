@@ -149,9 +149,9 @@ function ProcessAccordion({ steps }: { steps: any[] }) {
 }
 
 export default function Services() {
-  useSEO({ title: "Services", description: "Architecture, interior design, and planning services by KIM DESIGN STUDIO" });
   const { content } = useSiteContent("services_full", "services_page", "process");
   const { t } = useTranslation();
+  useSEO({ title: t("seo_services_title"), description: t("seo_services_description") });
 
   const services: any[] = content.services_full ?? [];
   const page = content.services_page ?? {};

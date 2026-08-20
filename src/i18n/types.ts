@@ -135,4 +135,15 @@ export type TranslationSet = {
   // Floating Chat
   chat_whatsapp: string;
   chat_viber: string;
+  // SEO
+  seo_home_title: string;
+  seo_home_description: string;
+  seo_portfolio_title: string;
+  seo_portfolio_description: string;
+  seo_about_title: string;
+  seo_about_description: string;
+  seo_services_title: string;
+  seo_services_description: string;
+  seo_contact_title: string;
+  seo_contact_description: string;
 };

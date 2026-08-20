@@ -66,9 +66,9 @@ function AnimatedNumber({ value, suffix = "", label }: { value: number; suffix?:
 }
 
 export default function About() {
-  useSEO({ title: "About", description: "Learn about our architecture studio, values, and team" });
   const { content } = useSiteContent("about_page", "values", "team");
   const { t } = useTranslation();
+  useSEO({ title: t("seo_about_title"), description: t("seo_about_description") });
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);

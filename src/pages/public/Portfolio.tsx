@@ -337,8 +337,8 @@ export default function PublicPortfolio() {
   const { t } = useTranslation();
   useContentProtection();
   useSEO({
-    title: t("portfolio_title"),
-    description: t("portfolio_description"),
+    title: t("seo_portfolio_title"),
+    description: t("seo_portfolio_description"),
   });
   const [items, setItems] = useState<ProjectPortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);

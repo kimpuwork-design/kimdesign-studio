@@ -57,6 +57,7 @@ export function ProgressiveImage({
 }: Props) {
   const { reduceMotion } = useAccessibility();
   const resolvedSrc = thumbWidth ? thumbUrl(src, { width: thumbWidth }) : src;
+  const blurredPlaceholder = thumbUrl(src, { width: 48, quality: 30 });
   const [decoded, setDecoded] = useState(false);
   const [skeletonMounted, setSkeletonMounted] = useState(true);
   const [errored, setErrored] = useState(false);
@@ -99,24 +100,35 @@ export function ProgressiveImage({
       className={`relative overflow-hidden bg-muted/40 ${wrapperClassName}`}
       style={wrapperStyle}
     >
-      {/* Persistent skeleton — sits BEHIND the image so the fade-in
-          reveals the bitmap on top of the shimmer (no empty flash). */}
+      {/* Persistent skeleton + blurred placeholder fallback */}
       <AnimatePresence>
         {skeletonMounted && !errored && (
           <motion.div
             key="skeleton"
-            data-skeleton="true"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             className="absolute inset-0 z-0"
-            style={{
-              background:
-                "linear-gradient(110deg, rgba(255,255,255,0.03) 8%, rgba(255,255,255,0.06) 18%, rgba(255,255,255,0.03) 33%)",
-              backgroundSize: "200% 100%",
-              animation: "progressiveShimmer 2s linear infinite",
-            }}
-          />
+          >
+            {/* Base Shimmer */}
+            <div 
+              className="absolute inset-0"
+              style={{
+                background: "linear-gradient(110deg, rgba(255,255,255,0.03) 8%, rgba(255,255,255,0.06) 18%, rgba(255,255,255,0.03) 33%)",
+                backgroundSize: "200% 100%",
+                animation: "progressiveShimmer 2s linear infinite",
+              }}
+            />
+            {/* Low-res blurred placeholder - shows instantly as soon as its small payload arrives */}
+            {blurredPlaceholder && (
+              <img 
+                src={blurredPlaceholder} 
+                alt="" 
+                className="absolute inset-0 size-full object-cover blur-2xl scale-110 opacity-50"
+                aria-hidden="true"
+              />
+            )}
+          </motion.div>
         )}
       </AnimatePresence>
       <style>{`

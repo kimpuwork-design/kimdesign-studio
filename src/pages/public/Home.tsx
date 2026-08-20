@@ -44,7 +44,7 @@ function cleanProse(text?: string): string {
 export default function Home() {
   const { settings } = useSettings();
   const { t } = useTranslation();
-  const { content } = useSiteContent("hero", "about_me", "services_summary", "featured_projects");
+  const { content } = useSiteContent("hero", "about_me", "services_home", "stats", "testimonials", "awards");
   const [featuredProjects, setFeaturedProjects] = useState<any[]>([]);
 
   const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";

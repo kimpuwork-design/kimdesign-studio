@@ -105,9 +105,9 @@ export function ProgressiveImage({
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(110deg, hsl(218 30% 92%) 8%, hsl(43 45% 90%) 18%, hsl(218 30% 92%) 33%)",
+              "linear-gradient(110deg, rgba(255,255,255,0.03) 8%, rgba(255,255,255,0.06) 18%, rgba(255,255,255,0.03) 33%)",
             backgroundSize: "200% 100%",
-            animation: "progressiveShimmer 1.6s linear infinite",
+            animation: "progressiveShimmer 2s linear infinite",
           }}
         />
       )}
@@ -139,10 +139,14 @@ export function ProgressiveImage({
             }
             rest.onTransitionEnd?.(e);
           }}
-          className={`relative size-full ${fit === "cover" ? "object-cover" : "object-contain"} transition-opacity duration-700 ease-out ${decoded ? "opacity-100" : "opacity-0"} ${className}`}
+          className={`relative size-full ${fit === "cover" ? "object-cover" : "object-contain"} transition-all duration-[800ms] ${
+            decoded ? "opacity-100 blur-0 scale-100" : "opacity-0 blur-md scale-[1.01]"
+          } ${className}`}
           style={{
             userSelect: "none",
             WebkitUserDrag: "none",
+            transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+            willChange: "opacity, filter, transform",
             ...(rest.style || {}),
           } as React.CSSProperties}
         />

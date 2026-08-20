@@ -315,6 +315,7 @@ export default function PortfolioDetail() {
                 alt={item.title} 
                 eager 
                 priority 
+                aspectRatio="16 / 7"
                 onContextMenu={(e) => e.preventDefault()} 
                 className="w-full h-full object-cover" 
                 wrapperClassName="w-full h-full"

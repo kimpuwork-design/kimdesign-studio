@@ -105,6 +105,7 @@ export function ProgressiveImage({
         {skeletonMounted && !errored && (
           <motion.div
             key="skeleton"
+            data-skeleton="true"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}

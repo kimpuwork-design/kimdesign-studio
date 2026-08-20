@@ -139,10 +139,14 @@ export function ProgressiveImage({
             }
             rest.onTransitionEnd?.(e);
           }}
-          className={`relative size-full ${fit === "cover" ? "object-cover" : "object-contain"} transition-opacity duration-700 ease-out ${decoded ? "opacity-100" : "opacity-0"} ${className}`}
+          className={`relative size-full ${fit === "cover" ? "object-cover" : "object-contain"} transition-all duration-[800ms] ${
+            decoded ? "opacity-100 blur-0 scale-100" : "opacity-0 blur-md scale-[1.01]"
+          } ${className}`}
           style={{
             userSelect: "none",
             WebkitUserDrag: "none",
+            transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+            willChange: "opacity, filter, transform",
             ...(rest.style || {}),
           } as React.CSSProperties}
         />

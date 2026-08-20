@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useSettings } from "@/hooks/useSettings";
+import { useTranslation } from "@/i18n/LanguageContext";
 
 interface SEOProps {
   title?: string;
@@ -11,9 +12,15 @@ interface SEOProps {
 
 export function useSEO({ title, description, ogImage, ogType = "website", canonical }: SEOProps) {
   const { settings } = useSettings();
+  const { t } = useTranslation();
+  
   const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
+  
+  // Use translations for defaults if not provided
+  const siteTagline = t("seo_home_description") || "Professional Architecture & Design Studio in Myanmar";
+  
   const fullTitle = title ? `${title} | ${studioName}` : studioName;
-  const desc = description ?? settings?.tagline ?? "Professional Architecture & Design Studio in Myanmar";
+  const desc = description ?? siteTagline;
   const url = canonical ?? window.location.href;
   const image = ogImage ?? "/favicon.png";
 

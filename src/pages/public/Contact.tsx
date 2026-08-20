@@ -27,7 +27,8 @@ const contactSchema = z.object({
 });
 
 export default function Contact() {
-  useSEO({ title: "Contact", description: "Get in touch with KIM DESIGN STUDIO for architecture and design projects" });
+  const { t } = useTranslation();
+  useSEO({ title: t("seo_contact_title"), description: t("seo_contact_description") });
   const { content } = useSiteContent("contact_info");
   const info = content.contact_info ?? {};
   const { t } = useTranslation();

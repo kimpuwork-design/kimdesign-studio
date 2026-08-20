@@ -123,4 +123,15 @@ export const zo: TranslationSet = {
   // Floating Chat
   chat_whatsapp: "WhatsApp",
   chat_viber: "Viber",
+  // SEO
+  seo_home_title: "Home",
+  seo_home_description: "Inn sak nasepna leh design bawlna hoih pen.",
+  seo_portfolio_title: "Nasepna teng",
+  seo_portfolio_description: "Kan nasep hoih telciamte teng en in.",
+  seo_about_title: "Kan thu",
+  seo_about_description: "KIM DESIGN STUDIO leh kan nasem dan teng thei in.",
+  seo_services_title: "Nasep bawlte",
+  seo_services_description: "Inn sakna leh design bawlna nam khempeuh.",
+  seo_contact_title: "Kizel ding",
+  seo_contact_description: "Nasep thak khat na neih leh kan hong kizel in.",
 };

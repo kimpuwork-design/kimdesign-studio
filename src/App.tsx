@@ -14,6 +14,8 @@ import { usePageTracking } from "@/hooks/usePageTracking";
 import { BackToTop } from "@/components/BackToTop";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AssetPrefetcher } from "@/components/AssetPrefetcher";
+import { VitalsDebugPanel } from "@/components/admin/VitalsDebugPanel";
+
 
 // Lazy-loaded pages for code splitting
 type LazyModule<T = unknown> = { default: React.ComponentType<T> };
@@ -98,6 +100,8 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AssetPrefetcher />
+      <VitalsDebugPanel />
+
       <BackToTop />
       <Toaster />
       <Sonner />

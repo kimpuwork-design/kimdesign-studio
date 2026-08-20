@@ -167,8 +167,8 @@ function PortraitHero({
           </motion.p>
 
           <motion.h1
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.1, ease }}
             className="font-display font-bold leading-[0.88] tracking-[-0.04em] text-[clamp(2.4rem,9vw,8rem)]"
           >
@@ -176,7 +176,7 @@ function PortraitHero({
               <motion.span 
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 className="block"
               >
                 {line1}
@@ -187,7 +187,7 @@ function PortraitHero({
                 <motion.span 
                   initial={{ y: "100%" }}
                   animate={{ y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   className="block"
                 >
                   {line2}

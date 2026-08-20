@@ -19,6 +19,7 @@ interface Hit {
   sub?: string;
   href: string;
   kind: "client" | "project" | "lead" | "portfolio";
+  image?: string | null;
 }
 
 const STATIC_ROUTES: Record<Variant, { label: string; href: string; icon: any; group: string }[]> = {
@@ -79,22 +80,22 @@ export function CommandPalette({ open, onOpenChange, variant }: Props) {
       setLoading(true);
       const like = `%${term}%`;
       const [clients, projects, leads, portfolio] = await Promise.all([
-        supabase.from("profiles").select("id, full_name").eq("role", "CLIENT").ilike("full_name", like).limit(5),
-        supabase.from("projects").select("id, title, status").ilike("title", like).limit(6),
+        supabase.from("profiles").select("id, full_name, avatar_url").eq("role", "CLIENT").ilike("full_name", like).limit(5),
+        supabase.from("projects").select("id, title, status, thumbnail_url").ilike("title", like).limit(6),
         supabase.from("leads").select("id, name, email, status").or(`name.ilike.${like},email.ilike.${like}`).limit(5),
-        supabase.from("portfolio_items").select("id, title, category").ilike("title", like).limit(5),
+        supabase.from("portfolio_items").select("id, title, category, image_url").ilike("title", like).limit(5),
       ]);
       // Guard against stale results overwriting newer searches.
       if (latestTermRef.current !== term) return;
       const out: Hit[] = [];
       (clients.data || []).forEach((c: any) =>
-        out.push({ id: `c-${c.id}`, label: c.full_name || "(no name)", href: `/admin/clients`, kind: "client" }));
+        out.push({ id: `c-${c.id}`, label: c.full_name || "(no name)", href: `/admin/clients`, kind: "client", image: c.avatar_url }));
       (projects.data || []).forEach((p: any) =>
-        out.push({ id: `p-${p.id}`, label: p.title, sub: p.status, href: `/admin/projects/${p.id}`, kind: "project" }));
+        out.push({ id: `p-${p.id}`, label: p.title, sub: p.status, href: `/admin/projects/${p.id}`, kind: "project", image: p.thumbnail_url }));
       (leads.data || []).forEach((l: any) =>
         out.push({ id: `l-${l.id}`, label: l.name || l.email, sub: l.status, href: `/admin/leads`, kind: "lead" }));
       (portfolio.data || []).forEach((p: any) =>
-        out.push({ id: `pf-${p.id}`, label: p.title, sub: p.category || "portfolio", href: `/admin/portfolio/${p.id}`, kind: "portfolio" }));
+        out.push({ id: `pf-${p.id}`, label: p.title, sub: p.category || "portfolio", href: `/admin/portfolio/${p.id}`, kind: "portfolio", image: p.image_url }));
       setHits(out);
       setLoading(false);
     }, 180);
@@ -147,8 +148,12 @@ export function CommandPalette({ open, onOpenChange, variant }: Props) {
               {hits.map((h) => {
                 const Icon = iconFor(h.kind);
                 return (
-                  <CommandItem key={h.id} value={`${h.kind}-${h.label}-${h.id}`} onSelect={() => go(h.href)}>
-                    <Icon className="mr-2 h-4 w-4 opacity-70" />
+                  <CommandItem key={h.id} value={`${h.kind}-${h.label}-${h.id}`} onSelect={() => go(h.href)} className="gap-2">
+                    {h.image ? (
+                      <img src={h.image} alt="" className="h-6 w-6 rounded object-cover border border-portal-border" />
+                    ) : (
+                      <Icon className="h-4 w-4 opacity-70" />
+                    )}
                     <span className="flex-1 truncate">{h.label}</span>
                     {h.sub && <span className="ml-2 text-[10px] uppercase tracking-wider opacity-50">{h.sub}</span>}
                     <ArrowRight className="ml-2 h-3 w-3 opacity-40" />

@@ -358,3 +358,173 @@ function PortraitHero({
     </section>
   );
 }
+
+/* ───────────── EXPERTISE SECTION ───────────── */
+function ExpertiseSection({ services, t }: { services: any[]; t: any }) {
+  if (!services || services.length === 0) return null;
+
+  return (
+    <section className="py-24 md:py-40 bg-muted/5 border-t border-border/30">
+      <div className="container">
+        <div className="max-w-4xl mb-16 md:mb-24">
+          <SectionLabel text={t("home_expertise") || "Expertise"} />
+          <FadeUp>
+            <h2 className="font-display text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] text-foreground">
+              We design spaces that <span className="text-primary italic">resonate</span> with their environment and purpose.
+            </h2>
+          </FadeUp>
+        </div>
+
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-border/20 border border-border/20">
+          {services.map((service, i) => (
+            <StaggerItem key={service.title || i}>
+              <div className="bg-background p-10 md:p-14 h-full group hover:bg-card transition-colors duration-500">
+                <span className="font-display text-4xl text-border/40 group-hover:text-primary/20 transition-colors duration-500 block mb-8">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3 className="font-display text-2xl text-foreground mb-4 group-hover:text-primary transition-colors duration-300">
+                  {service.title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-[1.8] line-clamp-3">
+                  {service.desc || service.description}
+                </p>
+              </div>
+            </StaggerItem>
+          ))}
+        </StaggerContainer>
+      </div>
+    </section>
+  );
+}
+
+/* ───────────── SELECTED WORK (Horizontal/Grid Showcase) ───────────── */
+function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
+  if (!projects || projects.length === 0) return null;
+
+  return (
+    <section className="py-24 md:py-40 border-t border-border/30 overflow-hidden">
+      <div className="container">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-16 md:mb-24">
+          <div className="max-w-2xl">
+            <SectionLabel text={t("home_selected_work") || "Selected Work"} />
+            <FadeUp>
+              <h2 className="font-display text-[clamp(2.4rem,6vw,5.5rem)] leading-[0.95] text-foreground tracking-tighter">
+                Architecture that tells a <span className="text-primary italic">story</span>.
+              </h2>
+            </FadeUp>
+          </div>
+          <FadeUp delay={0.2}>
+            <MagneticButton strength={0.15}>
+              <Link to="/portfolio" className="group inline-flex items-center gap-3 text-sm tracking-[0.2em] uppercase text-foreground py-2 border-b border-foreground/10 hover:border-primary transition-colors">
+                {t("home_view_all_projects") || "View all projects"}
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </MagneticButton>
+          </FadeUp>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+          {projects.map((project, i) => (
+            <FadeUp key={project.id} delay={i * 0.1}>
+              <Link to={project.slug ? `/portfolio/${project.slug}` : `/projects/${project.id}`} className="group block">
+                <ImageReveal>
+                  <div className="aspect-[4/5] overflow-hidden bg-muted relative mb-6">
+                    <ProgressiveImage
+                      src={project.thumbnail_url || undefined}
+                      alt={project.title}
+                      aspectRatio="4 / 5"
+                      className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
+                      wrapperClassName="size-full"
+                    />
+                    <div className="absolute inset-0 bg-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute bottom-6 right-6 h-12 w-12 rounded-full bg-background/95 backdrop-blur shadow-xl items-center justify-center hidden md:flex translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                      <ArrowUpRight size={18} className="text-foreground" />
+                    </div>
+                  </div>
+                </ImageReveal>
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-[10px] tracking-[0.25em] uppercase text-primary font-bold">
+                      {project.category}
+                    </span>
+                    <span className="h-px w-8 bg-border" />
+                  </div>
+                  <h3 className="font-display text-2xl text-foreground group-hover:text-primary transition-colors leading-tight">
+                    {project.title}
+                  </h3>
+                  {project.location && (
+                    <p className="mt-2 text-sm text-muted-foreground flex items-center gap-1.5">
+                      <MapPin size={12} className="opacity-60" />
+                      {project.location}
+                    </p>
+                  )}
+                </div>
+              </Link>
+            </FadeUp>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ───────────── NARRATIVE SECTION ───────────── */
+function NarrativeSection({ aboutMe, t }: { aboutMe: any; t: any }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
+  
+  const imageY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+
+  return (
+    <section ref={ref} className="py-24 md:py-48 bg-muted/5 border-t border-border/30 overflow-hidden">
+      <div className="container">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
+          <div className="lg:col-span-5 order-2 lg:order-1">
+            <div className="relative aspect-[3/4] overflow-hidden">
+              <motion.div style={{ y: imageY }} className="absolute inset-0 h-[120%] -top-[10%]">
+                <ProgressiveImage
+                  src={aboutMe?.profile_image_url || undefined}
+                  alt="Studio Narrative"
+                  aspectRatio="3 / 4"
+                  className="h-full w-full object-cover grayscale-[0.5] hover:grayscale-0 transition-all duration-1000"
+                />
+              </motion.div>
+              <div className="absolute inset-0 border-[20px] border-background/10 pointer-events-none" />
+            </div>
+          </div>
+          
+          <div className="lg:col-span-7 order-1 lg:order-2">
+            <SectionLabel text={t("home_narrative") || "The Narrative"} />
+            <FadeUp>
+              <h2 className="font-display text-[clamp(2.4rem,5.5vw,5.5rem)] leading-[0.95] text-foreground mb-10 tracking-tighter">
+                Crafting timeless environments that <span className="text-primary italic">inspire</span> human connection.
+              </h2>
+            </FadeUp>
+            <FadeUp delay={0.2}>
+              <div className="space-y-6 text-muted-foreground leading-relaxed max-w-xl text-lg font-light">
+                <p>
+                  {aboutMe?.short_bio || "We are a contemporary architecture studio based on the principles of minimalism, sustainability, and tectonic integrity."}
+                </p>
+                <p className="text-base">
+                  Every project is a unique response to its context, driven by a rigorous design process that balances aesthetics with functional pragmatism.
+                </p>
+              </div>
+            </FadeUp>
+            <FadeUp delay={0.4} className="mt-12">
+              <MagneticButton strength={0.2}>
+                <Link to="/about" className="inline-flex items-center gap-4 bg-foreground text-background px-10 h-14 tracking-[0.2em] text-[11px] uppercase font-bold hover:bg-primary transition-colors">
+                  {t("home_learn_more") || "Learn more about us"}
+                  <ArrowRight size={14} />
+                </Link>
+              </MagneticButton>
+            </FadeUp>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+

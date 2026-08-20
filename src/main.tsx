@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import App from "./App.tsx";
 import "./index.css";
 import { friendlyErrorMessage } from "@/lib/errors";
+import { reportWebVitals } from "@/lib/vitals";
+
 
 // Global safety net — surface uncaught errors as user-facing toasts
 // instead of silently failing in the console.
@@ -33,3 +35,7 @@ createRoot(document.getElementById("root")!).render(
     <App />
   </HelmetProvider>,
 );
+
+// Start tracking Core Web Vitals (LCP, CLS, etc.)
+reportWebVitals();
+

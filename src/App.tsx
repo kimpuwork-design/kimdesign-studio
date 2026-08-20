@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/i18n/LanguageContext";
+import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { CommandPalette } from "@/components/CommandPalette";
 import { usePageTracking } from "@/hooks/usePageTracking";
@@ -92,6 +93,7 @@ function AppRoutes() {
 
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+  <AccessibilityProvider>
   <LanguageProvider>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -176,6 +178,7 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
   </LanguageProvider>
+  </AccessibilityProvider>
   </ThemeProvider>
 );
 

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
+import { useAccessibility } from "@/contexts/AccessibilityContext";
 
 /**
  * Subtle page transition for admin/staff/client portal pages.
@@ -7,6 +8,12 @@ import { useLocation } from "react-router-dom";
  */
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
+  const { reduceMotion } = useAccessibility();
+
+  if (reduceMotion) {
+    return <div key={pathname}>{children}</div>;
+  }
+
   return (
     <motion.div
       key={pathname}

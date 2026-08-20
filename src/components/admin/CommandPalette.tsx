@@ -148,8 +148,12 @@ export function CommandPalette({ open, onOpenChange, variant }: Props) {
               {hits.map((h) => {
                 const Icon = iconFor(h.kind);
                 return (
-                  <CommandItem key={h.id} value={`${h.kind}-${h.label}-${h.id}`} onSelect={() => go(h.href)}>
-                    <Icon className="mr-2 h-4 w-4 opacity-70" />
+                  <CommandItem key={h.id} value={`${h.kind}-${h.label}-${h.id}`} onSelect={() => go(h.href)} className="gap-2">
+                    {h.image ? (
+                      <img src={h.image} alt="" className="h-6 w-6 rounded object-cover border border-portal-border" />
+                    ) : (
+                      <Icon className="h-4 w-4 opacity-70" />
+                    )}
                     <span className="flex-1 truncate">{h.label}</span>
                     {h.sub && <span className="ml-2 text-[10px] uppercase tracking-wider opacity-50">{h.sub}</span>}
                     <ArrowRight className="ml-2 h-3 w-3 opacity-40" />

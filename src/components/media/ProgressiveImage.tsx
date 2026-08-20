@@ -105,9 +105,9 @@ export function ProgressiveImage({
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(110deg, hsl(218 30% 92%) 8%, hsl(43 45% 90%) 18%, hsl(218 30% 92%) 33%)",
+              "linear-gradient(110deg, rgba(255,255,255,0.03) 8%, rgba(255,255,255,0.06) 18%, rgba(255,255,255,0.03) 33%)",
             backgroundSize: "200% 100%",
-            animation: "progressiveShimmer 1.6s linear infinite",
+            animation: "progressiveShimmer 2s linear infinite",
           }}
         />
       )}

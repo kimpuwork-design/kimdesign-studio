@@ -124,26 +124,52 @@ function PortraitHero({
           aria-hidden
           className="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#0c0c0e] via-[#0c0c0e]/85 md:via-[#0c0c0e]/60 to-transparent"
         />
+        
+        {/* Name Overlay beside Profile Picture */}
+        <div className="absolute top-6 right-6 z-20 hidden md:flex items-center gap-3">
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.5, ease }}
+            className="flex flex-col items-end"
+          >
+            <span className="text-[10px] tracking-[0.2em] uppercase text-amber-400/60 font-medium">Creative Director</span>
+            <span className="text-lg font-display font-bold tracking-tight text-white leading-none mt-0.5">NANG KHAN KIM</span>
+          </motion.div>
+          <div className="h-8 w-[1px] bg-white/10" />
+        </div>
+
         <div
           aria-hidden
           className="absolute inset-x-0 bottom-0 h-40 pointer-events-none bg-gradient-to-t from-[#0c0c0e]/90 to-transparent"
         />
 
         <div className="relative z-10 flex items-start justify-between p-6 md:p-10">
-          {status ? (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease }}
-              className="inline-flex items-center gap-2 text-[11px] tracking-[0.18em] uppercase text-white/80"
+          <div className="flex flex-col gap-4">
+            {status && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease }}
+                className="inline-flex items-center gap-2 text-[11px] tracking-[0.18em] uppercase text-white/80"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                </span>
+                {status}
+              </motion.div>
+            )}
+
+            {/* Mobile-only name display */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="md:hidden flex flex-col"
             >
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-              </span>
-              {status}
+              <span className="text-[10px] tracking-[0.15em] uppercase text-amber-400/80 font-medium">NANG KHAN KIM</span>
             </motion.div>
-          ) : <span />}
+          </div>
 
           {cvUrl && (
             <a

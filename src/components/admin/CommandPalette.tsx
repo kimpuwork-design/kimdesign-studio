@@ -89,13 +89,13 @@ export function CommandPalette({ open, onOpenChange, variant }: Props) {
       if (latestTermRef.current !== term) return;
       const out: Hit[] = [];
       (clients.data || []).forEach((c: any) =>
-        out.push({ id: `c-${c.id}`, label: c.full_name || "(no name)", href: `/admin/clients`, kind: "client" }));
+        out.push({ id: `c-${c.id}`, label: c.full_name || "(no name)", href: `/admin/clients`, kind: "client", image: c.avatar_url }));
       (projects.data || []).forEach((p: any) =>
-        out.push({ id: `p-${p.id}`, label: p.title, sub: p.status, href: `/admin/projects/${p.id}`, kind: "project" }));
+        out.push({ id: `p-${p.id}`, label: p.title, sub: p.status, href: `/admin/projects/${p.id}`, kind: "project", image: p.thumbnail_url }));
       (leads.data || []).forEach((l: any) =>
         out.push({ id: `l-${l.id}`, label: l.name || l.email, sub: l.status, href: `/admin/leads`, kind: "lead" }));
       (portfolio.data || []).forEach((p: any) =>
-        out.push({ id: `pf-${p.id}`, label: p.title, sub: p.category || "portfolio", href: `/admin/portfolio/${p.id}`, kind: "portfolio" }));
+        out.push({ id: `pf-${p.id}`, label: p.title, sub: p.category || "portfolio", href: `/admin/portfolio/${p.id}`, kind: "portfolio", image: p.image_url }));
       setHits(out);
       setLoading(false);
     }, 180);

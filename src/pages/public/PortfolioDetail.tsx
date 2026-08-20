@@ -10,6 +10,7 @@ import { FileAsset, formatBytes, FILE_CATEGORIES, isImageExt, getPublicFileSigne
 import { FileIcon } from "@/components/files/FileIcon";
 import { FilePreviewModal } from "@/components/files/FilePreviewModal";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";
+import { ProgressiveImage } from "@/components/media/ProgressiveImage";
 import { FadeUp, StaggerContainer, StaggerItem, SlideIn } from "@/components/motion/MotionWrappers";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 

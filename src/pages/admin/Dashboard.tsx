@@ -500,14 +500,17 @@ export default function AdminDashboard() {
         </motion.div>
       </div>
 
-      {/* ── Activity & Quick Actions ── */}
-      <div className="grid gap-4 md:gap-5 grid-cols-1 md:grid-cols-2">
-        <motion.div 
-          initial={{ opacity: 0, y: 24 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ delay: 0.45, ease: luxuryEase }}
-          className="border border-portal-border/40 bg-portal-surface/15 backdrop-blur-sm p-6"
-        >
+      {/* ── Activity & Insights ── */}
+      <div className="grid gap-4 md:gap-5 grid-cols-1 lg:grid-cols-3 mb-8 md:mb-10">
+        <div className="lg:col-span-2 space-y-4 md:space-y-5">
+          <DashboardActivityHeatmap activities={activity} />
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 24 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: 0.45, ease: luxuryEase }}
+            className="border border-portal-border/40 bg-portal-surface/15 backdrop-blur-sm p-6"
+          >
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-display text-sm font-semibold text-portal-text tracking-tight">Recent Activity</h2>
             {isLive && (

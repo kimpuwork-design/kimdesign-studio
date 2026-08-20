@@ -181,10 +181,9 @@ export function PublicFooter() {
           <p className="text-[11px] text-muted-foreground/60 font-mono-label">
             © {new Date().getFullYear()} {studioName}. {t("footer_rights")}
           </p>
-          <p className="text-[10px] text-muted-foreground/30 font-mono-label whitespace-pre-line text-right max-w-xs mt-4 md:mt-0">
-            {"'''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''\n                                        \n                                            \n                                            remove all demo pictures, texts"}
-          </p>
-          <span className="text-[11px] text-muted-foreground/40 font-mono-label tracking-wider">Yangon · Mandalay · Myanmar</span>
+          {address && (
+            <span className="text-[11px] text-muted-foreground/40 font-mono-label tracking-wider">{address}</span>
+          )}
         </div>
       </div>
     </footer>

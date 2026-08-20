@@ -545,8 +545,9 @@ export default function AdminDashboard() {
             <p className="text-xs text-portal-text-muted py-6 text-center font-light">No activity yet.</p>
           )}
         </motion.div>
+        </div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 24 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ delay: 0.5, ease: luxuryEase }}

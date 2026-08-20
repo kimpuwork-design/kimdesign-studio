@@ -133,12 +133,14 @@ function PortraitHero({
             transition={{ duration: 0.8, delay: 0.5, ease }}
             className="flex flex-col items-end"
           >
-            <span className="text-[12px] tracking-[0.3em] uppercase text-amber-400 font-medium mb-1 drop-shadow-md">Creative Director</span>
-            <span className="text-[clamp(1.5rem,4vw,3.5rem)] font-display font-bold tracking-tighter text-white leading-[0.9] drop-shadow-2xl">
-              NANG KHAN KIM
+            <span className="text-[12px] tracking-[0.3em] uppercase text-amber-400 font-medium mb-2 drop-shadow-md">Creative Director</span>
+            <span className="text-[clamp(1.5rem,4.5vw,4.5rem)] font-display font-black tracking-tighter text-white leading-[0.85] drop-shadow-2xl flex flex-col items-end">
+              <span>NANG</span>
+              <span>KHAN</span>
+              <span>KIM</span>
             </span>
           </motion.div>
-          <div className="h-16 w-[2px] bg-white/20 shadow-sm" />
+          <div className="h-24 w-[2px] bg-white/20 shadow-sm self-end mb-2" />
         </div>
 
         <div
@@ -169,10 +171,12 @@ function PortraitHero({
               animate={{ opacity: 1 }}
               className="md:hidden flex flex-col mt-2"
             >
-              <span className="text-[clamp(1.2rem,6vw,2.5rem)] font-display font-bold tracking-tight text-white leading-tight drop-shadow-lg">
-                NANG KHAN KIM
+              <span className="text-[clamp(1.5rem,8vw,3rem)] font-display font-black tracking-tighter text-white leading-[0.85] drop-shadow-lg flex flex-col">
+                <span>NANG</span>
+                <span>KHAN</span>
+                <span>KIM</span>
               </span>
-              <span className="text-[9px] tracking-[0.2em] uppercase text-amber-400 font-medium">Creative Director</span>
+              <span className="text-[9px] tracking-[0.2em] uppercase text-amber-400 font-medium mt-2">Creative Director</span>
             </motion.div>
           </div>
 

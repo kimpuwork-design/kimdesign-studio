@@ -126,21 +126,20 @@ function PortraitHero({
         />
         
         {/* Name Overlay beside Profile Picture */}
-        <div className="absolute top-6 right-6 z-20 hidden md:flex items-center gap-6">
+        <div className="absolute inset-y-0 right-0 z-20 hidden md:flex flex-col items-center justify-center w-[38%] pointer-events-none">
           <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.5, ease }}
-            className="flex flex-col items-end"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.5, ease }}
+            className="flex flex-col items-center text-center p-8"
           >
-            <span className="text-[12px] tracking-[0.3em] uppercase text-amber-400 font-medium mb-2 drop-shadow-md">Creative Director</span>
-            <span className="text-[clamp(1.5rem,4.5vw,4.5rem)] font-display font-black tracking-tighter text-white leading-[0.85] drop-shadow-2xl flex flex-col items-end">
-              <span>NANG</span>
-              <span>KHAN</span>
-              <span>KIM</span>
+            <span className="text-[clamp(1rem,1.2vw,1.5rem)] tracking-[0.5em] uppercase text-amber-400 font-medium mb-6 drop-shadow-md">Creative Director</span>
+            <span className="text-[clamp(3rem,8vw,9rem)] font-display font-black tracking-[0.05em] text-white leading-[0.8] drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex flex-col items-center select-none">
+              <span className="block">NANG</span>
+              <span className="block my-[-0.05em]">KHAN</span>
+              <span className="block">KIM</span>
             </span>
           </motion.div>
-          <div className="h-24 w-[2px] bg-white/20 shadow-sm self-end mb-2" />
         </div>
 
         <div
@@ -169,14 +168,14 @@ function PortraitHero({
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="md:hidden flex flex-col mt-2"
+              className="md:hidden flex flex-col mt-4 items-center w-full"
             >
-              <span className="text-[clamp(1.5rem,8vw,3rem)] font-display font-black tracking-tighter text-white leading-[0.85] drop-shadow-lg flex flex-col">
+              <span className="text-[clamp(2.5rem,15vw,5rem)] font-display font-black tracking-[0.05em] text-white leading-[0.8] drop-shadow-lg flex flex-col items-center">
                 <span>NANG</span>
                 <span>KHAN</span>
                 <span>KIM</span>
               </span>
-              <span className="text-[9px] tracking-[0.2em] uppercase text-amber-400 font-medium mt-2">Creative Director</span>
+              <span className="text-[10px] tracking-[0.3em] uppercase text-amber-400 font-medium mt-4">Creative Director</span>
             </motion.div>
           </div>
 

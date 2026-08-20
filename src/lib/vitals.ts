@@ -35,21 +35,22 @@ function sendToAnalytics(metric: Metric) {
   }
 
   // Log to page_views table for long-term tracking
-  supabase.from('page_views' as any).insert({
-    path: window.location.pathname,
-    meta: {
-      vital_name: metric.name,
-      vital_value: metric.value,
-      vital_id: metric.id,
-      vital_rating: metric.rating,
-      timestamp: body.timestamp
-    }
-  } as any).catch(err => {
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
-      console.warn('Failed to log vital:', err);
-    }
-  });
+    supabase.from('page_views' as any).insert({
+      path: window.location.pathname,
+      meta: {
+        vital_name: metric.name,
+        vital_value: metric.value,
+        vital_id: metric.id,
+        vital_rating: metric.rating,
+        timestamp: body.timestamp
+      }
+    } as any).then(({ error }) => {
+      if (error && process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('Failed to log vital:', error.message);
+      }
+    });
+
 }
 
 export function reportWebVitals() {

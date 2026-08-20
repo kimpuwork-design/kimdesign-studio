@@ -11,9 +11,10 @@ export function VitalsDebugPanel() {
 
   useEffect(() => {
     if (!isDev) return;
-    return subscribeToVitals((metric) => {
+    const unsubscribe = subscribeToVitals((metric) => {
       setMetrics((prev) => ({ ...prev, [metric.name]: metric }));
     });
+    return () => unsubscribe();
   }, [isDev]);
 
   if (!isDev) return null;

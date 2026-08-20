@@ -79,10 +79,10 @@ export function CommandPalette({ open, onOpenChange, variant }: Props) {
       setLoading(true);
       const like = `%${term}%`;
       const [clients, projects, leads, portfolio] = await Promise.all([
-        supabase.from("profiles").select("id, full_name").eq("role", "CLIENT").ilike("full_name", like).limit(5),
-        supabase.from("projects").select("id, title, status").ilike("title", like).limit(6),
+        supabase.from("profiles").select("id, full_name, avatar_url").eq("role", "CLIENT").ilike("full_name", like).limit(5),
+        supabase.from("projects").select("id, title, status, thumbnail_url").ilike("title", like).limit(6),
         supabase.from("leads").select("id, name, email, status").or(`name.ilike.${like},email.ilike.${like}`).limit(5),
-        supabase.from("portfolio_items").select("id, title, category").ilike("title", like).limit(5),
+        supabase.from("portfolio_items").select("id, title, category, image_url").ilike("title", like).limit(5),
       ]);
       // Guard against stale results overwriting newer searches.
       if (latestTermRef.current !== term) return;

@@ -14,7 +14,9 @@ export function VitalsDebugPanel() {
     const unsubscribe = subscribeToVitals((metric) => {
       setMetrics((prev) => ({ ...prev, [metric.name]: metric }));
     });
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+    };
   }, [isDev]);
 
   if (!isDev) return null;

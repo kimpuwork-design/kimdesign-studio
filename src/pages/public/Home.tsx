@@ -71,11 +71,10 @@ function PortraitHero({
   aboutMe: any;
   t: (k: string) => string;
 }) {
-  const portrait = aboutMe?.profile_image_url || settings?.hero_portrait_url || heroPortraitDemo;
+  const portrait = aboutMe?.profile_image_url || settings?.hero_portrait_url || null;
 
-  const role =
-    settings?.hero_role || hero?.badge || "Architecture & Interior Design Studio";
-  const status = settings?.hero_status || "Open to commissions";
+  const role = settings?.hero_role || hero?.badge || "";
+  const status = settings?.hero_status || "";
   const cvUrl = settings?.cv_url;
   const email = settings?.contact_email;
   const phone = settings?.phone;

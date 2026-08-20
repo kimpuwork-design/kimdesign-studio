@@ -67,8 +67,8 @@ export function PublicFooter() {
   const { t } = useTranslation();
   const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
   const logoUrl = settings?.logo_url || "/logo-placeholder.png";
-  const tagline = settings?.tagline ?? "Architecture that endures";
-  const email = settings?.contact_email ?? "studio@forma.com";
+  const tagline = settings?.tagline ?? "";
+  const email = settings?.contact_email;
   const phone = settings?.phone;
   const address = settings?.address;
   const instagram = settings?.instagram_url;

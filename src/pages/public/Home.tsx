@@ -44,7 +44,7 @@ function cleanProse(text?: string): string {
 export default function Home() {
   const { settings } = useSettings();
   const { t } = useTranslation();
-  const { content } = useSiteContent("hero", "about_me", "services_summary", "featured_projects");
+  const { content } = useSiteContent("hero", "about_me", "services_home", "stats", "testimonials", "awards");
   const [featuredProjects, setFeaturedProjects] = useState<any[]>([]);
 
   const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
@@ -75,16 +75,17 @@ export default function Home() {
       <main id="main-content">
         <PortraitHero settings={settings} studioName={studioName} hero={hero} aboutMe={content.about_me ?? {}} t={t} />
         
-        {/* Expertise Section */}
-        <ExpertiseSection services={content.services_summary ?? []} t={t} />
+        <StatsBand stats={content.stats ?? []} />
 
-        {/* Selected Work Section */}
+        <ExpertiseSection services={content.services_home ?? []} t={t} />
+
         <SelectedWork projects={featuredProjects} t={t} />
 
-        {/* Narrative Section (About Summary) */}
         <NarrativeSection aboutMe={content.about_me ?? {}} t={t} />
-        {/* Client Logos / Recognition */}
-        <RecognitionSection t={t} />
+
+        <TestimonialsSection testimonials={content.testimonials ?? []} t={t} />
+
+        <RecognitionSection awards={content.awards ?? []} t={t} />
       </main>
       <PublicFooter />
     </div>

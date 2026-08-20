@@ -26,11 +26,12 @@ const contactSchema = z.object({
   message: z.string().trim().min(20, "Message must be at least 20 characters").max(2000),
 });
 
-export export default function Contact() {
+export default function Contact() {
   const { content } = useSiteContent("contact_info");
   const { t } = useTranslation();
   useSEO({ title: t("seo_contact_title"), description: t("seo_contact_description") });
 
+  const info = content.contact_info ?? {};
   const locations: any[] = info.locations ?? [];
   const projectTypes: string[] = info.project_types ?? [];
 

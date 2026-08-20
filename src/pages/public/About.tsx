@@ -65,7 +65,7 @@ function AnimatedNumber({ value, suffix = "", label }: { value: number; suffix?:
   );
 }
 
-export export default function About() {
+export default function About() {
   const { content } = useSiteContent("about_page", "values", "team");
   const { t } = useTranslation();
   useSEO({ title: t("seo_about_title"), description: t("seo_about_description") });

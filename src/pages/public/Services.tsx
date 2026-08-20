@@ -148,7 +148,7 @@ function ProcessAccordion({ steps }: { steps: any[] }) {
   );
 }
 
-export export default function Services() {
+export default function Services() {
   const { content } = useSiteContent("services_full", "services_page", "process");
   const { t } = useTranslation();
   useSEO({ title: t("seo_services_title"), description: t("seo_services_description") });

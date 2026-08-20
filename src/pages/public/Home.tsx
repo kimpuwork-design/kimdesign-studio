@@ -171,10 +171,12 @@ function PortraitHero({
               animate={{ opacity: 1 }}
               className="md:hidden flex flex-col mt-2"
             >
-              <span className="text-[clamp(1.2rem,6vw,2.5rem)] font-display font-bold tracking-tight text-white leading-tight drop-shadow-lg">
-                NANG KHAN KIM
+              <span className="text-[clamp(1.5rem,8vw,3rem)] font-display font-black tracking-tighter text-white leading-[0.85] drop-shadow-lg flex flex-col">
+                <span>NANG</span>
+                <span>KHAN</span>
+                <span>KIM</span>
               </span>
-              <span className="text-[9px] tracking-[0.2em] uppercase text-amber-400 font-medium">Creative Director</span>
+              <span className="text-[9px] tracking-[0.2em] uppercase text-amber-400 font-medium mt-2">Creative Director</span>
             </motion.div>
           </div>
 

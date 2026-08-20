@@ -131,14 +131,15 @@ function PortraitHero({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.5, ease }}
-            className="flex flex-col items-center text-center p-8"
+            className="flex flex-col items-center text-center p-8 w-full"
           >
-            <span className="text-[clamp(1rem,1.2vw,1.5rem)] tracking-[0.5em] uppercase text-amber-400 font-medium mb-6 drop-shadow-md">Creative Director</span>
-            <span className="text-[clamp(3rem,8vw,9rem)] font-display font-black tracking-[0.05em] text-white leading-[0.8] drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex flex-col items-center select-none">
+            <span className="text-[clamp(1rem,1.4vw,1.8rem)] tracking-[0.6em] uppercase text-amber-400 font-bold mb-8 drop-shadow-md">Creative Director</span>
+            <h2 className="text-[clamp(4rem,10.5vw,11rem)] font-display font-black tracking-[0.08em] text-white leading-[0.78] drop-shadow-[0_15px_45px_rgba(0,0,0,0.6)] flex flex-col items-center select-none w-full">
               <span className="block">NANG</span>
-              <span className="block my-[-0.05em]">KHAN</span>
+              <span className="block my-[-0.08em]">KHAN</span>
               <span className="block">KIM</span>
-            </span>
+            </h2>
+            <div className="mt-10 w-24 h-1 bg-amber-400/80 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.5)]" />
           </motion.div>
         </div>
 
@@ -168,14 +169,15 @@ function PortraitHero({
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="md:hidden flex flex-col mt-4 items-center w-full"
+              className="md:hidden flex flex-col mt-6 items-center w-full"
             >
-              <span className="text-[clamp(2.5rem,15vw,5rem)] font-display font-black tracking-[0.05em] text-white leading-[0.8] drop-shadow-lg flex flex-col items-center">
+              <h2 className="text-[clamp(3.5rem,18vw,6.5rem)] font-display font-black tracking-[0.08em] text-white leading-[0.78] drop-shadow-2xl flex flex-col items-center">
                 <span>NANG</span>
                 <span>KHAN</span>
                 <span>KIM</span>
-              </span>
-              <span className="text-[10px] tracking-[0.3em] uppercase text-amber-400 font-medium mt-4">Creative Director</span>
+              </h2>
+              <div className="mt-4 w-12 h-0.5 bg-amber-400/80 rounded-full" />
+              <span className="text-[11px] tracking-[0.4em] uppercase text-amber-400 font-bold mt-4">Creative Director</span>
             </motion.div>
           </div>
 

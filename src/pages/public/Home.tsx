@@ -83,6 +83,8 @@ export default function Home() {
 
         {/* Narrative Section (About Summary) */}
         <NarrativeSection aboutMe={content.about_me ?? {}} t={t} />
+        {/* Client Logos / Recognition */}
+        <RecognitionSection t={t} />
       </main>
       <PublicFooter />
     </div>

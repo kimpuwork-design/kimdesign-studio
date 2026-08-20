@@ -476,7 +476,7 @@ export default function PublicPortfolio() {
                     <motion.div
                       initial={{ y: "100%" }}
                       animate={{ y: 0 }}
-                      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.9, ease: luxuryEase }}
                       className="block"
                     >
                       {t("portfolio_our") || "Our"}{" "}
@@ -485,7 +485,7 @@ export default function PublicPortfolio() {
                         <motion.span 
                           initial={{ width: 0 }}
                           animate={{ width: "100%" }}
-                          transition={{ duration: 1.2, delay: 0.8, ease }}
+                          transition={{ duration: 1.2, delay: 0.8, ease: luxuryEase }}
                           className="absolute -bottom-2 left-0 h-[3px] bg-primary/30 rounded-full"
                         />
                       </span>

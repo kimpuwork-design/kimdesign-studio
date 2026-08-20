@@ -157,14 +157,16 @@ function PortraitHero({
         </div>
 
         <div className="relative z-10 flex-1 flex flex-col justify-end px-6 md:px-12 pb-28 md:pb-32">
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.05, ease }}
-            className="text-amber-400 text-[13px] md:text-[15px] tracking-[0.04em] font-medium mb-3"
-          >
-            {role}
-          </motion.p>
+          <div className="overflow-hidden mb-3">
+            <motion.p
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="text-amber-400 text-[13px] md:text-[15px] tracking-[0.04em] font-medium block"
+            >
+              {role}
+            </motion.p>
+          </div>
 
           <motion.h1
             initial={{ opacity: 0 }}

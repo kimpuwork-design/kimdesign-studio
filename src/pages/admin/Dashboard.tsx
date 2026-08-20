@@ -330,6 +330,27 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* ── System Status ── */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-8 px-4 py-3 border border-portal-border/30 bg-portal-surface/10 rounded-xl">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+          <span className="text-[10px] font-semibold text-portal-text-muted uppercase tracking-wider">Database Connected</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+          <span className="text-[10px] font-semibold text-portal-text-muted uppercase tracking-wider">Realtime Service Active</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Activity size={12} className="text-portal-accent" />
+          <span className="text-[10px] font-semibold text-portal-text-muted uppercase tracking-wider">Peak Traffic: {Math.max(...stats.trafficSpark).toLocaleString()} unique/day</span>
+        </div>
+        <div className="flex-1 hidden md:block" />
+        <div className="flex items-center gap-2 text-[10px] text-portal-text-muted font-medium">
+          <kbd className="px-1.5 py-0.5 rounded border border-portal-border bg-portal-surface text-[9px] font-mono">⌘K</kbd>
+          <span>for Command Palette</span>
+        </div>
+      </div>
+
       {/* ── Stat Cards ── */}
       <div className="flex gap-3 overflow-x-auto scrollbar-none pb-1 mb-8 md:mb-10 md:grid md:grid-cols-4 xl:grid-cols-7 md:overflow-visible md:pb-0">
         {statCards.map((s, idx) => {

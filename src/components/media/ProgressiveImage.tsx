@@ -50,6 +50,8 @@ export function ProgressiveImage({
   thumbWidth,
   className = "",
   onReady,
+  animate,
+  transition,
   ...rest
 }: Props) {
   const resolvedSrc = thumbWidth ? thumbUrl(src, { width: thumbWidth }) : src;

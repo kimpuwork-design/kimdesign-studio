@@ -126,17 +126,19 @@ function PortraitHero({
         />
         
         {/* Name Overlay beside Profile Picture */}
-        <div className="absolute top-6 right-6 z-20 hidden md:flex items-center gap-3">
+        <div className="absolute top-6 right-6 z-20 hidden md:flex items-center gap-6">
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.5, ease }}
             className="flex flex-col items-end"
           >
-            <span className="text-[10px] tracking-[0.2em] uppercase text-amber-400/60 font-medium">Creative Director</span>
-            <span className="text-lg font-display font-bold tracking-tight text-white leading-none mt-0.5">NANG KHAN KIM</span>
+            <span className="text-[12px] tracking-[0.3em] uppercase text-amber-400 font-medium mb-1 drop-shadow-md">Creative Director</span>
+            <span className="text-[clamp(1.5rem,4vw,3.5rem)] font-display font-bold tracking-tighter text-white leading-[0.9] drop-shadow-2xl">
+              NANG KHAN KIM
+            </span>
           </motion.div>
-          <div className="h-8 w-[1px] bg-white/10" />
+          <div className="h-16 w-[2px] bg-white/20 shadow-sm" />
         </div>
 
         <div

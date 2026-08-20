@@ -12,6 +12,7 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { BackToTop } from "@/components/BackToTop";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { AssetPrefetcher } from "@/components/AssetPrefetcher";
 
 // Lazy-loaded pages for code splitting
 type LazyModule<T = unknown> = { default: React.ComponentType<T> };

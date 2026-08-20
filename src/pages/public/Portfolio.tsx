@@ -285,15 +285,13 @@ function ListCard({
           {String(index + 1).padStart(2, "0")}
         </span>
         {item.thumbnail_url && (
-          <div className="shrink-0 w-20 h-16 sm:w-24 sm:h-16 overflow-hidden rounded-sm bg-muted/40">
-            <img
-              src={thumbUrl(item.thumbnail_url, { width: 240 })}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="size-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
-          </div>
+          <ProgressiveImage
+            src={item.thumbnail_url}
+            alt=""
+            thumbWidth={240}
+            wrapperClassName="shrink-0 w-20 h-16 sm:w-24 sm:h-16 rounded-sm"
+            className="group-hover:scale-105 transition-transform duration-700"
+          />
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">

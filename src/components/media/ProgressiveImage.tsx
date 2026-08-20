@@ -122,7 +122,7 @@ export function ProgressiveImage({
           <span>Image unavailable</span>
         </div>
       ) : resolvedSrc ? (
-        <img
+        <motion.img
           src={resolvedSrc}
           alt={alt}
           loading={eager ? "eager" : "lazy"}
@@ -130,6 +130,8 @@ export function ProgressiveImage({
           draggable={false}
           {...(priority ? ({ fetchpriority: "high" } as Record<string, string>) : {})}
           {...rest}
+          animate={animate}
+          transition={transition}
           onTransitionEnd={(e) => {
             // Unmount skeleton only after opacity transition lands at 1.
             if (e.propertyName === "opacity" && decoded) {

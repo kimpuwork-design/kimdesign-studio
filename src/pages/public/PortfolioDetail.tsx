@@ -504,8 +504,13 @@ export default function PortfolioDetail() {
                     <Link to={rLink} className="group block relative overflow-hidden" data-cursor-hover>
                       <div className="aspect-[4/3] overflow-hidden relative">
                         {r.thumbnail_url ? (
-                          <img src={r.thumbnail_url} alt={r.title} loading="lazy"
-                            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform [transition-duration:900ms]" />
+                          <ProgressiveImage 
+                            src={r.thumbnail_url} 
+                            alt={r.title} 
+                            thumbWidth={600}
+                            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform [transition-duration:900ms]" 
+                            wrapperClassName="w-full h-full"
+                          />
                         ) : (
                           <div className="w-full h-full bg-muted/30" />
                         )}

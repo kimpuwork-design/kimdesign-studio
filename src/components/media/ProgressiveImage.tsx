@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { thumbUrl } from "@/lib/images";
 
 interface Props extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "onLoad"> {

@@ -470,18 +470,24 @@ export default function PublicPortfolio() {
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.7, ease: luxuryEase }}
-                  className="font-display text-[clamp(2.4rem,6vw,5.5rem)] text-foreground leading-[0.95] tracking-[-0.03em]"
+                  className="font-display text-[clamp(2.8rem,7vw,6.5rem)] text-foreground leading-[0.9] tracking-[-0.04em]"
                 >
                   <div className="overflow-hidden">
                     <motion.div
                       initial={{ y: "100%" }}
                       animate={{ y: 0 }}
-                      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.9, ease: luxuryEase }}
                       className="block"
                     >
                       {t("portfolio_our") || "Our"}{" "}
-                      <span className="text-primary italic font-light">
+                      <span className="relative inline-block text-primary italic font-black">
                         {t("portfolio_title") || "Portfolio"}
+                        <motion.span 
+                          initial={{ width: 0 }}
+                          animate={{ width: "100%" }}
+                          transition={{ duration: 1.2, delay: 0.8, ease: luxuryEase }}
+                          className="absolute -bottom-2 left-0 h-[3px] bg-primary/30 rounded-full"
+                        />
                       </span>
                     </motion.div>
                   </div>

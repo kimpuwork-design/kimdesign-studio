@@ -114,7 +114,7 @@ export default function ClientDashboard() {
               transition={{ delay: 0.2 }}
               className="text-xs md:text-sm text-portal-text-muted mt-1 hidden sm:block font-light tracking-wide whitespace-pre-line"
             >
-              {"'''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''\n                                        \n                                            \n                                            remove all မလိုအပ်တာတွေ, ပိုနေတာတေွ, duplicate ဖြစ်နေတာတွေ အကုန်လုံး"}
+              {"'''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''\n                                        \n                                            \n                                            remove all demo pictures, texts"}
             </motion.p>
           </div>
         </div>

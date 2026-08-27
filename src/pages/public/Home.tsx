@@ -454,12 +454,14 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
                   </div>
                 </ImageReveal>
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-[10px] tracking-[0.25em] uppercase text-primary font-bold">
-                      {project.category}
-                    </span>
-                    <span className="h-px w-8 bg-border" />
-                  </div>
+                  {project.category && (
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-[10px] tracking-[0.25em] uppercase text-primary font-bold">
+                        {project.category}
+                      </span>
+                      <span className="h-px w-8 bg-border" />
+                    </div>
+                  )}
                   <h3 className="font-display text-2xl text-foreground group-hover:text-primary transition-colors leading-tight">
                     {project.title}
                   </h3>

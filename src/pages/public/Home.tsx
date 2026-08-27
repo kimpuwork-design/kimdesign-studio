@@ -531,28 +531,96 @@ function NarrativeSection({ aboutMe, t }: { aboutMe: any; t: any }) {
   );
 }
 
-/* ───────────── RECOGNITION SECTION ───────────── */
-function RecognitionSection({ t }: { t: any }) {
-  const recognitions = [
-    "AD Digest", "ArchDaily", "Dezeen", "Elle Decor", "Interior Design", "Frame"
-  ];
-
+/* ───────────── STATS BAND ───────────── */
+function StatsBand({ stats }: { stats: any[] }) {
+  if (!stats?.length) return null;
   return (
-    <section className="py-20 md:py-32 border-t border-border/30 bg-muted/5">
+    <section className="border-y border-border/30 bg-muted/[0.04]">
       <div className="container">
-        <p className="text-[10px] tracking-[0.4em] uppercase text-muted-foreground/40 text-center mb-12 font-mono-label">
-          {t("home_as_seen_in") || "Featured & Recognized in"}
-        </p>
-        <div className="flex flex-wrap justify-center items-center gap-x-12 md:gap-x-24 gap-y-12 grayscale opacity-30 hover:opacity-60 transition-opacity duration-700">
-          {recognitions.map((name) => (
-            <span key={name} className="font-display text-xl md:text-2xl lg:text-3xl tracking-tighter text-foreground whitespace-nowrap">
-              {name}
-            </span>
+        <StaggerContainer className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-border/30">
+          {stats.map((s, i) => (
+            <StaggerItem key={s.label ?? i}>
+              <div className="px-6 py-10 md:px-10 md:py-14 text-center lg:text-left">
+                <p className="font-display text-[clamp(2.2rem,5vw,4rem)] leading-none tracking-tighter text-foreground">
+                  {s.value}
+                  <span className="text-primary">{s.suffix}</span>
+                </p>
+                <p className="mt-3 text-[10px] md:text-[11px] tracking-[0.25em] uppercase text-muted-foreground/70 font-mono-label">
+                  {s.label}
+                </p>
+              </div>
+            </StaggerItem>
+          ))}
+        </StaggerContainer>
+      </div>
+    </section>
+  );
+}
+
+/* ───────────── TESTIMONIALS ───────────── */
+function TestimonialsSection({ testimonials, t }: { testimonials: any[]; t: any }) {
+  if (!testimonials?.length) return null;
+  return (
+    <section className="py-24 md:py-40 border-t border-border/30">
+      <div className="container">
+        <div className="mb-14 md:mb-20 max-w-3xl">
+          <SectionLabel text={t("home_client_voices")} />
+          <FadeUp>
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3.75rem)] leading-[1.02] tracking-tighter text-foreground">
+              Trusted by the people who <span className="text-primary italic">live</span> in our work.
+            </h2>
+          </FadeUp>
+        </div>
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
+          {testimonials.slice(0, 3).map((item, i) => (
+            <StaggerItem key={item.name ?? i}>
+              <figure className="h-full border border-border/40 p-8 md:p-10 flex flex-col justify-between bg-card/40 hover:border-primary/40 transition-colors duration-500">
+                <blockquote className="text-[15px] leading-[1.85] text-muted-foreground">
+                  “{item.text}”
+                </blockquote>
+                <figcaption className="mt-8 pt-6 border-t border-border/40">
+                  <p className="font-display text-lg text-foreground leading-tight">{item.name}</p>
+                  <p className="mt-1 text-[11px] tracking-[0.15em] uppercase text-muted-foreground/60 font-mono-label">
+                    {item.role}
+                  </p>
+                </figcaption>
+              </figure>
+            </StaggerItem>
+          ))}
+        </StaggerContainer>
+      </div>
+    </section>
+  );
+}
+
+/* ───────────── RECOGNITION SECTION ───────────── */
+function RecognitionSection({ awards, t }: { awards: any[]; t: any }) {
+  if (!awards?.length) return null;
+  return (
+    <section className="py-20 md:py-32 border-t border-border/30 bg-muted/[0.04]">
+      <div className="container">
+        <SectionLabel text={t("home_awards_recognition")} />
+        <div className="mt-10 border-t border-border/30">
+          {awards.map((a, i) => (
+            <FadeUp key={`${a.title}-${i}`} delay={i * 0.06}>
+              <div className="group grid grid-cols-12 items-baseline gap-4 border-b border-border/30 py-6 md:py-8 hover:bg-card/50 transition-colors duration-400 px-2 md:px-4">
+                <span className="col-span-3 md:col-span-2 font-mono-label text-xs md:text-sm text-primary tracking-widest">
+                  {a.year}
+                </span>
+                <h3 className="col-span-9 md:col-span-6 font-display text-lg md:text-2xl tracking-tight text-foreground">
+                  {a.title}
+                </h3>
+                <p className="col-span-12 md:col-span-4 text-xs md:text-sm text-muted-foreground/70 md:text-right">
+                  {a.org}
+                </p>
+              </div>
+            </FadeUp>
           ))}
         </div>
       </div>
     </section>
   );
 }
+
 
 

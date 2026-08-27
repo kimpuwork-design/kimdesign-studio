@@ -432,13 +432,21 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
               <Link to={project.slug ? `/portfolio/${project.slug}` : `/projects/${project.id}`} className="group block">
                 <ImageReveal>
                   <div className="aspect-[4/5] overflow-hidden bg-muted relative mb-6">
-                    <ProgressiveImage
-                      src={project.thumbnail_url || undefined}
-                      alt={project.title}
-                      aspectRatio="4 / 5"
-                      className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
-                      wrapperClassName="size-full"
-                    />
+                    {project.thumbnail_url ? (
+                      <ProgressiveImage
+                        src={project.thumbnail_url}
+                        alt={project.title}
+                        aspectRatio="4 / 5"
+                        className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
+                        wrapperClassName="size-full"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-card border border-border/40">
+                        <span className="font-display text-5xl text-border/60 tracking-tighter">
+                          {String(project.title ?? "").slice(0, 2).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="absolute bottom-6 right-6 h-12 w-12 rounded-full bg-background/95 backdrop-blur shadow-xl items-center justify-center hidden md:flex translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                       <ArrowUpRight size={18} className="text-foreground" />

@@ -378,7 +378,7 @@ function ExpertiseSection({ services, t }: { services: any[]; t: any }) {
           </FadeUp>
         </div>
 
-        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-border/20 border border-border/20">>
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-border/20 border border-border/20">
           {services.map((service, i) => (
             <StaggerItem key={service.title || i}>
               <div className="bg-background p-10 md:p-14 h-full group hover:bg-card transition-colors duration-500">

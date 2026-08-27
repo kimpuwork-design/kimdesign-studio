@@ -370,7 +370,7 @@ function ExpertiseSection({ services, t }: { services: any[]; t: any }) {
     <section className="py-24 md:py-40 bg-muted/5 border-t border-border/30">
       <div className="container">
         <div className="max-w-4xl mb-16 md:mb-24">
-          <SectionLabel text={t("home_expertise") || "Expertise"} />
+          <SectionLabel text={t("home_what_we_do")} />
           <FadeUp>
             <h2 className="font-display text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] text-foreground">
               We design spaces that <span className="text-primary italic">resonate</span> with their environment and purpose.

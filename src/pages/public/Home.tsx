@@ -419,7 +419,7 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
           <FadeUp delay={0.2}>
             <MagneticButton strength={0.15}>
               <Link to="/portfolio" className="group inline-flex items-center gap-3 text-sm tracking-[0.2em] uppercase text-foreground py-2 border-b border-foreground/10 hover:border-primary transition-colors">
-                {t("home_view_all_projects") || "View all projects"}
+                {t("home_all_projects")}
                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </Link>
             </MagneticButton>

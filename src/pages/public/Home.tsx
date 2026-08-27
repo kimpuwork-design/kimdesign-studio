@@ -409,7 +409,7 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
       <div className="container">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-16 md:mb-24">
           <div className="max-w-2xl">
-            <SectionLabel text={t("home_selected_work") || "Selected Work"} />
+            <SectionLabel text={t("home_selected_work")} />
             <FadeUp>
               <h2 className="font-display text-[clamp(2.4rem,6vw,5.5rem)] leading-[0.95] text-foreground tracking-tighter">
                 Architecture that tells a <span className="text-primary italic">story</span>.

@@ -500,26 +500,29 @@ function NarrativeSection({ aboutMe, t }: { aboutMe: any; t: any }) {
           </div>
           
           <div className="lg:col-span-7 order-1 lg:order-2">
-            <SectionLabel text={t("home_narrative") || "The Narrative"} />
+            <SectionLabel text={t("about_the_studio")} />
             <FadeUp>
-              <h2 className="font-display text-[clamp(2.4rem,5.5vw,5.5rem)] leading-[0.95] text-foreground mb-10 tracking-tighter">
+              <h2 className="font-display text-[clamp(2.2rem,5vw,4.75rem)] leading-[0.98] text-foreground mb-10 tracking-tighter">
                 Crafting timeless environments that <span className="text-primary italic">inspire</span> human connection.
               </h2>
             </FadeUp>
             <FadeUp delay={0.2}>
-              <div className="space-y-6 text-muted-foreground leading-relaxed max-w-xl text-lg font-light">
-                <p>
-                  {aboutMe?.short_bio || "We are a contemporary architecture studio based on the principles of minimalism, sustainability, and tectonic integrity."}
-                </p>
-                <p className="text-base">
-                  Every project is a unique response to its context, driven by a rigorous design process that balances aesthetics with functional pragmatism.
-                </p>
+              <div className="space-y-6 text-muted-foreground leading-[1.85] max-w-xl">
+                {aboutMe?.quote && (
+                  <p className="font-display text-xl md:text-2xl text-foreground/90 italic leading-snug">
+                    “{aboutMe.quote}”
+                  </p>
+                )}
+                <p>{cleanProse(aboutMe?.bio_secondary) || cleanProse(aboutMe?.bio_main)}</p>
+                {aboutMe?.bio_tertiary && (
+                  <p className="text-[15px]">{cleanProse(aboutMe.bio_tertiary)}</p>
+                )}
               </div>
             </FadeUp>
             <FadeUp delay={0.4} className="mt-12">
               <MagneticButton strength={0.2}>
-                <Link to="/about" className="inline-flex items-center gap-4 bg-foreground text-background px-10 h-14 tracking-[0.2em] text-[11px] uppercase font-bold hover:bg-primary transition-colors">
-                  {t("home_learn_more") || "Learn more about us"}
+                <Link to="/about" className="inline-flex items-center gap-4 bg-foreground text-background px-10 h-14 tracking-[0.2em] text-[11px] uppercase font-bold hover:bg-primary hover:text-primary-foreground transition-colors">
+                  {t("home_learn_more")}
                   <ArrowRight size={14} />
                 </Link>
               </MagneticButton>

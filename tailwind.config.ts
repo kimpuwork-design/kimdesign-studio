@@ -50,6 +50,14 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        hero: {
+          DEFAULT: "hsl(var(--hero))",
+          foreground: "hsl(var(--hero-foreground))",
+          muted: "hsl(var(--hero-muted))",
+          faint: "hsl(var(--hero-faint))",
+          surface: "hsl(var(--hero-surface))",
+          border: "hsl(var(--hero-border))",
+        },
         portal: {
           bg: "hsl(var(--portal-bg))",
           surface: "hsl(var(--portal-surface))",

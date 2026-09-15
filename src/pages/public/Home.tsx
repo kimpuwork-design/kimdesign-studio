@@ -1,21 +1,18 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   MapPin,
   Mail,
   Phone as PhoneIcon,
-  Linkedin,
-  Download,
-  Home as HomeIcon,
-  FileText,
-  Briefcase,
-  Sparkles,
-  Link2,
+  Instagram,
+  Facebook,
+  Menu,
+  X,
+  Accessibility,
   ArrowRight,
   ArrowUpRight,
 } from "lucide-react";
 
-import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
 import { useSettings } from "@/hooks/useSettings";
 import { useSiteContent } from "@/hooks/useSiteContent";
@@ -28,6 +25,9 @@ import { SectionLabel } from "@/components/SectionLabel";
 import { FadeUp, StaggerContainer, StaggerItem, ImageReveal } from "@/components/motion/MotionWrappers";
 import { useRef, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { useAccessibility } from "@/contexts/AccessibilityContext";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -71,7 +71,6 @@ export default function Home() {
   return (
     <div className="bg-background relative overflow-x-hidden min-h-screen">
       <ArchitectureBusinessJsonLd />
-      <PublicNav />
       <main id="main-content">
         <PortraitHero settings={settings} studioName={studioName} hero={hero} aboutMe={content.about_me ?? {}} t={t} />
         
@@ -92,7 +91,7 @@ export default function Home() {
   );
 }
 
-/* ───────────── PORTRAIT HERO (editorial dark with amber glow) ───────────── */
+/* ───────────── DARK EDITORIAL PORTRAIT HERO ───────────── */
 function PortraitHero({
   settings,
   studioName,
@@ -106,257 +105,94 @@ function PortraitHero({
   aboutMe: any;
   t: (k: string) => string;
 }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { reduceMotion, setReduceMotion } = useAccessibility();
   const portrait = aboutMe?.profile_image_url || settings?.hero_portrait_url || null;
-
-  const role = settings?.hero_role || hero?.badge || "";
+  const ownerName = hero?.name || "NANG KHAN KIM";
+  const role = settings?.hero_role || aboutMe?.title_prefix || hero?.badge || "Architectural Designer";
   const status = settings?.hero_status || "";
-  const cvUrl = settings?.cv_url;
-  const email = settings?.contact_email;
-  const phone = settings?.phone;
   const address = settings?.address;
   const insta = settings?.instagram_url;
+  const facebook = settings?.facebook_url;
   const description = cleanProse(hero?.description);
-
-  const tokens = studioName.trim().split(/\s+/);
-  const mid = Math.ceil(tokens.length / 2);
-  const line1 = tokens.slice(0, mid).join(" ");
-  const line2 = tokens.slice(mid).join(" ");
-
+  const introduction = description || cleanProse(aboutMe?.bio_main);
   const navItems = [
-    { icon: HomeIcon, label: "Home", to: "/" },
-    { icon: FileText, label: "Summary", to: "/about" },
-    { icon: Briefcase, label: "Portfolio", to: "/portfolio" },
-    { icon: Sparkles, label: t("nav_services") || "Services", to: "/services" },
-    { icon: Link2, label: t("nav_contact") || "Contact", to: "/contact" },
+    { label: t("nav_projects") || "Projects", to: "/portfolio" },
+    { label: t("nav_services") || "Services", to: "/services" },
+    { label: t("nav_studio") || "About", to: "/about" },
+    { label: t("nav_contact") || "Contact", to: "/contact" },
   ];
+  const headingRole = role.toUpperCase();
 
   return (
-    <section className="relative px-4 md:px-6 pt-6 md:pt-8 pb-10 md:pb-14">
-      <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[28px] md:rounded-[36px] bg-[#0c0c0e] text-white min-h-[78vh] md:min-h-[86vh] flex flex-col">
-        {portrait && (
-          <ProgressiveImage
-            src={portrait}
-            alt={studioName}
-            width={1024}
-            height={1536}
-            eager
-            priority
-            aspectRatio="2 / 3"
-            onContextMenu={(e) => e.preventDefault()}
-            className="absolute inset-y-0 right-0 h-full w-full md:w-[62%] object-cover object-[center_20%] select-none pointer-events-none"
-            wrapperClassName="absolute inset-y-0 right-0 h-full w-full md:w-[62%]"
-          />
-        )}
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse 60% 55% at 72% 38%, rgba(255,153,51,0.45), rgba(255,107,0,0.15) 35%, transparent 65%)",
-          }}
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#0c0c0e] via-[#0c0c0e]/85 md:via-[#0c0c0e]/60 to-transparent"
-        />
-        
-        {/* Name Overlay beside Profile Picture */}
-        <div className="absolute inset-y-0 right-0 z-20 hidden md:flex flex-col items-center justify-center w-[38%] pointer-events-none">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.5, ease }}
-            className="flex flex-col items-center text-center p-8 w-full"
-          >
-            <span className="text-[clamp(1rem,1.4vw,1.8rem)] tracking-[0.6em] uppercase text-amber-400 font-bold mb-8 drop-shadow-md">Creative Director</span>
-            <h2 className="text-[clamp(4rem,10.5vw,11rem)] font-display font-black tracking-[0.08em] text-white leading-[0.78] drop-shadow-[0_15px_45px_rgba(0,0,0,0.6)] flex flex-col items-center select-none w-full">
-              <span className="block">NANG</span>
-              <span className="block my-[-0.08em]">KHAN</span>
-              <span className="block">KIM</span>
-            </h2>
-            <div className="mt-10 w-24 h-1 bg-amber-400/80 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.5)]" />
-          </motion.div>
-        </div>
+    <section className="relative min-h-[92svh] overflow-hidden bg-hero text-hero-foreground">
+      <header className="relative z-30 mx-auto flex h-20 max-w-[1360px] items-center justify-between px-5 sm:px-8 lg:h-24 lg:px-12">
+        <Link to="/" className="font-display text-base font-bold uppercase tracking-normal sm:text-lg" aria-label={`${studioName} home`}>
+          {studioName}
+        </Link>
 
-        <div
-          aria-hidden
-          className="absolute inset-x-0 bottom-0 h-40 pointer-events-none bg-gradient-to-t from-[#0c0c0e]/90 to-transparent"
-        />
-
-        <div className="relative z-10 flex items-start justify-between p-6 md:p-10">
-          <div className="flex flex-col gap-4">
-            {status && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease }}
-                className="inline-flex items-center gap-2 text-[11px] tracking-[0.18em] uppercase text-white/80"
-              >
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-                </span>
-                {status}
-              </motion.div>
-            )}
-
-            {/* Mobile-only name display */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="md:hidden flex flex-col mt-6 items-center w-full"
-            >
-              <h2 className="text-[clamp(3.5rem,18vw,6.5rem)] font-display font-black tracking-[0.08em] text-white leading-[0.78] drop-shadow-2xl flex flex-col items-center">
-                <span>NANG</span>
-                <span>KHAN</span>
-                <span>KIM</span>
-              </h2>
-              <div className="mt-4 w-12 h-0.5 bg-amber-400/80 rounded-full" />
-              <span className="text-[11px] tracking-[0.4em] uppercase text-amber-400 font-bold mt-4">Creative Director</span>
-            </motion.div>
-          </div>
-
-          {cvUrl && (
-            <a
-              href={cvUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-amber-400 text-neutral-900 px-4 py-2 text-[12px] font-semibold tracking-tight shadow-lg shadow-amber-500/20 hover:bg-amber-300 transition-colors"
-            >
-              <Download size={14} />
-              {t("home_download_cv") || "Download CV"}
-            </a>
-          )}
-        </div>
-
-        <div className="relative z-10 flex-1 flex flex-col justify-end px-6 md:px-12 pb-28 md:pb-32">
-          {role && (
-            <div className="overflow-hidden mb-3">
-              <motion.p
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                className="text-amber-400 text-[13px] md:text-[15px] tracking-[0.04em] font-medium block"
-              >
-                {role}
-              </motion.p>
-            </div>
-          )}
-
-          <motion.h1
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.1, ease }}
-            className="font-display font-bold leading-[0.88] tracking-[-0.04em] text-[clamp(2.4rem,9vw,8rem)]"
-          >
-            <div className="overflow-hidden">
-              <motion.span 
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="block"
-              >
-                {line1}
-              </motion.span>
-            </div>
-            {line2 && (
-              <div className="overflow-hidden mt-[-0.1em]">
-                <motion.span 
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  className="block"
-                >
-                  {line2}
-                </motion.span>
-              </div>
-            )}
-          </motion.h1>
-
-          {description && (
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, ease }}
-              className="mt-6 max-w-md text-white/70 text-sm md:text-base leading-relaxed"
-            >
-              {description}
-            </motion.p>
-          )}
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3, ease }}
-            className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-3 max-w-2xl text-[13px] text-white/85"
-          >
-            {email && (
-              <a
-                href={`mailto:${email}`}
-                className="flex items-center gap-3 hover:text-amber-300 transition-colors"
-              >
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-amber-400/15 text-amber-400">
-                  <Mail size={13} />
-                </span>
-                <span className="truncate">{email}</span>
-              </a>
-            )}
-            {insta && (
-              <a
-                href={insta}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-3 hover:text-amber-300 transition-colors"
-              >
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-amber-400/15 text-amber-400">
-                  <Linkedin size={13} />
-                </span>
-                <span className="truncate">{insta.replace(/^https?:\/\//, "")}</span>
-              </a>
-            )}
-            {phone && (
-              <a
-                href={`tel:${phone}`}
-                className="flex items-center gap-3 hover:text-amber-300 transition-colors"
-              >
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-amber-400/15 text-amber-400">
-                  <PhoneIcon size={13} />
-                </span>
-                <span>{phone}</span>
-              </a>
-            )}
-            {address && (
-              <div className="flex items-center gap-3">
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-amber-400/15 text-amber-400">
-                  <MapPin size={13} />
-                </span>
-                <span className="truncate">{address}</span>
-              </div>
-            )}
-          </motion.div>
-        </div>
-
-        <motion.nav
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4, ease }}
-          className="absolute left-1/2 -translate-x-1/2 bottom-5 md:bottom-8 z-10 flex items-center gap-1 rounded-full bg-white/10 backdrop-blur-xl border border-white/15 p-1 shadow-2xl"
-        >
-          {navItems.map((it, i) => (
-            <Link
-              key={it.label}
-              to={it.to}
-              className={`group inline-flex items-center gap-1.5 px-3 md:px-4 py-2 rounded-full text-[12px] tracking-tight transition-colors ${
-                i === 0
-                  ? "bg-white text-neutral-900 font-medium"
-                  : "text-white/85 hover:text-white hover:bg-white/10"
-              }`}
-            >
-              <it.icon size={13} />
-              <span className="hidden sm:inline">{it.label}</span>
+        <nav className="hidden items-center gap-7 lg:flex" aria-label="Main navigation">
+          <Link to="/" className="text-xs font-semibold uppercase tracking-normal text-hero-foreground">Home</Link>
+          {navItems.map((item) => (
+            <Link key={item.to} to={item.to} className="text-xs font-medium uppercase tracking-normal text-hero-muted transition-colors hover:text-hero-foreground">
+              {item.label}
             </Link>
           ))}
-        </motion.nav>
+          <span className="h-5 w-px bg-hero-border" aria-hidden />
+          {insta && <a href={insta} target="_blank" rel="noreferrer" aria-label="Instagram" className="text-hero-muted transition-colors hover:text-hero-foreground"><Instagram size={17} /></a>}
+          {facebook && <a href={facebook} target="_blank" rel="noreferrer" aria-label="Facebook" className="text-hero-muted transition-colors hover:text-hero-foreground"><Facebook size={17} /></a>}
+          <LanguageToggle />
+          <Button type="button" variant="ghost" size="icon" onClick={() => setReduceMotion(!reduceMotion)} aria-pressed={reduceMotion} aria-label="Toggle reduced motion" title="Reduce motion" className="text-hero-muted hover:bg-hero-surface hover:text-hero-foreground">
+            <Accessibility size={17} />
+          </Button>
+        </nav>
+
+        <Button type="button" variant="ghost" size="icon" onClick={() => setMobileOpen((open) => !open)} aria-expanded={mobileOpen} aria-controls="home-mobile-nav" aria-label={mobileOpen ? "Close menu" : "Open menu"} className="text-hero-foreground hover:bg-hero-surface lg:hidden">
+          {mobileOpen ? <X size={21} /> : <Menu size={21} />}
+        </Button>
+      </header>
+
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.nav id="home-mobile-nav" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute inset-x-4 top-20 z-40 border border-hero-border bg-hero-surface p-3 lg:hidden" aria-label="Mobile navigation">
+            {[{ label: "Home", to: "/" }, ...navItems].map((item) => (
+              <Link key={item.to} to={item.to} onClick={() => setMobileOpen(false)} className="flex min-h-12 items-center border-b border-hero-border px-3 text-sm font-medium uppercase text-hero-foreground last:border-0">{item.label}</Link>
+            ))}
+            <div className="flex items-center justify-between px-1 pt-3"><LanguageToggle /><Button type="button" variant="ghost" size="icon" onClick={() => setReduceMotion(!reduceMotion)} aria-pressed={reduceMotion} aria-label="Toggle reduced motion" className="text-hero-muted"><Accessibility size={17} /></Button></div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
+
+      <div className="relative mx-auto grid min-h-[calc(92svh-5rem)] max-w-[1360px] grid-cols-1 px-5 sm:px-8 lg:min-h-[calc(92svh-6rem)] lg:grid-cols-12 lg:px-12">
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease }} className="relative z-20 flex flex-col justify-center pb-12 pt-12 lg:col-span-6 lg:pb-28 lg:pt-8">
+          <p className="mb-6 text-xs font-bold uppercase tracking-normal text-hero-foreground">Hi, I’m {ownerName}</p>
+          <h1 className="max-w-[760px] font-display text-[clamp(3.1rem,7.2vw,7.1rem)] font-bold uppercase leading-[0.91] tracking-normal text-hero-foreground">
+            I’m an<br />{headingRole}
+          </h1>
+          {introduction && <p className="mt-7 max-w-[540px] text-sm leading-7 text-hero-muted sm:text-base lg:mt-8 lg:text-lg">{introduction}</p>}
+          <div className="mt-9 flex flex-wrap items-center gap-6 lg:mt-11">
+            <Button asChild variant="outline" size="lg" className="h-13 rounded-none border-hero-foreground bg-transparent px-7 text-xs font-bold uppercase tracking-normal text-hero-foreground hover:bg-hero-foreground hover:text-hero">
+              <Link to="/portfolio">View my projects <ArrowRight size={15} /></Link>
+            </Button>
+            <Link to="/contact" className="border-b border-hero-border pb-1 text-xs font-bold uppercase tracking-normal text-hero-muted transition-colors hover:border-hero-foreground hover:text-hero-foreground">Contact me</Link>
+          </div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.15 }} className="relative z-10 min-h-[52svh] lg:col-span-6 lg:min-h-0">
+          {portrait ? (
+            <ProgressiveImage src={portrait} alt={`Portrait of ${ownerName}`} width={1024} height={1280} eager priority aspectRatio="4 / 5" thumbWidth={1200} onContextMenu={(event) => event.preventDefault()} wrapperClassName="absolute inset-x-0 bottom-0 h-full bg-hero" className="object-cover object-top grayscale-[0.12] contrast-[1.03]" />
+          ) : (
+            <div className="absolute inset-x-0 bottom-0 flex h-full items-center justify-center border border-hero-border bg-hero-surface font-display text-6xl font-bold text-hero-muted">NKK</div>
+          )}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-hero via-transparent to-transparent opacity-50" aria-hidden />
+          <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-28 bg-gradient-to-r from-hero to-transparent lg:block" aria-hidden />
+        </motion.div>
+
+        <div className="relative z-20 col-span-full grid grid-cols-1 gap-5 border-t border-hero-border py-6 text-xs sm:grid-cols-3 lg:absolute lg:inset-x-12 lg:bottom-0 lg:py-7">
+          <div><span className="block uppercase text-hero-faint">Availability</span><strong className="mt-1 block font-medium text-hero-foreground">{status || "Available for selected projects"}</strong></div>
+          <div><span className="block uppercase text-hero-faint">Location</span><strong className="mt-1 block font-medium text-hero-foreground">{address || "Myanmar / Worldwide"}</strong></div>
+          <div><span className="block uppercase text-hero-faint">Practice</span><strong className="mt-1 block font-medium text-hero-foreground">Architecture · Interiors · Visualization</strong></div>
+        </div>
       </div>
     </section>
   );

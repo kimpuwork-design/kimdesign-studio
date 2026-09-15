@@ -71,6 +71,14 @@
     --chart-3: 200 60% 45%;
     --chart-4: 28 65% 55%;
     --chart-5: 218 40% 50%;
+
+    /* Landing hero — editorial charcoal */
+    --hero: 0 0% 7%;
+    --hero-foreground: 0 0% 96%;
+    --hero-muted: 0 0% 62%;
+    --hero-faint: 0 0% 40%;
+    --hero-surface: 0 0% 11%;
+    --hero-border: 0 0% 22%;
   }
 
   .dark {

@@ -619,6 +619,7 @@ export type Database = {
           country: string | null
           created_at: string
           id: string
+          meta: Json | null
           path: string
           referrer: string | null
           session_id: string | null
@@ -629,6 +630,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           id?: string
+          meta?: Json | null
           path: string
           referrer?: string | null
           session_id?: string | null
@@ -639,6 +641,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           id?: string
+          meta?: Json | null
           path?: string
           referrer?: string | null
           session_id?: string | null

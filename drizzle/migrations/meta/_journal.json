@@ -8,6 +8,13 @@
       "when": 1789374766561,
       "tag": "0000_restore_public_project_gallery_reads",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789614753350,
+      "tag": "0001_add_missing_page_view_metrics_metadata",
+      "breakpoints": true
     }
   ]
 }

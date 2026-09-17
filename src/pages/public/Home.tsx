@@ -167,11 +167,11 @@ function PortraitHero({
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease }} className="relative z-20 flex flex-col justify-center pb-12 pt-12 lg:col-span-6 lg:pb-28 lg:pt-8">
           <p className="mb-6 text-xs font-bold uppercase tracking-normal text-hero-foreground">Hi, I’m {ownerName}</p>
           <h1 className="max-w-[760px] font-display text-[clamp(3.1rem,7.2vw,7.1rem)] font-bold uppercase leading-[0.91] tracking-normal text-hero-foreground">
-            I’m an<br />{headingRole}
+             I’m { /^[aeiou]/i.test(role.trim()) ? "an" : "a" }<br />{headingRole}
           </h1>
           {introduction && <p className="mt-7 max-w-[540px] text-sm leading-7 text-hero-muted sm:text-base lg:mt-8 lg:text-lg">{introduction}</p>}
           <div className="mt-9 flex flex-wrap items-center gap-6 lg:mt-11">
-            <Button asChild variant="outline" size="lg" className="h-13 rounded-none border-hero-foreground bg-transparent px-7 text-xs font-bold uppercase tracking-normal text-hero-foreground hover:bg-hero-foreground hover:text-hero">
+            <Button asChild variant="outline" size="lg" className="h-12 shrink-0 rounded-none border-hero-foreground bg-transparent px-7 text-xs font-bold uppercase tracking-normal text-hero-foreground hover:bg-hero-foreground hover:text-hero">
               <Link to="/portfolio">View my projects <ArrowRight size={15} /></Link>
             </Button>
             <Link to="/contact" className="border-b border-hero-border pb-1 text-xs font-bold uppercase tracking-normal text-hero-muted transition-colors hover:border-hero-foreground hover:text-hero-foreground">Contact me</Link>

@@ -1,5 +1,8 @@
 # Remaining verification
 
+- [ ] Verify anonymous access to every non-private project, including galleries; keep private projects protected.
+- [ ] Assess Myanmar connectivity remedies without claiming an untested regional fix.
+
 - [x] Check published homepage without signing in from the available test network.
 - [x] Confirm a public project gallery loads all six images.
 - [x] Verify remaining public pages and mobile homepage navigation.

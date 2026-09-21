@@ -9,3 +9,7 @@
 - [x] Correct homepage heading grammar and project button height.
 - [ ] Diagnose Myanmar-only access failure — requires the affected network's browser error and provider name; the available test network is not in Myanmar.
 - [x] Investigate analytics HTTP 400 responses separately from regional access: added missing metrics metadata column; repeat browser check reports no HTTP 400 errors.
+# Current simplification
+
+- [ ] Simplify public portfolio while preserving the current format.
+- [ ] Verify all public pages on desktop and phone.

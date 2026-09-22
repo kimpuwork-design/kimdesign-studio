@@ -81,64 +81,26 @@ export default function About() {
   const storyParagraphs: string[] = page.story_paragraphs ?? [];
 
   return (
-    <div className="bg-background relative overflow-x-hidden">
+    <div className="bg-background min-h-screen">
       <PublicNav />
 
-      {/* ── Cinematic Hero ── */}
-      <div ref={heroRef} className="relative overflow-hidden min-h-[44vh] md:min-h-[58vh] flex items-center pt-14 md:pt-20">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }}>
-            <motion.div animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[12%] right-[6%] w-[200px] h-[200px] border border-primary/[0.05]" />
-            <motion.div animate={{ y: [0, 15, 0], rotate: [15, 20, 15] }} transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[30%] right-[10%] w-[120px] h-[120px] border border-primary/[0.04] rotate-[15deg]" />
-            <motion.div animate={{ y: [0, -12, 0] }} transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute bottom-[15%] left-[4%] w-[90px] h-[90px] border border-primary/[0.04] rounded-full" />
-            <motion.div animate={{ scaleY: [0.5, 1, 0.5] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[8%] left-[8%] w-px h-[180px] bg-gradient-to-b from-transparent via-primary/[0.06] to-transparent"
-              style={{ transformOrigin: "top" }} />
-          </motion.div>
+      {/* ── Hero ── */}
+      <section className="container py-16 md:py-28">
+        <div className="max-w-3xl">
+          <div className="h-px w-12 bg-primary mb-8" />
+          <SectionLabel text={page.hero_subtitle ?? t("about_the_studio")} />
+          <h1 className="font-display text-[clamp(2.1rem,6.5vw,5.5rem)] leading-[0.95] text-foreground">
+            {page.hero_title_line1 ?? "Architecture as a"}
+            <span className="block text-primary">{page.hero_title_line2 ?? "long conversation."}</span>
+          </h1>
+          <FadeUp delay={0.2}>
+            <p className="mt-8 text-base md:text-lg text-muted-foreground font-light leading-[1.85] max-w-xl">
+              {page.hero_description ?? "A studio dedicated to creating spaces that inspire, endure, and transform."}
+            </p>
+          </FadeUp>
         </div>
-        <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-[2] pointer-events-none" />
+      </section>
 
-        <motion.div style={{ opacity: heroOpacity, y: heroY, scale: heroScale }} className="relative z-10 w-full">
-          <section className="container py-6 md:py-14">
-            <div className="max-w-4xl">
-              <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "3rem" }} transition={{ duration: 0.8, delay: 0.1, ease: luxuryEase }}
-                className="h-px bg-primary mb-8" />
-              <SectionLabel text={page.hero_subtitle ?? t("about_the_studio")} />
-              <h1 className="font-display text-[clamp(2.1rem,7.5vw,7.5rem)] leading-[0.95] md:leading-[0.92] text-foreground">
-                <div className="overflow-hidden">
-                  <motion.div
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-                    className="block"
-                  >
-                    {page.hero_title_line1 ?? "Architecture as a"}
-                  </motion.div>
-                </div>
-                <div className="overflow-hidden mt-1 md:mt-2">
-                  <motion.div
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                    className="text-primary hero-shimmer-text block"
-                  >
-                    {page.hero_title_line2 ?? "long conversation."}
-                  </motion.div>
-                </div>
-              </h1>
-              <FadeUp delay={0.5}>
-                <p className="mt-8 text-base md:text-lg text-muted-foreground font-light leading-[1.85] max-w-lg">
-                  {page.hero_description ?? "A studio dedicated to creating spaces that inspire, endure, and transform."}
-                </p>
-              </FadeUp>
-            </div>
-          </section>
-        </motion.div>
-      </div>
 
 
       {/* ── Story ── */}

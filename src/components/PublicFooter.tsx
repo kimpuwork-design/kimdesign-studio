@@ -3,10 +3,8 @@ import { Mail, Instagram, Phone, MapPin, ArrowRight, ArrowUpRight } from "lucide
 import { useSettings } from "@/hooks/useSettings";
 import { KMonogramLogo } from "@/components/KMonogramLogo";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { FadeUp, TextReveal } from "@/components/motion/MotionWrappers";
-import { MagneticButton } from "@/components/MagneticButton";
-import { useRef, useCallback } from "react";
+import { motion } from "framer-motion";
+import { FadeUp } from "@/components/motion/MotionWrappers";
 
 const NAV_KEYS = [
   { key: "nav_projects", href: "/portfolio" },
@@ -18,46 +16,27 @@ const NAV_KEYS = [
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 function FooterCTA({ t }: { t: (k: string) => string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "center center"]
-  });
-  const textScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.85, 0.95, 1]);
-  const textOpacity = useTransform(scrollYProgress, [0, 0.3], [0, 1]);
-
   return (
-    <section ref={ref} className="relative overflow-hidden min-h-[60vh] flex items-center justify-center">
-      <div className="absolute inset-0 bg-foreground/[0.015]" />
-      
-      <motion.div style={{ scale: textScale, opacity: textOpacity }} className="container py-24 md:py-40 relative z-10">
-        <TextReveal>
-          <p className="text-[9px] tracking-[0.4em] uppercase text-primary mb-5 md:mb-7 text-center font-mono-label">
-            {t("footer_cta_title") !== "footer_cta_title" ? t("footer_cta_title") : "Start a conversation"}
-          </p>
-        </TextReveal>
-        <TextReveal delay={0.1}>
-          <h2 className="font-display text-[clamp(2.5rem,9vw,8rem)] leading-[0.9] text-foreground text-center">
-            Let's build
+    <section className="relative">
+      <div className="container py-16 md:py-24 text-center">
+        <p className="text-[9px] tracking-[0.4em] uppercase text-primary mb-5 font-mono-label">
+          {t("footer_cta_title") !== "footer_cta_title" ? t("footer_cta_title") : "Start a conversation"}
+        </p>
+        <FadeUp>
+          <h2 className="font-display text-[clamp(2rem,6vw,4.5rem)] leading-[0.95] text-foreground">
+            Let's build together.
           </h2>
-        </TextReveal>
-        <TextReveal delay={0.2}>
-          <h2 className="font-display text-[clamp(2.5rem,9vw,8rem)] leading-[0.9] text-center hero-shimmer-text inline-block w-full">
-            together.
-          </h2>
-        </TextReveal>
-        <FadeUp delay={0.4}>
-          <div className="flex justify-center mt-10 md:mt-14">
-            <MagneticButton strength={0.2}>
-              <Link to="/contact"
-                className="group inline-flex items-center gap-3 border border-foreground/15 px-10 md:px-14 py-4 md:py-5 text-[11px] tracking-[0.2em] uppercase font-medium text-foreground hover:bg-foreground hover:text-background transition-all duration-500">
-                {t("footer_get_in_touch") !== "footer_get_in_touch" ? t("footer_get_in_touch") : "Get in Touch"}
-                <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform duration-300" />
-              </Link>
-            </MagneticButton>
+        </FadeUp>
+        <FadeUp delay={0.15}>
+          <div className="flex justify-center mt-9">
+            <Link to="/contact"
+              className="group inline-flex items-center gap-3 border border-foreground/15 px-10 py-4 text-[11px] tracking-[0.2em] uppercase font-medium text-foreground hover:bg-foreground hover:text-background transition-colors duration-300">
+              {t("footer_get_in_touch") !== "footer_get_in_touch" ? t("footer_get_in_touch") : "Get in Touch"}
+              <ArrowRight size={13} />
+            </Link>
           </div>
         </FadeUp>
-      </motion.div>
+      </div>
     </section>
   );
 }
@@ -177,13 +156,10 @@ export function PublicFooter() {
 
       {/* Bottom bar */}
       <div className="border-t border-border/25">
-        <div className="container py-5 flex flex-col gap-2 md:flex-row md:justify-between md:items-center">
+        <div className="container py-5">
           <p className="text-[11px] text-muted-foreground/60 font-mono-label">
             © {new Date().getFullYear()} {studioName}. {t("footer_rights")}
           </p>
-          {address && (
-            <span className="text-[11px] text-muted-foreground/40 font-mono-label tracking-wider">{address}</span>
-          )}
         </div>
       </div>
     </footer>

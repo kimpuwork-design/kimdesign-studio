@@ -39,19 +39,9 @@ export function PublicNav() {
   const logoUrl = settings?.logo_url || "/logo-placeholder.png";
 
   const { scrollY } = useScroll();
-  const lastScrollY = useRef(0);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 40);
-    const diff = latest - lastScrollY.current;
-    if (latest < 80) {
-      setNavHidden(false);
-    } else if (diff > 5) {
-      setNavHidden(true);
-    } else if (diff < -5) {
-      setNavHidden(false);
-    }
-    lastScrollY.current = latest;
   });
 
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
@@ -62,9 +52,7 @@ export function PublicNav() {
   }, [mobileOpen]);
 
   return (
-    <motion.header
-      animate={{ y: navHidden && !mobileOpen ? "-100%" : "0%" }}
-      transition={{ duration: 0.4, ease }}
+    <header
       className={`sticky top-0 z-50 transition-all duration-500 ${scrolled ? "glass-nav shadow-sm" : "bg-transparent"}`}
     >
       <div className={`container flex items-center justify-between transition-all duration-500 ${scrolled ? "h-12 md:h-14" : "h-14 md:h-[72px]"}`}>

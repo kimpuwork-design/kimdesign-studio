@@ -18,11 +18,6 @@ export default function About() {
   const { content } = useSiteContent("about_page", "values", "team");
   const { t } = useTranslation();
   useSEO({ title: t("seo_about_title"), description: t("seo_about_description") });
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 80]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.97]);
 
   const page = content.about_page ?? {};
   const values: any[] = content.values ?? [];

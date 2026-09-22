@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Sun, Moon, ArrowRight, Accessibility } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useSettings } from "@/hooks/useSettings";
 import { KMonogramLogo } from "@/components/KMonogramLogo";
@@ -28,7 +28,6 @@ const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 export function PublicNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [navHidden, setNavHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { theme, setTheme } = useTheme();
   const { settings } = useSettings();
@@ -208,6 +207,6 @@ export function PublicNav() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </header>
   );
 }

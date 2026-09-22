@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Sun, Moon, ArrowRight, Accessibility } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useSettings } from "@/hooks/useSettings";
 import { KMonogramLogo } from "@/components/KMonogramLogo";
@@ -28,7 +28,6 @@ const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 export function PublicNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [navHidden, setNavHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { theme, setTheme } = useTheme();
   const { settings } = useSettings();
@@ -39,19 +38,9 @@ export function PublicNav() {
   const logoUrl = settings?.logo_url || "/logo-placeholder.png";
 
   const { scrollY } = useScroll();
-  const lastScrollY = useRef(0);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 40);
-    const diff = latest - lastScrollY.current;
-    if (latest < 80) {
-      setNavHidden(false);
-    } else if (diff > 5) {
-      setNavHidden(true);
-    } else if (diff < -5) {
-      setNavHidden(false);
-    }
-    lastScrollY.current = latest;
   });
 
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
@@ -62,9 +51,7 @@ export function PublicNav() {
   }, [mobileOpen]);
 
   return (
-    <motion.header
-      animate={{ y: navHidden && !mobileOpen ? "-100%" : "0%" }}
-      transition={{ duration: 0.4, ease }}
+    <header
       className={`sticky top-0 z-50 transition-all duration-500 ${scrolled ? "glass-nav shadow-sm" : "bg-transparent"}`}
     >
       <div className={`container flex items-center justify-between transition-all duration-500 ${scrolled ? "h-12 md:h-14" : "h-14 md:h-[72px]"}`}>
@@ -220,6 +207,6 @@ export function PublicNav() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </header>
   );
 }

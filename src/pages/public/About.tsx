@@ -1,79 +1,23 @@
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
-import { ArrowRight, Award, Users, Clock, Sparkles } from "lucide-react";
+import { ArrowRight, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useSEO } from "@/hooks/useSEO";
 
 import { useTranslation } from "@/i18n/LanguageContext";
-import { FadeUp, StaggerContainer, StaggerItem, SlideIn, ImageReveal, LineDraw } from "@/components/motion/MotionWrappers";
+import { FadeUp, StaggerContainer, StaggerItem, SlideIn, ImageReveal } from "@/components/motion/MotionWrappers";
 import { SectionLabel } from "@/components/SectionLabel";
-import { MagneticButton } from "@/components/MagneticButton";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
-/* ── Parallax Image ── */
-function ParallaxImage({ src, alt }: { src: string; alt: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
-
-  return (
-    <div ref={ref} className="overflow-hidden aspect-[3/4] relative">
-      <motion.img src={src} alt={alt} style={{ y }}
-        className="h-[116%] w-full object-cover object-center absolute top-0 left-0" />
-    </div>
-  );
-}
-
-/* ── Counter ── */
-function useCountUp(target: number, duration = 2000) {
-  const [count, setCount] = useState(0);
-  const started = useRef(false);
-  const start = useCallback(() => {
-    if (started.current) return;
-    started.current = true;
-    const t0 = performance.now();
-    const tick = (now: number) => {
-      const p = Math.min((now - t0) / duration, 1);
-      setCount(Math.round((1 - Math.pow(1 - p, 4)) * target));
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }, [target, duration]);
-  return { count, start };
-}
-
-function AnimatedNumber({ value, suffix = "", label }: { value: number; suffix?: string; label: string }) {
-  const { count, start } = useCountUp(value);
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { start(); obs.unobserve(el); } }, { threshold: 0.3 });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [start]);
-  return (
-    <div ref={ref} className="text-center">
-      <p className="font-display text-4xl md:text-5xl text-foreground">{count}<span className="text-primary/60">{suffix}</span></p>
-      <p className="mt-2 text-[9px] tracking-[0.3em] uppercase text-muted-foreground/50 font-mono-label">{label}</p>
-    </div>
-  );
-}
 
 export default function About() {
   const { content } = useSiteContent("about_page", "values", "team");
   const { t } = useTranslation();
   useSEO({ title: t("seo_about_title"), description: t("seo_about_description") });
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 80]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.97]);
 
   const page = content.about_page ?? {};
   const values: any[] = content.values ?? [];
@@ -81,64 +25,26 @@ export default function About() {
   const storyParagraphs: string[] = page.story_paragraphs ?? [];
 
   return (
-    <div className="bg-background relative overflow-x-hidden">
+    <div className="bg-background min-h-screen">
       <PublicNav />
 
-      {/* ── Cinematic Hero ── */}
-      <div ref={heroRef} className="relative overflow-hidden min-h-[44vh] md:min-h-[58vh] flex items-center pt-14 md:pt-20">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }}>
-            <motion.div animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[12%] right-[6%] w-[200px] h-[200px] border border-primary/[0.05]" />
-            <motion.div animate={{ y: [0, 15, 0], rotate: [15, 20, 15] }} transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[30%] right-[10%] w-[120px] h-[120px] border border-primary/[0.04] rotate-[15deg]" />
-            <motion.div animate={{ y: [0, -12, 0] }} transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute bottom-[15%] left-[4%] w-[90px] h-[90px] border border-primary/[0.04] rounded-full" />
-            <motion.div animate={{ scaleY: [0.5, 1, 0.5] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[8%] left-[8%] w-px h-[180px] bg-gradient-to-b from-transparent via-primary/[0.06] to-transparent"
-              style={{ transformOrigin: "top" }} />
-          </motion.div>
+      {/* ── Hero ── */}
+      <section className="container py-16 md:py-28">
+        <div className="max-w-3xl">
+          <div className="h-px w-12 bg-primary mb-8" />
+          <SectionLabel text={page.hero_subtitle ?? t("about_the_studio")} />
+          <h1 className="font-display text-[clamp(2.1rem,6.5vw,5.5rem)] leading-[0.95] text-foreground">
+            {page.hero_title_line1 ?? "Architecture as a"}
+            <span className="block text-primary">{page.hero_title_line2 ?? "long conversation."}</span>
+          </h1>
+          <FadeUp delay={0.2}>
+            <p className="mt-8 text-base md:text-lg text-muted-foreground font-light leading-[1.85] max-w-xl">
+              {page.hero_description ?? "A studio dedicated to creating spaces that inspire, endure, and transform."}
+            </p>
+          </FadeUp>
         </div>
-        <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-[2] pointer-events-none" />
+      </section>
 
-        <motion.div style={{ opacity: heroOpacity, y: heroY, scale: heroScale }} className="relative z-10 w-full">
-          <section className="container py-6 md:py-14">
-            <div className="max-w-4xl">
-              <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "3rem" }} transition={{ duration: 0.8, delay: 0.1, ease: luxuryEase }}
-                className="h-px bg-primary mb-8" />
-              <SectionLabel text={page.hero_subtitle ?? t("about_the_studio")} />
-              <h1 className="font-display text-[clamp(2.1rem,7.5vw,7.5rem)] leading-[0.95] md:leading-[0.92] text-foreground">
-                <div className="overflow-hidden">
-                  <motion.div
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-                    className="block"
-                  >
-                    {page.hero_title_line1 ?? "Architecture as a"}
-                  </motion.div>
-                </div>
-                <div className="overflow-hidden mt-1 md:mt-2">
-                  <motion.div
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                    className="text-primary hero-shimmer-text block"
-                  >
-                    {page.hero_title_line2 ?? "long conversation."}
-                  </motion.div>
-                </div>
-              </h1>
-              <FadeUp delay={0.5}>
-                <p className="mt-8 text-base md:text-lg text-muted-foreground font-light leading-[1.85] max-w-lg">
-                  {page.hero_description ?? "A studio dedicated to creating spaces that inspire, endure, and transform."}
-                </p>
-              </FadeUp>
-            </div>
-          </section>
-        </motion.div>
-      </div>
 
 
       {/* ── Story ── */}

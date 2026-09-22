@@ -1,69 +1,18 @@
 import { PublicNav } from "@/components/PublicNav";
 import { PublicFooter } from "@/components/PublicFooter";
-import { ArrowRight, Award, Users, Clock, Sparkles } from "lucide-react";
+import { ArrowRight, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useSEO } from "@/hooks/useSEO";
 
 import { useTranslation } from "@/i18n/LanguageContext";
-import { FadeUp, StaggerContainer, StaggerItem, SlideIn, ImageReveal, LineDraw } from "@/components/motion/MotionWrappers";
+import { FadeUp, StaggerContainer, StaggerItem, SlideIn, ImageReveal } from "@/components/motion/MotionWrappers";
 import { SectionLabel } from "@/components/SectionLabel";
-import { MagneticButton } from "@/components/MagneticButton";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
-/* ── Parallax Image ── */
-function ParallaxImage({ src, alt }: { src: string; alt: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
-
-  return (
-    <div ref={ref} className="overflow-hidden aspect-[3/4] relative">
-      <motion.img src={src} alt={alt} style={{ y }}
-        className="h-[116%] w-full object-cover object-center absolute top-0 left-0" />
-    </div>
-  );
-}
-
-/* ── Counter ── */
-function useCountUp(target: number, duration = 2000) {
-  const [count, setCount] = useState(0);
-  const started = useRef(false);
-  const start = useCallback(() => {
-    if (started.current) return;
-    started.current = true;
-    const t0 = performance.now();
-    const tick = (now: number) => {
-      const p = Math.min((now - t0) / duration, 1);
-      setCount(Math.round((1 - Math.pow(1 - p, 4)) * target));
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }, [target, duration]);
-  return { count, start };
-}
-
-function AnimatedNumber({ value, suffix = "", label }: { value: number; suffix?: string; label: string }) {
-  const { count, start } = useCountUp(value);
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { start(); obs.unobserve(el); } }, { threshold: 0.3 });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [start]);
-  return (
-    <div ref={ref} className="text-center">
-      <p className="font-display text-4xl md:text-5xl text-foreground">{count}<span className="text-primary/60">{suffix}</span></p>
-      <p className="mt-2 text-[9px] tracking-[0.3em] uppercase text-muted-foreground/50 font-mono-label">{label}</p>
-    </div>
-  );
-}
 
 export default function About() {
   const { content } = useSiteContent("about_page", "values", "team");

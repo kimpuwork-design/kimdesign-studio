@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useContentProtection } from "@/hooks/useContentProtection";
 import { Link, useSearchParams } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
@@ -13,22 +13,12 @@ import {
   Star,
   ArrowRight,
   ArrowUpRight,
-  LayoutGrid,
-  Rows3,
   X,
   ArrowDownUp,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { FadeUp } from "@/components/motion/MotionWrappers";
 import { ProgressiveImage } from "@/components/media/ProgressiveImage";
-import { thumbUrl } from "@/lib/images";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,84 +45,16 @@ const SORT_LABELS: Record<SortMode, string> = {
 };
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
-/* ─── Animated Counter ─── */
-function useCountUp(target: number, duration = 1400) {
-  const [count, setCount] = useState(0);
-  const animatedTo = useRef<number | null>(null);
-
-  const start = useCallback(() => {
-    if (animatedTo.current === target) return;
-    animatedTo.current = target;
-    if (target === 0) {
-      setCount(0);
-      return;
-    }
-    const from = count;
-    const t0 = performance.now();
-    const tick = (now: number) => {
-      const p = Math.min((now - t0) / duration, 1);
-      const eased = 1 - Math.pow(1 - p, 4);
-      setCount(Math.round(from + (target - from) * eased));
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, duration]);
-
-  return { count, start };
-}
-
-function AnimatedPortfolioStat({
-  value,
-  label,
-  delay,
-}: {
-  value: number;
-  label: string;
-  delay: number;
-}) {
-  const { count, start } = useCountUp(value);
-  const ref = useRef<HTMLDivElement>(null);
-  const seenRef = useRef(false);
-
-  // Observe visibility once
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          seenRef.current = true;
-          start();
-        }
-      },
-      { threshold: 0.2 },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [start]);
-
-  // Re-run animation when target changes after already being visible (data loaded)
-  useEffect(() => {
-    if (seenRef.current) start();
-  }, [value, start]);
-
+function PortfolioStat({ value, label }: { value: number; label: string }) {
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 15 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay, ease: luxuryEase }}
-      className="shrink-0"
-    >
+    <div className="shrink-0">
       <p className="font-display text-3xl md:text-4xl text-foreground tabular-nums">
-        {count}
+        {value}
       </p>
       <p className="mt-1 text-[10px] tracking-[0.25em] uppercase text-muted-foreground">
         {label}
       </p>
-    </motion.div>
+    </div>
   );
 }
 
@@ -260,78 +182,6 @@ function GridCard({
   );
 }
 
-/* ─── List Card ─── */
-function ListCard({
-  item,
-  index,
-}: {
-  item: ProjectPortfolioItem;
-  index: number;
-}) {
-  const linkTo = item.slug ? `/portfolio/${item.slug}` : `/projects/${item.id}`;
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.04, ease: luxuryEase }}
-    >
-      <Link
-        to={linkTo}
-        aria-label={item.title}
-        className="group flex items-center gap-4 sm:gap-6 py-5 border-b border-border/40 hover:border-primary/30 transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <span className="hidden sm:block font-display text-2xl text-muted-foreground/60 group-hover:text-primary/60 transition-colors tabular-nums w-[42px] shrink-0">
-          {String(index + 1).padStart(2, "0")}
-        </span>
-        {item.thumbnail_url && (
-          <ProgressiveImage
-            src={item.thumbnail_url}
-            alt=""
-            thumbWidth={240}
-            aspectRatio="3 / 2"
-            wrapperClassName="shrink-0 w-20 h-16 sm:w-24 sm:h-16 rounded-sm"
-            className="group-hover:scale-105 transition-transform duration-700"
-          />
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            {item.is_featured && (
-              <Star
-                size={11}
-                className="text-primary fill-primary shrink-0"
-                aria-hidden
-              />
-            )}
-            {item.category && (
-              <span className="text-[10px] tracking-[0.15em] uppercase font-medium text-primary">
-                {item.category}
-              </span>
-            )}
-          </div>
-          <h3 className="font-display text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1">
-            {item.title}
-          </h3>
-          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
-            {item.location && (
-              <span className="flex items-center gap-1">
-                <MapPin size={11} aria-hidden />
-                {item.location}
-              </span>
-            )}
-            {item.year && <span className="tabular-nums">{item.year}</span>}
-          </div>
-        </div>
-        <ArrowRight
-          size={16}
-          className="text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0"
-          aria-hidden
-        />
-      </Link>
-    </motion.div>
-  );
-}
 
 export default function PublicPortfolio() {
   const { t } = useTranslation();

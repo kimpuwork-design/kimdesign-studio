@@ -64,11 +64,9 @@ export default function About() {
                   <p key={i}>{p}</p>
                 ))}
                 <div className="pt-4">
-                  <MagneticButton strength={0.2}>
-                    <Button variant="outline" className="rounded-none tracking-[0.12em] text-xs uppercase px-8 h-11 border-foreground/20 hover:bg-foreground hover:text-background transition-all duration-500" asChild>
-                      <Link to="/contact">{t("about_get_in_touch")} <ArrowRight size={12} className="ml-2" /></Link>
-                    </Button>
-                  </MagneticButton>
+                  <Button variant="outline" className="rounded-none tracking-[0.12em] text-xs uppercase px-8 h-11 border-foreground/20 hover:bg-foreground hover:text-background transition-colors" asChild>
+                    <Link to="/contact">{t("about_get_in_touch")} <ArrowRight size={12} className="ml-2" /></Link>
+                  </Button>
                 </div>
               </div>
             </SlideIn>
@@ -169,11 +167,9 @@ export default function About() {
                 {page.cta_title ?? "Let's build something meaningful."}
               </h2>
               <p className="mt-6 text-muted-foreground text-lg font-light leading-[1.8]">{page.cta_description ?? "We're always open to new conversations and collaborations."}</p>
-              <MagneticButton strength={0.2}>
-                <Button className="mt-10 rounded-none px-12 h-14 tracking-[0.15em] text-sm uppercase" size="lg" asChild>
-                  <Link to="/contact">{t("about_get_in_touch")} <ArrowRight size={14} className="ml-3" /></Link>
-                </Button>
-              </MagneticButton>
+              <Button className="mt-10 rounded-none px-12 h-14 tracking-[0.15em] text-sm uppercase" size="lg" asChild>
+                <Link to="/contact">{t("about_get_in_touch")} <ArrowRight size={14} className="ml-3" /></Link>
+              </Button>
             </div>
           </FadeUp>
         </div>

@@ -12,7 +12,7 @@ import { FilePreviewModal } from "@/components/files/FilePreviewModal";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";
 import { ProgressiveImage } from "@/components/media/ProgressiveImage";
 import { FadeUp, StaggerContainer, StaggerItem, SlideIn } from "@/components/motion/MotionWrappers";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
 
 import {
   MapPin, Calendar, Tag, ArrowLeft, ArrowRight,
@@ -22,64 +22,12 @@ import {
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
-/* ─── Floating Reading Progress Indicator (motion-only, no re-renders) ─── */
-function ReadingProgress() {
-  const { scrollYProgress } = useScroll();
-  const smooth = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
-  const circumference = 2 * Math.PI * 18;
-  const dashOffset = useTransform(smooth, (v) => circumference * (1 - v));
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 1, duration: 0.5 }}
-      className="fixed bottom-8 right-8 z-50 hidden lg:flex items-center justify-center pointer-events-none"
-    >
-      <div className="relative w-14 h-14">
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 40 40">
-          <circle cx="20" cy="20" r="18" fill="none" stroke="hsl(var(--border))" strokeWidth="1.5" opacity="0.3" />
-          <motion.circle
-            cx="20" cy="20" r="18"
-            fill="none"
-            stroke="hsl(var(--primary))"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            style={{ strokeDashoffset: dashOffset }}
-          />
-        </svg>
-      </div>
-    </motion.div>
-  );
-}
-
-
-/* ─── Gallery Image with Inner Parallax ─── */
+/* ─── Gallery Image ─── */
 function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: string; name: string }; idx: number; onClick: () => void }) {
-  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
-  
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    const el = e.currentTarget as HTMLElement;
-    const rect = el.getBoundingClientRect();
-    setMousePos({
-      x: (e.clientX - rect.left) / rect.width,
-      y: (e.clientY - rect.top) / rect.height,
-    });
-  }, []);
-  
-  const handleMouseLeave = useCallback(() => {
-    setMousePos({ x: 0.5, y: 0.5 });
-  }, []);
-  
   return (
     <StaggerItem>
-      <motion.button
-        whileHover={{ scale: 1.012 }}
-        whileTap={{ scale: 0.98 }}
+      <button
         onClick={onClick}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
         className="group relative w-full overflow-hidden break-inside-avoid block bg-muted/20"
         data-cursor-hover
         data-cursor-label="View"
@@ -91,16 +39,10 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
           eager={idx < 4}
           thumbWidth={800}
           onContextMenu={(e) => e.preventDefault()}
-          className="w-full object-cover"
+          className="w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
           wrapperClassName="w-full"
-          animate={{
-            scale: 1.08,
-            x: (mousePos.x - 0.5) * -14,
-            y: (mousePos.y - 0.5) * -14,
-          }}
-          // @ts-ignore - motion props passed through
-          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         />
+
 
         {/* Index badge */}
         <span className="absolute top-3 left-3 z-[2] font-mono-label text-[9px] tracking-[0.2em] text-background/90 bg-foreground/40 backdrop-blur-sm px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tabular-nums">

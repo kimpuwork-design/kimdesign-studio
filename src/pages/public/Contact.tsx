@@ -13,11 +13,8 @@ import { useSEO } from "@/hooks/useSEO";
 
 import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, SlideIn, FadeIn, LineDraw } from "@/components/motion/MotionWrappers";
-import { MagneticButton } from "@/components/MagneticButton";
 import { SectionLabel } from "@/components/SectionLabel";
-import { motion, useScroll, useTransform } from "framer-motion";
-
-const luxuryEase = [0.22, 1, 0.36, 1] as const;
+import { motion } from "framer-motion";
 
 const contactSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
@@ -35,11 +32,6 @@ export default function Contact() {
   const locations: any[] = info.locations ?? [];
   const projectTypes: string[] = info.project_types ?? [];
 
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 60]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.97]);
 
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "", projectType: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -87,61 +79,22 @@ export default function Contact() {
     <div className="bg-background relative overflow-x-hidden">
       <PublicNav />
 
-      {/* ── Cinematic Hero ── */}
-      <div ref={heroRef} className="relative overflow-hidden min-h-[40vh] md:min-h-[54vh] flex items-center pt-14 md:pt-20">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8, duration: 1 }}>
-            <motion.div animate={{ y: [0, -18, 0], rotate: [0, 4, 0] }} transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[10%] right-[8%] w-[220px] h-[220px] border border-primary/[0.05]" />
-            <motion.div animate={{ y: [0, 14, 0], rotate: [12, 18, 12] }} transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-[25%] right-[12%] w-[160px] h-[160px] border border-primary/[0.04] rotate-12" />
-            <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute bottom-[20%] left-[5%] w-[80px] h-[80px] border border-primary/[0.04] rounded-full" />
-            <motion.div animate={{ scaleY: [0.4, 1, 0.4] }} transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute bottom-[10%] left-[6%] w-px h-[140px] bg-gradient-to-b from-transparent via-primary/[0.06] to-transparent"
-              style={{ transformOrigin: "bottom" }} />
-          </motion.div>
+      {/* ── Hero ── */}
+      <section className="container pt-16 md:pt-28 pb-8 md:pb-14">
+        <div className="max-w-3xl">
+          <div className="h-px w-12 bg-primary mb-8" />
+          <SectionLabel text={t("contact_title")} />
+          <h1 className="font-display text-[clamp(2.1rem,6.5vw,5.5rem)] leading-[0.95] text-foreground">
+            {t("contact_lets_start") || "Let's start a"}
+            <span className="block text-primary">{t("contact_conversation") || "conversation."}</span>
+          </h1>
+          <FadeUp delay={0.15}>
+            <p className="mt-8 text-base md:text-lg text-muted-foreground font-light leading-[1.85] max-w-lg">
+              {info.hero_description ?? "We welcome enquiries from private clients, developers, institutions, and fellow collaborators."}
+            </p>
+          </FadeUp>
         </div>
-        <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-[2] pointer-events-none" />
-
-        <motion.div style={{ opacity: heroOpacity, y: heroY, scale: heroScale }} className="relative z-10 w-full">
-          <div className="container py-6 md:py-14">
-            <div className="max-w-4xl">
-              <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "3rem" }} transition={{ duration: 0.8, delay: 0.1, ease: luxuryEase }}
-                className="h-px bg-primary mb-8" />
-              <SectionLabel text={t("contact_title")} />
-              <h1 className="font-display text-[clamp(2.1rem,7.5vw,7.5rem)] leading-[0.95] md:leading-[0.92] text-foreground">
-                <div className="overflow-hidden">
-                  <motion.div
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-                    className="block"
-                  >
-                    {t("contact_lets_start") || "Let's start a"}
-                  </motion.div>
-                </div>
-                <div className="overflow-hidden mt-1 md:mt-2">
-                  <motion.div
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                    className="text-primary hero-shimmer-text block"
-                  >
-                    {t("contact_conversation") || "conversation."}
-                  </motion.div>
-                </div>
-              </h1>
-              <FadeUp delay={0.3}>
-                <p className="mt-8 text-base md:text-lg text-muted-foreground font-light leading-[1.85] max-w-lg">
-                  {info.hero_description ?? "We welcome enquiries from private clients, developers, institutions, and fellow collaborators."}
-                </p>
-              </FadeUp>
-            </div>
-          </div>
-        </motion.div>
-      </div>
+      </section>
 
 
       {/* ── Contact Content ── */}
@@ -202,13 +155,11 @@ export default function Contact() {
                     </motion.div>
                     <h3 className="font-display text-3xl text-foreground">{t("contact_thank_you")}</h3>
                     <p className="mt-3 text-muted-foreground text-sm font-light leading-[1.8]">{t("contact_in_touch")}</p>
-                    <MagneticButton strength={0.2}>
-                      <Button variant="outline"
-                        className="mt-8 rounded-none tracking-[0.12em] text-xs uppercase px-8 h-11 border-foreground/20 hover:bg-foreground hover:text-background transition-all duration-500"
-                        onClick={() => { setSubmitted(false); setForm({ name: "", email: "", phone: "", message: "", projectType: "" }); }}>
-                        {t("contact_send_another")}
-                      </Button>
-                    </MagneticButton>
+                    <Button variant="outline"
+                      className="mt-8 rounded-none tracking-[0.12em] text-xs uppercase px-8 h-11 border-foreground/20 hover:bg-foreground hover:text-background transition-colors"
+                      onClick={() => { setSubmitted(false); setForm({ name: "", email: "", phone: "", message: "", projectType: "" }); }}>
+                      {t("contact_send_another")}
+                    </Button>
                   </div>
                 </FadeIn>
               ) : (
@@ -282,12 +233,10 @@ export default function Contact() {
                   {serverError && <motion.p id="contact-form-error" role="alert" aria-live="assertive" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-destructive/10 px-4 py-3 text-sm text-destructive">{serverError}</motion.p>}
                   <div className="flex items-center justify-between pt-2">
                     <p className="text-[10px] text-muted-foreground/40 font-mono-label hidden sm:block">All fields except phone are required</p>
-                    <MagneticButton strength={0.2}>
-                      <Button type="submit" className="rounded-none px-10 h-12 tracking-[0.15em] text-sm uppercase" disabled={submitting}>
-                        {submitting ? t("contact_sending") : t("contact_submit")}
-                        {!submitting && <ArrowRight size={14} className="ml-3" aria-hidden="true" />}
-                      </Button>
-                    </MagneticButton>
+                    <Button type="submit" className="rounded-none px-10 h-12 tracking-[0.15em] text-sm uppercase" disabled={submitting}>
+                      {submitting ? t("contact_sending") : t("contact_submit")}
+                      {!submitting && <ArrowRight size={14} className="ml-3" aria-hidden="true" />}
+                    </Button>
                   </div>
                 </form>
               )}

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useContentProtection } from "@/hooks/useContentProtection";
 import { Link, useSearchParams } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
@@ -13,22 +13,12 @@ import {
   Star,
   ArrowRight,
   ArrowUpRight,
-  LayoutGrid,
-  Rows3,
   X,
   ArrowDownUp,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { FadeUp } from "@/components/motion/MotionWrappers";
 import { ProgressiveImage } from "@/components/media/ProgressiveImage";
-import { thumbUrl } from "@/lib/images";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,84 +45,16 @@ const SORT_LABELS: Record<SortMode, string> = {
 };
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
-/* ─── Animated Counter ─── */
-function useCountUp(target: number, duration = 1400) {
-  const [count, setCount] = useState(0);
-  const animatedTo = useRef<number | null>(null);
-
-  const start = useCallback(() => {
-    if (animatedTo.current === target) return;
-    animatedTo.current = target;
-    if (target === 0) {
-      setCount(0);
-      return;
-    }
-    const from = count;
-    const t0 = performance.now();
-    const tick = (now: number) => {
-      const p = Math.min((now - t0) / duration, 1);
-      const eased = 1 - Math.pow(1 - p, 4);
-      setCount(Math.round(from + (target - from) * eased));
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, duration]);
-
-  return { count, start };
-}
-
-function AnimatedPortfolioStat({
-  value,
-  label,
-  delay,
-}: {
-  value: number;
-  label: string;
-  delay: number;
-}) {
-  const { count, start } = useCountUp(value);
-  const ref = useRef<HTMLDivElement>(null);
-  const seenRef = useRef(false);
-
-  // Observe visibility once
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          seenRef.current = true;
-          start();
-        }
-      },
-      { threshold: 0.2 },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [start]);
-
-  // Re-run animation when target changes after already being visible (data loaded)
-  useEffect(() => {
-    if (seenRef.current) start();
-  }, [value, start]);
-
+function PortfolioStat({ value, label }: { value: number; label: string }) {
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 15 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay, ease: luxuryEase }}
-      className="shrink-0"
-    >
+    <div className="shrink-0">
       <p className="font-display text-3xl md:text-4xl text-foreground tabular-nums">
-        {count}
+        {value}
       </p>
       <p className="mt-1 text-[10px] tracking-[0.25em] uppercase text-muted-foreground">
         {label}
       </p>
-    </motion.div>
+    </div>
   );
 }
 
@@ -260,78 +182,6 @@ function GridCard({
   );
 }
 
-/* ─── List Card ─── */
-function ListCard({
-  item,
-  index,
-}: {
-  item: ProjectPortfolioItem;
-  index: number;
-}) {
-  const linkTo = item.slug ? `/portfolio/${item.slug}` : `/projects/${item.id}`;
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.04, ease: luxuryEase }}
-    >
-      <Link
-        to={linkTo}
-        aria-label={item.title}
-        className="group flex items-center gap-4 sm:gap-6 py-5 border-b border-border/40 hover:border-primary/30 transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <span className="hidden sm:block font-display text-2xl text-muted-foreground/60 group-hover:text-primary/60 transition-colors tabular-nums w-[42px] shrink-0">
-          {String(index + 1).padStart(2, "0")}
-        </span>
-        {item.thumbnail_url && (
-          <ProgressiveImage
-            src={item.thumbnail_url}
-            alt=""
-            thumbWidth={240}
-            aspectRatio="3 / 2"
-            wrapperClassName="shrink-0 w-20 h-16 sm:w-24 sm:h-16 rounded-sm"
-            className="group-hover:scale-105 transition-transform duration-700"
-          />
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            {item.is_featured && (
-              <Star
-                size={11}
-                className="text-primary fill-primary shrink-0"
-                aria-hidden
-              />
-            )}
-            {item.category && (
-              <span className="text-[10px] tracking-[0.15em] uppercase font-medium text-primary">
-                {item.category}
-              </span>
-            )}
-          </div>
-          <h3 className="font-display text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1">
-            {item.title}
-          </h3>
-          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
-            {item.location && (
-              <span className="flex items-center gap-1">
-                <MapPin size={11} aria-hidden />
-                {item.location}
-              </span>
-            )}
-            {item.year && <span className="tabular-nums">{item.year}</span>}
-          </div>
-        </div>
-        <ArrowRight
-          size={16}
-          className="text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0"
-          aria-hidden
-        />
-      </Link>
-    </motion.div>
-  );
-}
 
 export default function PublicPortfolio() {
   const { t } = useTranslation();
@@ -346,9 +196,7 @@ export default function PublicPortfolio() {
 
   const search = searchParams.get("q") ?? "";
   const category = searchParams.get("cat") ?? "All";
-  const year = searchParams.get("year") ?? "All";
   const sort = (searchParams.get("sort") as SortMode) || "newest";
-  const viewMode = (searchParams.get("view") as "grid" | "list") || "grid";
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 12;
 
@@ -356,13 +204,7 @@ export default function PublicPortfolio() {
     (patch: Record<string, string | null>) => {
       const next = new URLSearchParams(searchParams);
       Object.entries(patch).forEach(([k, v]) => {
-        if (
-          v == null ||
-          v === "" ||
-          v === "All" ||
-          (k === "sort" && v === "newest") ||
-          (k === "view" && v === "grid")
-        )
+        if (v == null || v === "" || v === "All" || (k === "sort" && v === "newest"))
           next.delete(k);
         else next.set(k, v);
       });
@@ -374,9 +216,7 @@ export default function PublicPortfolio() {
 
   const setSearch = (v: string) => updateParam({ q: v || null });
   const setCategory = (v: string) => updateParam({ cat: v });
-  const setYear = (v: string) => updateParam({ year: v });
   const setSort = (v: SortMode) => updateParam({ sort: v });
-  const setViewMode = (v: "grid" | "list") => updateParam({ view: v });
 
   useEffect(() => {
     setLoading(true);
@@ -394,18 +234,10 @@ export default function PublicPortfolio() {
       });
   }, []);
 
-  const yearOptions = useMemo(() => {
-    const years = Array.from(
-      new Set(items.map((i) => i.year).filter((y): y is number => !!y)),
-    ).sort((a, b) => b - a);
-    return ["All", ...years.map(String)];
-  }, [items]);
-
   const filtered = useMemo(
     () =>
       items.filter((item) => {
         if (category !== "All" && item.category !== category) return false;
-        if (year !== "All" && String(item.year ?? "") !== year) return false;
         if (search.trim()) {
           const q = search.toLowerCase();
           return (
@@ -417,7 +249,7 @@ export default function PublicPortfolio() {
         }
         return true;
       }),
-    [items, category, year, search],
+    [items, category, search],
   );
 
   const sortedFiltered = useMemo(() => {
@@ -446,9 +278,7 @@ export default function PublicPortfolio() {
   const hasMore = allForDisplay.length > paginated.length;
 
   const activeFiltersCount =
-    (category !== "All" ? 1 : 0) +
-    (year !== "All" ? 1 : 0) +
-    (search.trim() ? 1 : 0);
+    (category !== "All" ? 1 : 0) + (search.trim() ? 1 : 0);
   const clearFilters = () => setSearchParams({}, { replace: true });
 
   return (
@@ -514,16 +344,12 @@ export default function PublicPortfolio() {
                         .size,
                       label: t("portfolio_categories_stat"),
                     },
-                  ].map((stat, i) => (
+                  ].map((stat) => (
                     <div
                       key={stat.label}
                       className="md:flex md:items-baseline md:gap-3 md:border-b md:border-border/40 md:pb-4"
                     >
-                      <AnimatedPortfolioStat
-                        value={stat.n}
-                        label={stat.label}
-                        delay={0.3 + i * 0.08}
-                      />
+                      <PortfolioStat value={stat.n} label={stat.label} />
                     </div>
                   ))}
                 </dl>
@@ -594,29 +420,9 @@ export default function PublicPortfolio() {
               })}
             </div>
 
-            {/* Year + Sort + View */}
+            {/* Sort */}
             <div className="flex items-center gap-2 shrink-0">
-              {yearOptions.length > 1 && (
-                <Select value={year} onValueChange={setYear}>
-                  <SelectTrigger
-                    aria-label="Filter by year"
-                    className="h-9 w-auto min-w-[110px] text-[11px] tracking-[0.1em] uppercase font-medium"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {yearOptions.map((y) => (
-                      <SelectItem
-                        key={y}
-                        value={y}
-                        className="text-[12px] tracking-[0.08em] uppercase"
-                      >
-                        {y === "All" ? "All Years" : y}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+
 
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -650,36 +456,6 @@ export default function PublicPortfolio() {
                 </button>
               )}
 
-              <div
-                role="group"
-                aria-label="View mode"
-                className="hidden md:flex items-center gap-0 rounded-md border border-border/60 bg-background/40 overflow-hidden"
-              >
-                <button
-                  onClick={() => setViewMode("grid")}
-                  aria-label="Grid view"
-                  aria-pressed={viewMode === "grid"}
-                  className={`min-h-9 min-w-9 inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                    viewMode === "grid"
-                      ? "bg-muted text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <LayoutGrid size={15} aria-hidden />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  aria-label="List view"
-                  aria-pressed={viewMode === "list"}
-                  className={`min-h-9 min-w-9 inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                    viewMode === "list"
-                      ? "bg-muted text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Rows3 size={15} aria-hidden />
-                </button>
-              </div>
             </div>
             </div>
           </div>
@@ -749,51 +525,25 @@ export default function PublicPortfolio() {
                 </p>
               </div>
 
-              <AnimatePresence mode="wait">
-                {viewMode === "grid" ? (
-                  <motion.div
-                    key="grid"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="grid gap-x-6 gap-y-12 md:gap-x-8 md:gap-y-16 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                  >
-                    {paginated.map((item, i) => {
-                      const isFeatured =
-                        sort === "newest" && i === 0 && item.is_featured;
-                      return (
-                        <div
-                          key={item.id}
-                          className={
-                            isFeatured ? "sm:col-span-2 lg:col-span-3" : ""
-                          }
-                        >
-                          <GridCard
-                            item={item}
-                            index={i}
-                            t={t}
-                            featured={isFeatured}
-                          />
-                        </div>
-                      );
-                    })}
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="list"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="max-w-3xl"
-                  >
-                    {paginated.map((item, i) => (
-                      <ListCard key={item.id} item={item} index={i} />
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              <div className="grid gap-x-6 gap-y-12 md:gap-x-8 md:gap-y-16 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {paginated.map((item, i) => {
+                  const isFeatured =
+                    sort === "newest" && i === 0 && item.is_featured;
+                  return (
+                    <div
+                      key={item.id}
+                      className={isFeatured ? "sm:col-span-2 lg:col-span-3" : ""}
+                    >
+                      <GridCard
+                        item={item}
+                        index={i}
+                        t={t}
+                        featured={isFeatured}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
 
               {hasMore && (
                 <div className="flex justify-center mt-16">

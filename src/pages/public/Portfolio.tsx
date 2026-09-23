@@ -278,9 +278,7 @@ export default function PublicPortfolio() {
   const hasMore = allForDisplay.length > paginated.length;
 
   const activeFiltersCount =
-    (category !== "All" ? 1 : 0) +
-    (year !== "All" ? 1 : 0) +
-    (search.trim() ? 1 : 0);
+    (category !== "All" ? 1 : 0) + (search.trim() ? 1 : 0);
   const clearFilters = () => setSearchParams({}, { replace: true });
 
   return (
@@ -346,16 +344,12 @@ export default function PublicPortfolio() {
                         .size,
                       label: t("portfolio_categories_stat"),
                     },
-                  ].map((stat, i) => (
+                  ].map((stat) => (
                     <div
                       key={stat.label}
                       className="md:flex md:items-baseline md:gap-3 md:border-b md:border-border/40 md:pb-4"
                     >
-                      <AnimatedPortfolioStat
-                        value={stat.n}
-                        label={stat.label}
-                        delay={0.3 + i * 0.08}
-                      />
+                      <PortfolioStat value={stat.n} label={stat.label} />
                     </div>
                   ))}
                 </dl>
@@ -426,29 +420,9 @@ export default function PublicPortfolio() {
               })}
             </div>
 
-            {/* Year + Sort + View */}
+            {/* Sort */}
             <div className="flex items-center gap-2 shrink-0">
-              {yearOptions.length > 1 && (
-                <Select value={year} onValueChange={setYear}>
-                  <SelectTrigger
-                    aria-label="Filter by year"
-                    className="h-9 w-auto min-w-[110px] text-[11px] tracking-[0.1em] uppercase font-medium"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {yearOptions.map((y) => (
-                      <SelectItem
-                        key={y}
-                        value={y}
-                        className="text-[12px] tracking-[0.08em] uppercase"
-                      >
-                        {y === "All" ? "All Years" : y}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+
 
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -482,36 +456,6 @@ export default function PublicPortfolio() {
                 </button>
               )}
 
-              <div
-                role="group"
-                aria-label="View mode"
-                className="hidden md:flex items-center gap-0 rounded-md border border-border/60 bg-background/40 overflow-hidden"
-              >
-                <button
-                  onClick={() => setViewMode("grid")}
-                  aria-label="Grid view"
-                  aria-pressed={viewMode === "grid"}
-                  className={`min-h-9 min-w-9 inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                    viewMode === "grid"
-                      ? "bg-muted text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <LayoutGrid size={15} aria-hidden />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  aria-label="List view"
-                  aria-pressed={viewMode === "list"}
-                  className={`min-h-9 min-w-9 inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                    viewMode === "list"
-                      ? "bg-muted text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Rows3 size={15} aria-hidden />
-                </button>
-              </div>
             </div>
             </div>
           </div>
@@ -581,51 +525,25 @@ export default function PublicPortfolio() {
                 </p>
               </div>
 
-              <AnimatePresence mode="wait">
-                {viewMode === "grid" ? (
-                  <motion.div
-                    key="grid"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="grid gap-x-6 gap-y-12 md:gap-x-8 md:gap-y-16 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                  >
-                    {paginated.map((item, i) => {
-                      const isFeatured =
-                        sort === "newest" && i === 0 && item.is_featured;
-                      return (
-                        <div
-                          key={item.id}
-                          className={
-                            isFeatured ? "sm:col-span-2 lg:col-span-3" : ""
-                          }
-                        >
-                          <GridCard
-                            item={item}
-                            index={i}
-                            t={t}
-                            featured={isFeatured}
-                          />
-                        </div>
-                      );
-                    })}
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="list"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="max-w-3xl"
-                  >
-                    {paginated.map((item, i) => (
-                      <ListCard key={item.id} item={item} index={i} />
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              <div className="grid gap-x-6 gap-y-12 md:gap-x-8 md:gap-y-16 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {paginated.map((item, i) => {
+                  const isFeatured =
+                    sort === "newest" && i === 0 && item.is_featured;
+                  return (
+                    <div
+                      key={item.id}
+                      className={isFeatured ? "sm:col-span-2 lg:col-span-3" : ""}
+                    >
+                      <GridCard
+                        item={item}
+                        index={i}
+                        t={t}
+                        featured={isFeatured}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
 
               {hasMore && (
                 <div className="flex justify-center mt-16">

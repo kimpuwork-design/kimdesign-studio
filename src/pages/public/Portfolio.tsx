@@ -196,9 +196,7 @@ export default function PublicPortfolio() {
 
   const search = searchParams.get("q") ?? "";
   const category = searchParams.get("cat") ?? "All";
-  const year = searchParams.get("year") ?? "All";
   const sort = (searchParams.get("sort") as SortMode) || "newest";
-  const viewMode = (searchParams.get("view") as "grid" | "list") || "grid";
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 12;
 
@@ -206,13 +204,7 @@ export default function PublicPortfolio() {
     (patch: Record<string, string | null>) => {
       const next = new URLSearchParams(searchParams);
       Object.entries(patch).forEach(([k, v]) => {
-        if (
-          v == null ||
-          v === "" ||
-          v === "All" ||
-          (k === "sort" && v === "newest") ||
-          (k === "view" && v === "grid")
-        )
+        if (v == null || v === "" || v === "All" || (k === "sort" && v === "newest"))
           next.delete(k);
         else next.set(k, v);
       });
@@ -224,9 +216,7 @@ export default function PublicPortfolio() {
 
   const setSearch = (v: string) => updateParam({ q: v || null });
   const setCategory = (v: string) => updateParam({ cat: v });
-  const setYear = (v: string) => updateParam({ year: v });
   const setSort = (v: SortMode) => updateParam({ sort: v });
-  const setViewMode = (v: "grid" | "list") => updateParam({ view: v });
 
   useEffect(() => {
     setLoading(true);
@@ -244,18 +234,10 @@ export default function PublicPortfolio() {
       });
   }, []);
 
-  const yearOptions = useMemo(() => {
-    const years = Array.from(
-      new Set(items.map((i) => i.year).filter((y): y is number => !!y)),
-    ).sort((a, b) => b - a);
-    return ["All", ...years.map(String)];
-  }, [items]);
-
   const filtered = useMemo(
     () =>
       items.filter((item) => {
         if (category !== "All" && item.category !== category) return false;
-        if (year !== "All" && String(item.year ?? "") !== year) return false;
         if (search.trim()) {
           const q = search.toLowerCase();
           return (
@@ -267,7 +249,7 @@ export default function PublicPortfolio() {
         }
         return true;
       }),
-    [items, category, year, search],
+    [items, category, search],
   );
 
   const sortedFiltered = useMemo(() => {

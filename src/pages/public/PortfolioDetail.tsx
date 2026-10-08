@@ -67,7 +67,7 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
             </p>
           </div>
         )}
-      </motion.button>
+      </button>
     </StaggerItem>
   );
 }
@@ -103,12 +103,7 @@ export default function PortfolioDetail() {
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [preview, setPreview] = useState<FileAsset | null>(null);
 
-  const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 80]);
 
   useEffect(() => {
     if (!slug) return;
@@ -245,28 +240,25 @@ export default function PortfolioDetail() {
     <div className="bg-background min-h-screen content-protected">
       <MetaTags title={pageTitle} description={displaySummary} image={coverUrl || ""} jsonLd={jsonLd} slug={item.slug || ""} />
       <PublicNav />
-      <ReadingProgress />
 
-      {/* ── Parallax Hero ── */}
-      <div ref={heroRef} className="relative overflow-hidden">
+      {/* ── Hero ── */}
+      <div className="relative overflow-hidden">
         {coverUrl ? (
           <section className="relative h-[60vh] md:h-[75vh] min-h-[400px] max-h-[900px]">
-            <motion.div style={{ scale: heroScale }} className="absolute inset-0">
-              <ProgressiveImage 
-                src={coverUrl} 
-                alt={item.title} 
-                eager 
-                priority 
+            <div className="absolute inset-0">
+              <ProgressiveImage
+                src={coverUrl}
+                alt={item.title}
+                eager
+                priority
                 aspectRatio="16 / 7"
-                onContextMenu={(e) => e.preventDefault()} 
-                className="w-full h-full object-cover" 
+                onContextMenu={(e) => e.preventDefault()}
+                className="w-full h-full object-cover"
                 wrapperClassName="w-full h-full"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-foreground/20 via-foreground/10 to-background" />
-            </motion.div>
-            {/* Film grain overlay */}
-            <div className="absolute inset-0 noise-overlay pointer-events-none z-[1]" />
-            <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative h-full container flex flex-col justify-end pb-10 md:pb-20 z-10">
+            </div>
+            <div className="relative h-full container flex flex-col justify-end pb-10 md:pb-20 z-10">
               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
                 <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-background/60 hover:text-background text-sm mb-8 transition-colors">
                   <ArrowLeft size={14} /> Back
@@ -300,7 +292,7 @@ export default function PortfolioDetail() {
                   ))}
                 </motion.div>
               </div>
-            </motion.div>
+            </div>
           </section>
         ) : (
           <section className="container pt-20 pb-10">
@@ -327,7 +319,7 @@ export default function PortfolioDetail() {
               </FadeUp>
             )}
 
-            {/* Gallery — Masonry with parallax depth */}
+            {/* Gallery — masonry grid */}
             {allGalleryItems.length > 0 && (
               <FadeUp>
                 <div className="flex items-center gap-4 mb-8">

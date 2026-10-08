@@ -319,7 +319,7 @@ export default function PortfolioDetail() {
               </FadeUp>
             )}
 
-            {/* Gallery — Masonry with parallax depth */}
+            {/* Gallery — masonry grid */}
             {allGalleryItems.length > 0 && (
               <FadeUp>
                 <div className="flex items-center gap-4 mb-8">

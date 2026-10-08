@@ -1,15 +1,10 @@
-# Remaining verification
+# Roadmap
 
-- [ ] Verify anonymous access to every non-private project, including galleries; keep private projects protected.
-- [ ] Assess Myanmar connectivity remedies without claiming an untested regional fix.
+## Done
+- [x] Simplify public portfolio while preserving the current format (Home, Portfolio, Project detail, Services, About, Contact, Nav, Footer).
+- [x] Fix PortfolioDetail build error (unclosed tag, ReadingProgress, hero parallax refs, grain).
+- [x] Verify all public pages on desktop (1280px) and phone (390px): all render, 10 public projects + galleries load without login, private project hidden, no HTTP 400s.
+- [x] Verify anonymous access to every non-private project, including galleries; private projects stay protected.
 
-- [x] Check published homepage without signing in from the available test network.
-- [x] Confirm a public project gallery loads all six images.
-- [x] Verify remaining public pages and mobile homepage navigation.
-- [x] Correct homepage heading grammar and project button height.
-- [ ] Diagnose Myanmar-only access failure — requires the affected network's browser error and provider name; the available test network is not in Myanmar.
-- [x] Investigate analytics HTTP 400 responses separately from regional access: added missing metrics metadata column; repeat browser check reports no HTTP 400 errors.
-# Current simplification
-
-- [ ] Simplify public portfolio while preserving the current format.
-- [ ] Verify all public pages on desktop and phone.
+## Open (blocked)
+- [ ] Diagnose Myanmar-only access failure — needs the affected network's browser error message and ISP/provider name from the user; the test network is not in Myanmar.

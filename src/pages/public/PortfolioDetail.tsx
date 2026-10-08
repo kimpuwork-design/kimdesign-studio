@@ -292,7 +292,7 @@ export default function PortfolioDetail() {
                   ))}
                 </motion.div>
               </div>
-            </motion.div>
+            </div>
           </section>
         ) : (
           <section className="container pt-20 pb-10">

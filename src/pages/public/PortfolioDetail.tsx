@@ -67,7 +67,7 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
             </p>
           </div>
         )}
-      </motion.button>
+      </button>
     </StaggerItem>
   );
 }
@@ -103,12 +103,7 @@ export default function PortfolioDetail() {
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [preview, setPreview] = useState<FileAsset | null>(null);
 
-  const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 80]);
 
   useEffect(() => {
     if (!slug) return;

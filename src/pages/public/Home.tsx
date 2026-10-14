@@ -181,6 +181,14 @@ function PortraitHero({
           )}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-hero via-transparent to-transparent opacity-50" aria-hidden />
           <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-28 bg-gradient-to-r from-hero to-transparent lg:block" aria-hidden />
+          <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-10 text-center sm:px-8 lg:px-10 lg:pb-32 lg:text-left">
+            <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.5, ease }} className="mb-2 text-[11px] font-bold uppercase tracking-[0.3em] text-hero-muted">
+              {role}
+            </motion.p>
+            <motion.h2 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6, ease }} className="font-display text-[clamp(2rem,4.5vw,3.75rem)] font-bold uppercase leading-[0.95] tracking-normal text-hero-foreground drop-shadow-[0_2px_12px_rgba(0,0,0,0.55)]">
+              {ownerName}
+            </motion.h2>
+          </div>
         </motion.div>
 
         <div className="relative z-20 col-span-full grid grid-cols-1 gap-5 border-t border-hero-border py-6 text-xs sm:grid-cols-3 lg:absolute lg:inset-x-12 lg:bottom-0 lg:py-7">

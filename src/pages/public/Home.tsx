@@ -20,7 +20,6 @@ import { useSEO } from "@/hooks/useSEO";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { ArchitectureBusinessJsonLd } from "@/components/JsonLd";
 import { ProgressiveImage } from "@/components/media/ProgressiveImage";
-import { MagneticButton } from "@/components/MagneticButton";
 import { SectionLabel } from "@/components/SectionLabel";
 import { FadeUp, StaggerContainer, StaggerItem, ImageReveal } from "@/components/motion/MotionWrappers";
 import { useEffect, useState } from "react";
@@ -79,6 +78,8 @@ export default function Home() {
         <ExpertiseSection services={content.services_home ?? []} t={t} />
 
         <NarrativeSection aboutMe={content.about_me ?? {}} t={t} />
+
+        <ContactCTA settings={settings} />
       </main>
       <PublicFooter />
     </div>
@@ -247,27 +248,29 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
             </FadeUp>
           </div>
           <FadeUp delay={0.2}>
-            <MagneticButton strength={0.15}>
-              <Link to="/portfolio" className="group inline-flex items-center gap-3 text-sm tracking-[0.2em] uppercase text-foreground py-2 border-b border-foreground/10 hover:border-primary transition-colors">
-                {t("home_all_projects")}
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </MagneticButton>
+            <Link to="/portfolio" className="group inline-flex items-center gap-3 text-sm tracking-[0.2em] uppercase text-foreground py-2 border-b border-foreground/10 hover:border-primary transition-colors">
+              {t("home_all_projects")}
+              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
           </FadeUp>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-          {projects.map((project, i) => (
-            <FadeUp key={project.id} delay={i * 0.1}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14 md:gap-x-12 md:gap-y-20">
+          {projects.map((project, i) => {
+            const lead = i === 0;
+            const ratio = lead ? "16 / 10" : "4 / 5";
+            return (
+            <FadeUp key={project.id} delay={Math.min(i, 3) * 0.08} className={lead ? "md:col-span-2 lg:col-span-2" : ""}>
               <Link to={project.slug ? `/portfolio/${project.slug}` : `/projects/${project.id}`} className="group block">
                 <ImageReveal>
-                  <div className="aspect-[4/5] overflow-hidden bg-muted relative mb-6">
+                  <div className={`${lead ? "aspect-[16/10]" : "aspect-[4/5]"} overflow-hidden bg-muted relative mb-6`}>
                     {project.thumbnail_url ? (
                       <ProgressiveImage
                         src={project.thumbnail_url}
                         alt={project.title}
-                        aspectRatio="4 / 5"
-                        className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
+                        aspectRatio={ratio}
+                        eager={i < 2}
+                        className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
                         wrapperClassName="size-full"
                       />
                     ) : (
@@ -283,28 +286,29 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
                     </div>
                   </div>
                 </ImageReveal>
-                <div>
-                  {project.category && (
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-[10px] tracking-[0.25em] uppercase text-primary font-bold">
+                <div className="flex items-start gap-5">
+                  <span className="font-display text-sm text-muted-foreground tabular-nums pt-1.5">{String(i + 1).padStart(2, "0")}</span>
+                  <div className="min-w-0">
+                    {project.category && (
+                      <span className="mb-2 block text-[10px] tracking-[0.25em] uppercase text-primary font-bold">
                         {project.category}
                       </span>
-                      <span className="h-px w-8 bg-border" />
-                    </div>
-                  )}
-                  <h3 className="font-display text-2xl text-foreground group-hover:text-primary transition-colors leading-tight">
-                    {project.title}
-                  </h3>
-                  {project.location && (
-                    <p className="mt-2 text-sm text-muted-foreground flex items-center gap-1.5">
-                      <MapPin size={12} className="opacity-60" />
-                      {project.location}
-                    </p>
-                  )}
+                    )}
+                    <h3 className={`font-display ${lead ? "text-3xl md:text-4xl" : "text-2xl"} text-foreground group-hover:text-primary transition-colors leading-tight`}>
+                      {project.title}
+                    </h3>
+                    {project.location && (
+                      <p className="mt-2 text-sm text-muted-foreground flex items-center gap-1.5">
+                        <MapPin size={12} className="opacity-60" />
+                        {project.location}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </Link>
             </FadeUp>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
@@ -350,14 +354,37 @@ function NarrativeSection({ aboutMe, t }: { aboutMe: any; t: any }) {
               </div>
             </FadeUp>
             <FadeUp delay={0.4} className="mt-12">
-              <MagneticButton strength={0.2}>
-                <Link to="/about" className="inline-flex items-center gap-4 bg-foreground text-background px-10 h-14 tracking-[0.2em] text-[11px] uppercase font-bold hover:bg-primary hover:text-primary-foreground transition-colors">
-                  {t("home_learn_more")}
-                  <ArrowRight size={14} />
-                </Link>
-              </MagneticButton>
+              <Link to="/about" className="inline-flex items-center gap-4 bg-foreground text-background px-10 h-14 tracking-[0.2em] text-[11px] uppercase font-bold hover:bg-primary hover:text-primary-foreground transition-colors">
+                {t("home_learn_more")}
+                <ArrowRight size={14} />
+              </Link>
             </FadeUp>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ───────────── CONTACT CTA ───────────── */
+function ContactCTA({ settings }: { settings: any }) {
+  const email = settings?.contact_email || settings?.email;
+  const phone = settings?.contact_phone || settings?.phone;
+  return (
+    <section className="bg-hero text-hero-foreground">
+      <div className="container py-20 md:py-28 grid gap-10 lg:grid-cols-12 lg:items-end">
+        <div className="lg:col-span-8">
+          <p className="mb-5 text-xs font-bold uppercase text-hero-faint">Start a project</p>
+          <h2 className="font-display text-[clamp(2.2rem,5.5vw,4.75rem)] font-bold uppercase leading-[0.95]">
+            Have a space in mind?<br />Let’s design it together.
+          </h2>
+        </div>
+        <div className="lg:col-span-4 flex flex-col gap-4 lg:items-end">
+          <Button asChild variant="outline" size="lg" className="h-12 rounded-none border-hero-foreground bg-transparent px-7 text-xs font-bold uppercase text-hero-foreground hover:bg-hero-foreground hover:text-hero">
+            <Link to="/contact">Contact me <ArrowRight size={15} /></Link>
+          </Button>
+          {email && <a href={`mailto:${email}`} className="flex items-center gap-2 text-sm text-hero-muted hover:text-hero-foreground"><Mail size={14} />{email}</a>}
+          {phone && <a href={`tel:${phone}`} className="flex items-center gap-2 text-sm text-hero-muted hover:text-hero-foreground"><PhoneIcon size={14} />{phone}</a>}
         </div>
       </div>
     </section>

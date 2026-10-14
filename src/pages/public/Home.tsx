@@ -20,7 +20,6 @@ import { useSEO } from "@/hooks/useSEO";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { ArchitectureBusinessJsonLd } from "@/components/JsonLd";
 import { ProgressiveImage } from "@/components/media/ProgressiveImage";
-import { MagneticButton } from "@/components/MagneticButton";
 import { SectionLabel } from "@/components/SectionLabel";
 import { FadeUp, StaggerContainer, StaggerItem, ImageReveal } from "@/components/motion/MotionWrappers";
 import { useEffect, useState } from "react";

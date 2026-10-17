@@ -159,6 +159,8 @@ function GridCard({
 
         <div className="pt-5">
           <div className="flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
+            <span className="text-primary/70 tabular-nums">{String(index + 1).padStart(2, "0")}</span>
+            {item.category && <span aria-hidden>·</span>}
             {item.category && <span>{item.category}</span>}
             {item.category && item.year && <span aria-hidden>·</span>}
             {item.year && <span className="tabular-nums">{item.year}</span>}
@@ -532,7 +534,7 @@ export default function PublicPortfolio() {
                   return (
                     <div
                       key={item.id}
-                      className={isFeatured ? "sm:col-span-2 lg:col-span-3" : ""}
+                      className={isFeatured ? "sm:col-span-2" : ""}
                     >
                       <GridCard
                         item={item}

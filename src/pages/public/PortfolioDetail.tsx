@@ -15,7 +15,7 @@ import { FadeUp, StaggerContainer, StaggerItem, SlideIn } from "@/components/mot
 import { motion } from "framer-motion";
 
 import {
-  MapPin, Calendar, Tag, ArrowLeft, ArrowRight,
+  MapPin, Calendar, Tag, ArrowLeft, ArrowRight, ArrowUpRight,
   ExternalLink, Loader2, Eye, FolderOpen, Maximize2,
   Camera, FileText, Layers, Clock,
 } from "lucide-react";

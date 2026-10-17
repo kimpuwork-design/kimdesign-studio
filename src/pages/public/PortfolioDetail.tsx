@@ -456,7 +456,10 @@ export default function PortfolioDetail() {
                               {r.category}
                             </span>
                           )}
-                          <h3 className="font-display text-lg md:text-xl text-background leading-tight">{r.title}</h3>
+                          <h3 className="font-display text-lg md:text-xl text-background leading-tight flex items-center gap-2">
+                            {r.title}
+                            <ArrowUpRight size={16} className="opacity-0 -translate-x-1 translate-y-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300 text-background/70" aria-hidden />
+                          </h3>
                           {r.location && <p className="text-xs text-background/40 mt-1.5 flex items-center gap-1"><MapPin size={10} />{r.location}</p>}
                         </div>
                       </div>

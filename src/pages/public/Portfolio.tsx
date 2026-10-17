@@ -118,7 +118,7 @@ function GridCard({
       >
         <div
           className={`relative overflow-hidden bg-muted/40 ${
-            featured ? "aspect-[16/9]" : "aspect-[4/3]"
+            featured ? "aspect-[16/10]" : "aspect-[4/3]"
           }`}
         >
           {item.thumbnail_url ? (
@@ -128,7 +128,7 @@ function GridCard({
               eager={eager}
               priority={index < 3}
               thumbWidth={featured ? 1280 : 720}
-              aspectRatio={featured ? "16 / 9" : "4 / 3"}
+              aspectRatio={featured ? "16 / 10" : "4 / 3"}
               onContextMenu={(e) => e.preventDefault()}
               className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
               wrapperClassName="size-full"

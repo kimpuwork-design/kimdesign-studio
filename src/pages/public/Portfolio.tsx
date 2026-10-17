@@ -363,7 +363,7 @@ export default function PublicPortfolio() {
         {/* ── Sticky Filters ── */}
         <section
           aria-label="Filter and sort projects"
-          className="sticky top-16 z-30 bg-background/85 backdrop-blur-xl border-y border-border/40"
+          className="sticky top-14 md:top-16 z-30 bg-background/85 backdrop-blur-xl border-y border-border/40"
         >
           <div className="container py-3 md:py-3.5 space-y-2 md:space-y-0 md:flex md:items-center md:gap-4">
             {/* Search */}
@@ -382,7 +382,7 @@ export default function PublicPortfolio() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t("portfolio_search")}
-                className="w-full pl-9 pr-9 py-2 rounded-md border border-border/60 bg-background/60 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent"
+                className="w-full pl-9 pr-9 py-2 min-h-11 rounded-md border border-border/60 bg-background/60 text-base md:text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent"
               />
               {search && (
                 <button

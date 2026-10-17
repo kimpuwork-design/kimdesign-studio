@@ -470,14 +470,14 @@ export default function PublicPortfolio() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <motion.div
                   key={i}
-                  className={i === 0 ? "sm:col-span-2 lg:col-span-3" : ""}
+                  className={i === 0 ? "sm:col-span-2" : ""}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: i * 0.08 }}
                 >
                   <div
                     className={`${
-                      i === 0 ? "aspect-[16/9]" : "aspect-[4/3]"
+                      i === 0 ? "aspect-[16/10]" : "aspect-[4/3]"
                     } bg-muted/50 animate-pulse rounded-sm`}
                   />
                   <div className="mt-3 space-y-2">

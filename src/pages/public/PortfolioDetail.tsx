@@ -15,7 +15,7 @@ import { FadeUp, StaggerContainer, StaggerItem, SlideIn } from "@/components/mot
 import { motion } from "framer-motion";
 
 import {
-  MapPin, Calendar, Tag, ArrowLeft, ArrowRight,
+  MapPin, Calendar, Tag, ArrowLeft, ArrowRight, ArrowUpRight,
   ExternalLink, Loader2, Eye, FolderOpen, Maximize2,
   Camera, FileText, Layers, Clock,
 } from "lucide-react";
@@ -272,7 +272,7 @@ export default function PortfolioDetail() {
                   </motion.p>
                 )}
                 <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: luxuryEase }}
-                  className="font-display text-3xl md:text-6xl lg:text-8xl text-background leading-[0.92]">
+                  className="font-display text-[clamp(2.25rem,6.5vw,5.5rem)] text-background leading-[0.92] tracking-[-0.02em]">
                   {item.title}
                 </motion.h1>
                 <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
@@ -456,7 +456,10 @@ export default function PortfolioDetail() {
                               {r.category}
                             </span>
                           )}
-                          <h3 className="font-display text-lg md:text-xl text-background leading-tight">{r.title}</h3>
+                          <h3 className="font-display text-lg md:text-xl text-background leading-tight flex items-center gap-2">
+                            {r.title}
+                            <ArrowUpRight size={16} className="opacity-0 -translate-x-1 translate-y-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300 text-background/70" aria-hidden />
+                          </h3>
                           {r.location && <p className="text-xs text-background/40 mt-1.5 flex items-center gap-1"><MapPin size={10} />{r.location}</p>}
                         </div>
                       </div>

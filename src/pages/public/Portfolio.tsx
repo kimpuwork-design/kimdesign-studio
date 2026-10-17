@@ -118,7 +118,7 @@ function GridCard({
       >
         <div
           className={`relative overflow-hidden bg-muted/40 ${
-            featured ? "aspect-[16/9]" : "aspect-[4/3]"
+            featured ? "aspect-[16/10]" : "aspect-[4/3]"
           }`}
         >
           {item.thumbnail_url ? (
@@ -128,7 +128,7 @@ function GridCard({
               eager={eager}
               priority={index < 3}
               thumbWidth={featured ? 1280 : 720}
-              aspectRatio={featured ? "16 / 9" : "4 / 3"}
+              aspectRatio={featured ? "16 / 10" : "4 / 3"}
               onContextMenu={(e) => e.preventDefault()}
               className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
               wrapperClassName="size-full"
@@ -159,6 +159,8 @@ function GridCard({
 
         <div className="pt-5">
           <div className="flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
+            <span className="text-primary/70 tabular-nums">{String(index + 1).padStart(2, "0")}</span>
+            {item.category && <span aria-hidden>·</span>}
             {item.category && <span>{item.category}</span>}
             {item.category && item.year && <span aria-hidden>·</span>}
             {item.year && <span className="tabular-nums">{item.year}</span>}
@@ -468,14 +470,14 @@ export default function PublicPortfolio() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <motion.div
                   key={i}
-                  className={i === 0 ? "sm:col-span-2 lg:col-span-3" : ""}
+                  className={i === 0 ? "sm:col-span-2" : ""}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: i * 0.08 }}
                 >
                   <div
                     className={`${
-                      i === 0 ? "aspect-[16/9]" : "aspect-[4/3]"
+                      i === 0 ? "aspect-[16/10]" : "aspect-[4/3]"
                     } bg-muted/50 animate-pulse rounded-sm`}
                   />
                   <div className="mt-3 space-y-2">
@@ -532,7 +534,7 @@ export default function PublicPortfolio() {
                   return (
                     <div
                       key={item.id}
-                      className={isFeatured ? "sm:col-span-2 lg:col-span-3" : ""}
+                      className={isFeatured ? "sm:col-span-2" : ""}
                     >
                       <GridCard
                         item={item}

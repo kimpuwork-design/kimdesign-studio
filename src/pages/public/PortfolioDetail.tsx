@@ -45,7 +45,7 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
 
 
         {/* Index badge */}
-        <span className="absolute top-3 left-3 z-[2] font-mono-label text-[9px] tracking-[0.2em] text-background/90 bg-foreground/40 backdrop-blur-sm px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tabular-nums">
+        <span className="absolute top-3 left-3 z-[2] font-mono-label text-[9px] tracking-[0.2em] text-background/90 bg-foreground/40 backdrop-blur-sm px-2 py-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 tabular-nums">
           {String(idx + 1).padStart(2, "0")}
         </span>
 
@@ -61,7 +61,7 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
 
         {/* Caption */}
         {img.name && (
-          <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-400 pointer-events-none">
+          <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 translate-y-0 md:translate-y-2 md:group-hover:translate-y-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-400 pointer-events-none">
             <p className="text-[11px] text-background/90 font-light leading-snug line-clamp-2 drop-shadow">
               {img.name}
             </p>
@@ -244,7 +244,7 @@ export default function PortfolioDetail() {
       {/* ── Hero ── */}
       <div className="relative overflow-hidden">
         {coverUrl ? (
-          <section className="relative h-[60vh] md:h-[75vh] min-h-[400px] max-h-[900px]">
+          <section className="relative h-[55vh] md:h-[75vh] min-h-[380px] max-h-[900px]">
             <div className="absolute inset-0">
               <ProgressiveImage
                 src={coverUrl}
@@ -260,7 +260,7 @@ export default function PortfolioDetail() {
             </div>
             <div className="relative h-full container flex flex-col justify-end pb-10 md:pb-20 z-10">
               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-                <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-background/60 hover:text-background text-sm mb-8 transition-colors">
+                <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-background/80 hover:text-background text-sm mb-8 transition-colors bg-foreground/30 backdrop-blur-sm px-3.5 py-2 rounded-full min-h-11">
                   <ArrowLeft size={14} /> Back
                 </Link>
               </motion.div>

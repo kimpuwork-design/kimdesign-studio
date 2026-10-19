@@ -1,5 +1,5 @@
 import { 
-  LayoutDashboard, FolderOpen, User, LogOut, ChevronLeft, 
+  LayoutDashboard, FolderOpen, User, LogOut, X, 
   Briefcase, Users, FileArchive, Settings, Activity, UserCog, Shield, 
   PackageOpen, Receipt, FileText, Newspaper, BarChart3, Globe, type LucideIcon
 } from "lucide-react";
@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSettings } from "@/hooks/useSettings";
 import { KMonogramLogo } from "@/components/KMonogramLogo";
 import { NavLink } from "@/components/NavLink";
+import { Button } from "@/components/ui/button";
 
 interface NavItem {
   label: string;
@@ -105,8 +106,9 @@ export function ModernPortalSidebar({ variant }: ModernPortalSidebarProps) {
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
   const { settings } = useSettings();
-  const { state } = useSidebar();
-  const collapsed = state === "collapsed";
+  const { state, isMobile, setOpenMobile } = useSidebar();
+  const collapsed = !isMobile && state === "collapsed";
+  const closeMobileNav = () => { if (isMobile) setOpenMobile(false); };
   
   const studioName = settings?.studio_name ?? "KIM DESIGN STUDIO";
   const logoUrl = settings?.logo_url;
@@ -151,6 +153,11 @@ export function ModernPortalSidebar({ variant }: ModernPortalSidebarProps) {
               <span className="block text-[9px] tracking-[0.15em] uppercase text-portal-text-muted font-medium">{studioName.split(" ").slice(1).join(" ") || "Studio"}</span>
             </div>
           )}
+          {isMobile && (
+            <Button variant="ghost" size="icon" onClick={closeMobileNav} aria-label="Close navigation" className="ml-auto h-11 w-11 shrink-0 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text">
+              <X />
+            </Button>
+          )}
         </div>
 
         {/* Role badge */}
@@ -177,8 +184,9 @@ export function ModernPortalSidebar({ variant }: ModernPortalSidebarProps) {
                     <SidebarMenuButton asChild>
                       <NavLink 
                         to={item.href} 
+                        onClick={closeMobileNav}
                         end={item.href === "/app" || item.href === "/staff" || item.href === "/admin"}
-                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-all portal-nav-item"
+                        className="flex min-h-11 items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-all portal-nav-item"
                         activeClassName="bg-portal-accent/10 text-portal-accent border-portal-accent/20 shadow-lg shadow-portal-accent/5 active"
                       >
                         <item.icon size={16} className="shrink-0" />
@@ -208,7 +216,7 @@ export function ModernPortalSidebar({ variant }: ModernPortalSidebarProps) {
         )}
         <div className="space-y-1">
           <SidebarMenuButton asChild>
-            <Link to="/" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-all w-full">
+            <Link to="/" onClick={closeMobileNav} className="flex min-h-11 items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-all w-full">
               <Globe size={16} className="shrink-0" />
               {!collapsed && <span>Public Site</span>}
             </Link>

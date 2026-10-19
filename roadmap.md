@@ -8,3 +8,6 @@
 
 ## Open (blocked)
 - [ ] Diagnose Myanmar-only access failure — needs the affected network's browser error message and ISP/provider name from the user; the test network is not in Myanmar.
+
+## In progress
+- [ ] Polish admin phone navigation, touch controls, and dashboard header while preserving the current format; verify with the signed-in account.

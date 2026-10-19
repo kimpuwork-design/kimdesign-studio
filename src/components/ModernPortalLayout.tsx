@@ -8,6 +8,7 @@ import { useTheme } from "next-themes";
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { CommandPalette } from "@/components/admin/CommandPalette";
+import { Button } from "@/components/ui/button";
 
 interface ModernPortalLayoutProps {
   children: React.ReactNode;
@@ -64,22 +65,18 @@ export function ModernPortalLayout({ children, variant }: ModernPortalLayoutProp
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full portal-layout relative">
-        {/* Ambient glow orbs */}
-        <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-          <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-portal-accent/[0.04] blur-[100px] animate-float" />
-          <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-portal-accent/[0.03] blur-[80px] animate-float-delayed" />
-        </div>
+        <a href="#portal-main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-portal-surface focus:p-3 focus:text-portal-text">Skip to content</a>
 
         <ModernPortalSidebar variant={variant} />
 
-        <div className="flex flex-1 flex-col overflow-hidden relative z-10">
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden relative z-10">
           {/* Topbar — frosted glass */}
-          <header className="flex items-center justify-between gap-2 border-b border-portal-border/50 bg-portal-bg/60 backdrop-blur-xl px-3 md:px-6 py-2.5 md:py-3 h-13 md:h-14 shrink-0 sticky top-0 z-30">
+          <header className="flex h-16 md:h-14 items-center justify-between gap-2 border-b border-portal-border/50 bg-portal-bg/60 backdrop-blur-xl px-3 md:px-6 shrink-0 sticky top-0 z-30">
             <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
-              <SidebarTrigger className="rounded-xl p-2 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all shrink-0" />
+              <SidebarTrigger className="h-11 w-11 rounded-md p-2 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all shrink-0" />
               
               {/* Breadcrumbs — show condensed on mobile */}
-              <nav className="flex items-center gap-1 text-xs text-portal-text-muted min-w-0 overflow-hidden">
+              <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-xs text-portal-text-muted min-w-0 overflow-hidden">
                 {breadcrumbs.map((crumb, i) => {
                   // On mobile, only show last 2 crumbs
                   if (isMobile && i < breadcrumbs.length - 2) return null;
@@ -87,11 +84,11 @@ export function ModernPortalLayout({ children, variant }: ModernPortalLayoutProp
                     <span key={i} className="flex items-center gap-1 shrink-0">
                       {((isMobile && i > 0) || (!isMobile && i > 0)) && <ChevronRight size={10} className="text-portal-text-muted/40" />}
                       {crumb.href ? (
-                        <Link to={crumb.href} className="hover:text-portal-text transition-colors">
+                        <Link to={crumb.href} aria-label={crumb.label} className="hover:text-portal-text transition-colors">
                           {i === 0 && !isMobile ? <Home size={12} /> : <span className="truncate max-w-[80px] md:max-w-none block">{crumb.label}</span>}
                         </Link>
                       ) : (
-                        <span className="text-portal-text font-medium truncate max-w-[120px] md:max-w-none block">{crumb.label}</span>
+                        <span aria-current="page" className="text-portal-text font-medium truncate max-w-[120px] md:max-w-none block">{crumb.label}</span>
                       )}
                     </span>
                   );
@@ -99,7 +96,7 @@ export function ModernPortalLayout({ children, variant }: ModernPortalLayoutProp
               </nav>
 
               {/* Search hint — hide on mobile */}
-              <button
+              <Button variant="ghost"
                 onClick={() => setPaletteOpen(true)}
                 className="hidden lg:flex items-center gap-2 rounded-lg border border-portal-border/40 bg-portal-surface/30 px-3 py-1.5 text-[11px] text-portal-text-muted hover:border-portal-accent/30 hover:text-portal-text transition-all ml-4"
               >
@@ -108,32 +105,32 @@ export function ModernPortalLayout({ children, variant }: ModernPortalLayoutProp
                 <kbd className="flex items-center gap-0.5 rounded border border-portal-border/40 bg-portal-bg/50 px-1 py-0.5 text-[9px] font-medium ml-3">
                   <Command size={8} />K
                 </kbd>
-              </button>
+              </Button>
               {/* Mobile: search icon only */}
-              <button
+              <Button variant="ghost" size="icon"
                 onClick={() => setPaletteOpen(true)}
                 aria-label="Search"
-                className="lg:hidden rounded-lg p-1.5 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all ml-1"
+                className="lg:hidden h-11 w-11 shrink-0 rounded-md text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all ml-auto"
               >
                 <Search size={14} />
-              </button>
+              </Button>
             </div>
             <div className="flex items-center gap-0.5 md:gap-1 shrink-0">
-              <button
+              <Button variant="ghost" size="icon"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="rounded-lg p-1.5 md:p-2 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all"
+                className="h-11 w-11 rounded-md text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all"
                 aria-label="Toggle theme"
               >
                 {theme === "dark" ? <Sun size={14} className="md:w-[15px] md:h-[15px]" /> : <Moon size={14} className="md:w-[15px] md:h-[15px]" />}
-              </button>
+              </Button>
               {profile && <NotificationBell />}
             </div>
           </header>
-          <div role="region" aria-label="Page content" className="flex-1 overflow-auto">
-            <div className="p-3 md:p-4 lg:p-8 animate-page-enter">
+          <main id="portal-main" tabIndex={-1} aria-label="Page content" className="min-w-0 flex-1 overflow-auto outline-none">
+            <div className="p-3 md:p-4 lg:p-8 pb-safe animate-page-enter">
               {children}
             </div>
-          </div>
+          </main>
         </div>
         <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} variant={variant} />
       </div>

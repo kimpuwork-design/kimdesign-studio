@@ -12,6 +12,7 @@ import { format, subDays, subMonths, startOfMonth } from "date-fns";
 import { motion } from "framer-motion";
 import { Sparkline, TrendIndicator } from "@/components/SparklineChart";
 import { DashboardSkeleton } from "@/components/SkeletonScreens";
+import { Button } from "@/components/ui/button";
 
 interface Stats {
   totalClients: number;
@@ -283,13 +284,13 @@ export default function AdminDashboard() {
   return (
     <PortalLayout variant="admin">
       {/* ── Header ── */}
-      <div className="mb-8 md:mb-10 flex items-start justify-between">
-        <div className="flex items-center gap-3 md:gap-4">
+      <div className="mb-6 md:mb-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3 md:gap-4">
           <motion.div 
             initial={{ scale: 0.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, ease: luxuryEase }}
-            className="h-11 w-11 md:h-13 md:w-13 rounded-none bg-portal-accent flex items-center justify-center shadow-[0_8px_30px_-8px_hsl(var(--portal-accent)/0.4)]"
+            className="h-11 w-11 md:h-14 md:w-14 shrink-0 rounded-none bg-portal-accent flex items-center justify-center"
           >
             <Zap size={18} className="md:w-5 md:h-5 text-portal-accent-foreground" />
           </motion.div>
@@ -320,13 +321,14 @@ export default function AdminDashboard() {
               {isLive ? 'Live' : 'Offline'}
             </span>
           </div>
-          <button
+          <Button variant="ghost" size="icon"
             onClick={fetchDashboardData}
-            className="p-2 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all"
+            disabled={loading}
+            className="h-11 w-11 text-portal-text-muted hover:bg-portal-surface/80 hover:text-portal-text transition-all"
             aria-label="Refresh"
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -345,10 +347,6 @@ export default function AdminDashboard() {
           <span className="text-[10px] font-semibold text-portal-text-muted uppercase tracking-wider">Peak Traffic: {Math.max(...stats.trafficSpark).toLocaleString()} unique/day</span>
         </div>
         <div className="flex-1 hidden md:block" />
-        <div className="flex items-center gap-2 text-[10px] text-portal-text-muted font-medium">
-          <kbd className="px-1.5 py-0.5 rounded border border-portal-border bg-portal-surface text-[9px] font-mono">⌘K</kbd>
-          <span>for Command Palette</span>
-        </div>
       </div>
 
       {/* ── Stat Cards ── */}
@@ -579,16 +577,16 @@ export default function AdminDashboard() {
             {quickActions.map((action) => {
               const Icon = action.icon;
               return (
-                <button
+                <Button variant="ghost"
                   key={action.label}
                   onClick={() => navigate(action.href)}
-                  className="group flex items-center gap-2.5 border border-portal-border/30 bg-portal-surface/10 px-3 py-3 text-left text-xs hover:bg-portal-surface/40 hover:border-portal-accent/30 transition-all duration-300"
+                  className="group flex h-auto min-h-12 justify-start items-center gap-2.5 whitespace-normal rounded-md border border-portal-border/30 bg-portal-surface/10 px-3 py-3 text-left text-xs hover:bg-portal-surface/40 hover:border-portal-accent/30 transition-all duration-300"
                 >
                   <div className="p-1.5 bg-portal-surface/50 group-hover:bg-portal-accent/15 border border-portal-border/20 group-hover:border-portal-accent/20 transition-all duration-300 shrink-0">
                     <Icon size={13} className="text-portal-text-muted group-hover:text-portal-accent transition-colors duration-300" />
                   </div>
-                  <span className="font-medium text-portal-text truncate tracking-wide">{action.label}</span>
-                </button>
+                  <span className="font-medium text-portal-text">{action.label}</span>
+                </Button>
               );
             })}
           </div>

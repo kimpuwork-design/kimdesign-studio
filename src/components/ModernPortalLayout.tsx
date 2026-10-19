@@ -9,6 +9,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { CommandPalette } from "@/components/admin/CommandPalette";
 import { Button } from "@/components/ui/button";
+import { shouldOpenCommandPalette } from "@/lib/keyboard";
 
 interface ModernPortalLayoutProps {
   children: React.ReactNode;
@@ -53,7 +54,7 @@ export function ModernPortalLayout({ children, variant }: ModernPortalLayoutProp
   // ⌘K / Ctrl+K to open the global command palette
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      if (shouldOpenCommandPalette(e)) {
         e.preventDefault();
         setPaletteOpen((o) => !o);
       }

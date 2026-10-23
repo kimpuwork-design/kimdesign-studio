@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.is_project_client(uuid, uuid) TO authenticated;

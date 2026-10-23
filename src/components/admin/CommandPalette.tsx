@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   CommandDialog, CommandInput, CommandList, CommandEmpty,
   CommandGroup, CommandItem, CommandSeparator,
 } from "@/components/ui/command";
-import { supabase } from "@/integrations/supabase/client";
+import { useAdminSearch, type AdminSearchHit } from "@/hooks/useAdminSearch";
 import {
   LayoutDashboard, BarChart3, Activity, Users, UserCog, Briefcase,
   PackageOpen, FileArchive, Receipt, FileText, Settings, ShieldCheck,
@@ -12,15 +12,6 @@ import {
 } from "lucide-react";
 
 type Variant = "admin" | "staff" | "client";
-
-interface Hit {
-  id: string;
-  label: string;
-  sub?: string;
-  href: string;
-  kind: "client" | "project" | "lead" | "portfolio";
-  image?: string | null;
-}
 
 const STATIC_ROUTES: Record<Variant, { label: string; href: string; icon: any; group: string }[]> = {
   admin: [
@@ -40,7 +31,6 @@ const STATIC_ROUTES: Record<Variant, { label: string; href: string; icon: any; g
     { group: "Navigate", label: "Audit Logs", href: "/admin/audit-logs", icon: ScrollText },
     { group: "Navigate", label: "Settings", href: "/admin/settings", icon: Settings },
     { group: "Create", label: "New Project", href: "/admin/projects?new=1", icon: Plus },
-    { group: "Create", label: "New Portfolio Item", href: "/admin/portfolio/new", icon: Plus },
     { group: "External", label: "Open Public Website", href: "/", icon: Eye },
     { group: "External", label: "Open Portfolio Page", href: "/portfolio", icon: Eye },
   ],
@@ -63,44 +53,10 @@ interface Props {
 export function CommandPalette({ open, onOpenChange, variant }: Props) {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
-  const [hits, setHits] = useState<Hit[]>([]);
-  const [loading, setLoading] = useState(false);
-  const latestTermRef = useRef("");
+  const { hits, loading, error } = useAdminSearch(q, open && variant === "admin");
 
   // Reset query when closed
   useEffect(() => { if (!open) setQ(""); }, [open]);
-
-  // Debounced live search across clients/projects/leads/portfolio (admin only)
-  useEffect(() => {
-    if (variant !== "admin") { setHits([]); return; }
-    if (!q.trim() || q.length < 2) { setHits([]); setLoading(false); return; }
-    const term = q.trim();
-    latestTermRef.current = term;
-    const handle = setTimeout(async () => {
-      setLoading(true);
-      const like = `%${term}%`;
-      const [clients, projects, leads, portfolio] = await Promise.all([
-        supabase.from("profiles").select("id, full_name, avatar_url").eq("role", "CLIENT").ilike("full_name", like).limit(5),
-        supabase.from("projects").select("id, title, status, thumbnail_url").ilike("title", like).limit(6),
-        supabase.from("leads").select("id, name, email, status").or(`name.ilike.${like},email.ilike.${like}`).limit(5),
-        supabase.from("portfolio_items").select("id, title, category, image_url").ilike("title", like).limit(5),
-      ]);
-      // Guard against stale results overwriting newer searches.
-      if (latestTermRef.current !== term) return;
-      const out: Hit[] = [];
-      (clients.data || []).forEach((c: any) =>
-        out.push({ id: `c-${c.id}`, label: c.full_name || "(no name)", href: `/admin/clients`, kind: "client", image: c.avatar_url }));
-      (projects.data || []).forEach((p: any) =>
-        out.push({ id: `p-${p.id}`, label: p.title, sub: p.status, href: `/admin/projects/${p.id}`, kind: "project", image: p.thumbnail_url }));
-      (leads.data || []).forEach((l: any) =>
-        out.push({ id: `l-${l.id}`, label: l.name || l.email, sub: l.status, href: `/admin/leads`, kind: "lead" }));
-      (portfolio.data || []).forEach((p: any) =>
-        out.push({ id: `pf-${p.id}`, label: p.title, sub: p.category || "portfolio", href: `/admin/portfolio/${p.id}`, kind: "portfolio", image: p.image_url }));
-      setHits(out);
-      setLoading(false);
-    }, 180);
-    return () => clearTimeout(handle);
-  }, [q, variant]);
 
   const routes = STATIC_ROUTES[variant];
   const grouped = useMemo(() => {
@@ -123,7 +79,7 @@ export function CommandPalette({ open, onOpenChange, variant }: Props) {
     }
   };
 
-  const iconFor = (k: Hit["kind"]) => {
+  const iconFor = (k: AdminSearchHit["kind"]) => {
     if (k === "client") return UserCog;
     if (k === "project") return Briefcase;
     if (k === "lead") return Users;
@@ -137,9 +93,10 @@ export function CommandPalette({ open, onOpenChange, variant }: Props) {
         onValueChange={setQ}
         placeholder="Search clients, projects, leads, or jump to…"
       />
-      <CommandList>
+      <CommandList aria-busy={loading}>
+        {(loading || error) && <div role="status" className="px-4 py-3 text-sm text-muted-foreground">{error || "Searching…"}</div>}
         <CommandEmpty>
-          {loading ? "Searching…" : q.length >= 2 ? "No matches." : "Type to search…"}
+          {loading || error ? null : q.trim().length >= 2 ? "No matches." : "Type to search…"}
         </CommandEmpty>
 
         {hits.length > 0 && (
@@ -148,12 +105,8 @@ export function CommandPalette({ open, onOpenChange, variant }: Props) {
               {hits.map((h) => {
                 const Icon = iconFor(h.kind);
                 return (
-                  <CommandItem key={h.id} value={`${h.kind}-${h.label}-${h.id}`} onSelect={() => go(h.href)} className="gap-2">
-                    {h.image ? (
-                      <img src={h.image} alt="" className="h-6 w-6 rounded object-cover border border-portal-border" />
-                    ) : (
-                      <Icon className="h-4 w-4 opacity-70" />
-                    )}
+                  <CommandItem key={h.id} value={`${h.kind}-${h.label}-${h.id}`} keywords={[q.trim()]} onSelect={() => go(h.href)} className="gap-2">
+                    <Icon className="h-4 w-4 opacity-70" />
                     <span className="flex-1 truncate">{h.label}</span>
                     {h.sub && <span className="ml-2 text-[10px] uppercase tracking-wider opacity-50">{h.sub}</span>}
                     <ArrowRight className="ml-2 h-3 w-3 opacity-40" />

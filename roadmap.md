@@ -9,5 +9,6 @@
 - [x] Prevent portal search shortcuts from interrupting typing and make the activity heatmap keyboard/touch accessible; four regression tests and signed-in shortcut/28-day keyboard selection checks passed.
 
 ## Open (blocked)
+- [ ] Fix portal search query errors, stale results, and failed-search feedback; verify signed-in search and navigation.
 - [ ] Diagnose Myanmar-only access failure — needs the affected network's browser error message and ISP/provider name from the user; the test network is not in Myanmar.
 

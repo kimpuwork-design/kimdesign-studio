@@ -227,7 +227,7 @@ function ExpertiseSection({ services, t }: { services: any[]; t: any }) {
                 <h3 className="font-display text-2xl text-foreground mb-4 group-hover:text-primary transition-colors duration-300">
                   {service.title}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-[1.8] line-clamp-3">
+                <p className="text-sm text-muted-foreground leading-[1.8]">
                   {service.desc || service.description}
                 </p>
               </div>
@@ -289,7 +289,7 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
                       </div>
                     )}
                     <div className="absolute inset-0 bg-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="absolute bottom-6 right-6 h-12 w-12 rounded-full bg-background/95 backdrop-blur shadow-xl items-center justify-center hidden md:flex translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                    <div className={`absolute bottom-4 right-4 md:bottom-6 md:right-6 h-9 w-9 md:h-12 md:w-12 rounded-full bg-background/95 backdrop-blur shadow-xl items-center justify-center flex md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300`}>
                       <ArrowUpRight size={18} className="text-foreground" />
                     </div>
                   </div>

@@ -26,16 +26,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const CATEGORIES = [
-  "All",
-  "Residential",
-  "Cultural",
-  "Commercial",
-  "Interior",
-  "Landscape",
-  "Civic",
-  "Mixed-Use",
-];
 type SortMode = "newest" | "oldest" | "az" | "year_desc";
 const SORT_LABELS: Record<SortMode, string> = {
   newest: "Newest",

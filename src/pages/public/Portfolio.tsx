@@ -344,19 +344,16 @@ export default function PublicPortfolio() {
                 </motion.p>
               </div>
               <div className="md:col-span-4 md:border-l md:border-border/50 md:pl-8">
-                <dl className="grid grid-cols-3 md:grid-cols-1 gap-5 md:gap-6">
-                  {[
-                    { n: items.length, label: t("portfolio_projects_stat") },
-                    {
-                      n: items.filter((i) => i.is_featured).length,
-                      label: t("portfolio_featured_stat"),
-                    },
-                    {
-                      n: new Set(items.map((i) => i.category).filter(Boolean))
-                        .size,
-                      label: t("portfolio_categories_stat"),
-                    },
-                  ].map((stat) => (
+                <dl
+                  className={`grid gap-5 md:gap-6 ${
+                    statsList.length === 3
+                      ? "grid-cols-3 md:grid-cols-1"
+                      : statsList.length === 2
+                        ? "grid-cols-2 md:grid-cols-1"
+                        : "grid-cols-1"
+                  }`}
+                >
+                  {statsList.map((stat) => (
                     <div
                       key={stat.label}
                       className="md:flex md:items-baseline md:gap-3 md:border-b md:border-border/40 md:pb-4"

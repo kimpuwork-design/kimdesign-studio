@@ -28,7 +28,6 @@ export default function Services() {
         {/* Hero */}
         <section className="container py-16 md:py-28">
           <div className="max-w-3xl">
-            <div className="h-px w-12 bg-primary mb-8" />
             <SectionLabel text={page.hero_subtitle ?? "Services"} />
             <h1 className="font-display text-[clamp(2.1rem,6.5vw,5.5rem)] leading-[0.95] text-foreground">
               {page.hero_title_line1 ?? "Every project,"}
@@ -44,7 +43,7 @@ export default function Services() {
 
         {/* Services grid */}
         {services.length > 0 && (
-          <section className="border-t border-border/30 py-20 md:py-28">
+          <section className="border-t border-border/30 py-16 md:py-24">
             <div className="container">
               <StaggerContainer className="grid gap-px grid-cols-1 md:grid-cols-2 bg-border/20 border border-border/20" staggerDelay={0.08}>
                 {services.map((service: any, i: number) => {
@@ -53,7 +52,7 @@ export default function Services() {
                     <StaggerItem key={service.title ?? i}>
                       <div className="bg-background p-10 md:p-14 h-full group hover:bg-card transition-colors duration-500">
                         <div className="flex items-center gap-4 mb-8">
-                          <span className="font-display text-5xl text-border/30">{String(i + 1).padStart(2, "0")}</span>
+                          <span className="font-display text-5xl text-muted-foreground/25 group-hover:text-primary/40 transition-colors">{String(i + 1).padStart(2, "0")}</span>
                           <Icon size={20} className="text-primary" />
                         </div>
                         {service.stage && (
@@ -72,7 +71,7 @@ export default function Services() {
 
         {/* Process */}
         {process.length > 0 && (
-          <section className="border-t border-border/30 py-20 md:py-28 bg-muted/10">
+          <section className="border-t border-border/30 py-16 md:py-24 bg-muted/10">
             <div className="container">
               <div className="mb-12 md:mb-16 max-w-2xl">
                 <SectionLabel text={t("services_our_process")} />
@@ -97,7 +96,7 @@ export default function Services() {
 
         {/* CTA */}
         <section className="border-t border-border/30">
-          <div className="container py-20 md:py-28">
+          <div className="container py-16 md:py-24">
             <div className="max-w-2xl">
               <h2 className="font-display text-3xl md:text-5xl text-foreground leading-[1.05]">
                 {page.cta_title ?? t("services_ready_discuss")}

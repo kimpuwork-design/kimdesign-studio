@@ -210,6 +210,26 @@ export default function PublicPortfolio() {
   const setCategory = (v: string) => updateParam({ cat: v });
   const setSort = (v: SortMode) => updateParam({ sort: v });
 
+  // Categories and years come from real project data — empty filters would only confuse visitors.
+  const availableCategories = useMemo(
+    () => Array.from(new Set(items.map((i) => i.category).filter(Boolean) as string[])).sort(),
+    [items],
+  );
+  const featuredCount = useMemo(() => items.filter((i) => i.is_featured).length, [items]);
+  const hasYears = useMemo(() => items.some((i) => i.year), [items]);
+  const sortOptions = useMemo(
+    () => (Object.keys(SORT_LABELS) as SortMode[]).filter((s) => s !== "year_desc" || hasYears),
+    [hasYears],
+  );
+
+  const statsList = useMemo(() => {
+    const stats = [{ n: items.length, label: t("portfolio_projects_stat") }];
+    if (featuredCount > 0) stats.push({ n: featuredCount, label: t("portfolio_featured_stat") });
+    if (availableCategories.length > 0)
+      stats.push({ n: availableCategories.length, label: t("portfolio_categories_stat") });
+    return stats;
+  }, [items.length, featuredCount, availableCategories, t]);
+
   useEffect(() => {
     setLoading(true);
     supabase

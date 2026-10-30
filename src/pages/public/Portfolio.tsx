@@ -444,7 +444,7 @@ export default function PublicPortfolio() {
                   <span className="hidden sm:inline">{SORT_LABELS[sort]}</span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-[140px]">
-                  {(Object.keys(SORT_LABELS) as SortMode[]).map((s) => (
+                  {sortOptions.map((s) => (
                     <DropdownMenuItem
                       key={s}
                       onClick={() => setSort(s)}

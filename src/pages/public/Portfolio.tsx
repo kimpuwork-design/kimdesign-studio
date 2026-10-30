@@ -403,13 +403,14 @@ export default function PublicPortfolio() {
             </div>
 
             <div className="flex items-center gap-2 md:contents">
-            {/* Category chips */}
+            {availableCategories.length > 0 && (
+            /* Category chips — built from the categories actually used by the projects */
             <div
               role="tablist"
               aria-label="Project categories"
               className="-mx-2 px-2 flex gap-1.5 overflow-x-auto scrollbar-none flex-1"
             >
-              {CATEGORIES.map((c) => {
+              {["All", ...availableCategories].map((c) => {
                 const active = category === c;
                 return (
                   <button
@@ -428,6 +429,7 @@ export default function PublicPortfolio() {
                 );
               })}
             </div>
+            )}
 
             {/* Sort */}
             <div className="flex items-center gap-2 shrink-0">

@@ -31,7 +31,6 @@ export default function About() {
       {/* ── Hero ── */}
       <section className="container py-16 md:py-28">
         <div className="max-w-3xl">
-          <div className="h-px w-12 bg-primary mb-8" />
           <SectionLabel text={page.hero_subtitle ?? t("about_the_studio")} />
           <h1 className="font-display text-[clamp(2.1rem,6.5vw,5.5rem)] leading-[0.95] text-foreground">
             {page.hero_title_line1 ?? "Architecture as a"}
@@ -50,16 +49,16 @@ export default function About() {
       {/* ── Story ── */}
       {storyParagraphs.length > 0 && (
         <section className="border-t border-border/30 relative z-10">
-          <div className="container grid gap-12 md:gap-20 py-24 md:py-36 grid-cols-1 md:grid-cols-2">
+          <div className="container grid gap-12 md:gap-20 py-16 md:py-24 grid-cols-1 md:grid-cols-2">
             <SlideIn direction="left">
               <div className="space-y-6 text-muted-foreground leading-[1.85]">
                 {storyParagraphs.slice(0, Math.ceil(storyParagraphs.length / 2)).map((p, i) => (
-                  <p key={i} className={i === 0 ? "text-lg font-light text-foreground/80 leading-[1.9]" : "text-sm"}>{p}</p>
+                  <p key={i} className={i === 0 ? "text-lg font-light text-foreground/80 leading-[1.9]" : "text-[15px]"}>{p}</p>
                 ))}
               </div>
             </SlideIn>
             <SlideIn direction="right" delay={0.15}>
-              <div className="space-y-6 text-muted-foreground leading-[1.85] text-sm">
+              <div className="space-y-6 text-muted-foreground leading-[1.85] text-[15px]">
                 {storyParagraphs.slice(Math.ceil(storyParagraphs.length / 2)).map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
@@ -76,7 +75,7 @@ export default function About() {
 
       {/* ── Values ── */}
       {values.length > 0 && (
-        <section className="border-t border-border/30 py-24 md:py-36 relative z-10 bg-muted/10">
+        <section className="border-t border-border/30 py-16 md:py-24 relative z-10 bg-muted/10">
           <div className="container">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16 md:mb-20">
               <div>
@@ -109,7 +108,7 @@ export default function About() {
 
       {/* ── Team ── */}
       {team.length > 0 && (
-        <section className="border-t border-border/30 py-24 md:py-36 relative z-10">
+        <section className="border-t border-border/30 py-16 md:py-24 relative z-10">
           <div className="container">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16 md:mb-20">
               <div>
@@ -159,7 +158,7 @@ export default function About() {
 
       {/* ── CTA ── */}
       <section className="border-t border-border/30 relative z-10 bg-muted/10">
-        <div className="container py-32 md:py-48">
+        <div className="container py-20 md:py-32">
           <FadeUp>
             <div className="max-w-3xl mx-auto text-center">
               <SectionLabel text="Collaborate" className="justify-center" />

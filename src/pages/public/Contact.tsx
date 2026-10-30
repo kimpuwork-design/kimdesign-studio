@@ -82,7 +82,6 @@ export default function Contact() {
       {/* ── Hero ── */}
       <section className="container pt-16 md:pt-28 pb-8 md:pb-14">
         <div className="max-w-3xl">
-          <div className="h-px w-12 bg-primary mb-8" />
           <SectionLabel text={t("contact_title")} />
           <h1 className="font-display text-[clamp(2.1rem,6.5vw,5.5rem)] leading-[0.95] text-foreground">
             {t("contact_lets_start") || "Let's start a"}
@@ -99,7 +98,7 @@ export default function Contact() {
 
       {/* ── Contact Content ── */}
       <section className="border-t border-border/30 relative z-10">
-        <div className="container py-24 md:py-36 grid gap-16 md:gap-24 grid-cols-1 md:grid-cols-[1fr_2fr]">
+        <div className="container py-16 md:py-24 grid gap-16 md:gap-24 grid-cols-1 md:grid-cols-[1fr_2fr]">
           {/* Info sidebar */}
           <SlideIn direction="left">
             <div className="space-y-10">
@@ -232,7 +231,7 @@ export default function Contact() {
                   </div>
                   {serverError && <motion.p id="contact-form-error" role="alert" aria-live="assertive" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-destructive/10 px-4 py-3 text-sm text-destructive">{serverError}</motion.p>}
                   <div className="flex items-center justify-between pt-2">
-                    <p className="text-[10px] text-muted-foreground/40 font-mono-label hidden sm:block">All fields except phone are required</p>
+                    <p className="text-[10px] text-muted-foreground/70 font-mono-label hidden sm:block">All fields except phone are required</p>
                     <Button type="submit" className="rounded-none px-10 h-12 tracking-[0.15em] text-sm uppercase" disabled={submitting}>
                       {submitting ? t("contact_sending") : t("contact_submit")}
                       {!submitting && <ArrowRight size={14} className="ml-3" aria-hidden="true" />}

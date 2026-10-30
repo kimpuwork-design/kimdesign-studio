@@ -179,10 +179,10 @@ function PortraitHero({
           ) : (
             <div className="absolute inset-x-0 bottom-0 flex h-full items-center justify-center border border-hero-border bg-hero-surface font-display text-6xl font-bold text-hero-muted">NKK</div>
           )}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-hero via-transparent to-transparent opacity-50" aria-hidden />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-hero via-hero/25 to-transparent opacity-75" aria-hidden />
           <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-28 bg-gradient-to-r from-hero to-transparent lg:block" aria-hidden />
           <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-10 text-center sm:px-8 lg:px-10 lg:pb-32 lg:text-left">
-            <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.5, ease }} className="mb-2 text-[11px] font-bold uppercase tracking-[0.3em] text-hero-muted">
+            <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.5, ease }} className="mb-2 text-[11px] font-bold uppercase tracking-[0.3em] text-hero-foreground/90 drop-shadow-[0_1px_8px_rgba(0,0,0,0.6)]">
               {role}
             </motion.p>
             <motion.h2 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6, ease }} className="font-display text-[clamp(2rem,4.5vw,3.75rem)] font-bold uppercase leading-[0.95] tracking-normal text-hero-foreground drop-shadow-[0_2px_12px_rgba(0,0,0,0.55)]">
@@ -206,7 +206,7 @@ function ExpertiseSection({ services, t }: { services: any[]; t: any }) {
   if (!services || services.length === 0) return null;
 
   return (
-    <section className="py-24 md:py-40 bg-muted/5 border-t border-border/30">
+    <section className="py-20 md:py-32 bg-muted/5 border-t border-border/30">
       <div className="container">
         <div className="max-w-4xl mb-16 md:mb-24">
           <SectionLabel text={t("home_what_we_do")} />
@@ -227,7 +227,7 @@ function ExpertiseSection({ services, t }: { services: any[]; t: any }) {
                 <h3 className="font-display text-2xl text-foreground mb-4 group-hover:text-primary transition-colors duration-300">
                   {service.title}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-[1.8] line-clamp-3">
+                <p className="text-sm text-muted-foreground leading-[1.8]">
                   {service.desc || service.description}
                 </p>
               </div>
@@ -244,7 +244,7 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
   if (!projects || projects.length === 0) return null;
 
   return (
-    <section className="py-24 md:py-40 border-t border-border/30 overflow-hidden">
+    <section className="py-20 md:py-32 border-t border-border/30 overflow-hidden">
       <div className="container">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-16 md:mb-24">
           <div className="max-w-2xl">
@@ -289,7 +289,7 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
                       </div>
                     )}
                     <div className="absolute inset-0 bg-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="absolute bottom-6 right-6 h-12 w-12 rounded-full bg-background/95 backdrop-blur shadow-xl items-center justify-center hidden md:flex translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                    <div className={`absolute bottom-4 right-4 md:bottom-6 md:right-6 h-9 w-9 md:h-12 md:w-12 rounded-full bg-background/95 backdrop-blur shadow-xl items-center justify-center flex md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300`}>
                       <ArrowUpRight size={18} className="text-foreground" />
                     </div>
                   </div>
@@ -326,7 +326,7 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
 /* ───────────── NARRATIVE SECTION ───────────── */
 function NarrativeSection({ aboutMe, t }: { aboutMe: any; t: any }) {
   return (
-    <section className="py-24 md:py-40 bg-muted/5 border-t border-border/30">
+    <section className="py-20 md:py-32 bg-muted/5 border-t border-border/30">
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
           <div className="lg:col-span-5 order-2 lg:order-1">

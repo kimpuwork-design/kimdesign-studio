@@ -26,16 +26,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const CATEGORIES = [
-  "All",
-  "Residential",
-  "Cultural",
-  "Commercial",
-  "Interior",
-  "Landscape",
-  "Civic",
-  "Mixed-Use",
-];
 type SortMode = "newest" | "oldest" | "az" | "year_desc";
 const SORT_LABELS: Record<SortMode, string> = {
   newest: "Newest",
@@ -220,6 +210,26 @@ export default function PublicPortfolio() {
   const setCategory = (v: string) => updateParam({ cat: v });
   const setSort = (v: SortMode) => updateParam({ sort: v });
 
+  // Categories and years come from real project data — empty filters would only confuse visitors.
+  const availableCategories = useMemo(
+    () => Array.from(new Set(items.map((i) => i.category).filter(Boolean) as string[])).sort(),
+    [items],
+  );
+  const featuredCount = useMemo(() => items.filter((i) => i.is_featured).length, [items]);
+  const hasYears = useMemo(() => items.some((i) => i.year), [items]);
+  const sortOptions = useMemo(
+    () => (Object.keys(SORT_LABELS) as SortMode[]).filter((s) => s !== "year_desc" || hasYears),
+    [hasYears],
+  );
+
+  const statsList = useMemo(() => {
+    const stats = [{ n: items.length, label: t("portfolio_projects_stat") }];
+    if (featuredCount > 0) stats.push({ n: featuredCount, label: t("portfolio_featured_stat") });
+    if (availableCategories.length > 0)
+      stats.push({ n: availableCategories.length, label: t("portfolio_categories_stat") });
+    return stats;
+  }, [items.length, featuredCount, availableCategories, t]);
+
   useEffect(() => {
     setLoading(true);
     supabase
@@ -304,8 +314,8 @@ export default function PublicPortfolio() {
                   transition={{ duration: 0.7, ease: luxuryEase }}
                   className="font-display text-[clamp(2.8rem,7vw,6.5rem)] text-foreground leading-[0.9] tracking-[-0.04em]"
                 >
-                  <div className="overflow-hidden">
-                    <motion.div
+                  <span className="block overflow-hidden">
+                    <motion.span
                       initial={{ y: "100%" }}
                       animate={{ y: 0 }}
                       transition={{ duration: 0.9, ease: luxuryEase }}
@@ -314,15 +324,15 @@ export default function PublicPortfolio() {
                       {t("portfolio_our") || "Our"}{" "}
                       <span className="relative inline-block text-primary italic font-black">
                         {t("portfolio_title") || "Portfolio"}
-                        <motion.span 
+                        <motion.span
                           initial={{ width: 0 }}
                           animate={{ width: "100%" }}
                           transition={{ duration: 1.2, delay: 0.8, ease: luxuryEase }}
                           className="absolute -bottom-2 left-0 h-[3px] bg-primary/30 rounded-full"
                         />
                       </span>
-                    </motion.div>
-                  </div>
+                    </motion.span>
+                  </span>
                 </motion.h1>
                 <motion.p
                   initial={{ opacity: 0, y: 12 }}
@@ -334,19 +344,16 @@ export default function PublicPortfolio() {
                 </motion.p>
               </div>
               <div className="md:col-span-4 md:border-l md:border-border/50 md:pl-8">
-                <dl className="grid grid-cols-3 md:grid-cols-1 gap-5 md:gap-6">
-                  {[
-                    { n: items.length, label: t("portfolio_projects_stat") },
-                    {
-                      n: items.filter((i) => i.is_featured).length,
-                      label: t("portfolio_featured_stat"),
-                    },
-                    {
-                      n: new Set(items.map((i) => i.category).filter(Boolean))
-                        .size,
-                      label: t("portfolio_categories_stat"),
-                    },
-                  ].map((stat) => (
+                <dl
+                  className={`grid gap-5 md:gap-6 ${
+                    statsList.length === 3
+                      ? "grid-cols-3 md:grid-cols-1"
+                      : statsList.length === 2
+                        ? "grid-cols-2 md:grid-cols-1"
+                        : "grid-cols-1"
+                  }`}
+                >
+                  {statsList.map((stat) => (
                     <div
                       key={stat.label}
                       className="md:flex md:items-baseline md:gap-3 md:border-b md:border-border/40 md:pb-4"
@@ -396,13 +403,14 @@ export default function PublicPortfolio() {
             </div>
 
             <div className="flex items-center gap-2 md:contents">
-            {/* Category chips */}
+            {availableCategories.length > 0 && (
+            /* Category chips — built from the categories actually used by the projects */
             <div
               role="tablist"
               aria-label="Project categories"
               className="-mx-2 px-2 flex gap-1.5 overflow-x-auto scrollbar-none flex-1"
             >
-              {CATEGORIES.map((c) => {
+              {["All", ...availableCategories].map((c) => {
                 const active = category === c;
                 return (
                   <button
@@ -421,6 +429,7 @@ export default function PublicPortfolio() {
                 );
               })}
             </div>
+            )}
 
             {/* Sort */}
             <div className="flex items-center gap-2 shrink-0">
@@ -435,7 +444,7 @@ export default function PublicPortfolio() {
                   <span className="hidden sm:inline">{SORT_LABELS[sort]}</span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-[140px]">
-                  {(Object.keys(SORT_LABELS) as SortMode[]).map((s) => (
+                  {sortOptions.map((s) => (
                     <DropdownMenuItem
                       key={s}
                       onClick={() => setSort(s)}

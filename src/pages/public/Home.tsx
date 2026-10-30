@@ -206,7 +206,7 @@ function ExpertiseSection({ services, t }: { services: any[]; t: any }) {
   if (!services || services.length === 0) return null;
 
   return (
-    <section className="py-24 md:py-40 bg-muted/5 border-t border-border/30">
+    <section className="py-20 md:py-32 bg-muted/5 border-t border-border/30">
       <div className="container">
         <div className="max-w-4xl mb-16 md:mb-24">
           <SectionLabel text={t("home_what_we_do")} />
@@ -244,7 +244,7 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
   if (!projects || projects.length === 0) return null;
 
   return (
-    <section className="py-24 md:py-40 border-t border-border/30 overflow-hidden">
+    <section className="py-20 md:py-32 border-t border-border/30 overflow-hidden">
       <div className="container">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-16 md:mb-24">
           <div className="max-w-2xl">
@@ -326,7 +326,7 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
 /* ───────────── NARRATIVE SECTION ───────────── */
 function NarrativeSection({ aboutMe, t }: { aboutMe: any; t: any }) {
   return (
-    <section className="py-24 md:py-40 bg-muted/5 border-t border-border/30">
+    <section className="py-20 md:py-32 bg-muted/5 border-t border-border/30">
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
           <div className="lg:col-span-5 order-2 lg:order-1">

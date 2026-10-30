@@ -314,8 +314,8 @@ export default function PublicPortfolio() {
                   transition={{ duration: 0.7, ease: luxuryEase }}
                   className="font-display text-[clamp(2.8rem,7vw,6.5rem)] text-foreground leading-[0.9] tracking-[-0.04em]"
                 >
-                  <div className="overflow-hidden">
-                    <motion.div
+                  <span className="block overflow-hidden">
+                    <motion.span
                       initial={{ y: "100%" }}
                       animate={{ y: 0 }}
                       transition={{ duration: 0.9, ease: luxuryEase }}
@@ -324,15 +324,15 @@ export default function PublicPortfolio() {
                       {t("portfolio_our") || "Our"}{" "}
                       <span className="relative inline-block text-primary italic font-black">
                         {t("portfolio_title") || "Portfolio"}
-                        <motion.span 
+                        <motion.span
                           initial={{ width: 0 }}
                           animate={{ width: "100%" }}
                           transition={{ duration: 1.2, delay: 0.8, ease: luxuryEase }}
                           className="absolute -bottom-2 left-0 h-[3px] bg-primary/30 rounded-full"
                         />
                       </span>
-                    </motion.div>
-                  </div>
+                    </motion.span>
+                  </span>
                 </motion.h1>
                 <motion.p
                   initial={{ opacity: 0, y: 12 }}

@@ -72,7 +72,7 @@ export const en: TranslationSet = {
   portfolio_start_project: "Start a Project",
   portfolio_selected_work: "Selected Work",
   portfolio_our: "Our",
-  portfolio_description: "Sixteen years of architectural practice across residential, cultural, civic, and commercial typologies.",
+  portfolio_description: "Selected architecture, interior and 3D visualization projects — from concept to photorealistic render.",
   portfolio_projects_stat: "Projects",
   portfolio_featured_stat: "Featured",
   portfolio_categories_stat: "Categories",

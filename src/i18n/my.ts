@@ -72,7 +72,7 @@ export const my: TranslationSet = {
   portfolio_start_project: "ပရောဂျက် စတင်ရန်",
   portfolio_selected_work: "ရွေးချယ်ထားသော လုပ်ငန်းများ",
   portfolio_our: "ကျွန်ုပ်တို့၏",
-  portfolio_description: "လူနေအိမ်၊ ယဉ်ကျေးမှု၊ စီးပွားရေးနှင့် အများသုံး ဗိသုကာ လုပ်ငန်းများ ဆယ့်ခြောက်နှစ်တာ အတွေ့အကြုံ။",
+  portfolio_description: "ဗိသုကာ၊ အတွင်းခန်းဒီဇိုင်းနှင့် 3D visualization လက်ရာများ — အကြံအစမှ photorealistic render အထိ။",
   portfolio_projects_stat: "ပရောဂျက်များ",
   portfolio_featured_stat: "ထူးခြားသော",
   portfolio_categories_stat: "အမျိုးအစားများ",

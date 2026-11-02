@@ -372,9 +372,9 @@ export default function PublicPortfolio() {
           aria-label="Filter and sort projects"
           className="sticky top-14 md:top-16 z-30 bg-background/85 backdrop-blur-xl border-y border-border/40"
         >
-          <div className="container py-3 md:py-3.5 space-y-2 md:space-y-0 md:flex md:items-center md:gap-4">
+          <div className="container py-3 md:py-3.5 flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-4">
             {/* Search */}
-            <div className="relative w-full md:max-w-xs">
+            <div className="relative flex-1 min-w-0 md:flex-none md:w-80">
               <label htmlFor="portfolio-search" className="sr-only">
                 {t("portfolio_search")}
               </label>
@@ -384,21 +384,39 @@ export default function PublicPortfolio() {
                 aria-hidden
               />
               <input
+                ref={searchRef}
                 id="portfolio-search"
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape" && search) {
+                    e.preventDefault();
+                    setSearch("");
+                  }
+                }}
                 placeholder={t("portfolio_search")}
-                className="w-full pl-9 pr-9 py-2 min-h-11 rounded-md border border-border/60 bg-background/60 text-base md:text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent"
+                aria-keyshortcuts="/"
+                className="peer w-full pl-9 pr-10 py-2 min-h-11 rounded-md border border-border/60 bg-background/60 text-base md:text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent"
               />
-              {search && (
+              {search ? (
                 <button
-                  onClick={() => setSearch("")}
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  onClick={() => {
+                    setSearch("");
+                    searchRef.current?.focus();
+                  }}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label="Clear search"
                 >
                   <X size={13} aria-hidden />
                 </button>
+              ) : (
+                <kbd
+                  aria-hidden
+                  className="hidden md:flex absolute right-2.5 top-1/2 -translate-y-1/2 h-5 min-w-5 items-center justify-center rounded border border-border/70 px-1 font-mono text-[10px] text-muted-foreground peer-focus:opacity-0 transition-opacity"
+                >
+                  /
+                </kbd>
               )}
             </div>
 

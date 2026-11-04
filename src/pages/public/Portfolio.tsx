@@ -38,13 +38,13 @@ const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
 function PortfolioStat({ value, label }: { value: number; label: string }) {
   return (
-    <div className="shrink-0">
-      <p className="font-display text-3xl md:text-4xl text-foreground tabular-nums">
+    <div className="inline-flex items-baseline gap-2 rounded-full border border-border/60 bg-muted/40 px-4 py-2">
+      <dd className="font-display text-xl md:text-2xl text-foreground tabular-nums leading-none">
         {value}
-      </p>
-      <p className="mt-1 text-[10px] tracking-[0.25em] uppercase text-muted-foreground">
+      </dd>
+      <dt className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
         {label}
-      </p>
+      </dt>
     </div>
   );
 }
@@ -105,10 +105,10 @@ function GridCard({
             img.src = item.thumbnail_url;
           }
         }}
-        className="block rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <div
-          className={`relative overflow-hidden bg-muted/40 ${
+          className={`relative overflow-hidden rounded-xl bg-muted/40 ring-1 ring-border/40 shadow-sm transition-shadow duration-500 group-hover:shadow-xl group-hover:shadow-primary/10 ${
             featured ? "aspect-[16/10]" : "aspect-[4/3]"
           }`}
         >
@@ -148,7 +148,7 @@ function GridCard({
           </div>
         </div>
 
-        <div className="pt-5">
+        <div className="pt-3.5 px-0.5">
           <div className="flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
             <span className="text-primary/70 tabular-nums">{String(index + 1).padStart(2, "0")}</span>
             {item.category && <span aria-hidden>·</span>}
@@ -157,14 +157,14 @@ function GridCard({
             {item.year && <span className="tabular-nums">{item.year}</span>}
           </div>
           <h3
-            className={`mt-2 font-display text-foreground leading-[1.15] tracking-tight group-hover:text-primary transition-colors ${
-              featured ? "text-2xl md:text-[32px]" : "text-xl md:text-[22px]"
+            className={`mt-1 font-display text-foreground leading-[1.2] tracking-tight group-hover:text-primary transition-colors ${
+              featured ? "text-xl md:text-[28px]" : "text-lg md:text-xl"
             }`}
           >
             {item.title}
           </h3>
           {item.location && (
-            <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
+            <p className="mt-1 flex items-center gap-1.5 text-[13px] text-muted-foreground">
               <MapPin size={12} className="opacity-60" aria-hidden />
               {item.location}
             </p>
@@ -311,65 +311,41 @@ export default function PublicPortfolio() {
       <PublicNav />
 
       <div aria-labelledby="portfolio-heading">
-        {/* ── Editorial Hero ── */}
-        <section className="relative border-b border-border/40">
-          <div className="container pt-10 md:pt-28 pb-8 md:pb-16">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-end">
-              <div className="md:col-span-8">
-                <div className="flex items-center gap-3 mb-6 text-[10px] tracking-[0.25em] uppercase text-muted-foreground font-medium">
+        {/* ── Compact Hero ── */}
+        <section className="relative">
+          <div className="container pt-8 md:pt-14 pb-6 md:pb-10">
+            <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between md:gap-10">
+              <div className="max-w-2xl">
+                <div className="flex items-center gap-3 mb-4 text-[10px] tracking-[0.25em] uppercase text-muted-foreground font-medium">
                   <span className="h-px w-8 bg-primary" aria-hidden />
                   <span>{t("portfolio_selected_work")}</span>
                 </div>
                 <motion.h1
                   id="portfolio-heading"
-                  initial={{ opacity: 0, y: 24 }}
+                  initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, ease: luxuryEase }}
-                  className="font-display text-[clamp(2.8rem,7vw,6.5rem)] text-foreground leading-[0.9] tracking-[-0.04em]"
+                  transition={{ duration: 0.6, ease: luxuryEase }}
+                  className="font-display text-[clamp(2.25rem,5vw,4.25rem)] text-foreground leading-[0.95] tracking-[-0.04em]"
                 >
-                  <span className="block overflow-hidden">
-                    <motion.span
-                      initial={{ y: "100%" }}
-                      animate={{ y: 0 }}
-                      transition={{ duration: 0.9, ease: luxuryEase }}
-                      className="block"
-                    >
-                      {t("portfolio_our") || "Our"}{" "}
-                      <span className="relative inline-block text-primary italic font-black">
-                        {t("portfolio_title") || "Portfolio"}
-                      </span>
-                    </motion.span>
+                  {t("portfolio_our") || "Our"}{" "}
+                  <span className="text-primary italic font-black">
+                    {t("portfolio_title") || "Portfolio"}
                   </span>
                 </motion.h1>
                 <motion.p
-                  initial={{ opacity: 0, y: 12 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.15, ease: luxuryEase }}
-                  className="mt-6 text-muted-foreground max-w-xl leading-[1.7] text-[15px] md:text-base"
+                  transition={{ duration: 0.5, delay: 0.1, ease: luxuryEase }}
+                  className="mt-3 text-muted-foreground max-w-xl leading-relaxed text-sm md:text-[15px]"
                 >
                   {t("portfolio_description")}
                 </motion.p>
               </div>
-              <div className="md:col-span-4 md:border-l md:border-border/50 md:pl-8">
-                <dl
-                  className={`grid gap-5 md:gap-6 ${
-                    statsList.length === 3
-                      ? "grid-cols-3 md:grid-cols-1"
-                      : statsList.length === 2
-                        ? "grid-cols-2 md:grid-cols-1"
-                        : "grid-cols-1"
-                  }`}
-                >
-                  {statsList.map((stat) => (
-                    <div
-                      key={stat.label}
-                      className="md:flex md:items-baseline md:gap-3 md:border-b md:border-border/40 md:pb-4"
-                    >
-                      <PortfolioStat value={stat.n} label={stat.label} />
-                    </div>
-                  ))}
-                </dl>
-              </div>
+              <dl className="flex flex-wrap gap-2" aria-label="Portfolio summary">
+                {statsList.map((stat) => (
+                  <PortfolioStat key={stat.label} value={stat.n} label={stat.label} />
+                ))}
+              </dl>
             </div>
           </div>
         </section>
@@ -379,7 +355,7 @@ export default function PublicPortfolio() {
           aria-label="Filter and sort projects"
           className="sticky top-14 md:top-16 z-30 bg-background/85 backdrop-blur-xl border-y border-border/40"
         >
-          <div className="container py-3 md:py-3.5 flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-4">
+          <div className="container py-2.5 flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-4">
             {/* Search */}
             <div className="relative flex-1 min-w-0 md:flex-none md:w-80">
               <label htmlFor="portfolio-search" className="sr-only">
@@ -495,9 +471,9 @@ export default function PublicPortfolio() {
         </section>
 
         {/* ── Content ── */}
-        <div className="container py-12 md:py-16 relative z-10 min-h-[60vh]">
+        <div className="container py-6 md:py-10 relative z-10 min-h-[60vh]">
           {loading ? (
-            <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-x-5 gap-y-8 md:gap-x-6 md:gap-y-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <motion.div
                   key={i}
@@ -509,7 +485,7 @@ export default function PublicPortfolio() {
                   <div
                     className={`${
                       i === 0 ? "aspect-[16/10]" : "aspect-[4/3]"
-                    } bg-muted/50 animate-pulse rounded-sm`}
+                    } bg-muted/50 animate-pulse rounded-xl`}
                   />
                   <div className="mt-3 space-y-2">
                     <div className="h-3 w-16 bg-muted/40 animate-pulse rounded-sm" />
@@ -545,7 +521,7 @@ export default function PublicPortfolio() {
                 aria-live="polite"
                 className={
                   activeFiltersCount > 0 || hasMore
-                    ? "flex items-center justify-between mb-10"
+                    ? "flex items-center justify-between mb-6"
                     : "sr-only"
                 }
               >
@@ -562,7 +538,7 @@ export default function PublicPortfolio() {
                 </p>
               </div>
 
-              <div className="grid gap-x-6 gap-y-12 md:gap-x-8 md:gap-y-16 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-x-5 gap-y-8 md:gap-x-6 md:gap-y-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {paginated.map((item, i) => {
                   const isFeatured =
                     sort === "newest" && i === 0 && item.is_featured;
@@ -583,7 +559,7 @@ export default function PublicPortfolio() {
               </div>
 
               {hasMore && (
-                <div className="flex justify-center mt-16">
+                <div className="flex justify-center mt-10">
                   <button
                     onClick={() => setPage((p) => p + 1)}
                     className="group min-h-12 rounded-md border border-border/60 bg-background px-10 text-xs tracking-[0.15em] uppercase font-medium text-foreground hover:bg-foreground hover:text-background hover:border-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -602,38 +578,39 @@ export default function PublicPortfolio() {
         </div>
 
         {/* ── CTA ── */}
-        <section className="border-t border-border/40">
-          <div className="container py-20 md:py-28">
-            <FadeUp>
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
-                <div className="md:col-span-8">
-                  <div className="flex items-center gap-3 mb-6 text-[10px] tracking-[0.25em] uppercase text-muted-foreground font-medium">
-                    <span className="h-px w-8 bg-primary" aria-hidden />
-                    <span>{t("portfolio_start_project")}</span>
-                  </div>
-                  <h2 className="font-display text-4xl md:text-6xl text-foreground leading-[1.02] tracking-[-0.03em]">
+        <section className="container pb-12 md:pb-16">
+          <FadeUp>
+            <div className="relative overflow-hidden rounded-2xl bg-foreground text-background px-6 py-8 md:px-12 md:py-12">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-primary/40 blur-3xl"
+              />
+              <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div className="max-w-xl">
+                  <p className="text-[10px] tracking-[0.25em] uppercase text-background/60 font-medium">
+                    {t("portfolio_start_project")}
+                  </p>
+                  <h2 className="mt-2 font-display text-3xl md:text-5xl leading-[1.05] tracking-[-0.03em]">
                     {t("portfolio_inspired")}
                   </h2>
-                  <p className="mt-5 text-muted-foreground max-w-lg leading-[1.7] text-base">
+                  <p className="mt-3 text-background/70 leading-relaxed text-sm md:text-base">
                     {t("portfolio_lets_create")}
                   </p>
                 </div>
-                <div className="md:col-span-4 md:text-right">
-                  <Link
-                    to="/contact"
-                    className="group inline-flex items-center gap-3 min-h-12 rounded-md bg-foreground px-8 text-[11px] tracking-[0.2em] uppercase text-background hover:bg-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    {t("portfolio_start_project")}
-                    <ArrowRight
-                      size={14}
-                      className="group-hover:translate-x-1 transition-transform"
-                      aria-hidden
-                    />
-                  </Link>
-                </div>
+                <Link
+                  to="/contact"
+                  className="group inline-flex shrink-0 items-center justify-center gap-3 min-h-12 rounded-full bg-background px-7 text-[11px] tracking-[0.2em] uppercase font-medium text-foreground hover:bg-primary hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
+                >
+                  {t("portfolio_start_project")}
+                  <ArrowRight
+                    size={14}
+                    className="group-hover:translate-x-1 transition-transform"
+                    aria-hidden
+                  />
+                </Link>
               </div>
-            </FadeUp>
-          </div>
+            </div>
+          </FadeUp>
         </section>
       </div>
 

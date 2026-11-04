@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { shouldFocusPageSearch } from "@/lib/keyboard";
 import { useContentProtection } from "@/hooks/useContentProtection";
 import { Link, useSearchParams } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
@@ -191,6 +192,18 @@ export default function PublicPortfolio() {
   const sort = (searchParams.get("sort") as SortMode) || "newest";
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 12;
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  // "/" jumps straight to project search (skipped while typing elsewhere).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!shouldFocusPageSearch(e)) return;
+      e.preventDefault();
+      searchRef.current?.focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const updateParam = useCallback(
     (patch: Record<string, string | null>) => {
@@ -324,12 +337,6 @@ export default function PublicPortfolio() {
                       {t("portfolio_our") || "Our"}{" "}
                       <span className="relative inline-block text-primary italic font-black">
                         {t("portfolio_title") || "Portfolio"}
-                        <motion.span
-                          initial={{ width: 0 }}
-                          animate={{ width: "100%" }}
-                          transition={{ duration: 1.2, delay: 0.8, ease: luxuryEase }}
-                          className="absolute -bottom-2 left-0 h-[3px] bg-primary/30 rounded-full"
-                        />
                       </span>
                     </motion.span>
                   </span>
@@ -536,7 +543,11 @@ export default function PublicPortfolio() {
               <div
                 role="status"
                 aria-live="polite"
-                className="flex items-center justify-between mb-10"
+                className={
+                  activeFiltersCount > 0 || hasMore
+                    ? "flex items-center justify-between mb-10"
+                    : "sr-only"
+                }
               >
                 <p className="text-xs text-muted-foreground tracking-[0.1em]">
                   {t("portfolio_showing")}{" "}

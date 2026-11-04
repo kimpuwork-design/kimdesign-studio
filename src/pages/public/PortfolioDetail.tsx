@@ -13,11 +13,12 @@ import { CinematicLightbox } from "@/components/media/CinematicLightbox";
 import { ProgressiveImage } from "@/components/media/ProgressiveImage";
 import { FadeUp, StaggerContainer, StaggerItem, SlideIn } from "@/components/motion/MotionWrappers";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 import {
   MapPin, Calendar, Tag, ArrowLeft, ArrowRight, ArrowUpRight,
   ExternalLink, Loader2, Eye, FolderOpen, Maximize2,
-  Camera, FileText, Layers, Clock,
+  Camera, FileText, Layers, Clock, Share2,
 } from "lucide-react";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
@@ -72,6 +73,8 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
   );
 }
 
+interface NavProject { id: string; slug: string | null; title: string; thumbnail_url: string | null }
+
 interface ProjectItem {
   id: string;
   title: string;
@@ -98,6 +101,7 @@ export default function PortfolioDetail() {
   const [files, setFiles] = useState<FileAsset[]>([]);
   const [galleryImages, setGalleryImages] = useState<{ url: string; name: string; chapter?: string }[]>([]);
   const [related, setRelated] = useState<ProjectItem[]>([]);
+  const [siblings, setSiblings] = useState<{ prev: NavProject | null; next: NavProject | null }>({ prev: null, next: null });
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [lightbox, setLightbox] = useState<number | null>(null);
@@ -140,15 +144,36 @@ export default function PortfolioDetail() {
       if (hasCategory) relatedQuery.eq("category", p.category as string);
       else relatedQuery.eq("is_featured", true);
 
-      const [{ data: gal }, { data: rel }, { data: fileData }] = await Promise.all([
+      const [{ data: gal }, { data: rel }, { data: fileData }, { data: order }] = await Promise.all([
         supabase.from("portfolio_gallery").select("*").eq("project_id", p.id).order("sort_order"),
         relatedQuery,
         supabase.from("file_assets").select("id, project_id, category, original_name, mime_type, extension, size_bytes, version, sort_order, created_at, is_deleted").eq("project_id", p.id).eq("is_deleted", false).order("sort_order", { ascending: true }).order("created_at", { ascending: false }),
+        // Same order as the Projects page, so Previous / Next follow what visitors just browsed.
+        supabase.from("projects").select("id, slug, title, thumbnail_url").eq("is_public", true)
+          .order("is_featured", { ascending: false }).order("created_at", { ascending: false }),
       ]);
       if (cancelled) return;
 
+      const list = ((order as NavProject[] | null) ?? []).filter((x) => x.slug);
+      const pos = list.findIndex((x) => x.id === p.id);
+      if (pos !== -1 && list.length > 1) {
+        setSiblings({
+          prev: list[(pos - 1 + list.length) % list.length],
+          next: list[(pos + 1) % list.length],
+        });
+      }
+
       setGallery((gal as GalleryImage[]) ?? []);
-      setRelated((rel as unknown as ProjectItem[]) ?? []);
+      let relatedItems = (rel as unknown as ProjectItem[]) ?? [];
+      if (relatedItems.length === 0) {
+        // No shared category or featured work yet — fall back to the latest other projects.
+        const { data: latest } = await supabase.from("projects")
+          .select("id, slug, title, thumbnail_url, category, location, year, summary, description, tags, is_featured, is_public, created_at, updated_at, content")
+          .eq("is_public", true).neq("id", p.id).order("created_at", { ascending: false }).limit(3);
+        if (cancelled) return;
+        relatedItems = (latest as unknown as ProjectItem[]) ?? [];
+      }
+      setRelated(relatedItems);
       const allFiles = (fileData as unknown as FileAsset[]) ?? [];
       setFiles(allFiles);
 
@@ -186,9 +211,23 @@ export default function PortfolioDetail() {
   if (loading) return (
     <div className="bg-background min-h-screen">
       <PublicNav />
-      <div className="flex flex-col items-center justify-center py-32 gap-3">
-        <Loader2 size={28} className="animate-spin text-primary" />
-        <p className="text-xs text-muted-foreground tracking-[0.2em] uppercase">Loading project</p>
+      <div role="status" aria-label="Loading project">
+        <div className="relative h-[55vh] md:h-[75vh] min-h-[380px] max-h-[900px] bg-muted/50 animate-pulse">
+          <div className="absolute inset-x-0 bottom-0 container pb-10 md:pb-20 space-y-4">
+            <div className="h-3 w-24 bg-muted rounded-sm" />
+            <div className="h-12 md:h-20 w-3/4 max-w-2xl bg-muted rounded-sm" />
+            <div className="h-4 w-1/2 max-w-md bg-muted rounded-sm" />
+          </div>
+        </div>
+        <div className="container py-16 md:py-24 grid gap-12 lg:grid-cols-[1fr_280px]">
+          <div className="columns-2 md:columns-3 gap-3 md:gap-4 space-y-3 md:space-y-4">
+            {[4 / 5, 3 / 4, 1, 3 / 4, 4 / 5, 1].map((r, i) => (
+              <div key={i} className="bg-muted/50 animate-pulse break-inside-avoid" style={{ aspectRatio: r }} />
+            ))}
+          </div>
+          <div className="h-48 border border-border/30 bg-muted/20 animate-pulse" />
+        </div>
+        <span className="sr-only">Loading project</span>
       </div>
     </div>
   );
@@ -230,6 +269,21 @@ export default function PortfolioDetail() {
     "author": { "@type": "Organization", "name": "KIM DESIGN STUDIO" },
   };
 
+  const shareProject = async () => {
+    const url = `${window.location.origin}/portfolio/${item.slug ?? ""}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: item.title, text: displaySummary || item.title, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied", { description: "Paste it anywhere to share this project." });
+    } catch (err) {
+      if ((err as DOMException)?.name === "AbortError") return; // visitor closed the share sheet
+      toast.error("Couldn't share this project", { description: "Copy the address from your browser bar instead." });
+    }
+  };
+
   const stats = [
     allGalleryItems.length > 0 && { icon: Camera, n: allGalleryItems.length, label: "Photos" },
     nonImageFiles.length > 0 && { icon: FileText, n: nonImageFiles.length, label: "Files" },
@@ -256,31 +310,33 @@ export default function PortfolioDetail() {
                 className="w-full h-full object-cover"
                 wrapperClassName="w-full h-full"
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-foreground/20 via-foreground/10 to-background" />
+              {/* Dark scrim so the title stays readable on bright renders, in light and dark mode */}
+              <div className="absolute inset-0 bg-gradient-to-t from-hero/90 via-hero/35 to-hero/10" />
+              <div className="absolute inset-0 bg-gradient-to-r from-hero/50 via-transparent to-transparent" />
             </div>
-            <div className="relative h-full container flex flex-col justify-end pb-10 md:pb-20 z-10">
-              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-                <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-background/80 hover:text-background text-sm mb-8 transition-colors bg-foreground/30 backdrop-blur-sm px-3.5 py-2 rounded-full min-h-11">
-                  <ArrowLeft size={14} /> Back
-                </Link>
-              </motion.div>
+            <div className="absolute top-4 md:top-8 inset-x-0 container z-10">
+              <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-hero-foreground/90 hover:text-hero-foreground text-sm transition-colors bg-hero/40 hover:bg-hero/60 border border-hero-foreground/15 backdrop-blur-md px-4 py-2 rounded-full min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <ArrowLeft size={14} aria-hidden /> All projects
+              </Link>
+            </div>
+            <div className="relative h-full container flex flex-col justify-end pb-10 md:pb-16 z-10">
               <div className="max-w-3xl">
                 {item.category && (
                   <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                    className="text-[10px] tracking-[0.3em] uppercase text-background/50 mb-4">
+                    className="text-[10px] tracking-[0.3em] uppercase text-hero-foreground/70 mb-4">
                     {item.category}
                   </motion.p>
                 )}
                 <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: luxuryEase }}
-                  className="font-display text-[clamp(2.25rem,6.5vw,5.5rem)] text-background leading-[0.92] tracking-[-0.02em]">
+                  className="font-display text-[clamp(2.25rem,6.5vw,5.5rem)] text-hero-foreground leading-[0.95] tracking-[-0.03em] drop-shadow-sm">
                   {item.title}
                 </motion.h1>
                 <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-                  className="mt-4 md:mt-6 text-background/60 text-sm md:text-lg max-w-xl font-light leading-relaxed">
+                  className="mt-4 md:mt-6 text-hero-foreground/80 text-sm md:text-lg max-w-xl font-light leading-relaxed line-clamp-3">
                   {displaySummary}
                 </motion.p>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-                  className="flex flex-wrap items-center gap-4 mt-6 md:mt-8 text-[11px] tracking-[0.15em] uppercase text-background/40">
+                  className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-6 md:mt-8 text-[11px] tracking-[0.15em] uppercase text-hero-foreground/75">
                   {item.location && (
                     <span className="flex items-center gap-1.5"><MapPin size={11} />{item.location}</span>
                   )}
@@ -290,6 +346,14 @@ export default function PortfolioDetail() {
                   {stats.map((s) => (
                     <span key={s.label} className="flex items-center gap-1.5"><s.icon size={11} />{s.n} {s.label}</span>
                   ))}
+                  {allGalleryItems.length > 0 && (
+                    <button
+                      onClick={() => setLightbox(0)}
+                      className="inline-flex items-center gap-1.5 min-h-9 px-3 -my-1 rounded-full border border-hero-foreground/25 text-hero-foreground hover:bg-hero-foreground/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <Maximize2 size={11} aria-hidden /> View gallery
+                    </button>
+                  )}
                 </motion.div>
               </div>
             </div>
@@ -393,7 +457,8 @@ export default function PortfolioDetail() {
                 {item.category && <DetailRow label="Category" value={item.category} />}
                 {item.location && <DetailRow label="Location" value={item.location} icon={<MapPin size={12} />} />}
                 {item.year && <DetailRow label="Year" value={String(item.year)} icon={<Calendar size={12} />} />}
-                {item.created_at && <DetailRow label="Published" value={new Date(item.created_at).toLocaleDateString()} icon={<Clock size={12} />} />}
+                {allGalleryItems.length > 0 && <DetailRow label="Images" value={`${allGalleryItems.length} photos & renders`} icon={<Camera size={12} />} />}
+                {item.created_at && <DetailRow label="Published" value={new Date(item.created_at).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })} icon={<Clock size={12} />} />}
                 {item.tags && item.tags.length > 0 && (
                   <div>
                     <p className="text-[10px] tracking-[0.15em] uppercase text-muted-foreground mb-2 flex items-center gap-1"><Tag size={10} />Tags</p>
@@ -404,6 +469,12 @@ export default function PortfolioDetail() {
                     </div>
                   </div>
                 )}
+                <button
+                  onClick={shareProject}
+                  className="w-full inline-flex items-center justify-center gap-2 min-h-11 border border-border/60 text-[11px] tracking-[0.15em] uppercase text-foreground hover:bg-muted/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <Share2 size={12} aria-hidden /> Share project
+                </button>
               </div>
             </SlideIn>
 
@@ -423,9 +494,34 @@ export default function PortfolioDetail() {
           </div>
         </div>
 
+        {/* ── Previous / Next ── */}
+        {(siblings.prev || siblings.next) && (
+          <nav aria-label="More projects" className="mt-24 md:mt-32 grid grid-cols-2 border-y border-border/40 divide-x divide-border/40">
+            {[siblings.prev, siblings.next].map((s, i) => s && (
+              <Link
+                key={`${i}-${s.id}`}
+                to={`/portfolio/${s.slug}`}
+                className={`group flex items-center gap-4 md:gap-6 py-6 md:py-10 min-h-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${i === 0 ? "pr-4 md:pr-8" : "pl-4 md:pl-8 flex-row-reverse text-right"}`}
+              >
+                <div className="hidden sm:block shrink-0 w-24 md:w-36 aspect-[4/3] overflow-hidden bg-muted/40">
+                  {s.thumbnail_url && (
+                    <ProgressiveImage src={s.thumbnail_url} alt="" thumbWidth={320} className="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700" wrapperClassName="w-full h-full" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className={`flex items-center gap-1.5 text-[10px] tracking-[0.25em] uppercase text-muted-foreground ${i === 1 ? "justify-end" : ""}`}>
+                    {i === 0 ? <><ArrowLeft size={11} aria-hidden /> Previous</> : <>Next <ArrowRight size={11} aria-hidden /></>}
+                  </p>
+                  <p className="mt-2 font-display text-base md:text-2xl text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors">{s.title}</p>
+                </div>
+              </Link>
+            ))}
+          </nav>
+        )}
+
         {/* ── Related Projects ── */}
         {related.length > 0 && (
-          <FadeUp className="mt-24 md:mt-32 pt-16 border-t border-border/30">
+          <FadeUp className="mt-20 md:mt-28">
             <div className="mb-12 md:mb-16">
               <p className="text-[10px] tracking-[0.35em] uppercase text-primary mb-4">More Work</p>
               <h2 className="font-display text-3xl md:text-5xl text-foreground leading-[1.1]">Related Projects</h2>

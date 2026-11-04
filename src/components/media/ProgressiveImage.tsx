@@ -97,7 +97,7 @@ export function ProgressiveImage({
 
   return (
     <div
-      className={`relative overflow-hidden bg-muted/40 ${wrapperClassName}`}
+      className={`relative isolate overflow-hidden bg-muted/40 ${wrapperClassName}`}
       style={wrapperStyle}
     >
       {/* Persistent skeleton + blurred placeholder fallback */}

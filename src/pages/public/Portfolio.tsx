@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { shouldFocusPageSearch } from "@/lib/keyboard";
 import { useContentProtection } from "@/hooks/useContentProtection";
 import { Link, useSearchParams } from "react-router-dom";
 import { PublicNav } from "@/components/PublicNav";
@@ -191,6 +192,18 @@ export default function PublicPortfolio() {
   const sort = (searchParams.get("sort") as SortMode) || "newest";
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 12;
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  // "/" jumps straight to project search (skipped while typing elsewhere).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!shouldFocusPageSearch(e)) return;
+      e.preventDefault();
+      searchRef.current?.focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const updateParam = useCallback(
     (patch: Record<string, string | null>) => {
@@ -324,12 +337,6 @@ export default function PublicPortfolio() {
                       {t("portfolio_our") || "Our"}{" "}
                       <span className="relative inline-block text-primary italic font-black">
                         {t("portfolio_title") || "Portfolio"}
-                        <motion.span
-                          initial={{ width: 0 }}
-                          animate={{ width: "100%" }}
-                          transition={{ duration: 1.2, delay: 0.8, ease: luxuryEase }}
-                          className="absolute -bottom-2 left-0 h-[3px] bg-primary/30 rounded-full"
-                        />
                       </span>
                     </motion.span>
                   </span>
@@ -420,13 +427,12 @@ export default function PublicPortfolio() {
               )}
             </div>
 
-            <div className="flex items-center gap-2 md:contents">
             {availableCategories.length > 0 && (
             /* Category chips — built from the categories actually used by the projects */
             <div
               role="tablist"
               aria-label="Project categories"
-              className="-mx-2 px-2 flex gap-1.5 overflow-x-auto scrollbar-none flex-1"
+              className="order-last w-full md:order-none md:w-auto md:flex-1 min-w-0 -mx-2 px-2 flex gap-1.5 overflow-x-auto scrollbar-none"
             >
               {["All", ...availableCategories].map((c) => {
                 const active = category === c;
@@ -450,13 +456,22 @@ export default function PublicPortfolio() {
             )}
 
             {/* Sort */}
-            <div className="flex items-center gap-2 shrink-0">
-
+            <div className="flex items-center gap-2 shrink-0 md:ml-auto">
+              {activeFiltersCount > 0 && (
+                <button
+                  onClick={clearFilters}
+                  aria-label={`Clear ${activeFiltersCount} filter${activeFiltersCount > 1 ? "s" : ""}`}
+                  className="inline-flex items-center gap-1 h-11 md:h-9 px-2.5 rounded-md text-[11px] tracking-[0.1em] uppercase font-medium text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <X size={12} aria-hidden />
+                  <span className="hidden sm:inline">Clear ({activeFiltersCount})</span>
+                </button>
+              )}
 
               <DropdownMenu>
                 <DropdownMenuTrigger
                   aria-label={`Sort by ${SORT_LABELS[sort]}`}
-                  className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-border/60 bg-background/60 text-[11px] tracking-[0.1em] uppercase font-medium text-foreground hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="inline-flex items-center justify-center gap-1.5 h-11 min-w-11 md:h-9 md:min-w-0 px-3 rounded-md border border-border/60 bg-background/60 text-[11px] tracking-[0.1em] uppercase font-medium text-foreground hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <ArrowDownUp size={12} aria-hidden />
                   <span className="hidden sm:inline">{SORT_LABELS[sort]}</span>
@@ -475,17 +490,6 @@ export default function PublicPortfolio() {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-
-              {activeFiltersCount > 0 && (
-                <button
-                  onClick={clearFilters}
-                  className="inline-flex items-center gap-1 h-9 px-2.5 rounded-md text-[11px] tracking-[0.1em] uppercase font-medium text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <X size={12} aria-hidden /> Clear ({activeFiltersCount})
-                </button>
-              )}
-
-            </div>
             </div>
           </div>
         </section>
@@ -539,7 +543,11 @@ export default function PublicPortfolio() {
               <div
                 role="status"
                 aria-live="polite"
-                className="flex items-center justify-between mb-10"
+                className={
+                  activeFiltersCount > 0 || hasMore
+                    ? "flex items-center justify-between mb-10"
+                    : "sr-only"
+                }
               >
                 <p className="text-xs text-muted-foreground tracking-[0.1em]">
                   {t("portfolio_showing")}{" "}

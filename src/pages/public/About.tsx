@@ -63,7 +63,7 @@ export default function About() {
                   <p key={i}>{p}</p>
                 ))}
                 <div className="pt-4">
-                  <Button variant="outline" className="rounded-none tracking-[0.12em] text-xs uppercase px-8 h-11 border-foreground/20 hover:bg-foreground hover:text-background transition-colors" asChild>
+                  <Button variant="outline" className="rounded-full tracking-[0.12em] text-xs uppercase px-8 h-11 border-foreground/20 hover:bg-foreground hover:text-background transition-colors" asChild>
                     <Link to="/contact">{t("about_get_in_touch")} <ArrowRight size={12} className="ml-2" /></Link>
                   </Button>
                 </div>
@@ -91,7 +91,7 @@ export default function About() {
             <StaggerContainer className="grid gap-px grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" staggerDelay={0.08}>
               {values.map((v: any, i: number) => (
                 <StaggerItem key={v.title}>
-                  <div className="bg-background border border-border/20 p-8 md:p-10 h-full group hover:bg-card transition-all duration-500 relative overflow-hidden">
+                  <div className="liquid-glass rounded-[2rem] p-8 md:p-10 h-full group hover:-translate-y-1 transition-all duration-500 relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-px bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
                     <span className="font-display text-3xl text-border/40 group-hover:text-primary/30 transition-colors duration-500 block mb-6">
                       {String(i + 1).padStart(2, '0')}
@@ -166,7 +166,7 @@ export default function About() {
                 {page.cta_title ?? "Let's build something meaningful."}
               </h2>
               <p className="mt-6 text-muted-foreground text-lg font-light leading-[1.8]">{page.cta_description ?? "We're always open to new conversations and collaborations."}</p>
-              <Button className="mt-10 rounded-none px-12 h-14 tracking-[0.15em] text-sm uppercase" size="lg" asChild>
+              <Button className="mt-10 rounded-full px-12 h-14 tracking-[0.15em] text-sm uppercase" size="lg" asChild>
                 <Link to="/contact">{t("about_get_in_touch")} <ArrowRight size={14} className="ml-3" /></Link>
               </Button>
             </div>

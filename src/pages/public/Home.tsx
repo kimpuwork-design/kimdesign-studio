@@ -166,7 +166,7 @@ function PortraitHero({
           </h1>
           {introduction && <p className="mt-7 max-w-[540px] text-sm leading-7 text-hero-muted sm:text-base lg:mt-8 lg:text-lg">{introduction}</p>}
           <div className="mt-9 flex flex-wrap items-center gap-6 lg:mt-11">
-            <Button asChild variant="outline" size="lg" className="h-12 shrink-0 rounded-none border-hero-foreground bg-transparent px-7 text-xs font-bold uppercase tracking-normal text-hero-foreground hover:bg-hero-foreground hover:text-hero">
+            <Button asChild variant="outline" size="lg" className="h-12 shrink-0 rounded-full liquid-glass-dark bg-transparent px-7 text-xs font-bold uppercase tracking-normal text-hero-foreground hover:bg-hero-foreground hover:text-hero">
               <Link to="/portfolio">View my projects <ArrowRight size={15} /></Link>
             </Button>
             <Link to="/contact" className="border-b border-hero-border pb-1 text-xs font-bold uppercase tracking-normal text-hero-muted transition-colors hover:border-hero-foreground hover:text-hero-foreground">Contact me</Link>
@@ -388,7 +388,7 @@ function ContactCTA({ settings }: { settings: any }) {
           </h2>
         </div>
         <div className="lg:col-span-4 flex flex-col gap-4 lg:items-end">
-          <Button asChild variant="outline" size="lg" className="h-12 rounded-none border-hero-foreground bg-transparent px-7 text-xs font-bold uppercase text-hero-foreground hover:bg-hero-foreground hover:text-hero">
+          <Button asChild variant="outline" size="lg" className="h-12 rounded-full liquid-glass-dark bg-transparent px-7 text-xs font-bold uppercase text-hero-foreground hover:bg-hero-foreground hover:text-hero">
             <Link to="/contact">Contact me <ArrowRight size={15} /></Link>
           </Button>
           {email && <a href={`mailto:${email}`} className="flex items-center gap-2 text-sm text-hero-muted hover:text-hero-foreground"><Mail size={14} />{email}</a>}

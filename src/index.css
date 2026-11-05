@@ -619,3 +619,13 @@
     .liquid-btn, .liquid-btn:hover, .liquid-btn:active { transform: none; }
   }
 }
+
+/* Ambient wash so glass surfaces have colour to refract */
+@layer base {
+  body {
+    background-image:
+      radial-gradient(60rem 40rem at 10% -10%, hsl(var(--primary) / 0.07), transparent 60%),
+      radial-gradient(50rem 35rem at 100% 10%, hsl(var(--primary) / 0.05), transparent 60%);
+    background-attachment: fixed;
+  }
+}

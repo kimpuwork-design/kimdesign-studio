@@ -45,12 +45,12 @@ export default function Services() {
         {services.length > 0 && (
           <section className="border-t border-border/30 py-16 md:py-24">
             <div className="container">
-              <StaggerContainer className="grid gap-px grid-cols-1 md:grid-cols-2 bg-border/20 border border-border/20" staggerDelay={0.08}>
+              <StaggerContainer className="grid gap-4 md:gap-5 grid-cols-1 md:grid-cols-2" staggerDelay={0.08}>
                 {services.map((service: any, i: number) => {
                   const Icon = ICON_MAP[service.icon] ?? Building2;
                   return (
                     <StaggerItem key={service.title ?? i}>
-                      <div className="bg-background p-10 md:p-14 h-full group hover:bg-card transition-colors duration-500">
+                      <div className="liquid-glass rounded-[2rem] p-8 md:p-12 h-full group hover:-translate-y-1 transition-all duration-500">
                         <div className="flex items-center gap-4 mb-8">
                           <span className="font-display text-5xl text-muted-foreground/25 group-hover:text-primary/40 transition-colors">{String(i + 1).padStart(2, "0")}</span>
                           <Icon size={20} className="text-primary" />

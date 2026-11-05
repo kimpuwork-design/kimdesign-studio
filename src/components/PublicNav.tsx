@@ -52,9 +52,9 @@ export function PublicNav() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-500 ${scrolled ? "glass-nav shadow-sm" : "bg-transparent"}`}
+      className={`sticky top-0 z-50 transition-all duration-500 ${scrolled ? "pt-2 md:pt-3" : "bg-transparent"}`}
     >
-      <div className={`container flex items-center justify-between transition-all duration-500 ${scrolled ? "h-12 md:h-14" : "h-14 md:h-[72px]"}`}>
+      <div className={`container flex items-center justify-between transition-all duration-500 ${scrolled ? "liquid-glass rounded-full h-12 md:h-14 max-w-[calc(100%-1rem)] md:max-w-6xl px-4 md:px-6" : "h-14 md:h-[72px]"}`}>
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 md:gap-2.5 group shrink min-w-0">
           {logoUrl && logoUrl !== "/logo-placeholder.png" ? (

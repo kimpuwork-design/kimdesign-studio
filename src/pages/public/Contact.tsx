@@ -232,7 +232,7 @@ export default function Contact() {
                   {serverError && <motion.p id="contact-form-error" role="alert" aria-live="assertive" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-destructive/10 px-4 py-3 text-sm text-destructive">{serverError}</motion.p>}
                   <div className="flex items-center justify-between pt-2">
                     <p className="text-[10px] text-muted-foreground/70 font-mono-label hidden sm:block">All fields except phone are required</p>
-                    <Button type="submit" className="rounded-none px-10 h-12 tracking-[0.15em] text-sm uppercase" disabled={submitting}>
+                    <Button type="submit" className="rounded-full px-10 h-12 tracking-[0.15em] text-sm uppercase" disabled={submitting}>
                       {submitting ? t("contact_sending") : t("contact_submit")}
                       {!submitting && <ArrowRight size={14} className="ml-3" aria-hidden="true" />}
                     </Button>

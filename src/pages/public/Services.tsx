@@ -104,7 +104,7 @@ export default function Services() {
               {page.cta_description && (
                 <p className="mt-5 text-muted-foreground text-base font-light leading-[1.8]">{page.cta_description}</p>
               )}
-              <Button className="mt-9 rounded-none px-10 h-12 tracking-[0.15em] text-xs uppercase" asChild>
+              <Button className="mt-9 rounded-full px-10 h-12 tracking-[0.15em] text-xs uppercase" asChild>
                 <Link to="/contact">{t("services_start_conversation")} <ArrowRight size={14} className="ml-3" /></Link>
               </Button>
             </div>

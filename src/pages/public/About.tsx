@@ -166,7 +166,7 @@ export default function About() {
                 {page.cta_title ?? "Let's build something meaningful."}
               </h2>
               <p className="mt-6 text-muted-foreground text-lg font-light leading-[1.8]">{page.cta_description ?? "We're always open to new conversations and collaborations."}</p>
-              <Button className="mt-10 rounded-none px-12 h-14 tracking-[0.15em] text-sm uppercase" size="lg" asChild>
+              <Button className="mt-10 rounded-full px-12 h-14 tracking-[0.15em] text-sm uppercase" size="lg" asChild>
                 <Link to="/contact">{t("about_get_in_touch")} <ArrowRight size={14} className="ml-3" /></Link>
               </Button>
             </div>

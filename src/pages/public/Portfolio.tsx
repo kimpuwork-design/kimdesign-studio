@@ -38,7 +38,7 @@ const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
 function PortfolioStat({ value, label }: { value: number; label: string }) {
   return (
-    <div className="inline-flex items-baseline gap-2 rounded-full border border-border/60 bg-muted/40 px-4 py-2">
+    <div className="inline-flex items-baseline gap-2 liquid-glass rounded-full px-4 py-2">
       <dd className="font-display text-xl md:text-2xl text-foreground tabular-nums leading-none">
         {value}
       </dd>
@@ -105,10 +105,10 @@ function GridCard({
             img.src = item.thumbnail_url;
           }
         }}
-        className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="block rounded-[1.75rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <div
-          className={`relative overflow-hidden rounded-xl bg-muted/40 ring-1 ring-border/40 shadow-sm transition-shadow duration-500 group-hover:shadow-xl group-hover:shadow-primary/10 ${
+          className={`relative overflow-hidden rounded-[1.5rem] bg-muted/40 ring-1 ring-border/40 shadow-sm transition-all duration-500 ease-out group-hover:-translate-y-1 group-hover:shadow-2xl group-hover:shadow-primary/15 ${
             featured ? "aspect-[16/10]" : "aspect-[4/3]"
           }`}
         >
@@ -132,17 +132,17 @@ function GridCard({
             </div>
           )}
           {item.is_featured && (
-            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-background/95 backdrop-blur-sm rounded-full px-2.5 py-1 text-[10px] font-medium text-foreground tracking-[0.14em] uppercase shadow-sm">
+            <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 liquid-glass rounded-full px-2.5 py-1 text-[10px] font-medium text-foreground tracking-[0.14em] uppercase">
               <Star size={10} className="fill-primary text-primary" aria-hidden />
               {t("portfolio_featured_badge")}
             </div>
           )}
           {/* Hover overlay caption for richer interaction */}
-          <div className="absolute inset-x-0 bottom-0 hidden md:flex items-end justify-between gap-4 p-4 bg-gradient-to-t from-background/90 via-background/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-            <span className="text-[11px] tracking-[0.2em] uppercase text-foreground/70">
+          <div className="absolute inset-x-3 bottom-3 z-20 hidden md:flex items-center justify-between gap-4 liquid-glass-dark rounded-full pl-4 pr-1.5 py-1.5 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-out">
+            <span className="text-[11px] tracking-[0.2em] uppercase text-hero-foreground/80">
               {item.category ?? "Project"}
             </span>
-            <span className="inline-flex items-center gap-1.5 text-[11px] tracking-[0.18em] uppercase text-primary">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-hero-foreground px-3 py-1.5 text-[11px] tracking-[0.18em] uppercase text-hero font-medium">
               View <ArrowUpRight size={12} aria-hidden />
             </span>
           </div>
@@ -353,9 +353,10 @@ export default function PublicPortfolio() {
         {/* ── Sticky Filters ── */}
         <section
           aria-label="Filter and sort projects"
-          className="sticky top-14 md:top-16 z-30 bg-background/85 backdrop-blur-xl border-y border-border/40"
+          className="sticky top-16 md:top-20 z-30 pointer-events-none"
         >
-          <div className="container py-2.5 flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-4">
+          <div className="container py-2">
+            <div className="pointer-events-auto liquid-glass rounded-[1.75rem] md:rounded-full p-1.5 flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-3">
             {/* Search */}
             <div className="relative flex-1 min-w-0 md:flex-none md:w-80">
               <label htmlFor="portfolio-search" className="sr-only">
@@ -380,7 +381,7 @@ export default function PublicPortfolio() {
                 }}
                 placeholder={t("portfolio_search")}
                 aria-keyshortcuts="/"
-                className="peer w-full pl-9 pr-10 py-2 min-h-11 rounded-md border border-border/60 bg-background/60 text-base md:text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent"
+                className="peer w-full pl-9 pr-10 py-2 min-h-11 rounded-full border border-foreground/10 bg-background/50 text-base md:text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent"
               />
               {search ? (
                 <button
@@ -388,7 +389,7 @@ export default function PublicPortfolio() {
                     setSearch("");
                     searchRef.current?.focus();
                   }}
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label="Clear search"
                 >
                   <X size={13} aria-hidden />
@@ -396,7 +397,7 @@ export default function PublicPortfolio() {
               ) : (
                 <kbd
                   aria-hidden
-                  className="hidden md:flex absolute right-2.5 top-1/2 -translate-y-1/2 h-5 min-w-5 items-center justify-center rounded border border-border/70 px-1 font-mono text-[10px] text-muted-foreground peer-focus:opacity-0 transition-opacity"
+                  className="hidden md:flex absolute right-2.5 top-1/2 -translate-y-1/2 h-5 min-w-5 items-center justify-center rounded-full border border-border/70 px-1 font-mono text-[10px] text-muted-foreground peer-focus:opacity-0 transition-opacity"
                 >
                   /
                 </kbd>
@@ -408,7 +409,7 @@ export default function PublicPortfolio() {
             <div
               role="tablist"
               aria-label="Project categories"
-              className="order-last w-full md:order-none md:w-auto md:flex-1 min-w-0 -mx-2 px-2 flex gap-1.5 overflow-x-auto scrollbar-none"
+              className="order-last w-full md:order-none md:w-auto md:flex-1 min-w-0 px-1 pb-0.5 md:pb-0 flex gap-1.5 overflow-x-auto scrollbar-none"
             >
               {["All", ...availableCategories].map((c) => {
                 const active = category === c;
@@ -418,9 +419,9 @@ export default function PublicPortfolio() {
                     role="tab"
                     aria-selected={active}
                     onClick={() => setCategory(c)}
-                    className={`min-h-9 px-3.5 rounded-full text-[11px] tracking-[0.12em] uppercase font-medium transition-colors whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    className={`liquid-btn min-h-9 px-3.5 rounded-full text-[11px] tracking-[0.12em] uppercase font-medium transition-colors whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                       active
-                        ? "bg-foreground text-background"
+                        ? "bg-foreground text-background shadow-md"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     }`}
                   >
@@ -437,7 +438,7 @@ export default function PublicPortfolio() {
                 <button
                   onClick={clearFilters}
                   aria-label={`Clear ${activeFiltersCount} filter${activeFiltersCount > 1 ? "s" : ""}`}
-                  className="inline-flex items-center gap-1 h-11 md:h-9 px-2.5 rounded-md text-[11px] tracking-[0.1em] uppercase font-medium text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="inline-flex items-center gap-1 liquid-btn h-11 md:h-9 px-3 rounded-full text-[11px] tracking-[0.1em] uppercase font-medium text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <X size={12} aria-hidden />
                   <span className="hidden sm:inline">Clear ({activeFiltersCount})</span>
@@ -447,17 +448,17 @@ export default function PublicPortfolio() {
               <DropdownMenu>
                 <DropdownMenuTrigger
                   aria-label={`Sort by ${SORT_LABELS[sort]}`}
-                  className="inline-flex items-center justify-center gap-1.5 h-11 min-w-11 md:h-9 md:min-w-0 px-3 rounded-md border border-border/60 bg-background/60 text-[11px] tracking-[0.1em] uppercase font-medium text-foreground hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="inline-flex items-center justify-center gap-1.5 h-11 min-w-11 md:h-9 md:min-w-0 liquid-btn px-3.5 rounded-full border border-foreground/10 bg-background/50 text-[11px] tracking-[0.1em] uppercase font-medium text-foreground hover:bg-background/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <ArrowDownUp size={12} aria-hidden />
                   <span className="hidden sm:inline">{SORT_LABELS[sort]}</span>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-[140px]">
+                <DropdownMenuContent align="end" className="min-w-[160px] rounded-2xl liquid-glass p-1.5">
                   {sortOptions.map((s) => (
                     <DropdownMenuItem
                       key={s}
                       onClick={() => setSort(s)}
-                      className={`text-[11px] tracking-[0.1em] uppercase ${
+                      className={`rounded-xl text-[11px] tracking-[0.1em] uppercase ${
                         sort === s ? "bg-muted text-foreground" : ""
                       }`}
                     >
@@ -466,6 +467,7 @@ export default function PublicPortfolio() {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
+            </div>
             </div>
           </div>
         </section>
@@ -485,7 +487,7 @@ export default function PublicPortfolio() {
                   <div
                     className={`${
                       i === 0 ? "aspect-[16/10]" : "aspect-[4/3]"
-                    } bg-muted/50 animate-pulse rounded-xl`}
+                    } bg-muted/50 animate-pulse rounded-[1.5rem]`}
                   />
                   <div className="mt-3 space-y-2">
                     <div className="h-3 w-16 bg-muted/40 animate-pulse rounded-sm" />
@@ -562,7 +564,7 @@ export default function PublicPortfolio() {
                 <div className="flex justify-center mt-10">
                   <button
                     onClick={() => setPage((p) => p + 1)}
-                    className="group min-h-12 rounded-md border border-border/60 bg-background px-10 text-xs tracking-[0.15em] uppercase font-medium text-foreground hover:bg-foreground hover:text-background hover:border-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="group liquid-glass liquid-btn min-h-12 rounded-full px-10 text-xs tracking-[0.15em] uppercase font-medium text-foreground hover:bg-foreground hover:text-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {t("portfolio_load_more")}
                     <ArrowRight
@@ -580,7 +582,7 @@ export default function PublicPortfolio() {
         {/* ── CTA ── */}
         <section className="container pb-12 md:pb-16">
           <FadeUp>
-            <div className="relative overflow-hidden rounded-2xl bg-foreground text-background px-6 py-8 md:px-12 md:py-12">
+            <div className="relative overflow-hidden rounded-[2rem] bg-foreground text-background ring-1 ring-foreground/10 shadow-2xl px-6 py-8 md:px-12 md:py-12">
               <div
                 aria-hidden
                 className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-primary/40 blur-3xl"
@@ -599,7 +601,7 @@ export default function PublicPortfolio() {
                 </div>
                 <Link
                   to="/contact"
-                  className="group inline-flex shrink-0 items-center justify-center gap-3 min-h-12 rounded-full bg-background px-7 text-[11px] tracking-[0.2em] uppercase font-medium text-foreground hover:bg-primary hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
+                  className="group liquid-btn inline-flex shrink-0 items-center justify-center gap-3 min-h-12 rounded-full bg-background shadow-[inset_0_1px_0_hsl(var(--background)),0_8px_24px_-8px_hsl(var(--primary)/0.6)] px-7 text-[11px] tracking-[0.2em] uppercase font-medium text-foreground hover:bg-primary hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
                 >
                   {t("portfolio_start_project")}
                   <ArrowRight

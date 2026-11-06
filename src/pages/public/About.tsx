@@ -48,7 +48,7 @@ export default function About() {
 
       {/* ── Story ── */}
       {storyParagraphs.length > 0 && (
-        <section className="border-t border-border/30 relative z-10">
+        <section className="border-t border-border/30 relative z-10 overflow-x-clip">
           <div className="container grid gap-12 md:gap-20 py-16 md:py-24 grid-cols-1 md:grid-cols-2">
             <SlideIn direction="left">
               <div className="space-y-6 text-muted-foreground leading-[1.85]">

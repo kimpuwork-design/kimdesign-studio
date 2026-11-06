@@ -309,8 +309,8 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
       style={{
         position: "fixed", inset: 0, zIndex: 99999,
         background:
-          "radial-gradient(ellipse at center, hsl(218 65% 8% / 0.96) 0%, hsl(218 70% 4% / 0.99) 70%, hsl(218 80% 2% / 1) 100%)",
-        backdropFilter: "blur(10px)",
+          "radial-gradient(ellipse at 50% 40%, hsl(240 30% 10% / 0.94) 0%, hsl(240 35% 5% / 0.98) 65%, hsl(240 40% 3% / 1) 100%)",
+        backdropFilter: "blur(24px) saturate(140%)",
         display: "flex", flexDirection: "column",
         height: "100dvh", maxHeight: "100dvh",
         overflow: "hidden",
@@ -325,16 +325,23 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
         @keyframes lbSlideL { from { opacity: 0; transform: translateX(-40px) scale(0.98); } to { opacity: 1; transform: translateX(0) scale(1); } }
         @keyframes lbZoomIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
         @keyframes lbToast { 0% { opacity: 0; transform: translateY(8px); } 15%,85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-8px); } }
-        .lb-btn { width: 38px; height: 38px; border-radius: 10px; background: hsl(218 50% 12% / 0.55); border: 1px solid hsl(43 50% 70% / 0.10); cursor: pointer; display: flex; align-items: center; justify-content: center; color: hsl(43 35% 92% / 0.85); transition: background 220ms ease, color 220ms ease, transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease; backdrop-filter: blur(12px) saturate(1.2); }
-        .lb-btn:hover { background: hsl(218 50% 16% / 0.85); color: hsl(43 75% 65%); border-color: hsl(43 70% 58% / 0.45); transform: translateY(-1px); box-shadow: 0 6px 20px -8px hsl(43 70% 50% / 0.35); }
-        .lb-btn:disabled { opacity: 0.28; cursor: not-allowed; transform: none; box-shadow: none; }
-        .lb-btn.active { background: linear-gradient(135deg, hsl(43 70% 58%), hsl(43 75% 48%)); color: hsl(218 65% 10%); border-color: hsl(43 75% 60%); box-shadow: 0 4px 16px -4px hsl(43 70% 50% / 0.5); }
+        .lb-btn { width: 40px; height: 40px; border-radius: 999px; background: linear-gradient(135deg, hsl(0 0% 100% / 0.14), hsl(0 0% 100% / 0.05)); border: 1px solid hsl(0 0% 100% / 0.14); box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.18), 0 8px 24px -12px hsl(0 0% 0% / 0.6); cursor: pointer; display: flex; align-items: center; justify-content: center; color: hsl(0 0% 100% / 0.9); transition: background 220ms ease, color 220ms ease, transform 220ms cubic-bezier(0.22,1,0.36,1), box-shadow 220ms ease; backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); }
+        .lb-btn:hover { background: linear-gradient(135deg, hsl(0 0% 100% / 0.24), hsl(0 0% 100% / 0.1)); transform: translateY(-1px); }
+        .lb-btn:active { transform: scale(0.95); }
+        .lb-btn:focus-visible { outline: 2px solid hsl(0 0% 100% / 0.8); outline-offset: 2px; }
+        .lb-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+        .lb-btn.active { background: hsl(0 0% 100% / 0.92); color: hsl(240 30% 8%); border-color: hsl(0 0% 100%); }
+        .lb-pill { display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 999px; background: hsl(0 0% 100% / 0.06); border: 1px solid hsl(0 0% 100% / 0.1); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); }
+        .lb-pill .lb-btn { width: 34px; height: 34px; background: transparent; border-color: transparent; box-shadow: none; }
+        .lb-pill .lb-btn:hover { background: hsl(0 0% 100% / 0.14); }
+        .lb-pill .lb-btn.active { background: hsl(0 0% 100% / 0.92); }
+        @media (max-width: 639px) { .lb-hide-sm { display: none !important; } }
         .lb-nav { width: 52px; height: 52px; border-radius: 999px; }
         .lb-chrome { transition: opacity 320ms ease, transform 320ms ease; }
         .lb-chrome.hidden { opacity: 0; pointer-events: none; transform: translateY(-8px); }
         .lb-chrome.bottom.hidden { transform: translateY(8px); }
-        .lb-grid-tile { position: relative; overflow: hidden; cursor: pointer; background: hsl(218 50% 12% / 0.4); border: 1px solid hsl(43 50% 70% / 0.06); border-radius: 8px; transition: transform 280ms cubic-bezier(0.22,1,0.36,1), border-color 280ms ease, box-shadow 280ms ease; }
-        .lb-grid-tile:hover { transform: scale(1.03); border-color: hsl(43 70% 58% / 0.6); box-shadow: 0 10px 30px -10px hsl(43 70% 50% / 0.35); }
+        .lb-grid-tile { position: relative; overflow: hidden; cursor: pointer; background: hsl(0 0% 100% / 0.05); border: 1px solid hsl(0 0% 100% / 0.08); border-radius: 16px; transition: transform 280ms cubic-bezier(0.22,1,0.36,1), border-color 280ms ease, box-shadow 280ms ease; }
+        .lb-grid-tile:hover { transform: scale(1.03); border-color: hsl(0 0% 100% / 0.5); box-shadow: 0 16px 40px -14px hsl(0 0% 0% / 0.8); }
         .lb-grid-tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 700ms cubic-bezier(0.22,1,0.36,1); }
         .lb-grid-tile:hover img { transform: scale(1.06); }
       `}</style>
@@ -350,7 +357,7 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
 
       {/* Top progress bar — gold */}
       <div className={`lb-chrome ${chromeVisible ? "" : "hidden"}`} style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "hsl(218 50% 14% / 0.6)", zIndex: 5 }}>
-        <div style={{ width: `${progressPct}%`, height: "100%", background: "linear-gradient(90deg, hsl(43 70% 58%), hsl(43 80% 72%))", boxShadow: "0 0 12px hsl(43 70% 58% / 0.6)", transition: "width 420ms cubic-bezier(0.22,1,0.36,1)" }} />
+        <div style={{ width: `${progressPct}%`, height: "100%", background: "linear-gradient(90deg, hsl(0 0% 100% / 0.6), hsl(0 0% 100%))", boxShadow: "0 0 12px hsl(0 0% 100% / 0.4)", transition: "width 420ms cubic-bezier(0.22,1,0.36,1)" }} />
       </div>
 
       {/* Top bar */}
@@ -376,7 +383,8 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
             )}
           </span>
         </div>
-        <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
+          <div className="lb-pill">
           <button className={`lb-btn ${showGrid ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); setShowGrid((g) => !g); }} aria-label="Grid view" title="Grid (G)">
             <Grid3X3 size={15} />
           </button>
@@ -388,7 +396,8 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
           <button className={`lb-btn ${showInfo ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); setShowInfo((v) => !v); }} aria-label="Toggle caption" title="Caption (I)">
             <Info size={14} />
           </button>
-          <span style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)", margin: "0 4px" }} />
+          </div>
+          <div className="lb-pill lb-hide-sm">
           <button className="lb-btn" onClick={(e) => { e.stopPropagation(); zoomOut(); }} disabled={zoom <= MIN_ZOOM} aria-label="Zoom out" title="Zoom out (-)">
             <ZoomOut size={15} />
           </button>
@@ -403,7 +412,8 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
               <Maximize2 size={14} />
             </button>
           )}
-          <span style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)", margin: "0 4px" }} />
+          </div>
+          <div className="lb-pill">
           <button className="lb-btn" onClick={(e) => { e.stopPropagation(); handleShare(); }} aria-label="Share" title="Share">
             <Share2 size={14} />
           </button>
@@ -412,9 +422,10 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
               <Download size={14} />
             </a>
           )}
-          <button className="lb-btn" onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }} aria-label="Fullscreen" title="Fullscreen (F)">
+          <button className="lb-btn lb-hide-sm" onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }} aria-label="Fullscreen" title="Fullscreen (F)">
             {isFullscreen ? <Minimize size={14} /> : <Expand size={14} />}
           </button>
+          </div>
           <button className="lb-btn" onClick={(e) => { e.stopPropagation(); onClose(); }} aria-label="Close" title="Close (Esc)">
             <X size={15} />
           </button>
@@ -448,14 +459,28 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
         ) : (
           <>
             {!isLoaded && (
-              <div style={{ position: "absolute", color: "rgba(255,255,255,0.4)" }}>
-                <div style={{
-                  width: 28, height: 28, border: "2px solid rgba(255,255,255,0.15)",
-                  borderTopColor: "rgba(255,255,255,0.7)", borderRadius: "50%",
-                  animation: "spin 0.8s linear infinite",
-                }} />
-                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-              </div>
+              <>
+                {/* Blurred stand-in from the (usually cached) same URL while the full image decodes */}
+                <img
+                  src={currentUrl}
+                  alt=""
+                  aria-hidden="true"
+                  draggable={false}
+                  style={{
+                    position: "absolute", maxWidth: "92vw", maxHeight: "78vh", objectFit: "contain",
+                    filter: "blur(24px) saturate(1.2)", opacity: 0.55, transform: "scale(1.02)",
+                    borderRadius: 18, pointerEvents: "none",
+                  }}
+                />
+                <div style={{ position: "absolute" }}>
+                  <div style={{
+                    width: 28, height: 28, border: "2px solid rgba(255,255,255,0.15)",
+                    borderTopColor: "rgba(255,255,255,0.8)", borderRadius: "50%",
+                    animation: "spin 0.8s linear infinite",
+                  }} />
+                  <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                </div>
+              </>
             )}
             <div
               key={current.id}
@@ -472,12 +497,20 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
                 src={currentUrl}
                 alt={current.caption || `Image ${idx + 1}`}
                 draggable={false}
+                ref={(el) => {
+                  // Cached images may finish before React attaches onLoad
+                  if (el?.complete && el.naturalWidth > 0 && !loaded.has(current.id)) {
+                    setLoaded((p) => new Set(p).add(current.id));
+                  }
+                }}
                 onLoad={() => setLoaded((p) => new Set(p).add(current.id))}
                 onError={() => setErrorIds((p) => new Set(p).add(current.id))}
                 style={{
                   display: "block", maxWidth: "92vw", maxHeight: "78vh",
                   objectFit: "contain", userSelect: "none",
                   WebkitUserDrag: "none", pointerEvents: "none",
+                  borderRadius: zoom > 1 ? 0 : 14,
+                  boxShadow: "0 40px 100px -30px hsl(0 0% 0% / 0.8)",
                   opacity: isLoaded ? 1 : 0,
                   transition: "opacity 250ms ease",
                 } as React.CSSProperties}
@@ -492,14 +525,14 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
                 style={{
                   position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)",
                   maxWidth: "min(680px, 88vw)",
-                  background: "hsl(218 60% 8% / 0.7)",
+                  background: "linear-gradient(135deg, hsl(0 0% 100% / 0.12), hsl(0 0% 100% / 0.04))",
                   backdropFilter: "blur(18px) saturate(1.3)",
-                  border: "1px solid hsl(43 60% 60% / 0.18)",
-                  borderRadius: 12,
+                  border: "1px solid hsl(0 0% 100% / 0.14)",
+                  borderRadius: 999,
                   padding: "12px 20px",
-                  color: "hsl(43 35% 95% / 0.95)", fontSize: 12.5, lineHeight: 1.6,
+                  color: "hsl(0 0% 100% / 0.95)", fontSize: 12.5, lineHeight: 1.6,
                   fontFamily: "system-ui, sans-serif", textAlign: "center",
-                  boxShadow: "0 12px 40px -12px hsl(218 80% 2% / 0.6), 0 0 0 1px hsl(43 70% 58% / 0.04) inset",
+                  boxShadow: "0 12px 40px -12px hsl(218 80% 2% / 0.6), inset 0 1px 0 hsl(0 0% 100% / 0.15)",
                   letterSpacing: "0.01em",
                 }}
               >
@@ -558,13 +591,13 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
                 width: i === idx ? 60 : 46,
                 height: i === idx ? 60 : 46,
                 overflow: "hidden",
-                borderRadius: 8,
-                border: i === idx ? "2px solid hsl(43 75% 60%)" : "1px solid hsl(43 50% 70% / 0.12)",
+                borderRadius: 12,
+                border: i === idx ? "2px solid hsl(0 0% 100% / 0.95)" : "1px solid hsl(0 0% 100% / 0.12)",
                 opacity: i === idx ? 1 : 0.5,
                 cursor: "pointer",
                 padding: 0,
                 background: "transparent",
-                boxShadow: i === idx ? "0 6px 22px -6px hsl(43 70% 50% / 0.55)" : "none",
+                boxShadow: i === idx ? "0 8px 24px -8px hsl(0 0% 0% / 0.8)" : "none",
                 transition: "all 280ms cubic-bezier(0.22,1,0.36,1)",
               }}
             >
@@ -586,7 +619,7 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
           onClick={(e) => { e.stopPropagation(); setShowGrid(false); }}
           style={{
             position: "absolute", inset: 0, zIndex: 10,
-            background: "rgba(6,6,6,0.96)", backdropFilter: "blur(20px)",
+            background: "hsl(240 35% 5% / 0.9)", backdropFilter: "blur(30px) saturate(160%)",
             overflowY: "auto", padding: "72px 24px 32px",
             animation: "lbZoomIn 280ms cubic-bezier(0.22,1,0.36,1)",
           }}
@@ -615,14 +648,14 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
                         onClick={() => { setDirection(i > idx ? 1 : -1); setIdx(i); setShowGrid(false); }}
                         style={{
                           aspectRatio: "1 / 1",
-                          outline: i === idx ? "2px solid hsl(43 75% 60%)" : "none",
+                          outline: i === idx ? "2px solid hsl(0 0% 100% / 0.95)" : "none",
                           outlineOffset: -2,
                         }}
                       >
                         <img src={resolveUrl(im.image_url)} alt={im.caption || ""} loading="lazy" draggable={false} />
                         <span style={{
                           position: "absolute", top: 6, left: 6, padding: "2px 6px",
-                          background: "rgba(0,0,0,0.55)", color: "rgba(255,255,255,0.85)",
+                          background: "rgba(0,0,0,0.5)", color: "rgba(255,255,255,0.9)", borderRadius: 999, backdropFilter: "blur(8px)",
                           fontSize: 10, fontVariantNumeric: "tabular-nums", letterSpacing: "0.08em",
                         }}>
                           {String(i + 1).padStart(2, "0")}
@@ -642,7 +675,7 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
         <div style={{
           position: "absolute", bottom: 96, left: "50%", transform: "translateX(-50%)",
           background: "rgba(255,255,255,0.95)", color: "#0a0a0a",
-          padding: "8px 16px", fontSize: 12, letterSpacing: "0.08em",
+          padding: "8px 18px", fontSize: 12, letterSpacing: "0.08em", borderRadius: 999,
           animation: "lbToast 1600ms ease forwards", zIndex: 20,
         }}>
           {shareMsg}

@@ -29,7 +29,7 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
     <StaggerItem>
       <button
         onClick={onClick}
-        className="group relative w-full overflow-hidden break-inside-avoid block bg-muted/20"
+        className="group relative w-full overflow-hidden break-inside-avoid block bg-muted/20 rounded-2xl md:rounded-3xl shadow-[0_10px_30px_-18px_hsl(var(--foreground)/0.35)] hover:shadow-[0_24px_50px_-20px_hsl(var(--foreground)/0.4)] transition-shadow duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         data-cursor-hover
         data-cursor-label="View"
         aria-label={`Open image ${idx + 1}${img.name ? `: ${img.name}` : ""}`}
@@ -46,7 +46,7 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
 
 
         {/* Index badge */}
-        <span className="absolute top-3 left-3 z-[2] font-mono-label text-[9px] tracking-[0.2em] text-background/90 bg-foreground/40 backdrop-blur-sm px-2 py-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 tabular-nums">
+        <span className="absolute top-3 left-3 z-[2] font-mono-label text-[9px] tracking-[0.2em] text-background/90 bg-foreground/40 backdrop-blur-md rounded-full px-2.5 py-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 tabular-nums">
           {String(idx + 1).padStart(2, "0")}
         </span>
 
@@ -393,13 +393,16 @@ export default function PortfolioDetail() {
                   <div className="h-px flex-1 bg-border/30" />
                   <button
                     onClick={() => setLightbox(0)}
-                    className="hidden md:inline-flex items-center gap-1.5 text-[10px] tracking-[0.18em] uppercase text-muted-foreground hover:text-foreground transition-colors"
+                    className="liquid-glass liquid-btn inline-flex items-center gap-1.5 rounded-full min-h-9 px-4 text-[10px] tracking-[0.18em] uppercase text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     data-cursor-hover
                   >
                     <Maximize2 size={11} /> View All
                   </button>
                 </div>
-                <StaggerContainer className="columns-2 md:columns-3 gap-3 md:gap-4 space-y-3 md:space-y-4" staggerDelay={0.06}>
+                <StaggerContainer
+                  className={`${allGalleryItems.length <= 2 ? "columns-1 sm:columns-2" : allGalleryItems.length <= 4 ? "columns-2" : "columns-2 md:columns-3"} gap-3 md:gap-4 space-y-3 md:space-y-4`}
+                  staggerDelay={0.06}
+                >
                   {allGalleryItems.map((img, idx) => (
                     <GalleryImageCard key={img.id} img={img} idx={idx} onClick={() => setLightbox(idx)} />
                   ))}
@@ -450,7 +453,7 @@ export default function PortfolioDetail() {
           {/* ── Sidebar ── */}
           <div className="space-y-8">
             <SlideIn direction="right" delay={0.3}>
-              <div className="border border-border/30 p-6 space-y-5 sticky top-24">
+              <div className="liquid-glass rounded-3xl p-6 space-y-5 sticky top-24">
                 <h3 className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground flex items-center gap-2">
                   <Layers size={12} className="text-primary" /> Project Details
                 </h3>
@@ -464,14 +467,14 @@ export default function PortfolioDetail() {
                     <p className="text-[10px] tracking-[0.15em] uppercase text-muted-foreground mb-2 flex items-center gap-1"><Tag size={10} />Tags</p>
                     <div className="flex flex-wrap gap-1.5">
                       {item.tags.map((t) => (
-                        <span key={t} className="border border-border/40 px-2.5 py-1 text-xs text-muted-foreground">{t}</span>
+                        <span key={t} className="rounded-full border border-border/50 bg-background/40 px-3 py-1 text-xs text-muted-foreground">{t}</span>
                       ))}
                     </div>
                   </div>
                 )}
                 <button
                   onClick={shareProject}
-                  className="w-full inline-flex items-center justify-center gap-2 min-h-11 border border-border/60 text-[11px] tracking-[0.15em] uppercase text-foreground hover:bg-muted/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="liquid-btn w-full inline-flex items-center justify-center gap-2 min-h-11 rounded-full bg-foreground text-background text-[11px] tracking-[0.15em] uppercase hover:shadow-[0_12px_28px_-12px_hsl(var(--foreground)/0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <Share2 size={12} aria-hidden /> Share project
                 </button>
@@ -479,13 +482,13 @@ export default function PortfolioDetail() {
             </SlideIn>
 
             <SlideIn direction="right" delay={0.4}>
-              <div className="bg-foreground p-8 text-center overflow-hidden relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="bg-hero rounded-3xl p-8 text-center overflow-hidden relative group shadow-[0_24px_60px_-24px_hsl(var(--hero)/0.7)]">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
-                  <h3 className="font-display text-xl text-background">Like what you see?</h3>
-                  <p className="mt-2 text-background/50 text-sm font-light">Let's talk about your project.</p>
+                  <h3 className="font-display text-xl text-hero-foreground">Like what you see?</h3>
+                  <p className="mt-2 text-hero-foreground/60 text-sm font-light">Let's talk about your project.</p>
                   <Link to="/contact"
-                    className="inline-flex items-center gap-2 mt-6 border border-background/20 px-6 py-3 text-xs tracking-[0.15em] uppercase text-background hover:bg-background hover:text-foreground transition-all duration-500">
+                    className="liquid-glass-dark liquid-btn inline-flex items-center gap-2 mt-6 rounded-full min-h-11 px-6 text-xs tracking-[0.15em] uppercase hover:bg-hero-foreground hover:text-hero transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                     Start a Conversation <ArrowRight size={12} />
                   </Link>
                 </div>

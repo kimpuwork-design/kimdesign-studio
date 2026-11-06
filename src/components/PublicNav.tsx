@@ -64,7 +64,10 @@ export function PublicNav() {
           ) : (
             <KMonogramLogo size={26} className="rounded-sm shrink-0" animated />
           )}
-          <span className="font-display text-[13px] md:text-base text-foreground tracking-tight font-medium truncate">{studioName}</span>
+          <span className="font-display text-[13px] md:text-base text-foreground tracking-tight font-medium truncate">
+            <span className="sm:hidden" aria-hidden="true">{studioName.trim().split(/\s+/)[0]}</span>
+            <span className="sr-only sm:not-sr-only">{studioName}</span>
+          </span>
         </Link>
 
         {/* Desktop nav */}

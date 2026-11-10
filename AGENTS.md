@@ -4,3 +4,5 @@
 - Activity heatmap cells use design-system buttons and tooltips with a persistent selected-day readout so keyboard and touch users can inspect the same data as pointer users.
 - Portal live search uses the unified projects table and a cancellable hook; obsolete searches must not restore results after clearing or closing the palette.
 - Public admin shortcuts reuse the portal palette, while portal layouts own their instance to prevent duplicate dialogs and keyboard handlers.- ProgressiveImage isolates its own stacking context so overlays, scrims and badges placed beside it always render above the photo.
+
+- Photo viewers use Radix modal dialogs for focus containment/restoration and shared gallery-keyboard navigation for image selection; native button activation remains intact.

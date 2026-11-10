@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { createPortal } from "react-dom";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Button } from "@/components/ui/button";
+import { galleryFocusIndex } from "@/lib/gallery-keyboard";
 import {
   X, ChevronLeft, ChevronRight, ImageOff, ZoomIn, ZoomOut, Maximize2,
   Play, Pause, Grid3X3, Info, Share2, Expand, Minimize, Download,
@@ -65,6 +67,11 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
   const stageRef = useRef<HTMLDivElement>(null);
   const lastTap = useRef<number>(0);
   const idleTimer = useRef<number | null>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const gridToggleRef = useRef<HTMLButtonElement>(null);
+  const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const gridRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const returnFocusRef = useRef(document.activeElement);
 
   // Group by chapter for the grid + chapter nav
   const chapters = useMemo(() => {
@@ -72,7 +79,7 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
     images.forEach((img, i) => {
       const c = img.chapter?.trim() || "";
       if (!map.has(c)) map.set(c, []);
-      map.get(c)!.push(i);
+      map.get(c)?.push(i);
     });
     return Array.from(map.entries()).map(([name, indices]) => ({ name, indices }));
   }, [images]);
@@ -126,28 +133,17 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
     return () => window.clearInterval(t);
   }, [playing, total]);
 
-  // Lock body scroll + remember & restore focus
-  useEffect(() => {
-    const s = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    // Move focus into the dialog so Tab cycles inside and screen readers announce it.
-    requestAnimationFrame(() => rootRef.current?.focus());
-    return () => {
-      document.body.style.overflow = s;
-      previouslyFocused?.focus?.();
-    };
-  }, []);
-
   // Auto-hide chrome during slideshow / inactivity
   const wakeChrome = useCallback(() => {
     setChromeVisible(true);
     if (idleTimer.current) window.clearTimeout(idleTimer.current);
     if (playing) {
-      idleTimer.current = window.setTimeout(() => setChromeVisible(false), 2200);
+      idleTimer.current = window.setTimeout(() => {
+        if (!rootRef.current?.contains(document.activeElement)) setChromeVisible(false);
+      }, 2200);
     }
   }, [playing]);
-  useEffect(() => { wakeChrome(); }, [idx, playing, wakeChrome]);
+  useEffect(() => { wakeChrome(); return () => { if (idleTimer.current) window.clearTimeout(idleTimer.current); }; }, [idx, playing, wakeChrome]);
 
   // Fullscreen
   const toggleFullscreen = useCallback(async () => {
@@ -181,26 +177,30 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
     } catch { /* cancelled */ }
   }, [current?.caption, title]);
 
-  // Keyboard
-  useEffect(() => {
-    const h = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (showGrid) { setShowGrid(false); return; }
-        onClose();
-      }
-      if (e.key === "ArrowRight") next();
-      if (e.key === "ArrowLeft") prev();
-      if (e.key === "+" || e.key === "=") zoomIn();
-      if (e.key === "-") zoomOut();
-      if (e.key === "0") resetZoom();
-      if (e.key === " ") { e.preventDefault(); setPlaying((p) => !p); }
-      if (e.key.toLowerCase() === "f") toggleFullscreen();
-      if (e.key.toLowerCase() === "g") setShowGrid((g) => !g);
-      if (e.key.toLowerCase() === "i") setShowInfo((v) => !v);
-    };
-    window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
-  }, [next, prev, onClose, zoomIn, zoomOut, resetZoom, toggleFullscreen, showGrid]);
+  // Scoped to the dialog; native Enter/Space activation remains intact on controls.
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    wakeChrome();
+    if (e.defaultPrevented || e.nativeEvent.isComposing || e.altKey || e.ctrlKey || e.metaKey || showGrid) return;
+    if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+    const index = galleryFocusIndex(e.nativeEvent, idx, total);
+    if (index !== null) {
+      e.preventDefault();
+      setDirection(index > idx ? 1 : -1);
+      setIdx(index);
+      return;
+    }
+    switch (e.key.toLowerCase()) {
+      case "+": case "=": e.preventDefault(); zoomIn(); break;
+      case "-": e.preventDefault(); zoomOut(); break;
+      case "0": e.preventDefault(); resetZoom(); break;
+      case " ":
+        if (e.target instanceof Element && e.target.closest('button, a')) return;
+        e.preventDefault(); setPlaying((p) => !p); break;
+      case "f": e.preventDefault(); toggleFullscreen(); break;
+      case "g": e.preventDefault(); setShowGrid((g) => !g); break;
+      case "i": e.preventDefault(); setShowInfo((v) => !v); break;
+    }
+  };
 
   // Cursor-anchored zoom (wheel)
   const zoomAt = useCallback((clientX: number, clientY: number, factor: number) => {
@@ -297,10 +297,13 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
   const progressPct = total > 0 ? ((idx + 1) / total) * 100 : 0;
 
   const content = (
-    <div
+    <DialogPrimitive.Content
       ref={rootRef}
-      role="dialog"
-      aria-modal="true"
+      onOpenAutoFocus={(e) => { e.preventDefault(); closeRef.current?.focus(); }}
+      onCloseAutoFocus={(e) => { e.preventDefault(); if (returnFocusRef.current instanceof HTMLElement) returnFocusRef.current.focus(); }}
+      aria-describedby={undefined}
+      onKeyDown={handleKeyDown}
+      onFocusCapture={wakeChrome}
       aria-label={title ? `${title} — image viewer` : "Image viewer"}
       tabIndex={-1}
       onContextMenu={(e) => e.preventDefault()}
@@ -319,20 +322,23 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
         cursor: chromeVisible ? "default" : "none",
       }}
     >
+      <DialogPrimitive.Title className="sr-only">{title ? `${title} — image viewer` : "Image viewer"}</DialogPrimitive.Title>
       <style>{`
         @keyframes lbFade { from { opacity: 0; } to { opacity: 1; } }
         @keyframes lbSlideR { from { opacity: 0; transform: translateX(40px) scale(0.98); } to { opacity: 1; transform: translateX(0) scale(1); } }
         @keyframes lbSlideL { from { opacity: 0; transform: translateX(-40px) scale(0.98); } to { opacity: 1; transform: translateX(0) scale(1); } }
         @keyframes lbZoomIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
         @keyframes lbToast { 0% { opacity: 0; transform: translateY(8px); } 15%,85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-8px); } }
-        .lb-btn { width: 40px; height: 40px; border-radius: 999px; background: linear-gradient(135deg, hsl(0 0% 100% / 0.14), hsl(0 0% 100% / 0.05)); border: 1px solid hsl(0 0% 100% / 0.14); box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.18), 0 8px 24px -12px hsl(0 0% 0% / 0.6); cursor: pointer; display: flex; align-items: center; justify-content: center; color: hsl(0 0% 100% / 0.9); transition: background 220ms ease, color 220ms ease, transform 220ms cubic-bezier(0.22,1,0.36,1), box-shadow 220ms ease; backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); }
+        .lb-btn { width: 44px; height: 44px; padding: 0; flex-shrink: 0; border-radius: 999px; background: linear-gradient(135deg, hsl(0 0% 100% / 0.14), hsl(0 0% 100% / 0.05)); border: 1px solid hsl(0 0% 100% / 0.14); box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.18), 0 8px 24px -12px hsl(0 0% 0% / 0.6); cursor: pointer; display: flex; align-items: center; justify-content: center; color: hsl(0 0% 100% / 0.9); transition: background 220ms ease, color 220ms ease, transform 220ms cubic-bezier(0.22,1,0.36,1), box-shadow 220ms ease; backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); }
         .lb-btn:hover { background: linear-gradient(135deg, hsl(0 0% 100% / 0.24), hsl(0 0% 100% / 0.1)); transform: translateY(-1px); }
         .lb-btn:active { transform: scale(0.95); }
-        .lb-btn:focus-visible { outline: 2px solid hsl(0 0% 100% / 0.8); outline-offset: 2px; }
+        .lb-btn:focus-visible, .lb-thumb:focus-visible, .lb-grid-tile:focus-visible { outline: 3px solid hsl(var(--hero-foreground)); outline-offset: 3px; box-shadow: 0 0 0 6px hsl(var(--hero)); }
+        .lb-grid-tile:focus-visible { z-index: 1; }
+        @media (max-width: 639px) { .lb-pill { gap: 0; padding: 2px; } }
         .lb-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
         .lb-btn.active { background: hsl(0 0% 100% / 0.92); color: hsl(240 30% 8%); border-color: hsl(0 0% 100%); }
         .lb-pill { display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 999px; background: hsl(0 0% 100% / 0.06); border: 1px solid hsl(0 0% 100% / 0.1); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); }
-        .lb-pill .lb-btn { width: 34px; height: 34px; background: transparent; border-color: transparent; box-shadow: none; }
+        .lb-pill .lb-btn { width: 44px; height: 44px; background: transparent; border-color: transparent; box-shadow: none; }
         .lb-pill .lb-btn:hover { background: hsl(0 0% 100% / 0.14); }
         .lb-pill .lb-btn.active { background: hsl(0 0% 100% / 0.92); }
         @media (max-width: 639px) { .lb-hide-sm { display: none !important; } }
@@ -385,50 +391,50 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
           <div className="lb-pill">
-          <button className={`lb-btn ${showGrid ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); setShowGrid((g) => !g); }} aria-label="Grid view" title="Grid (G)">
+          <Button variant="ghost" className={`lb-btn ${showGrid ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); setShowGrid((g) => !g); }} ref={gridToggleRef} aria-pressed={showGrid} aria-label="Grid view" title="Grid (G)">
             <Grid3X3 size={15} />
-          </button>
+          </Button>
           {total > 1 && (
-            <button className={`lb-btn ${playing ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); setPlaying((p) => !p); }} aria-label="Slideshow" title="Slideshow (Space)">
+            <Button variant="ghost" className={`lb-btn ${playing ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); setPlaying((p) => !p); }} aria-pressed={playing} aria-label={playing ? "Pause slideshow" : "Start slideshow"} title="Slideshow (Space)">
               {playing ? <Pause size={14} /> : <Play size={14} />}
-            </button>
+            </Button>
           )}
-          <button className={`lb-btn ${showInfo ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); setShowInfo((v) => !v); }} aria-label="Toggle caption" title="Caption (I)">
+          <Button variant="ghost" className={`lb-btn ${showInfo ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); setShowInfo((v) => !v); }} aria-pressed={showInfo} aria-label="Toggle caption" title="Caption (I)">
             <Info size={14} />
-          </button>
+          </Button>
           </div>
           <div className="lb-pill lb-hide-sm">
-          <button className="lb-btn" onClick={(e) => { e.stopPropagation(); zoomOut(); }} disabled={zoom <= MIN_ZOOM} aria-label="Zoom out" title="Zoom out (-)">
+          <Button variant="ghost" className="lb-btn" onClick={(e) => { e.stopPropagation(); zoomOut(); }} disabled={zoom <= MIN_ZOOM} aria-label="Zoom out" title="Zoom out (-)">
             <ZoomOut size={15} />
-          </button>
+          </Button>
           <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, minWidth: 36, textAlign: "center", fontVariantNumeric: "tabular-nums" }}>
             {Math.round(zoom * 100)}%
           </span>
-          <button className="lb-btn" onClick={(e) => { e.stopPropagation(); zoomIn(); }} disabled={zoom >= MAX_ZOOM} aria-label="Zoom in" title="Zoom in (+)">
+          <Button variant="ghost" className="lb-btn" onClick={(e) => { e.stopPropagation(); zoomIn(); }} disabled={zoom >= MAX_ZOOM} aria-label="Zoom in" title="Zoom in (+)">
             <ZoomIn size={15} />
-          </button>
+          </Button>
           {zoom !== 1 && (
-            <button className="lb-btn" onClick={(e) => { e.stopPropagation(); resetZoom(); }} aria-label="Reset zoom" title="Reset (0)">
+            <Button variant="ghost" className="lb-btn" onClick={(e) => { e.stopPropagation(); resetZoom(); }} aria-label="Reset zoom" title="Reset (0)">
               <Maximize2 size={14} />
-            </button>
+            </Button>
           )}
           </div>
           <div className="lb-pill">
-          <button className="lb-btn" onClick={(e) => { e.stopPropagation(); handleShare(); }} aria-label="Share" title="Share">
+          <Button variant="ghost" className="lb-btn" onClick={(e) => { e.stopPropagation(); handleShare(); }} aria-label="Share" title="Share">
             <Share2 size={14} />
-          </button>
+          </Button>
           {allowDownload && (
             <a className="lb-btn" href={currentUrl} download target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} aria-label="Download" title="Download">
               <Download size={14} />
             </a>
           )}
-          <button className="lb-btn lb-hide-sm" onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }} aria-label="Fullscreen" title="Fullscreen (F)">
+          <Button variant="ghost" className="lb-btn lb-hide-sm" onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }} aria-pressed={isFullscreen} aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} title="Fullscreen (F)">
             {isFullscreen ? <Minimize size={14} /> : <Expand size={14} />}
-          </button>
+          </Button>
           </div>
-          <button className="lb-btn" onClick={(e) => { e.stopPropagation(); onClose(); }} aria-label="Close" title="Close (Esc)">
+          <Button variant="ghost" className="lb-btn" onClick={(e) => { e.stopPropagation(); onClose(); }} ref={closeRef} aria-label="Close image viewer" title="Close (Esc)">
             <X size={15} />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -546,24 +552,24 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
       {/* Desktop nav arrows */}
       {total > 1 && (
         <>
-          <button
+          <Button variant="ghost"
             onClick={(e) => { e.stopPropagation(); prev(); }}
             className={`lb-btn lb-nav lb-chrome ${chromeVisible ? "" : "hidden"}`}
             style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", display: "none" }}
-            aria-label="Previous"
+            aria-label="Previous image"
             data-desktop-nav
           >
             <ChevronLeft size={20} />
-          </button>
-          <button
+          </Button>
+          <Button variant="ghost"
             onClick={(e) => { e.stopPropagation(); next(); }}
             className={`lb-btn lb-nav lb-chrome ${chromeVisible ? "" : "hidden"}`}
             style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", display: "none" }}
-            aria-label="Next"
+            aria-label="Next image"
             data-desktop-nav
           >
             <ChevronRight size={20} />
-          </button>
+          </Button>
           <style>{`
             @media (min-width: 640px) { [data-desktop-nav] { display: flex !important; } }
           `}</style>
@@ -577,19 +583,32 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
           className={`lb-chrome bottom ${chromeVisible ? "" : "hidden"}`}
           style={{
             flexShrink: 0, padding: "10px 12px 14px",
-            display: "flex", justifyContent: "center",
+            display: "flex", justifyContent: "flex-start",
             overflowX: "auto", gap: 6,
             scrollbarWidth: "none",
           }}
         >
           {images.map((img, i) => (
-            <button
+            <Button variant="ghost"
               key={`${img.id}-${i}`}
+              className="lb-thumb"
+              ref={(el) => { thumbnailRefs.current[i] = el; }}
+              aria-label={`View image ${i + 1} of ${total}${img.caption ? `: ${img.caption}` : ""}`}
+              aria-pressed={i === idx}
+              tabIndex={i === idx ? 0 : -1}
+              onKeyDown={(e) => {
+                const nextIndex = galleryFocusIndex(e.nativeEvent, i, total);
+                if (nextIndex === null) return;
+                e.preventDefault(); e.stopPropagation();
+                setDirection(nextIndex > idx ? 1 : -1); setIdx(nextIndex);
+                thumbnailRefs.current[nextIndex]?.focus();
+                thumbnailRefs.current[nextIndex]?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+              }}
               onClick={() => { setDirection(i > idx ? 1 : -1); setIdx(i); }}
               style={{
                 flexShrink: 0,
-                width: i === idx ? 60 : 46,
-                height: i === idx ? 60 : 46,
+                width: 52,
+                height: 52,
                 overflow: "hidden",
                 borderRadius: 12,
                 border: i === idx ? "2px solid hsl(0 0% 100% / 0.95)" : "1px solid hsl(0 0% 100% / 0.12)",
@@ -608,14 +627,19 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
                 loading="lazy"
                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
               />
-            </button>
+            </Button>
           ))}
         </div>
       )}
 
       {/* Grid Overlay */}
       {showGrid && (
-        <div
+        <DialogPrimitive.Root open={showGrid} onOpenChange={setShowGrid}>
+        <DialogPrimitive.Portal container={rootRef.current}>
+        <DialogPrimitive.Content
+          aria-describedby={undefined}
+          onOpenAutoFocus={(e) => { e.preventDefault(); gridRefs.current[idx]?.focus(); }}
+          onCloseAutoFocus={(e) => { e.preventDefault(); gridToggleRef.current?.focus(); }}
           onClick={(e) => { e.stopPropagation(); setShowGrid(false); }}
           style={{
             position: "absolute", inset: 0, zIndex: 10,
@@ -624,6 +648,8 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
             animation: "lbZoomIn 280ms cubic-bezier(0.22,1,0.36,1)",
           }}
         >
+          <DialogPrimitive.Title className="sr-only">Choose a gallery image</DialogPrimitive.Title>
+          <Button variant="ghost" className="lb-btn absolute right-4 top-4" aria-label="Close grid view" onClick={(e) => { e.stopPropagation(); setShowGrid(false); }}><X aria-hidden size={18} /></Button>
           <div onClick={(e) => e.stopPropagation()} style={{ maxWidth: 1280, margin: "0 auto" }}>
             {chapters.map((ch) => (
               <div key={ch.name || "default"} style={{ marginBottom: 36 }}>
@@ -642,14 +668,21 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
                   {ch.indices.map((i) => {
                     const im = images[i];
                     return (
-                      <div
+                      <Button variant="ghost"
                         key={`${im.id}-${i}`}
+                        ref={(el) => { gridRefs.current[i] = el; }}
+                        aria-label={`View image ${i + 1} of ${total}${im.caption ? `: ${im.caption}` : ""}`}
+                        aria-pressed={i === idx}
+                        onKeyDown={(e) => {
+                          const nextIndex = galleryFocusIndex(e.nativeEvent, i, total);
+                          if (nextIndex === null) return;
+                          e.preventDefault(); e.stopPropagation(); gridRefs.current[nextIndex]?.focus();
+                        }}
                         className="lb-grid-tile"
                         onClick={() => { setDirection(i > idx ? 1 : -1); setIdx(i); setShowGrid(false); }}
                         style={{
-                          aspectRatio: "1 / 1",
-                          outline: i === idx ? "2px solid hsl(0 0% 100% / 0.95)" : "none",
-                          outlineOffset: -2,
+                          aspectRatio: "1 / 1", height: "auto", padding: 0,
+                          borderWidth: i === idx ? 2 : 1,
                         }}
                       >
                         <img src={resolveUrl(im.image_url)} alt={im.caption || ""} loading="lazy" draggable={false} />
@@ -660,19 +693,21 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
                         }}>
                           {String(i + 1).padStart(2, "0")}
                         </span>
-                      </div>
+                      </Button>
                     );
                   })}
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </DialogPrimitive.Content>
+        </DialogPrimitive.Portal>
+        </DialogPrimitive.Root>
       )}
 
       {/* Toast */}
       {shareMsg && (
-        <div style={{
+        <div role="status" style={{
           position: "absolute", bottom: 96, left: "50%", transform: "translateX(-50%)",
           background: "rgba(255,255,255,0.95)", color: "#0a0a0a",
           padding: "8px 18px", fontSize: 12, letterSpacing: "0.08em", borderRadius: 999,
@@ -681,8 +716,8 @@ export function CinematicLightbox({ images, startIndex, onClose, allowDownload =
           {shareMsg}
         </div>
       )}
-    </div>
+    </DialogPrimitive.Content>
   );
 
-  return createPortal(content, document.body);
+  return <DialogPrimitive.Root open onOpenChange={(open) => { if (!open) onClose(); }}><DialogPrimitive.Portal>{content}</DialogPrimitive.Portal></DialogPrimitive.Root>;
 }

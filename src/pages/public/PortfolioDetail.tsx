@@ -14,6 +14,8 @@ import { ProgressiveImage } from "@/components/media/ProgressiveImage";
 import { FadeUp, StaggerContainer, StaggerItem, SlideIn } from "@/components/motion/MotionWrappers";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { galleryFocusIndex } from "@/lib/gallery-keyboard";
 
 import {
   MapPin, Calendar, Tag, ArrowLeft, ArrowRight, ArrowUpRight,
@@ -27,9 +29,11 @@ const luxuryEase = [0.22, 1, 0.36, 1] as const;
 function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: string; name: string }; idx: number; onClick: () => void }) {
   return (
     <StaggerItem>
-      <button
+      <Button variant="ghost"
         onClick={onClick}
-        className="group relative w-full overflow-hidden break-inside-avoid block bg-muted/20 rounded-2xl md:rounded-3xl shadow-[0_10px_30px_-18px_hsl(var(--foreground)/0.35)] hover:shadow-[0_24px_50px_-20px_hsl(var(--foreground)/0.4)] transition-shadow duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-haspopup="dialog"
+        data-gallery-image
+        className="group relative h-auto p-0 whitespace-normal w-full overflow-hidden break-inside-avoid block bg-muted/20 rounded-2xl md:rounded-3xl shadow-[0_10px_30px_-18px_hsl(var(--foreground)/0.35)] hover:shadow-[0_24px_50px_-20px_hsl(var(--foreground)/0.4)] transition-shadow duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4"
         data-cursor-hover
         data-cursor-label="View"
         aria-label={`Open image ${idx + 1}${img.name ? `: ${img.name}` : ""}`}
@@ -46,29 +50,29 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
 
 
         {/* Index badge */}
-        <span className="absolute top-3 left-3 z-[2] font-mono-label text-[9px] tracking-[0.2em] text-background/90 bg-foreground/40 backdrop-blur-md rounded-full px-2.5 py-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 tabular-nums">
+        <span className="absolute top-3 left-3 z-[2] font-mono-label text-[9px] tracking-[0.2em] text-background/90 bg-foreground/40 backdrop-blur-md rounded-full px-2.5 py-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-focus-visible:opacity-100 transition-opacity duration-300 tabular-nums">
           {String(idx + 1).padStart(2, "0")}
         </span>
 
         {/* Hover veil */}
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/0 to-foreground/0 opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/0 to-foreground/0 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-400 pointer-events-none" />
 
         {/* Maximize icon */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="h-11 w-11 rounded-full bg-background/85 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300 shadow-lg">
+          <div className="h-11 w-11 rounded-full bg-background/85 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 scale-75 group-hover:scale-100 group-focus-visible:scale-100 transition-all duration-300 shadow-lg">
             <Maximize2 size={15} className="text-foreground" />
           </div>
         </div>
 
         {/* Caption */}
         {img.name && (
-          <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 translate-y-0 md:translate-y-2 md:group-hover:translate-y-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-400 pointer-events-none">
+          <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 translate-y-0 md:translate-y-2 md:group-hover:translate-y-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-focus-visible:opacity-100 transition-all duration-400 pointer-events-none">
             <p className="text-[11px] text-background/90 font-light leading-snug line-clamp-2 drop-shadow">
               {img.name}
             </p>
           </div>
         )}
-      </button>
+      </Button>
     </StaggerItem>
   );
 }
@@ -347,12 +351,13 @@ export default function PortfolioDetail() {
                     <span key={s.label} className="flex items-center gap-1.5"><s.icon size={11} />{s.n} {s.label}</span>
                   ))}
                   {allGalleryItems.length > 0 && (
-                    <button
+                    <Button variant="ghost"
+                      aria-haspopup="dialog"
                       onClick={() => setLightbox(0)}
-                      className="inline-flex items-center gap-1.5 min-h-9 px-3 -my-1 rounded-full border border-hero-foreground/25 text-hero-foreground hover:bg-hero-foreground/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="inline-flex items-center gap-1.5 min-h-11 px-3 -my-1 rounded-full border border-hero-foreground/25 text-hero-foreground hover:bg-hero-foreground/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       <Maximize2 size={11} aria-hidden /> View gallery
-                    </button>
+                    </Button>
                   )}
                 </motion.div>
               </div>
@@ -391,14 +396,24 @@ export default function PortfolioDetail() {
                   <h2 className="font-display text-2xl text-foreground">Gallery</h2>
                   <span className="text-xs text-muted-foreground">{allGalleryItems.length}</span>
                   <div className="h-px flex-1 bg-border/30" />
-                  <button
-                    onClick={() => setLightbox(0)}
-                    className="liquid-glass liquid-btn inline-flex items-center gap-1.5 rounded-full min-h-9 px-4 text-[10px] tracking-[0.18em] uppercase text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  <Button variant="ghost"
+                    aria-haspopup="dialog"
+                      onClick={() => setLightbox(0)}
+                    className="liquid-glass liquid-btn inline-flex items-center gap-1.5 rounded-full min-h-11 px-4 text-[10px] tracking-[0.18em] uppercase text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     data-cursor-hover
                   >
                     <Maximize2 size={11} /> View All
-                  </button>
+                  </Button>
                 </div>
+                <div role="group" aria-label="Project gallery" onKeyDown={(e) => {
+                  if (!(e.target instanceof Element)) return;
+                  const card = e.target.closest('[data-gallery-image]');
+                  if (!card) return;
+                  const cards = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('[data-gallery-image]'));
+                  const nextIndex = galleryFocusIndex(e.nativeEvent, cards.indexOf(card as HTMLButtonElement), cards.length);
+                  if (nextIndex === null) return;
+                  e.preventDefault(); cards[nextIndex]?.focus();
+                }}>
                 <StaggerContainer
                   className={`${allGalleryItems.length <= 2 ? "columns-1 sm:columns-2" : allGalleryItems.length <= 4 ? "columns-2" : "columns-2 md:columns-3"} gap-3 md:gap-4 space-y-3 md:space-y-4`}
                   staggerDelay={0.06}
@@ -407,6 +422,7 @@ export default function PortfolioDetail() {
                     <GalleryImageCard key={img.id} img={img} idx={idx} onClick={() => setLightbox(idx)} />
                   ))}
                 </StaggerContainer>
+                </div>
               </FadeUp>
             )}
 
@@ -472,12 +488,12 @@ export default function PortfolioDetail() {
                     </div>
                   </div>
                 )}
-                <button
+                <Button variant="ghost"
                   onClick={shareProject}
                   className="liquid-btn w-full inline-flex items-center justify-center gap-2 min-h-11 rounded-full bg-foreground text-background text-[11px] tracking-[0.15em] uppercase hover:shadow-[0_12px_28px_-12px_hsl(var(--foreground)/0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <Share2 size={12} aria-hidden /> Share project
-                </button>
+                </Button>
               </div>
             </SlideIn>
 

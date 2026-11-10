@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Done
+- [x] Make project galleries and the photo viewer keyboard-accessible, labelled, and visibly focused; desktop/phone keyboard flows, focus containment/restoration, and ten regression tests passed.
 - [x] Simplify public portfolio while preserving the current format (Home, Portfolio, Project detail, Services, About, Contact, Nav, Footer).
 - [x] Fix PortfolioDetail build error (unclosed tag, ReadingProgress, hero parallax refs, grain).
 - [x] Verify all public pages on desktop (1280px) and phone (390px): all render, 10 public projects + galleries load without login, private project hidden, no HTTP 400s.

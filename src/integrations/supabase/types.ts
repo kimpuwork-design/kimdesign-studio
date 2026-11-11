@@ -1266,6 +1266,14 @@ export type Database = {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }
+      reorder_project_gallery: {
+        Args: { p_image_ids: string[]; p_project_id: string }
+        Returns: undefined
+      }
+      replace_project_gallery_image: {
+        Args: { p_image_id: string; p_image_url: string; p_project_id: string }
+        Returns: undefined
+      }
       user_has_project_access: {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean

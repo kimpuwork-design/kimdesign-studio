@@ -29,6 +29,13 @@
       "when": 1792738026836,
       "tag": "0003_restore_project_client_policy_execution",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794373100866,
+      "tag": "0004_atomic_project_gallery_management",
+      "breakpoints": true
     }
   ]
 }

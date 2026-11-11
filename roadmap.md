@@ -1,5 +1,8 @@
 # Roadmap
 
+## In progress
+- [ ] Add easy project name/description editing, gallery replacement and reliable touch/keyboard reordering; verify saved changes without changing CHURCH content automatically.
+
 ## Done
 - [x] Make project galleries and the photo viewer keyboard-accessible, labelled, and visibly focused; desktop/phone keyboard flows, focus containment/restoration, and ten regression tests passed.
 - [x] Simplify public portfolio while preserving the current format (Home, Portfolio, Project detail, Services, About, Contact, Nav, Footer).

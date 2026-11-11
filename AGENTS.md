@@ -6,3 +6,4 @@
 - Public admin shortcuts reuse the portal palette, while portal layouts own their instance to prevent duplicate dialogs and keyboard handlers.- ProgressiveImage isolates its own stacking context so overlays, scrims and badges placed beside it always render above the photo.
 
 - Photo viewers use Radix modal dialogs for focus containment/restoration and shared gallery-keyboard navigation for image selection; native button activation remains intact.
+- Unified project galleries use RLS-enforced, security-invoker transactions for full-order saves and image replacement, so failed saves cannot leave partial ordering or a mismatched cover; replacing an image preserves its ID, caption and position.

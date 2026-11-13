@@ -15,7 +15,7 @@ export function thumbUrl(
   if (!url) return "";
   if (!url.includes("/storage/v1/")) return url;
 
-  const { width = 720, quality = 75, resize = "cover" } = opts;
+  const { width = 720, quality = 75, resize = "contain" } = opts;
 
   try {
     const u = new URL(url, window.location.origin);

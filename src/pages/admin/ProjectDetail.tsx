@@ -37,6 +37,13 @@ interface Project {
   updated_at: string;
   is_public: boolean;
   thumbnail_url: string | null;
+  slug: string | null;
+  summary: string | null;
+  content: string | null;
+  category: string | null;
+  tags: string[];
+  year: number | null;
+  is_featured: boolean;
   profiles: { full_name: string | null; company: string | null } | null;
 }
 
@@ -96,7 +103,7 @@ export default function AdminProjectDetail() {
     </PortalLayout>
   );
 
-  if (notFound) return (
+  if (notFound || !project) return (
     <PortalLayout variant="admin">
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <p className="text-4xl mb-4">🔒</p>
@@ -113,18 +120,18 @@ export default function AdminProjectDetail() {
       </button>
 
       {/* Hero thumbnail */}
-      {project!.thumbnail_url && (
+      {project.thumbnail_url && (
         <div className="relative w-full aspect-[2/1] md:aspect-[3/1] rounded-xl overflow-hidden mb-4 md:mb-5 border border-portal-border">
-          <img src={project!.thumbnail_url} alt={project!.title} className="w-full h-full object-cover" />
+          <img src={project.thumbnail_url} alt={project.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-portal-bg/90 via-portal-bg/30 to-transparent" />
           <div className="absolute bottom-3 left-3 right-3 md:bottom-4 md:left-5 md:right-5">
-            <h1 className="font-display text-xl md:text-3xl font-bold text-white drop-shadow-lg">{project!.title}</h1>
-            {project!.profiles && (
+            <h1 className="font-display text-xl md:text-3xl font-bold text-white drop-shadow-lg">{project.title}</h1>
+            {project.profiles && (
               <div className="flex items-center gap-2 mt-1 md:mt-1.5 text-white/70">
                 <User size={12} className="md:w-[14px] md:h-[14px]" />
                 <span className="text-xs md:text-sm">
-                  {project!.profiles.full_name}
-                  {project!.profiles.company && ` · ${project!.profiles.company}`}
+                  {project.profiles.full_name}
+                  {project.profiles.company && ` · ${project.profiles.company}`}
                 </span>
               </div>
             )}
@@ -133,16 +140,16 @@ export default function AdminProjectDetail() {
       )}
 
       {/* Header (no thumbnail fallback) */}
-      {!project!.thumbnail_url && (
+      {!project.thumbnail_url && (
         <div className="flex items-start justify-between gap-3 mb-2">
           <div className="min-w-0">
-            <h1 className="font-display text-xl md:text-3xl font-bold text-portal-text truncate">{project!.title}</h1>
-            {project!.profiles && (
+            <h1 className="font-display text-xl md:text-3xl font-bold text-portal-text truncate">{project.title}</h1>
+            {project.profiles && (
               <div className="flex items-center gap-2 mt-1.5 md:mt-2 text-portal-text-muted">
                 <User size={12} className="md:w-[14px] md:h-[14px]" />
                 <span className="text-xs md:text-sm">
-                  {project!.profiles.full_name}
-                  {project!.profiles.company && ` · ${project!.profiles.company}`}
+                  {project.profiles.full_name}
+                  {project.profiles.company && ` · ${project.profiles.company}`}
                 </span>
               </div>
             )}
@@ -150,15 +157,15 @@ export default function AdminProjectDetail() {
         </div>
       )}
 
-      {project!.description && (
-        <p className="mt-1 mb-2 text-portal-text-muted leading-relaxed text-sm max-w-2xl">{project!.description}</p>
+      {project.description && (
+        <p className="mt-1 mb-2 text-portal-text-muted leading-relaxed text-sm max-w-2xl">{project.description}</p>
       )}
 
       <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2">
-        <StatusBadge status={project!.status} />
+        <StatusBadge status={project.status} />
         <Button size="sm" variant="outline" className="border-portal-border text-portal-text-muted h-8 text-xs"
           onClick={() => setShowEdit(true)}>
-          <Pencil size={12} className="mr-1" />Edit
+          <Pencil size={12} className="mr-1" />Edit details
         </Button>
         <Button size="sm" variant="outline" className="border-portal-border text-portal-text-muted h-8 text-xs"
           onClick={() => setShowAssign(true)}>
@@ -181,9 +188,9 @@ export default function AdminProjectDetail() {
       {tab === "overview" && (
         <div className="space-y-5">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {project!.location && <InfoCard icon={<MapPin size={15} />} label="Location" value={project!.location} />}
-            {project!.start_date && <InfoCard icon={<CalendarDays size={15} />} label="Start Date" value={new Date(project!.start_date).toLocaleDateString()} />}
-            {project!.target_date && <InfoCard icon={<CalendarDays size={15} />} label="Target Date" value={new Date(project!.target_date).toLocaleDateString()} />}
+            {project.location && <InfoCard icon={<MapPin size={15} />} label="Location" value={project.location} />}
+            {project.start_date && <InfoCard icon={<CalendarDays size={15} />} label="Start Date" value={new Date(project.start_date).toLocaleDateString()} />}
+            {project.target_date && <InfoCard icon={<CalendarDays size={15} />} label="Target Date" value={new Date(project.target_date).toLocaleDateString()} />}
           </div>
 
           {/* Project Timeline */}
@@ -194,12 +201,12 @@ export default function AdminProjectDetail() {
             </div>
             <ProjectTimeline milestones={(() => {
               const STATUS_ORDER = ["inquiry", "active", "review", "delivered", "archived"];
-              const currentIdx = STATUS_ORDER.indexOf(project!.status);
+              const currentIdx = STATUS_ORDER.indexOf(project.status);
               return STATUS_ORDER.filter(s => s !== "archived").map((s, i) => ({
                 id: s,
                 label: s.charAt(0).toUpperCase() + s.slice(1),
                 status: i < currentIdx ? "completed" as const : i === currentIdx ? "current" as const : "upcoming" as const,
-                date: s === "inquiry" ? project!.created_at : s === "active" ? project!.start_date : s === "delivered" ? project!.target_date : null,
+                date: s === "inquiry" ? project.created_at : s === "active" ? project.start_date : s === "delivered" ? project.target_date : null,
                 description: s === "inquiry" ? "Project initiated" : s === "active" ? "Design & development in progress" : s === "review" ? "Client review & feedback" : "Final delivery",
               }));
             })()} />
@@ -234,40 +241,39 @@ export default function AdminProjectDetail() {
         <div className="space-y-6">
           <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
             <h2 className="font-semibold text-portal-text mb-4 text-sm">Upload Files</h2>
-            <FileUploadZone projectId={project!.id} uploaderId={profile.id} onUploaded={() => setFileRefreshKey((k) => k + 1)} />
+            <FileUploadZone projectId={project.id} uploaderId={profile.id} onUploaded={() => setFileRefreshKey((k) => k + 1)} />
           </div>
           <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
             <h2 className="font-semibold text-portal-text mb-4 text-sm">Project Files</h2>
-            <FileList projectId={project!.id} currentUserId={profile.id} refreshKey={fileRefreshKey} />
+            <FileList projectId={project.id} currentUserId={profile.id} refreshKey={fileRefreshKey} />
           </div>
         </div>
       )}
 
       {tab === "gallery" && (
         <div className="space-y-5">
-          <DrivePdfImporter
-            projectId={project!.id}
-            onImported={() => setFileRefreshKey((k) => k + 1)}
-          />
           <div className="rounded-xl border border-portal-border bg-portal-surface p-5">
             <h2 className="font-semibold text-portal-text mb-4 text-sm">Portfolio Gallery</h2>
-            <p className="text-xs text-portal-text-muted mb-4">Manage gallery images shown on the public portfolio page for this project.</p>
-            <GalleryManager key={fileRefreshKey} projectId={project!.id} />
+            <GalleryManager key={fileRefreshKey} projectId={project.id} onChanged={() => void load()} />
           </div>
+          <DrivePdfImporter
+            projectId={project.id}
+            onImported={() => setFileRefreshKey((k) => k + 1)}
+          />
         </div>
       )}
 
       {tab === "messages" && profile && (
-        <MessageThread projectId={project!.id} currentUserId={profile.id} currentUserRole="ADMIN" />
+        <MessageThread projectId={project.id} currentUserId={profile.id} currentUserRole="ADMIN" />
       )}
 
       {tab === "deliverables" && (
-        <DeliverablesTab projectId={project!.id} role="ADMIN" />
+        <DeliverablesTab projectId={project.id} role="ADMIN" />
       )}
 
       {tab === "billing" && (
         <BillingTab
-          projectId={project!.id}
+          projectId={project.id}
           role="ADMIN"
           onCreateQuote={() => setShowQuote(true)}
           onCreateInvoice={() => setShowInvoice(true)}
@@ -278,23 +284,23 @@ export default function AdminProjectDetail() {
 
       {showEdit && (
         <ProjectFormModal
-          editProject={project as any}
+          editProject={project}
           onClose={() => setShowEdit(false)}
           onSaved={() => { setShowEdit(false); load(); }}
         />
       )}
       {showAssign && (
         <StaffAssignModal
-          projectId={project!.id}
-          projectTitle={project!.title}
+          projectId={project.id}
+          projectTitle={project.title}
           onClose={() => { setShowAssign(false); load(); }}
         />
       )}
       {showQuote && (
-        <QuoteModal projectId={project!.id} onClose={() => setShowQuote(false)} onSaved={() => { setShowQuote(false); }} />
+        <QuoteModal projectId={project.id} onClose={() => setShowQuote(false)} onSaved={() => { setShowQuote(false); }} />
       )}
       {showInvoice && (
-        <InvoiceModal projectId={project!.id} onClose={() => setShowInvoice(false)} onSaved={() => { setShowInvoice(false); }} />
+        <InvoiceModal projectId={project.id} onClose={() => setShowInvoice(false)} onSaved={() => { setShowInvoice(false); }} />
       )}
     </PortalLayout>
   );

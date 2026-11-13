@@ -234,8 +234,8 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
 
     try {
       if (editProject) {
-        const { error: err } = await supabase.from("projects").update(payload).eq("id", editProject.id);
-        if (err) { finishWithError(friendlyErrorMessage(err)); return; }
+        const { error: err, data: saved } = await supabase.from("projects").update(payload).eq("id", editProject.id).select("id").single();
+        if (err || !saved) { finishWithError(friendlyErrorMessage(err ?? new Error("Project couldn't be saved."))); return; }
         if (profile) {
           await writeAuditLog({
             actor_id: profile.id, action: "project_updated", entity_type: "project",
@@ -269,6 +269,7 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
       }
 
       toast.dismiss(toastId);
+      toast.success(editProject ? "Project updated" : "Project created");
       setSaving(false);
       onSaved({ created: !editProject });
     } catch (err) {
@@ -304,15 +305,15 @@ export function ProjectFormModal({ editProject, onClose, onSaved, onError }: Pro
           {tab === "project" ? (
             <>
               <div className="space-y-1.5">
-                <Label className="text-portal-text-muted">Title *</Label>
-                <Input value={form.title} onChange={(e) => handleTitleChange(e.target.value)}
+                <Label htmlFor="project-title" className="text-portal-text-muted">Title *</Label>
+                <Input id="project-title" value={form.title} onChange={(e) => handleTitleChange(e.target.value)}
                   className="bg-portal-bg border-portal-border text-portal-text" placeholder="Project title" />
                 {fieldErrors.title && <p className="text-xs text-destructive">{fieldErrors.title}</p>}
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-portal-text-muted">Description</Label>
-                <textarea value={form.description} onChange={(e) => set("description", e.target.value)} rows={3}
+                <Label htmlFor="project-description" className="text-portal-text-muted">Description</Label>
+                <textarea id="project-description" value={form.description} onChange={(e) => set("description", e.target.value)} rows={3}
                   className="w-full rounded-md border border-portal-border bg-portal-bg px-3 py-2 text-sm text-portal-text placeholder:text-portal-text-muted focus:outline-none focus:ring-1 focus:ring-portal-accent"
                   placeholder="Optional description…" />
               </div>

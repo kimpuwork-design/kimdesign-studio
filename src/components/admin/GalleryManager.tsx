@@ -5,12 +5,13 @@ import { validateFile } from "@/lib/validation";
 import { friendlyErrorMessage } from "@/lib/errors";
 import { moveGalleryImage } from "@/lib/gallery-management";
 import { useToast } from "@/hooks/use-toast";
-import { ImagePlus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Replace, Save, ImageIcon } from "lucide-react";
+import { ImagePlus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Replace, Save, ImageIcon, Pencil } from "lucide-react";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AnimatePresence } from "framer-motion";
 import { CinematicLightbox } from "@/components/media/CinematicLightbox";
+import { ImageOverlayEditor } from "@/components/admin/ImageOverlayEditor";
 
 interface GalleryImage {
   id: string;
@@ -29,6 +30,7 @@ export function GalleryManager({ projectId, onChanged }: Props) {
   const busyRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [editorImage, setEditorImage] = useState<string | null>(null);
   const uploadRef = useRef<HTMLInputElement>(null);
   const replaceRef = useRef<HTMLInputElement>(null);
   const replacement = useRef<string | null>(null);
@@ -149,6 +151,7 @@ export function GalleryManager({ projectId, onChanged }: Props) {
                   <Button variant="outline" size="icon" className="h-11 w-11" disabled={busy || index === 0} title="Move earlier" aria-label={`Move image ${index + 1} earlier`} onClick={() => void reorder(index, index - 1)}><ArrowUp /></Button>
                   <Button variant="outline" size="icon" className="h-11 w-11" disabled={busy || index === images.length - 1} title="Move later" aria-label={`Move image ${index + 1} later`} onClick={() => void reorder(index, index + 1)}><ArrowDown /></Button>
                   <Button variant="outline" size="icon" className="h-11 w-11" disabled={busy} title="Replace image" aria-label={`Replace image ${index + 1}`} onClick={() => { replacement.current = img.id; replaceRef.current?.click(); }}><Replace /></Button>
+                  <Button variant="outline" size="icon" className="h-11 w-11" disabled={busy} title="Edit image" aria-label={`Edit image ${index + 1}`} onClick={() => setEditorImage(img.image_url)}><Pencil /></Button>
                   <Button variant="destructive" size="icon" className="h-11 w-11" disabled={busy} title="Remove image" aria-label={`Remove image ${index + 1}`} onClick={() => {
                     if (!confirm("Remove this image from the project gallery?")) return;
                     void run(async () => {
@@ -164,6 +167,7 @@ export function GalleryManager({ projectId, onChanged }: Props) {
         </Droppable>
       </DragDropContext>
       <AnimatePresence>{lightbox !== null && images.length > 0 && <CinematicLightbox images={images} startIndex={lightbox} onClose={() => setLightbox(null)} />}</AnimatePresence>
+      {editorImage && <ImageOverlayEditor imageUrl={editorImage} onClose={() => setEditorImage(null)} />}
     </div>
   );
 }

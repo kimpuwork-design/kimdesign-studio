@@ -1248,6 +1248,54 @@ export type Database = {
         }
         Relationships: []
       }
+      settings_public: {
+        Row: {
+          address: string | null
+          behance_url: string | null
+          created_at: string | null
+          cv_url: string | null
+          facebook_url: string | null
+          hero_portrait_url: string | null
+          hero_role: string | null
+          hero_status: string | null
+          id: string | null
+          instagram_url: string | null
+          logo_url: string | null
+          studio_name: string | null
+          tagline: string | null
+        }
+        Insert: {
+          address?: string | null
+          behance_url?: string | null
+          created_at?: string | null
+          cv_url?: string | null
+          facebook_url?: string | null
+          hero_portrait_url?: string | null
+          hero_role?: string | null
+          hero_status?: string | null
+          id?: string | null
+          instagram_url?: string | null
+          logo_url?: string | null
+          studio_name?: string | null
+          tagline?: string | null
+        }
+        Update: {
+          address?: string | null
+          behance_url?: string | null
+          created_at?: string | null
+          cv_url?: string | null
+          facebook_url?: string | null
+          hero_portrait_url?: string | null
+          hero_role?: string | null
+          hero_status?: string | null
+          id?: string | null
+          instagram_url?: string | null
+          logo_url?: string | null
+          studio_name?: string | null
+          tagline?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       generate_invoice_number: { Args: never; Returns: string }

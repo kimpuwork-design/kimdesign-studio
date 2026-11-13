@@ -12,7 +12,7 @@ export function AssetPrefetcher() {
     // We only prefetch the actual URL that will be used.
     // Logic matches Home.tsx PortraitHero component.
     Promise.all([
-      supabase.from("settings").select("hero_portrait_url").maybeSingle(),
+      supabase.from("settings_public").select("hero_portrait_url").maybeSingle(),
       supabase.from("site_content").select("content").eq("section", "about_me").maybeSingle()
     ]).then(([settingsRes, aboutRes]) => {
       const settings = settingsRes.data;

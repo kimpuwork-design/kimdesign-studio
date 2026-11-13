@@ -36,6 +36,13 @@
       "when": 1794373100866,
       "tag": "0004_atomic_project_gallery_management",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794575569952,
+      "tag": "0005_restrict_settings_and_validate_leads",
+      "breakpoints": true
     }
   ]
 }

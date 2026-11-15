@@ -132,7 +132,7 @@
     @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     letter-spacing: -0.011em;
-    font-feature-settings: "cv11", "ss01", "ss03";
+    font-feature-settings: "cv11";
   }
 
   h1, h2, h3, h4 {

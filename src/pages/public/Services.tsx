@@ -8,6 +8,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { FadeUp, StaggerContainer, StaggerItem } from "@/components/motion/MotionWrappers";
 import { SectionLabel } from "@/components/SectionLabel";
+import { ProjectBriefAssistant } from "@/components/public/ProjectBriefAssistant";
 
 const ICON_MAP: Record<string, any> = { Building2, Ruler, Leaf, PenTool, FileText, Lightbulb };
 
@@ -93,6 +94,8 @@ export default function Services() {
             </div>
           </section>
         )}
+
+        <ProjectBriefAssistant />
 
         {/* CTA */}
         <section className="border-t border-border/30">

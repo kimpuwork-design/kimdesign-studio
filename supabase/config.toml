@@ -14,3 +14,5 @@ verify_jwt = false
 
 [functions.import-drive-pdf]
 verify_jwt = false
+[functions.project-brief-assistant]
+verify_jwt = false

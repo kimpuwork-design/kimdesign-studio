@@ -7,3 +7,4 @@
 
 - Photo viewers use Radix modal dialogs for focus containment/restoration and shared gallery-keyboard navigation for image selection; native button activation remains intact.
 - Unified project galleries use RLS-enforced, security-invoker transactions for full-order saves and image replacement, so failed saves cannot leave partial ordering or a mismatched cover; replacing an image preserves its ID, caption and position.
+- The public AI project brief assistant runs in the project-brief-assistant edge function, reads the live services_full list for recommendations, and hands its brief to Contact via router state so visitors still submit through the validated leads form.

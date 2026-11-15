@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Mail, Phone, MapPin, ArrowRight, CheckCircle2, Clock, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
@@ -38,6 +39,15 @@ export default function Contact() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+
+  // Prefill from the AI project brief on the Services page.
+  const location = useLocation();
+  useEffect(() => {
+    const st = location.state as { briefMessage?: string; projectType?: string } | null;
+    if (st?.briefMessage) {
+      setForm((f) => ({ ...f, message: st.briefMessage!.slice(0, 2000), projectType: st.projectType ?? f.projectType }));
+    }
+  }, [location.state]);
 
   const set = (field: string, value: string) => {
     setForm((f) => ({ ...f, [field]: value }));
@@ -211,6 +221,7 @@ export default function Contact() {
                         <select id="projectType" value={form.projectType} onChange={(e) => set("projectType", e.target.value)}
                           className="w-full rounded-2xl border border-foreground/10 bg-background/50 backdrop-blur-xl px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-transparent h-11 peer">
                           <option value="">{t("contact_select_type")}</option>
+                          {form.projectType && !projectTypes.includes(form.projectType) && <option value={form.projectType}>{form.projectType}</option>}
                           {projectTypes.map((pt) => <option key={pt} value={pt}>{pt}</option>)}
                         </select>
                         <div className="hidden peer-focus:scale-x-100 transition-transform duration-500 origin-left" aria-hidden="true" />

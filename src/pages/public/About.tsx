@@ -62,11 +62,6 @@ export default function About() {
                 {storyParagraphs.slice(Math.ceil(storyParagraphs.length / 2)).map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
-                <div className="pt-4">
-                  <Button variant="outline" className="rounded-full tracking-[0.12em] text-xs uppercase px-8 h-11 border-foreground/20 hover:bg-foreground hover:text-background transition-colors" asChild>
-                    <Link to="/contact">{t("about_get_in_touch")} <ArrowRight size={12} className="ml-2" /></Link>
-                  </Button>
-                </div>
               </div>
             </SlideIn>
           </div>
@@ -156,11 +151,11 @@ export default function About() {
 
       {/* ── CTA ── */}
       <section className="border-t border-border/30 relative z-10 bg-muted/10">
-        <div className="container py-20 md:py-32">
+        <div className="container py-16 md:py-24">
           <FadeUp>
             <div className="max-w-3xl mx-auto text-center">
               <SectionLabel text="Collaborate" className="justify-center" />
-              <h2 className="font-display text-4xl md:text-6xl lg:text-7xl text-foreground leading-[1.05]">
+              <h2 className="font-display text-3xl md:text-5xl text-foreground leading-[1.05]">
                 {page.cta_title ?? "Let's build something meaningful."}
               </h2>
               <p className="mt-6 text-muted-foreground text-lg font-light leading-[1.8]">{page.cta_description ?? "We're always open to new conversations and collaborations."}</p>

@@ -60,7 +60,7 @@ export default function Home() {
       .eq("is_public", true)
       .order("is_featured", { ascending: false })
       .order("created_at", { ascending: false })
-      .limit(6)
+      .limit(3)
       .then(({ data }) => {
         if (data) setFeaturedProjects(data);
       });
@@ -77,8 +77,6 @@ export default function Home() {
         <SelectedWork projects={featuredProjects} t={t} />
 
         <ExpertiseSection services={content.services_home ?? []} t={t} />
-
-        <NarrativeSection aboutMe={content.about_me ?? {}} t={t} />
 
         <ContactCTA settings={settings} />
       </main>
@@ -161,14 +159,13 @@ function PortraitHero({
 
       <div className="relative mx-auto grid min-h-[calc(92svh-5rem)] max-w-[1360px] grid-cols-1 px-5 sm:px-8 lg:min-h-[calc(92svh-6rem)] lg:grid-cols-12 lg:px-12">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease }} className="relative z-20 flex flex-col justify-center pb-12 pt-12 lg:col-span-6 lg:pb-28 lg:pt-8">
-          <p className="mb-6 text-xs font-bold uppercase tracking-normal text-hero-foreground">Hi, I’m {ownerName}</p>
           <h1 className="max-w-[760px] font-display text-[clamp(3.1rem,7.2vw,7.1rem)] font-bold uppercase leading-[0.91] tracking-normal text-hero-foreground">
              I’m { /^[aeiou]/i.test(role.trim()) ? "an" : "a" }<br />{headingRole}
           </h1>
           {introduction && (
             <>
-              <p className="mt-7 max-w-[540px] text-sm leading-7 text-hero-muted line-clamp-5 sm:line-clamp-none sm:text-base lg:mt-8 lg:text-lg">{introduction}</p>
-              <Link to="/about" className="mt-2 text-xs font-bold uppercase text-hero-foreground underline-offset-4 hover:underline sm:hidden">Read more</Link>
+              <p className="mt-7 max-w-[540px] text-sm leading-7 text-hero-muted line-clamp-4 sm:text-base lg:mt-8 lg:text-lg">{introduction}</p>
+              <Link to="/about" className="mt-3 w-fit text-xs font-bold uppercase text-hero-foreground underline-offset-4 hover:underline">Read more</Link>
             </>
           )}
           <div className="mt-9 flex flex-wrap items-center gap-6 lg:mt-11">
@@ -212,12 +209,12 @@ function ExpertiseSection({ services, t }: { services: any[]; t: any }) {
   if (!services || services.length === 0) return null;
 
   return (
-    <section className="py-20 md:py-32 bg-muted/5 border-t border-border/30">
+    <section className="py-16 md:py-24 bg-muted/10 border-t border-border/30">
       <div className="container">
-        <div className="max-w-4xl mb-16 md:mb-24">
+        <div className="max-w-3xl mb-10 md:mb-14">
           <SectionLabel text={t("home_what_we_do")} />
           <FadeUp>
-            <h2 className="font-display text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] text-foreground">
+            <h2 className="font-display text-[clamp(1.8rem,4vw,3.25rem)] leading-[1.08] text-foreground">
               We design spaces that <span className="text-primary italic">resonate</span> with their environment and purpose.
             </h2>
           </FadeUp>
@@ -226,8 +223,8 @@ function ExpertiseSection({ services, t }: { services: any[]; t: any }) {
         <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-border/20 border border-border/20">
           {services.map((service, i) => (
             <StaggerItem key={service.title || i}>
-              <div className="bg-background p-10 md:p-14 h-full group hover:bg-card transition-colors duration-500">
-                <span className="font-display text-4xl text-border/40 group-hover:text-primary/20 transition-colors duration-500 block mb-8">
+              <div className="bg-background p-8 md:p-10 h-full group hover:bg-card transition-colors duration-500">
+                <span className="font-display text-2xl text-muted-foreground/40 block mb-5">
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <h3 className="font-display text-2xl text-foreground mb-4 group-hover:text-primary transition-colors duration-300">
@@ -250,13 +247,13 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
   if (!projects || projects.length === 0) return null;
 
   return (
-    <section className="py-20 md:py-32 border-t border-border/30 overflow-hidden">
+    <section className="py-16 md:py-24 overflow-hidden">
       <div className="container">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-16 md:mb-24">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 md:mb-14">
           <div className="max-w-2xl">
             <SectionLabel text={t("home_selected_work")} />
             <FadeUp>
-              <h2 className="font-display text-[clamp(2.4rem,6vw,5.5rem)] leading-[0.95] text-foreground tracking-tighter">
+              <h2 className="font-display text-[clamp(2rem,4.5vw,3.75rem)] leading-[1] text-foreground tracking-tighter">
                 Architecture that tells a <span className="text-primary italic">story</span>.
               </h2>
             </FadeUp>
@@ -269,22 +266,20 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
           </FadeUp>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14 md:gap-x-12 md:gap-y-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 lg:gap-8">
           {projects.map((project, i) => {
-            const lead = i === 0;
-            const ratio = lead ? "16 / 10" : "4 / 5";
             return (
-            <FadeUp key={project.id} delay={Math.min(i, 3) * 0.08} className={lead ? "md:col-span-2 lg:col-span-2" : ""}>
+            <FadeUp key={project.id} delay={Math.min(i, 3) * 0.08} >
               <Link to={project.slug ? `/portfolio/${project.slug}` : `/projects/${project.id}`} className="group block">
-                  <div className={`${lead ? "aspect-[16/10]" : "aspect-[4/5]"} overflow-hidden rounded-[1.5rem] ring-1 ring-border/40 bg-muted relative mb-6`}>
+                  <div className={`aspect-[4/3] overflow-hidden rounded-[1.5rem] ring-1 ring-border/40 bg-muted relative mb-6`}>
                     {project.thumbnail_url ? (
                       <ProgressiveImage
                         src={project.thumbnail_url}
                         alt={project.title}
-                        aspectRatio={ratio}
+                        aspectRatio="4 / 3"
                         eager={i < 2}
                         priority={i === 0}
-                        thumbWidth={lead ? 1400 : 800}
+                        thumbWidth={900}
                         className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
                         wrapperClassName="size-full"
                       />
@@ -301,14 +296,13 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
                     </div>
                   </div>
                 <div className="flex items-start gap-5">
-                  <span className="font-display text-sm text-muted-foreground tabular-nums pt-1.5">{String(i + 1).padStart(2, "0")}</span>
                   <div className="min-w-0">
                     {project.category && (
                       <span className="mb-2 block text-[10px] tracking-[0.25em] uppercase text-primary font-bold">
                         {project.category}
                       </span>
                     )}
-                    <h3 className={`font-display ${lead ? "text-3xl md:text-4xl" : "text-2xl"} text-foreground group-hover:text-primary transition-colors leading-tight`}>
+                    <h3 className={`font-display text-2xl text-foreground group-hover:text-primary transition-colors leading-tight`}>
                       {project.title}
                     </h3>
                     {project.location && (
@@ -329,68 +323,16 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
   );
 }
 
-/* ───────────── NARRATIVE SECTION ───────────── */
-function NarrativeSection({ aboutMe, t }: { aboutMe: any; t: any }) {
-  return (
-    <section className="py-20 md:py-32 bg-muted/5 border-t border-border/30">
-      <div className="container">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
-          <div className="lg:col-span-5 order-2 lg:order-1">
-            <div className="relative aspect-[3/4] overflow-hidden rounded-[2rem]">
-              <ProgressiveImage
-                src={aboutMe?.profile_image_url || undefined}
-                alt="Studio Narrative"
-                aspectRatio="3 / 4"
-                thumbWidth={900}
-                className="h-full w-full object-cover"
-                wrapperClassName="size-full"
-              />
-            </div>
-          </div>
-          
-          <div className="lg:col-span-7 order-1 lg:order-2">
-            <SectionLabel text={t("about_the_studio")} />
-            <FadeUp>
-              <h2 className="font-display text-[clamp(2.2rem,5vw,4.75rem)] leading-[0.98] text-foreground mb-10 tracking-tighter">
-                Crafting timeless environments that <span className="text-primary italic">inspire</span> human connection.
-              </h2>
-            </FadeUp>
-            <FadeUp delay={0.2}>
-              <div className="space-y-6 text-muted-foreground leading-[1.85] max-w-xl">
-                {aboutMe?.quote && (
-                  <p className="font-display text-xl md:text-2xl text-foreground/90 italic leading-snug">
-                    “{aboutMe.quote}”
-                  </p>
-                )}
-                <p>{cleanProse(aboutMe?.bio_secondary) || cleanProse(aboutMe?.bio_main)}</p>
-                {aboutMe?.bio_tertiary && (
-                  <p className="text-[15px]">{cleanProse(aboutMe.bio_tertiary)}</p>
-                )}
-              </div>
-            </FadeUp>
-            <FadeUp delay={0.4} className="mt-12">
-              <Link to="/about" className="inline-flex items-center gap-4 bg-foreground text-background px-10 h-14 tracking-[0.2em] text-[11px] uppercase font-bold hover:bg-primary hover:text-primary-foreground transition-colors">
-                {t("home_learn_more")}
-                <ArrowRight size={14} />
-              </Link>
-            </FadeUp>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 /* ───────────── CONTACT CTA ───────────── */
 function ContactCTA({ settings }: { settings: any }) {
   const email = settings?.contact_email || settings?.email;
   const phone = settings?.contact_phone || settings?.phone;
   return (
     <section className="bg-hero text-hero-foreground">
-      <div className="container py-20 md:py-28 grid gap-10 lg:grid-cols-12 lg:items-end">
+      <div className="container py-16 md:py-24 grid gap-10 lg:grid-cols-12 lg:items-end">
         <div className="lg:col-span-8">
           <p className="mb-5 text-xs font-bold uppercase text-hero-faint">Start a project</p>
-          <h2 className="font-display text-[clamp(2.2rem,5.5vw,4.75rem)] font-bold uppercase leading-[0.95]">
+          <h2 className="font-display text-[clamp(2rem,4.5vw,3.75rem)] font-bold uppercase leading-[0.95]">
             Have a space in mind?<br />Let’s design it together.
           </h2>
         </div>

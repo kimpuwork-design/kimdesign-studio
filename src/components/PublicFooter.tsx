@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
-import { Mail, Instagram, Phone, MapPin, ArrowRight, ArrowUpRight } from "lucide-react";
+import { Mail, Instagram, Phone, MapPin, ArrowUpRight } from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
 import { KMonogramLogo } from "@/components/KMonogramLogo";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { motion } from "framer-motion";
-import { FadeUp } from "@/components/motion/MotionWrappers";
 
 const NAV_KEYS = [
   { key: "nav_projects", href: "/portfolio" },
@@ -14,32 +13,6 @@ const NAV_KEYS = [
 ];
 
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
-
-function FooterCTA({ t }: { t: (k: string) => string }) {
-  return (
-    <section className="relative">
-      <div className="container py-16 md:py-24 text-center">
-        <p className="text-[9px] tracking-[0.4em] uppercase text-primary mb-5 font-mono-label">
-          {t("footer_cta_title") !== "footer_cta_title" ? t("footer_cta_title") : "Start a conversation"}
-        </p>
-        <FadeUp>
-          <h2 className="font-display text-[clamp(2rem,6vw,4.5rem)] leading-[0.95] text-foreground">
-            Let's build together.
-          </h2>
-        </FadeUp>
-        <FadeUp delay={0.15}>
-          <div className="flex justify-center mt-9">
-            <Link to="/contact"
-              className="group inline-flex items-center gap-3 border border-foreground/15 px-10 py-4 text-[11px] tracking-[0.2em] uppercase font-medium text-foreground hover:bg-foreground hover:text-background transition-colors duration-300">
-              {t("footer_get_in_touch") !== "footer_get_in_touch" ? t("footer_get_in_touch") : "Get in Touch"}
-              <ArrowRight size={13} />
-            </Link>
-          </div>
-        </FadeUp>
-      </div>
-    </section>
-  );
-}
 
 export function PublicFooter() {
   const { settings } = useSettings();
@@ -55,9 +28,7 @@ export function PublicFooter() {
   const behance = settings?.behance_url;
 
   return (
-    <footer className="border-t border-border/40 bg-background">
-      <FooterCTA t={t} />
-
+    <footer className="bg-background">
       {/* Main footer */}
       <div className="border-t border-border/30">
         <div className="container py-14 md:py-20">

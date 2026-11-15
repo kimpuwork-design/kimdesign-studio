@@ -50,7 +50,7 @@ function GalleryImageCard({ img, idx, onClick }: { img: { id: string; url: strin
 
 
         {/* Index badge */}
-        <span className="absolute top-3 left-3 z-[2] font-mono-label text-[9px] tracking-[0.2em] text-background/90 bg-foreground/40 backdrop-blur-md rounded-full px-2.5 py-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-focus-visible:opacity-100 transition-opacity duration-300 tabular-nums">
+        <span className="absolute top-3 left-3 z-[2] font-mono-label text-[11px] tracking-[0.2em] text-background/90 bg-foreground/40 backdrop-blur-md rounded-full px-2.5 py-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-focus-visible:opacity-100 transition-opacity duration-300 tabular-nums">
           {String(idx + 1).padStart(2, "0")}
         </span>
 
@@ -567,7 +567,7 @@ export default function PortfolioDetail() {
                         <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-50 group-hover:opacity-80 transition-opacity duration-500" />
                         <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6">
                           {r.category && (
-                            <span className="text-[9px] tracking-[0.2em] uppercase text-background/50 block mb-2">
+                            <span className="text-[11px] tracking-[0.2em] uppercase text-background/50 block mb-2">
                               {r.category}
                             </span>
                           )}

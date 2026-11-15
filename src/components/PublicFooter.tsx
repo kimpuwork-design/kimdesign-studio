@@ -45,7 +45,7 @@ export function PublicFooter() {
                 )}
                 <span className="font-display text-[15px] text-foreground font-medium">{studioName}</span>
               </div>
-              <p className="text-[13px] text-muted-foreground leading-relaxed max-w-[240px]">{tagline}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-[240px]">{tagline}</p>
               <div className="flex items-center gap-1.5 mt-6">
                 {[
                   email ? { href: `mailto:${email}`, label: "Email", icon: Mail } : null,
@@ -77,7 +77,7 @@ export function PublicFooter() {
 
             {/* Navigation */}
             <div>
-              <p className="text-[9px] tracking-[0.35em] uppercase text-muted-foreground/50 mb-5 font-mono-label">{t("footer_navigate")}</p>
+              <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground/70 mb-5 font-mono-label">{t("footer_navigate")}</p>
               <nav className="flex flex-col gap-2.5">
                 {NAV_KEYS.map((l, i) => (
                   <motion.div
@@ -87,7 +87,7 @@ export function PublicFooter() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: i * 0.05, ease }}
                   >
-                    <Link to={l.href} className="text-[13px] text-muted-foreground hover:text-foreground transition-colors w-fit link-underline inline-block">
+                    <Link to={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors w-fit link-underline inline-block">
                       {t(l.key)}
                     </Link>
                   </motion.div>
@@ -97,24 +97,24 @@ export function PublicFooter() {
 
             {/* Contact */}
             <div>
-              <p className="text-[9px] tracking-[0.35em] uppercase text-muted-foreground/50 mb-5 font-mono-label">
+              <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground/70 mb-5 font-mono-label">
                 {t("footer_contact") !== "footer_contact" ? t("footer_contact") : "Contact"}
               </p>
               <div className="space-y-3">
                 {email && (
-                  <a href={`mailto:${email}`} className="flex items-start gap-2 text-[13px] text-muted-foreground hover:text-foreground transition-colors">
+                  <a href={`mailto:${email}`} className="flex items-start gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                     <Mail size={12} className="mt-0.5 shrink-0" />
                     <span className="break-all">{email}</span>
                   </a>
                 )}
                 {phone && (
-                  <a href={`tel:${phone}`} className="flex items-start gap-2 text-[13px] text-muted-foreground hover:text-foreground transition-colors">
+                  <a href={`tel:${phone}`} className="flex items-start gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                     <Phone size={12} className="mt-0.5 shrink-0" />
                     <span>{phone}</span>
                   </a>
                 )}
                 {address && (
-                  <div className="flex items-start gap-2 text-[13px] text-muted-foreground">
+                  <div className="flex items-start gap-2 text-sm text-muted-foreground">
                     <MapPin size={12} className="mt-0.5 shrink-0" />
                     <span>{address}</span>
                   </div>

@@ -121,7 +121,7 @@ function PortraitHero({
   return (
     <section className="relative min-h-[92svh] overflow-hidden bg-hero text-hero-foreground">
       <header className="relative z-30 mx-auto flex h-20 max-w-[1360px] items-center justify-between px-5 sm:px-8 lg:h-24 lg:px-12">
-        <Link to="/" className="font-display text-base font-bold uppercase tracking-normal sm:text-lg" aria-label={`${studioName} home`}>
+        <Link to="/" className="font-display text-base font-bold uppercase tracking-[-0.01em] sm:text-lg" aria-label={`${studioName} home`}>
           {studioName}
         </Link>
 
@@ -159,12 +159,12 @@ function PortraitHero({
 
       <div className="relative mx-auto grid min-h-[calc(92svh-5rem)] max-w-[1360px] grid-cols-1 px-5 sm:px-8 lg:min-h-[calc(92svh-6rem)] lg:grid-cols-12 lg:px-12">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease }} className="relative z-20 flex flex-col justify-center pb-12 pt-12 lg:col-span-6 lg:pb-28 lg:pt-8">
-          <h1 className="max-w-[760px] font-display text-[clamp(3.1rem,7.2vw,7.1rem)] font-bold uppercase leading-[0.91] tracking-normal text-hero-foreground">
+          <h1 className="max-w-[760px] font-display text-[clamp(3.1rem,7.2vw,7.1rem)] font-bold uppercase leading-[0.9] tracking-[-0.04em] text-hero-foreground">
              I’m { /^[aeiou]/i.test(role.trim()) ? "an" : "a" }<br />{headingRole}
           </h1>
           {introduction && (
             <>
-              <p className="mt-7 max-w-[540px] text-sm leading-7 text-hero-muted line-clamp-4 sm:text-base lg:mt-8 lg:text-lg">{introduction}</p>
+              <p className="mt-7 max-w-[540px] text-[15px] leading-[1.75] text-hero-muted line-clamp-4 sm:text-base lg:mt-8 lg:text-[17px]">{introduction}</p>
               <Link to="/about" className="mt-3 w-fit text-xs font-bold uppercase text-hero-foreground underline-offset-4 hover:underline">Read more</Link>
             </>
           )}
@@ -188,16 +188,16 @@ function PortraitHero({
             <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.5, ease }} className="mb-2 text-[11px] font-bold uppercase tracking-[0.3em] text-hero-foreground/90 drop-shadow-[0_1px_8px_rgba(0,0,0,0.6)]">
               {role}
             </motion.p>
-            <motion.h2 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6, ease }} className="font-display text-[clamp(2rem,4.5vw,3.75rem)] font-bold uppercase leading-[0.95] tracking-normal text-hero-foreground drop-shadow-[0_2px_12px_rgba(0,0,0,0.55)]">
+            <motion.h2 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6, ease }} className="font-display text-[clamp(2rem,4.5vw,3.75rem)] font-bold uppercase leading-[0.95] tracking-[-0.03em] text-hero-foreground drop-shadow-[0_2px_12px_rgba(0,0,0,0.55)]">
               {ownerName}
             </motion.h2>
           </div>
         </motion.div>
 
         <div className="relative z-20 col-span-full grid grid-cols-1 gap-5 border-t border-hero-border py-6 text-xs sm:grid-cols-3 lg:absolute lg:inset-x-12 lg:bottom-0 lg:py-7">
-          <div><span className="block uppercase text-hero-faint">Availability</span><strong className="mt-1 block font-medium text-hero-foreground">{status || "Available for selected projects"}</strong></div>
-          <div><span className="block uppercase text-hero-faint">Location</span><strong className="mt-1 block font-medium text-hero-foreground">{address || "Myanmar / Worldwide"}</strong></div>
-          <div><span className="block uppercase text-hero-faint">Practice</span><strong className="mt-1 block font-medium text-hero-foreground">Architecture · Interiors · Visualization</strong></div>
+          <div><span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-hero-faint">Availability</span><strong className="mt-1 block font-medium text-hero-foreground">{status || "Available for selected projects"}</strong></div>
+          <div><span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-hero-faint">Location</span><strong className="mt-1 block font-medium text-hero-foreground">{address || "Myanmar / Worldwide"}</strong></div>
+          <div><span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-hero-faint">Practice</span><strong className="mt-1 block font-medium text-hero-foreground">Architecture · Interiors · Visualization</strong></div>
         </div>
       </div>
     </section>
@@ -259,7 +259,7 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
             </FadeUp>
           </div>
           <FadeUp delay={0.2}>
-            <Link to="/portfolio" className="group inline-flex items-center gap-3 text-sm tracking-[0.2em] uppercase text-foreground py-2 border-b border-foreground/10 hover:border-primary transition-colors">
+            <Link to="/portfolio" className="group inline-flex items-center gap-3 text-xs font-semibold tracking-[0.18em] uppercase text-foreground py-2 border-b border-foreground/10 hover:border-primary transition-colors">
               {t("home_all_projects")}
               <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </Link>
@@ -298,7 +298,7 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
                 <div className="flex items-start gap-5">
                   <div className="min-w-0">
                     {project.category && (
-                      <span className="mb-2 block text-[10px] tracking-[0.25em] uppercase text-primary font-bold">
+                      <span className="mb-2 block text-[11px] tracking-[0.18em] uppercase text-primary font-semibold">
                         {project.category}
                       </span>
                     )}

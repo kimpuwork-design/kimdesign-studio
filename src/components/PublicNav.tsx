@@ -202,7 +202,7 @@ export function PublicNav() {
                   className="flex items-center justify-center gap-2 w-full py-4 bg-primary text-primary-foreground text-[11px] tracking-[0.2em] uppercase font-medium">
                   {t("nav_contact")} <ArrowRight size={12} />
                 </Link>
-                <p className="text-center text-[9px] tracking-[0.35em] uppercase text-background/15 font-mono-label">
+                <p className="text-center text-[11px] font-semibold tracking-[0.2em] uppercase text-background/15 font-mono-label">
                   {studioName}
                 </p>
               </motion.div>

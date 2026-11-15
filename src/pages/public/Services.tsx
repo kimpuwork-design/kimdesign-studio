@@ -57,7 +57,7 @@ export default function Services() {
                           <Icon size={20} className="text-primary" />
                         </div>
                         {service.stage && (
-                          <p className="text-[9px] tracking-[0.3em] uppercase text-primary/60 mb-3 font-mono-label">{service.stage}</p>
+                          <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-primary/60 mb-3 font-mono-label">{service.stage}</p>
                         )}
                         <h2 className="font-display text-2xl md:text-3xl text-foreground mb-4">{service.title}</h2>
                         <p className="text-sm text-muted-foreground leading-[1.9]">{service.desc}</p>

@@ -25,7 +25,7 @@ export function SectionLabel({ text, className = "", delay = 0 }: SectionLabelPr
         style={{ transformOrigin: "left" }}
         className="h-px w-8 bg-primary/60"
       />
-      <span className="text-[9px] tracking-[0.4em] uppercase text-primary font-mono-label">
+      <span className="text-[11px] font-semibold tracking-[0.22em] uppercase text-primary font-mono-label">
         {text}
       </span>
     </motion.div>

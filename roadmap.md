@@ -15,3 +15,4 @@
 - [ ] Diagnose Myanmar-only access failure — needs the affected network's browser error message and ISP/provider name from the user; the test network is not in Myanmar.
 
 - [x] AI project brief assistant on Services page (visitors describe needs → suggested service + brief → prefilled contact form)
+- [x] Polish pass (keep current style): AI brief assistant, Home, Projects/images, Admin panel

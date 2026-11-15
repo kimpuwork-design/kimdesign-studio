@@ -7,7 +7,7 @@ import { useSiteContent } from "@/hooks/useSiteContent";
 import { useSEO } from "@/hooks/useSEO";
 
 import { useTranslation } from "@/i18n/LanguageContext";
-import { FadeUp, StaggerContainer, StaggerItem, SlideIn, ImageReveal } from "@/components/motion/MotionWrappers";
+import { FadeUp, StaggerContainer, StaggerItem, SlideIn } from "@/components/motion/MotionWrappers";
 import { SectionLabel } from "@/components/SectionLabel";
 import { motion } from "framer-motion";
 
@@ -125,7 +125,6 @@ export default function About() {
               {team.map((p: any) => (
                 <StaggerItem key={p.name}>
                   <div className="group" data-cursor-hover data-cursor-label="View">
-                    <ImageReveal>
                       <div className="overflow-hidden aspect-[3/4] relative">
                         {p.image_url ? (
                           <img src={p.image_url} alt={p.name} className="h-full w-full object-cover group-hover:scale-[1.04] transition-transform [transition-duration:1000ms] ease-out" />
@@ -136,7 +135,6 @@ export default function About() {
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       </div>
-                    </ImageReveal>
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       whileInView={{ opacity: 1, y: 0 }}

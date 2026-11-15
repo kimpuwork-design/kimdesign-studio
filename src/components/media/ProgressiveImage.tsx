@@ -91,6 +91,13 @@ export function ProgressiveImage({
     return () => { cancelled = true; };
   }, [resolvedSrc, onReady]);
 
+  // Drop the skeleton once the fade-in finishes, even if the <img> load event fired before decode resolved.
+  useEffect(() => {
+    if (!decoded) return;
+    const t = window.setTimeout(() => setSkeletonMounted(false), reduceMotion ? 0 : 850);
+    return () => window.clearTimeout(t);
+  }, [decoded, reduceMotion]);
+
   const wrapperStyle: React.CSSProperties = aspectRatio
     ? { aspectRatio }
     : {};

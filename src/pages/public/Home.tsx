@@ -11,6 +11,7 @@ import {
   Accessibility,
   ArrowRight,
   ArrowUpRight,
+  Sparkles,
 } from "lucide-react";
 
 import { PublicFooter } from "@/components/PublicFooter";
@@ -21,7 +22,7 @@ import { useTranslation } from "@/i18n/LanguageContext";
 import { ArchitectureBusinessJsonLd } from "@/components/JsonLd";
 import { ProgressiveImage } from "@/components/media/ProgressiveImage";
 import { SectionLabel } from "@/components/SectionLabel";
-import { FadeUp, StaggerContainer, StaggerItem, ImageReveal } from "@/components/motion/MotionWrappers";
+import { FadeUp, StaggerContainer, StaggerItem } from "@/components/motion/MotionWrappers";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -164,7 +165,12 @@ function PortraitHero({
           <h1 className="max-w-[760px] font-display text-[clamp(3.1rem,7.2vw,7.1rem)] font-bold uppercase leading-[0.91] tracking-normal text-hero-foreground">
              I’m { /^[aeiou]/i.test(role.trim()) ? "an" : "a" }<br />{headingRole}
           </h1>
-          {introduction && <p className="mt-7 max-w-[540px] text-sm leading-7 text-hero-muted sm:text-base lg:mt-8 lg:text-lg">{introduction}</p>}
+          {introduction && (
+            <>
+              <p className="mt-7 max-w-[540px] text-sm leading-7 text-hero-muted line-clamp-5 sm:line-clamp-none sm:text-base lg:mt-8 lg:text-lg">{introduction}</p>
+              <Link to="/about" className="mt-2 text-xs font-bold uppercase text-hero-foreground underline-offset-4 hover:underline sm:hidden">Read more</Link>
+            </>
+          )}
           <div className="mt-9 flex flex-wrap items-center gap-6 lg:mt-11">
             <Button asChild variant="outline" size="lg" className="h-12 shrink-0 rounded-full liquid-glass-dark bg-transparent px-7 text-xs font-bold uppercase tracking-normal text-hero-foreground hover:bg-hero-foreground hover:text-hero">
               <Link to="/portfolio">View my projects <ArrowRight size={15} /></Link>
@@ -270,14 +276,15 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
             return (
             <FadeUp key={project.id} delay={Math.min(i, 3) * 0.08} className={lead ? "md:col-span-2 lg:col-span-2" : ""}>
               <Link to={project.slug ? `/portfolio/${project.slug}` : `/projects/${project.id}`} className="group block">
-                <ImageReveal>
-                  <div className={`${lead ? "aspect-[16/10]" : "aspect-[4/5]"} overflow-hidden bg-muted relative mb-6`}>
+                  <div className={`${lead ? "aspect-[16/10]" : "aspect-[4/5]"} overflow-hidden rounded-[1.5rem] ring-1 ring-border/40 bg-muted relative mb-6`}>
                     {project.thumbnail_url ? (
                       <ProgressiveImage
                         src={project.thumbnail_url}
                         alt={project.title}
                         aspectRatio={ratio}
                         eager={i < 2}
+                        priority={i === 0}
+                        thumbWidth={lead ? 1400 : 800}
                         className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
                         wrapperClassName="size-full"
                       />
@@ -293,7 +300,6 @@ function SelectedWork({ projects, t }: { projects: any[]; t: any }) {
                       <ArrowUpRight size={18} className="text-foreground" />
                     </div>
                   </div>
-                </ImageReveal>
                 <div className="flex items-start gap-5">
                   <span className="font-display text-sm text-muted-foreground tabular-nums pt-1.5">{String(i + 1).padStart(2, "0")}</span>
                   <div className="min-w-0">
@@ -330,11 +336,12 @@ function NarrativeSection({ aboutMe, t }: { aboutMe: any; t: any }) {
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
           <div className="lg:col-span-5 order-2 lg:order-1">
-            <div className="relative aspect-[3/4] overflow-hidden">
+            <div className="relative aspect-[3/4] overflow-hidden rounded-[2rem]">
               <ProgressiveImage
                 src={aboutMe?.profile_image_url || undefined}
                 alt="Studio Narrative"
                 aspectRatio="3 / 4"
+                thumbWidth={900}
                 className="h-full w-full object-cover"
                 wrapperClassName="size-full"
               />
@@ -391,6 +398,7 @@ function ContactCTA({ settings }: { settings: any }) {
           <Button asChild variant="outline" size="lg" className="h-12 rounded-full liquid-glass-dark bg-transparent px-7 text-xs font-bold uppercase text-hero-foreground hover:bg-hero-foreground hover:text-hero">
             <Link to="/contact">Contact me <ArrowRight size={15} /></Link>
           </Button>
+          <Link to="/services#brief" className="inline-flex items-center gap-2 text-sm text-hero-muted hover:text-hero-foreground"><Sparkles size={14} aria-hidden />Not sure what you need? Get an AI project brief</Link>
           {email && <a href={`mailto:${email}`} className="flex items-center gap-2 text-sm text-hero-muted hover:text-hero-foreground"><Mail size={14} />{email}</a>}
           {phone && <a href={`tel:${phone}`} className="flex items-center gap-2 text-sm text-hero-muted hover:text-hero-foreground"><PhoneIcon size={14} />{phone}</a>}
         </div>

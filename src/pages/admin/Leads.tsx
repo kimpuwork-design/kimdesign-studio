@@ -12,13 +12,14 @@ import { writeAuditLog } from "@/lib/audit";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Search, Trash2, Eye, ChevronLeft, ChevronRight, Inbox,
-  Archive, CheckCircle2, Download,
+  Archive, CheckCircle2, Download, Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getAiBriefService, sanitizeLeadSearch } from "@/lib/leads";
 
 interface Lead {
   id: string;
@@ -56,11 +57,13 @@ export default function AdminLeads() {
       .range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
 
     if (statusFilter !== "all") query = query.eq("status", statusFilter);
-    if (search.trim()) {
-      query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
+    const term = sanitizeLeadSearch(search);
+    if (term) {
+      query = query.or(`name.ilike.%${term}%,email.ilike.%${term}%,message.ilike.%${term}%`);
     }
 
-    const { data, count } = await query;
+    const { data, count, error } = await query;
+    if (error) toast.error("Couldn't load leads", { description: error.message });
     setLeads((data as Lead[]) ?? []);
     setTotal(count ?? 0);
     setLoading(false);
@@ -74,7 +77,13 @@ export default function AdminLeads() {
   const handleDelete = async (lead: Lead) => {
     if (!confirm(`Delete lead from ${lead.name}?`)) return;
     setDeleting(lead.id);
-    await supabase.from("leads").delete().eq("id", lead.id);
+    const { error } = await supabase.from("leads").delete().eq("id", lead.id);
+    if (error) {
+      setDeleting(null);
+      toast.error("Couldn't delete lead", { description: error.message });
+      return;
+    }
+    toast.success("Lead deleted");
     if (profile) await writeAuditLog({
       actor_id: profile.id, action: "lead_deleted", entity_type: "lead",
       metadata: { name: lead.name },
@@ -234,6 +243,14 @@ export default function AdminLeads() {
                       </td>
                       <td className="px-4 py-3">
                         <p className="font-medium text-portal-text text-xs">{lead.name}</p>
+                        {(() => {
+                          const ai = getAiBriefService(lead.message);
+                          return ai ? (
+                            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-portal-accent/15 px-2 py-0.5 text-[10px] font-medium text-portal-accent" title="Sent from the AI project brief">
+                              <Sparkles size={10} aria-hidden /> AI brief · {ai}
+                            </span>
+                          ) : null;
+                        })()}
                         {lead.phone && <p className="text-[10px] text-portal-text-muted mt-0.5">{lead.phone}</p>}
                       </td>
                       <td className="px-4 py-3 text-portal-text-muted text-xs">{lead.email}</td>
@@ -247,6 +264,7 @@ export default function AdminLeads() {
                             onClick={() => setSelectedLead(lead)}
                             className="rounded-md p-1.5 text-portal-text-muted hover:bg-portal-surface hover:text-portal-text transition-colors"
                             title="View"
+                            aria-label={`View lead from ${lead.name}`}
                           >
                             <Eye size={14} />
                           </button>
@@ -255,6 +273,7 @@ export default function AdminLeads() {
                             disabled={deleting === lead.id}
                             className="rounded-md p-1.5 text-portal-text-muted hover:bg-destructive/15 hover:text-destructive transition-colors"
                             title="Delete"
+                            aria-label={`Delete lead from ${lead.name}`}
                           >
                             <Trash2 size={14} />
                           </button>

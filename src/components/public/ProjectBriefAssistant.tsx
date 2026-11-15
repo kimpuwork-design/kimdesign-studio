@@ -1,6 +1,7 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, Loader2, ArrowRight, RotateCcw, CheckCircle2, HelpCircle, Package } from "lucide-react";
+import { Sparkles, Loader2, ArrowRight, RotateCcw, CheckCircle2, HelpCircle, Package, Copy, Check } from "lucide-react";
+import { toast } from "sonner";
 import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -22,10 +23,19 @@ export type ProjectBrief = {
 };
 
 const MIN = 20;
+const STORAGE_KEY = "kim-brief-assistant";
+
+function readSaved(): { needs?: string; brief?: ProjectBrief | null } | null {
+  try { return JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? "null"); } catch { return null; }
+}
 const MAX = 2000;
 
 const COPY: Record<Language, Record<string, string>> = {
   en: {
+    examples: JSON.stringify(["New family house", "Condo interior renovation", "Small café or shop", "3D renders for my design"]),
+    copy: "Copy brief",
+    copied: "Brief copied",
+    sec: "s",
     label: "AI Project Brief",
     title: "Not sure which service you need?",
     intro: "Describe your project in your own words — the space, location, style and what you hope for. Our AI assistant suggests the right service and drafts a project brief you can send to the studio.",
@@ -47,6 +57,10 @@ const COPY: Record<Language, Record<string, string>> = {
     err_unavailable: "The assistant is temporarily unavailable. You can still contact the studio directly.",
   },
   my: {
+    examples: JSON.stringify(["မိသားစုအိမ်သစ်", "ကွန်ဒို အတွင်းပိုင်း ပြင်ဆင်ခြင်း", "ကော်ဖီဆိုင် / ဆိုင်ခန်းငယ်", "ကျွန်ုပ်ဒီဇိုင်းအတွက် 3D ပုံများ"]),
+    copy: "အကျဉ်းချုပ် ကူးယူမယ်",
+    copied: "ကူးယူပြီးပါပြီ",
+    sec: "စက္ကန့်",
     label: "AI ပရောဂျက်အကျဉ်းချုပ်",
     title: "ဘယ်ဝန်ဆောင်မှု လိုအပ်လဲ မသေချာဘူးလား?",
     intro: "သင့်ပရောဂျက်အကြောင်း — နေရာ၊ တည်နေရာ၊ ပုံစံနဲ့ လိုချင်တာတွေကို ကိုယ့်စကားနဲ့ ရေးပါ။ AI က သင့်တော်တဲ့ဝန်ဆောင်မှုကို အကြံပြုပြီး စတူဒီယိုကို ပို့နိုင်မယ့် ပရောဂျက်အကျဉ်းချုပ် ရေးပေးပါမယ်။",
@@ -68,6 +82,10 @@ const COPY: Record<Language, Record<string, string>> = {
     err_unavailable: "AI ကို ယာယီ အသုံးမပြုနိုင်ပါ။ စတူဒီယိုကို တိုက်ရိုက် ဆက်သွယ်နိုင်ပါတယ်။",
   },
   zo: {
+    examples: JSON.stringify(["Innkuan inn thak", "Condo sungsiah bawlphat", "Café/dawr neucik", "Ka design adingin 3D render"]),
+    copy: "Brief copy in",
+    copied: "Copy zo hi",
+    sec: "s",
     label: "AI Project Brief",
     title: "Service bang na kisam hiam na theih kei maw?",
     intro: "Na project tawh kisai — mun, place, style le na deih te na kammal tawh gelh in. AI in na kisap service genkhia in studio-ah na khak theih ding project brief a gelh sak ding hi.",
@@ -109,11 +127,47 @@ export function ProjectBriefAssistant() {
   const { language } = useTranslation();
   const c = COPY[language] ?? COPY.en;
   const navigate = useNavigate();
-  const [needs, setNeeds] = useState("");
-  const [brief, setBrief] = useState<ProjectBrief | null>(null);
+  const [needs, setNeeds] = useState(() => readSaved()?.needs ?? "");
+  const [brief, setBrief] = useState<ProjectBrief | null>(() => readSaved()?.brief ?? null);
   const [loading, setLoading] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+  const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const examples: string[] = JSON.parse(c.examples);
+
+  // Keep the visitor's text and brief when they go to Contact and come back.
+  useEffect(() => {
+    try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ needs, brief })); } catch { /* storage unavailable */ }
+  }, [needs, brief]);
+
+  // Support links such as /services#brief from the Home page.
+  useEffect(() => {
+    if (window.location.hash === "#brief") {
+      requestAnimationFrame(() => sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!loading) return;
+    setElapsed(0);
+    const id = window.setInterval(() => setElapsed((n) => n + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [loading]);
+
+  const copyBrief = async () => {
+    if (!brief) return;
+    const text = [briefToMessage(brief, needs.trim()), "", ...brief.deliverables.map((d) => `• ${d}`)].join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      toast.success(c.copied);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error(c.err_failed);
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,7 +205,7 @@ export function ProjectBriefAssistant() {
   };
 
   return (
-    <section className="border-t border-border/30 py-16 md:py-24" aria-labelledby="brief-assistant-title">
+    <section ref={sectionRef} id="brief" className="scroll-mt-24 border-t border-border/30 py-16 md:py-24" aria-labelledby="brief-assistant-title">
       <div className="container">
         <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
           <div className="lg:col-span-5">
@@ -179,8 +233,17 @@ export function ProjectBriefAssistant() {
                   />
                   <p id="brief-count" className="text-right text-[11px] text-muted-foreground/70 tabular-nums">{needs.length}/{MAX}</p>
                 </div>
+                <div className="flex flex-wrap gap-2" aria-label="Examples">
+                  {examples.map((ex) => (
+                    <button key={ex} type="button" disabled={loading}
+                      onClick={() => { setNeeds((n) => (n.trim() ? `${n.trim()} ${ex}` : ex)); setError(null); document.getElementById("brief-needs")?.focus(); }}
+                      className="rounded-full border border-border/60 bg-background/60 px-3.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50">
+                      + {ex}
+                    </button>
+                  ))}
+                </div>
                 {error && <p id="brief-error" role="alert" className="text-sm text-destructive">{error}</p>}
-                {loading && <p role="status" className="text-sm text-muted-foreground">{c.loading}</p>}
+                {loading && <p role="status" className="text-sm text-muted-foreground">{c.loading} <span className="tabular-nums" aria-hidden>{elapsed}{c.sec}</span></p>}
                 <Button type="submit" disabled={loading} className="rounded-full px-8 h-12 tracking-[0.12em] text-xs uppercase w-full sm:w-auto">
                   {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden /> : <Sparkles className="mr-2 h-4 w-4" aria-hidden />}
                   {c.submit}
@@ -207,7 +270,10 @@ export function ProjectBriefAssistant() {
                   <Button onClick={sendToStudio} className="rounded-full px-8 h-12 tracking-[0.12em] text-xs uppercase">
                     {c.send} <ArrowRight size={14} className="ml-2" aria-hidden />
                   </Button>
-                  <Button variant="outline" onClick={() => setBrief(null)} className="rounded-full px-6 h-12 text-xs uppercase tracking-[0.12em]">
+                  <Button variant="outline" onClick={copyBrief} className="rounded-full px-6 h-12 text-xs uppercase tracking-[0.12em]">
+                    {copied ? <Check size={14} className="mr-2" aria-hidden /> : <Copy size={14} className="mr-2" aria-hidden />} {c.copy}
+                  </Button>
+                  <Button variant="ghost" onClick={() => setBrief(null)} className="rounded-full px-6 h-12 text-xs uppercase tracking-[0.12em]">
                     <RotateCcw size={14} className="mr-2" aria-hidden /> {c.again}
                   </Button>
                 </div>
